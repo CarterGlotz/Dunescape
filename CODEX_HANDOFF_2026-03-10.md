@@ -8,14 +8,14 @@
 
 ## Public frontend
 
-- Slug: `dunescape` (always lowercase)
+- Slug: `dunescape`
 - URL: `https://vaultsparkstudios.com/dunescape/`
-- Hosted via: `VaultSparkStudios/VaultSparkStudios.github.io` at `/dunescape/`
+- Hosted via: own-repo GitHub Pages (`VaultSparkStudios/dunescape`)
 
 ## Backend origins
 
-- Gameplay/socket: `https://play-dunescape.vaultsparkstudios.com`
-- API: `https://api-dunescape.vaultsparkstudios.com`
+- Gameplay/socket: `https://play-dunescape.vaultsparkstudios.com` (not yet provisioned)
+- API: `https://api-dunescape.vaultsparkstudios.com` (not yet provisioned)
 
 ## Deployment model
 
@@ -23,17 +23,18 @@
 - Because the repo name is lowercase (`dunescape`) and the org has a custom domain,
   Pages is automatically served at `https://vaultsparkstudios.com/dunescape/`.
 - No cross-repo sync or `STUDIO_SITE_TOKEN` required.
-- **One-time setup required:** repo Settings → Pages → Source → GitHub Actions.
 
 ## Workflow files
 
 - `.github/workflows/ci.yml` — build on push/PR
-- `.github/workflows/deploy-pages.yml` — studio-site-sync deploy
+- `.github/workflows/deploy-pages.yml` — own-repo Pages deploy
 
-## Required GitHub setup
+## GitHub setup status
 
-- Settings → Pages → Source: **GitHub Actions** (one-time)
-- No secrets or variables required for Pages deployment
+- ✅ Repo renamed to `dunescape` (lowercase) on GitHub
+- ✅ Local remote updated to `https://github.com/VaultSparkStudios/dunescape.git`
+- ✅ Pages source set to GitHub Actions
+- ✅ Deploy confirmed live — run 22934660220, 18s, success
 
 ## What was completed this session
 
@@ -46,24 +47,23 @@
 - 15 decorative cacti objects (click-passthrough)
 - Ground item labels (emoji + item name)
 - Rocky ground detail (pebbles + crack lines)
-- Updated `vite.config.js` base to `process.env.VITE_APP_BASE_PATH || "/dunescape/"`
-- Added `build:pages` script and `scripts/postbuild-pages.mjs`
-- Added `.github/workflows/deploy-pages.yml` (studio-site-sync)
+- Updated `vite.config.js` base to use `VITE_APP_BASE_PATH` env var
+- Added `build:pages` script and `scripts/postbuild-pages.mjs` (SPA 404 fallback)
+- Added `.github/workflows/deploy-pages.yml` (own-repo Pages, not studio-site-sync)
 - Added `.github/workflows/ci.yml`
 - Added `AGENTS.md` with Studio System Template
 - Added `docs/` with local copies of all studio standard docs
+- Updated all studio deployment docs: own-repo Pages model, lowercase repo names
+- Switched deployment from studio-site-sync to own-repo Pages
 
 ## Known issues / next steps
 
-- **Set Pages source to GitHub Actions** in repo Settings → Pages (one-time manual step).
-- Rename repo from `Dunescape` → `dunescape` on GitHub (Settings → General).
-- Studio site `index.html`: add Dunescape card to `Vault-Forged` section
-  at `/dunescape/` after the first successful bundle sync.
-- `deploy.yml` (old GitHub Pages workflow) should be removed or disabled
-  once `deploy-pages.yml` is confirmed working.
-- No backend runtime configured yet for `play-dunescape` or `api-dunescape`.
+- Studio site `index.html`: add Dunescape card to `Vault-Forged` section at `/dunescape/`
+- No backend runtime configured yet for `play-dunescape` or `api-dunescape`
+- Node.js 20 deprecation warnings in workflow — upgrade actions before June 2026
 
 ## Last validation
 
-- Local dev: `npm run dev` — confirmed working
-- Local build: `npm run build` — confirmed working
+- CI: ✅ passing
+- Deploy Pages: ✅ run 22934660220 — success, 18s
+- Live URL: `https://vaultsparkstudios.com/dunescape/`
