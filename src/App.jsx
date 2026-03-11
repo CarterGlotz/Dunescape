@@ -3,12 +3,18 @@ import { useState, useEffect, useRef, useCallback } from "react";
 const TILE=32,MW=100,MH=100,VTX=17,VTY=14,CW=VTX*TILE,CH=VTY*TILE;
 const T={G:0,D:1,W:2,S:3,SA:4,WF:5,WA:6,BR:7,PA:8,DG:9,LAVA:10,DESERT:11};
 const TC={
-  [T.G]:["#3a7d2a","#358525","#3d8230","#39792c"],[T.D]:["#8a7a5a","#7e7050","#887858"],
-  [T.W]:["#2855a0","#2a5aaa","#2650a5"],[T.S]:["#6a6a6a","#626262","#707070"],
-  [T.SA]:["#c8b878","#c4b470","#ccbc80"],[T.WF]:["#6a5030","#654a2c"],
-  [T.WA]:["#4a4a4a","#454545"],[T.BR]:["#5a4020","#553a1c"],
-  [T.PA]:["#9a8a60","#948458","#a09068"],[T.DG]:["#2a5a20","#256a1c","#1e5018"],
-  [T.LAVA]:["#c03010","#b02808","#d04020"],[T.DESERT]:["#d4b870","#ccb068","#dcc078"],
+  [T.G]:["#9a2808","#8a2005","#a83010","#922510"],   // Red rocky ground (main terrain)
+  [T.D]:["#7a3818","#6a2e10","#84401e"],              // Reddish-brown dirt (towns)
+  [T.W]:["#1a2848","#182240","#1c2e50"],              // Dark deep water
+  [T.S]:["#4a3828","#3e3020","#543e2e"],              // Dark reddish stone
+  [T.SA]:["#c8a840","#c0a030","#d4b450"],             // Warm sand
+  [T.WF]:["#6a3818","#5a3010"],                       // Reddish adobe floor
+  [T.WA]:["#2a1408","#241005"],                       // Dark red stone walls
+  [T.BR]:["#9a7840","#8a6c38"],                       // Sandy stone bridge
+  [T.PA]:["#b89040","#ae8838","#c29848"],             // Sandy packed path
+  [T.DG]:["#4a1005","#3e0c03","#541408"],             // Dark rocky region (shadow)
+  [T.LAVA]:["#c03010","#b02808","#d04020"],           // Lava
+  [T.DESERT]:["#d4b870","#ccb068","#dcc078"],         // Sandy desert
 };
 
 const SKILLS=["Attack","Strength","Defence","Hitpoints","Ranged","Prayer","Magic","Cooking","Woodcutting","Fishing","Mining","Smithing","Crafting","Firemaking","Agility","Thieving"];
@@ -141,6 +147,9 @@ function genObjs(map){
   o.push({t:"spawn",x:38,y:32,id:nid(),hp:1,mhp:1,item:"milk",rsp:30000});
   // Agility obstacles
   [[32,72],[35,72],[38,72],[41,72]].forEach(([x,y],i)=>o.push({t:"agility",x,y,id:nid(),hp:1,mhp:1,sub:["log","rocks","net","ledge"][i],xp:15+i*10,lvl:1+i*5}));
+  // Cacti (decorative — desert & sandy areas)
+  [[70,37],[75,40],[78,44],[72,48],[76,52],[57,50],[60,53],[65,52],[73,51],[77,38]].forEach(([x,y])=>o.push({t:"cactus",x,y,hp:1,mhp:1,id:nid()}));
+  [[56,20],[65,19],[67,25],[66,30],[64,33]].forEach(([x,y])=>o.push({t:"cactus",x,y,hp:1,mhp:1,id:nid()}));
   return o;
 }
 
@@ -153,7 +162,7 @@ function genNPCs(){
     {t:"npc",x:18,y:11,nm:"Banker",c:"#888",dlg:["Welcome to the Bank of Varrock.","Click a bank booth to open your bank."],id:5,bank:true},
     {t:"npc",x:24,y:11,nm:"Shopkeeper",c:"#a84",dlg:["Welcome to my shop!"],id:6,shop:true},
     {t:"npc",x:40,y:25,nm:"Barbarian",c:"#a64",dlg:["We are the Barbarians!","Strong warriors live here.","Prove yourself in combat!"],id:7},
-    {t:"npc",x:62,y:42,nm:"Ali",c:"#da8",dlg:["Welcome to Al Kharid!","The desert is dangerous...","But rich with treasure!"],id:8},
+    {t:"npc",x:62,y:42,nm:"Ali",c:"#da8",dlg:["Welcome to Al Kharid!","The desert is dangerous...","Prove yourself: slay 3 Scorpions.","Return to me when done."],id:8,quest:"desert"},
     {t:"npc",x:34,y:74,nm:"Agility Trainer",c:"#58a",dlg:["Welcome to the Agility course!","Click obstacles to train Agility.","Higher levels = faster movement!"],id:9},
     {t:"npc",x:17,y:15,nm:"Guard",c:"#666",dlg:["Move along."],id:10,guard:true},
   ];
@@ -184,14 +193,21 @@ const SHOP_ITEMS=[
 
 const COOK_RECIPES={raw_shrimp:{out:"shrimp",burnt:"burnt",xp:30,lvl:1},raw_trout:{out:"trout",burnt:"burnt",xp:70,lvl:15},raw_salmon:{out:"salmon",burnt:"burnt",xp:90,lvl:25},raw_lobster:{out:"lobster",burnt:"burnt",xp:120,lvl:40}};
 
-export default function RS(){
-  const cvR=useRef(null),gR=useRef(null),fR=useRef(null);
+const SMITH_RECIPES={
+  bronze_bar:[{out:"bronze_sword",xp:12},{out:"bronze_shield",xp:12},{out:"bronze_helm",xp:12},{out:"bronze_legs",xp:12},{out:"bronze_axe",xp:12},{out:"bronze_pick",xp:12}],
+  iron_bar:[{out:"iron_sword",xp:25},{out:"iron_shield",xp:25},{out:"iron_helm",xp:25},{out:"iron_legs",xp:25},{out:"iron_axe",xp:25},{out:"iron_pick",xp:25}],
+  steel_bar:[{out:"steel_sword",xp:37},{out:"steel_shield",xp:37},{out:"steel_helm",xp:37},{out:"steel_legs",xp:37},{out:"steel_axe",xp:37},{out:"steel_pick",xp:37}],
+};
+
+export default function DS(){
+  const cvR=useRef(null),gR=useRef(null),fR=useRef(null),smithQueueR=useRef(null);
   const [tab,setTab]=useState("inv");
-  const [chat,setChat]=useState(["Welcome to RuneScape!","Left-click to interact. Right-click for options.","Try chopping trees or fighting monsters!"]);
+  const [chat,setChat]=useState(["Welcome to Dunescape!","Left-click to interact. Right-click for options.","Try chopping trees or fighting monsters!"]);
   const [,fr]=useState(0);
   const [ctx_menu,setCtx]=useState(null);
   const [bankOpen,setBankOpen]=useState(false);
   const [shopOpen,setShopOpen]=useState(false);
+  const [smithOpen,setSmithOpen]=useState(false);
   const chatR=useRef([]);chatR.current=chat;
 
   const addC=useCallback(m=>{const c=[...chatR.current.slice(-100),m];setChat(c);},[]);
@@ -206,7 +222,7 @@ export default function RS(){
         eq:{weapon:null,shield:null,head:null,body:null,legs:null,ring:null},
         bank:[{i:"coins",c:200}],
         act:null,actTm:0,actTgt:null,cmb:null,at:0,as:2400,face:"s",run:false,runE:100,
-        style:0,quests:{cook:0},totalXp:0,
+        style:0,quests:{cook:0,desert:0},desertKills:0,totalXp:0,
       },
       cam:{x:0,y:0},tk:0,lt:Date.now(),dlg:null,dlgL:0,rspQ:[],
       fx:[],  // visual effects: xp drops, hit splats, level ups
@@ -216,6 +232,9 @@ export default function RS(){
     g.p.hp=lvl(g.p.sk.Hitpoints);g.p.mhp=g.p.hp;
     g.p.prayer=lvl(g.p.sk.Prayer);g.p.maxPrayer=g.p.prayer;
     gR.current=g;
+
+    // Load saved state
+    try{const sv=localStorage.getItem("dunescape_save");if(sv){const sp=JSON.parse(sv);const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests.desert)p2.quests.desert=0;if(!p2.desertKills)p2.desertKills=0;addC("Save loaded. Welcome back!");}}catch(e){}
 
     const cv=cvR.current,c=cv.getContext("2d");
 
@@ -300,6 +319,7 @@ export default function RS(){
       // Ground items
       for(const gi of g.groundItems)if(gi.x===tx&&gi.y===ty){doAction("pickup",gi);return;}
       for(const o of g.objects)if(o.x===tx&&o.y===ty&&o.hp>0){
+        if(o.t==="cactus")continue;
         if(o.t==="tree")doAction("chop",o);else if(o.t==="rock")doAction("mine",o);else if(o.t==="fish")doAction("fish",o);
         else if(o.t==="range")doAction("cook",o);else if(o.t==="furnace")doAction("smelt",o);else if(o.t==="anvil")doAction("smith",o);
         else if(o.t==="altar")doAction("pray",o);else if(o.t==="bank")doAction("bank",o);else if(o.t==="shop")doAction("shop",o);
@@ -374,20 +394,25 @@ export default function RS(){
                   addC("✅ Quest complete: Cook's Assistant!");addC("Reward: 300 Cooking XP, 500 coins.");
                 }
               }
+            if(at.npc.quest==="desert"){
+              if(p.quests.desert===0){p.quests.desert=1;p.desertKills=0;addC("📜 Quest started: Desert Vow! Slay 3 Scorpions.");}
+              else if(p.quests.desert===1&&p.desertKills>=3){p.quests.desert=2;giveXp("Mining",200);addI("coins",300);addC("✅ Quest complete: Desert Vow!");addC("Reward: 200 Mining XP, 300 coins.");}
+              else if(p.quests.desert===1){addC("Keep going! Scorpions slain: "+p.desertKills+"/3.");}
+            }
             }
             else if(at.type==="gather"){
               const obj=at.obj;faceTarget(obj.x,obj.y);
               if(obj.hp<=0){p.actTgt=null;return;}
               const gt=at.gatherType;
-              if(gt==="chop")addC("You swing your axe at the tree...");
-              else if(gt==="mine")addC("You swing your pickaxe at the rock...");
+              if(gt==="chop"){const hasAxe=p.inv.some(x=>ITEMS[x.i]?.wc)||(p.eq.weapon&&ITEMS[p.eq.weapon]?.wc);if(!hasAxe){addC("You need an axe to chop trees.");p.act=null;p.actTgt=null;return;}addC("You swing your axe at the tree...");}
+              else if(gt==="mine"){const hasPick=p.inv.some(x=>ITEMS[x.i]?.mine)||(p.eq.weapon&&ITEMS[p.eq.weapon]?.mine);if(!hasPick){addC("You need a pickaxe to mine rocks.");p.act=null;p.actTgt=null;return;}addC("You swing your pickaxe at the rock...");}
               else if(gt==="fish")addC("You cast your net into the water...");
               p.act="gathering";p.actTm=0;
             }
             else if(at.type==="attack"){p.cmb=at.mon;p.at=0;p.act="combat";faceTarget(at.mon.x,at.mon.y);addC("You attack the "+at.mon.nm+".");}
             else if(at.type==="cook"){faceTarget(at.obj.x,at.obj.y);p.act="cooking";p.actTm=0;}
             else if(at.type==="smelt"){faceTarget(at.obj.x,at.obj.y);p.act="smelting";p.actTm=0;}
-            else if(at.type==="smith"){faceTarget(at.obj.x,at.obj.y);p.act="smithing";p.actTm=0;}
+            else if(at.type==="smith"){faceTarget(at.obj.x,at.obj.y);setSmithOpen(true);p.actTgt=null;}
             else if(at.type==="pray"){p.prayer=p.maxPrayer;addC("You recharge your Prayer.");p.actTgt=null;}
             else if(at.type==="bank"){setBankOpen(true);p.actTgt=null;}
             else if(at.type==="shop"){setShopOpen(true);p.actTgt=null;}
@@ -448,11 +473,11 @@ export default function RS(){
         else if(hasI("iron")){remI("iron");if(Math.random()<0.5){addI("iron_bar",1);addC("You smelt an iron bar.");giveXp("Smithing",12);}else addC("The iron ore is impure...");}
         else{p.act=null;p.actTgt=null;addC("No ores to smelt.");}
       }}
-      // Smithing
-      if(p.act==="smithing"){p.actTm+=dt;if(p.actTm>=1800){p.actTm=0;
-        if(hasI("bronze_bar")){remI("bronze_bar");const items=["bronze_sword","bronze_shield","bronze_helm","bronze_legs"];const made=items[Math.floor(Math.random()*items.length)];addI(made,1);addC("You smith: "+ITEMS[made].n);giveXp("Smithing",12);}
-        else{p.act=null;p.actTgt=null;}
-      }}
+      // Smithing (queue from modal)
+      if(smithQueueR.current){const {bar,rec}=smithQueueR.current;smithQueueR.current=null;
+        if(hasI(bar)){remI(bar);if(addI(rec.out,1)){addC("You smith: "+ITEMS[rec.out].n);giveXp("Smithing",rec.xp);}}
+        else addC("You no longer have the required bar.");
+      }
       // Combat
       if(p.act==="combat"&&p.cmb){
         const mon=p.cmb;if(mon.dead){p.act=null;p.cmb=null;p.actTgt=null;return;}
@@ -467,6 +492,7 @@ export default function RS(){
             const maxH=Math.max(1,Math.floor((sl*0.22+wb.s*0.35+rb*0.3))+1);const hit=Math.floor(Math.random()*maxH)+1;
             mon.hp-=hit;addHitSplat(mon.x,mon.y,hit,false);
             if(mon.hp<=0){mon.dead=true;addC("You killed the "+mon.nm+"!");
+              if(p.quests.desert===1&&mon.nm==="Scorpion"){p.desertKills++;addC("Scorpions slain: "+p.desertKills+"/3.");}
               const styles=[["Attack",mon.xp*4],["Strength",mon.xp*4],["Defence",mon.xp*4]];
               const[sk2,xp2]=styles[p.style]||styles[0];giveXp(sk2,xp2);giveXp("Hitpoints",Math.ceil(mon.xp*1.33));
               mon.drops.forEach(d=>{if(Math.random()<d.c){const a=d.a?d.a[0]+Math.floor(Math.random()*(d.a[1]-d.a[0])):1;dropToGround(d.i,a,mon.x,mon.y);addC("Drop: "+ITEMS[d.i].n+(a>1?" x"+a:""));}});
@@ -500,6 +526,8 @@ export default function RS(){
       g.groundItems=g.groundItems.filter(gi=>gi.time>now);
       // Clean fires
       g.fires=g.fires.filter(f=>f.time>now);
+      // Auto-save every 60s
+      if(Math.floor(g.tk/60000)!==Math.floor((g.tk-dt)/60000)){try{localStorage.setItem("dunescape_save",JSON.stringify({sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE}));}catch(e){}}
       // Update FX
       g.fx=g.fx.filter(f=>{f.age+=dt;return f.age<f.life;});
       // Camera
@@ -513,11 +541,11 @@ export default function RS(){
       // Terrain
       for(let ty=0;ty<VTY+1;ty++)for(let tx=0;tx<VTX+1;tx++){
         const mx=cx+tx,my=cy+ty;
-        if(mx<0||mx>=MW||my<0||my>=MH){c.fillStyle="#111";c.fillRect(tx*TILE,ty*TILE,TILE,TILE);continue;}
+        if(mx<0||mx>=MW||my<0||my>=MH){c.fillStyle="#0d0403";c.fillRect(tx*TILE,ty*TILE,TILE,TILE);continue;}
         const t=map[my][mx],cols=TC[t]||["#333"];c.fillStyle=cols[(mx*7+my*13)%cols.length];c.fillRect(tx*TILE,ty*TILE,TILE,TILE);
-        // Grass details
-        if(t===T.G&&((mx*11+my*7)%17===0)){c.fillStyle="rgba(60,130,40,0.4)";c.fillRect(tx*TILE+8,ty*TILE+12,3,8);c.fillRect(tx*TILE+14,ty*TILE+10,3,10);c.fillRect(tx*TILE+22,ty*TILE+14,3,6);}
-        if(t===T.G&&((mx*13+my*11)%23===0)){c.fillStyle="#d44";c.beginPath();c.arc(tx*TILE+20,ty*TILE+20,2,0,6.28);c.fill();c.fillStyle="#44d";c.beginPath();c.arc(tx*TILE+10,ty*TILE+8,2,0,6.28);c.fill();}
+        // Rocky ground details (pebbles + cracks)
+        if(t===T.G&&((mx*11+my*7)%17===0)){c.fillStyle="rgba(140,50,15,0.55)";c.beginPath();c.arc(tx*TILE+10,ty*TILE+18,3,0,6.28);c.fill();c.beginPath();c.arc(tx*TILE+22,ty*TILE+12,2,0,6.28);c.fill();c.beginPath();c.arc(tx*TILE+16,ty*TILE+24,2.5,0,6.28);c.fill();}
+        if(t===T.G&&((mx*13+my*11)%23===0)){c.strokeStyle="rgba(60,15,5,0.45)";c.lineWidth=1;c.beginPath();c.moveTo(tx*TILE+8,ty*TILE+10);c.lineTo(tx*TILE+18,ty*TILE+20);c.stroke();c.beginPath();c.moveTo(tx*TILE+20,ty*TILE+8);c.lineTo(tx*TILE+26,ty*TILE+16);c.stroke();}
         // Desert details
         if(t===T.DESERT&&((mx*3+my*5)%11===0)){c.fillStyle="rgba(180,150,80,0.3)";c.fillRect(tx*TILE+5,ty*TILE+20,22,3);}
         // Water animation
@@ -532,8 +560,9 @@ export default function RS(){
       }
       // Ground items
       for(const gi of g.groundItems){const sx=(gi.x-cx)*TILE,sy=(gi.y-cy)*TILE;if(sx<-TILE||sx>CW+TILE||sy<-TILE||sy>CH+TILE)continue;
-        c.fillStyle="rgba(255,50,50,0.25)";c.fillRect(sx+8,sy+20,16,10);
+        c.fillStyle="rgba(255,120,0,0.2)";c.fillRect(sx+4,sy+16,24,16);
         c.font="14px sans-serif";c.textAlign="center";c.fillText(ITEMS[gi.i].i,sx+16,sy+28);
+        c.font="bold 7px sans-serif";c.fillStyle="#ffe080";c.fillText(ITEMS[gi.i].n.substring(0,10),sx+16,sy+38);
       }
       // Objects
       for(const o of g.objects){
@@ -545,16 +574,16 @@ export default function RS(){
         }
         if(o.t==="tree"){
           const shake=g.p.act==="gathering"&&g.p.actTgt?.obj===o?Math.sin(g.tk*0.02)*2:0;
-          c.fillStyle="#4a2a10";c.fillRect(sx+12+shake,sy+16,8,14);
-          c.fillStyle=o.sub==="oak"?"#2a6a18":o.sub==="willow"?"#3a7a30":o.sub==="yew"?"#1a5a20":"#2a8a18";
+          c.fillStyle="#6a3818";c.fillRect(sx+12+shake,sy+16,8,14);
+          c.fillStyle=o.sub==="oak"?"#5a6a18":o.sub==="willow"?"#4a7820":o.sub==="yew"?"#2a5010":"#4a7a1a";
           c.beginPath();c.arc(sx+16+shake,sy+10,o.sub==="yew"?16:14,0,6.28);c.fill();
-          c.fillStyle=o.sub==="oak"?"#358a22":o.sub==="willow"?"#4a9a40":o.sub==="yew"?"#2a7a2a":"#38a828";
+          c.fillStyle=o.sub==="oak"?"#6a7a22":o.sub==="willow"?"#5a8828":o.sub==="yew"?"#3a6018":"#5a8820";
           c.beginPath();c.arc(sx+12+shake,sy+8,o.sub==="yew"?10:8,0,6.28);c.fill();
         }
         if(o.t==="rock"){
           const rc=o.res==="copper"?"#a06028":o.res==="tin"?"#aaa":o.res==="iron"?"#8a5a3a":o.res==="coal"?"#3a3a3a":o.res==="gold_ore"?"#d4a030":"#4466aa";
           const shake=g.p.act==="gathering"&&g.p.actTgt?.obj===o?Math.sin(g.tk*0.03)*1.5:0;
-          c.fillStyle="#666";c.beginPath();c.arc(sx+16+shake,sy+18,12,0,6.28);c.fill();
+          c.fillStyle="#6a3820";c.beginPath();c.arc(sx+16+shake,sy+18,12,0,6.28);c.fill();
           c.fillStyle=rc;c.beginPath();c.arc(sx+13+shake,sy+15,6,0,6.28);c.fill();c.beginPath();c.arc(sx+21+shake,sy+19,5,0,6.28);c.fill();
         }
         if(o.t==="fish"){
@@ -575,6 +604,12 @@ export default function RS(){
           else if(o.sub==="net"){c.strokeStyle="#8a7a5a";c.lineWidth=1;for(let i=0;i<5;i++){c.beginPath();c.moveTo(sx+4+i*6,sy+4);c.lineTo(sx+4+i*6,sy+28);c.stroke();c.beginPath();c.moveTo(sx+4,sy+4+i*6);c.lineTo(sx+28,sy+4+i*6);c.stroke();}}
           else{c.fillRect(sx+4,sy+8,24,4);c.fillRect(sx+4,sy+20,24,4);}
           c.fillStyle="#4af";c.font="bold 7px sans-serif";c.textAlign="center";c.fillText(o.sub,sx+16,sy+32);
+        }
+        if(o.t==="cactus"){
+          c.fillStyle="#4a7a18";c.fillRect(sx+13,sy+6,6,22);
+          c.fillRect(sx+7,sy+14,6,4);c.fillRect(sx+19,sy+18,6,4);
+          c.fillRect(sx+6,sy+8,5,10);c.fillRect(sx+21,sy+12,5,8);
+          c.fillStyle="#5a8a22";c.fillRect(sx+14,sy+4,4,6);
         }
       }
       // Monsters
@@ -676,7 +711,7 @@ export default function RS(){
       c.fillStyle="rgba(0,0,0,0.8)";c.fillRect(mmx-2,mmy-2,ms+4,ms+4);c.strokeStyle="#5a4a30";c.lineWidth=1;c.strokeRect(mmx-2,mmy-2,ms+4,ms+4);
       const sc=ms/MW;
       for(let my=0;my<MH;my+=2)for(let mx=0;mx<MW;mx+=2){
-        const t=map[my][mx];c.fillStyle=t===T.W?"#2855a0":t===T.WA?"#555":t===T.S?"#6a6a6a":t===T.SA?"#c8b878":t===T.PA||t===T.D?"#8a7a5a":t===T.DG?"#1a4a12":t===T.DESERT?"#d4b870":t===T.LAVA?"#a02010":"#3a7a2a";
+        const t=map[my][mx];c.fillStyle=t===T.W?"#1a2848":t===T.WA?"#2a1408":t===T.S?"#4a3828":t===T.SA?"#c8a840":t===T.PA||t===T.D?"#7a3818":t===T.DG?"#3a0c03":t===T.DESERT?"#d4b870":t===T.LAVA?"#c03010":"#8a2005";
         c.fillRect(mmx+mx*sc,mmy+my*sc,Math.ceil(sc*2),Math.ceil(sc*2));
       }
       c.fillStyle="#fff";c.fillRect(mmx+p.x*sc-1,mmy+p.y*sc-1,3,3);
@@ -716,13 +751,14 @@ export default function RS(){
   function bankDepositAll(){if(!p)return;while(p.inv.length>0){const s=p.inv[0];const be=p.bank.find(b=>b.i===s.i);if(be)be.c+=s.c;else p.bank.push({i:s.i,c:s.c});p.inv.splice(0,1);}addC("All items deposited.");fr(n=>n+1);}
   function bankWithdraw(idx){if(!p)return;const s=p.bank[idx];if(!s)return;if(p.inv.length>=28&&!(ITEMS[s.i].s&&p.inv.find(x=>x.i===s.i))){addC("Inventory full.");return;}
     const d=ITEMS[s.i];if(d.s){const e=p.inv.find(x=>x.i===s.i);if(e)e.c+=s.c;else p.inv.push({i:s.i,c:s.c});p.bank.splice(idx,1);}else{p.inv.push({i:s.i,c:1});s.c--;if(s.c<=0)p.bank.splice(idx,1);}fr(n=>n+1);}
+  function doSmith(bar,rec){if(!p)return;smithQueueR.current={bar,rec};setSmithOpen(false);}
   function buyItem(si){if(!p)return;const coins=p.inv.find(x=>x.i==="coins");const have=coins?coins.c:0;if(have<si.cost){addC("Need "+si.cost+" coins.");return;}
     if(coins.c>si.cost)coins.c-=si.cost;else p.inv.splice(p.inv.indexOf(coins),1);
     if(ITEMS[si.i].s){const e=p.inv.find(x=>x.i===si.i);if(e){e.c++;return;}};if(p.inv.length>=28){addC("Inventory full.");return;}p.inv.push({i:si.i,c:1});addC("Bought: "+ITEMS[si.i].n);}
 
   const invSlots=[];
   if(p)for(let i=0;i<28;i++){const s=p.inv[i];const d=s?ITEMS[s.i]:null;const isLog=s&&["logs","oak_logs","willow_logs","yew_logs"].includes(s.i);
-    invSlots.push(<div key={i} style={{width:38,height:38,background:s?"rgba(80,70,50,0.55)":"rgba(30,25,18,0.35)",border:"1px solid rgba(200,168,78,0.12)",display:"flex",alignItems:"center",justifyContent:"center",cursor:s?"pointer":"default",borderRadius:3,position:"relative",fontSize:17}}
+    invSlots.push(<div key={i} style={{width:38,height:38,background:s?"rgba(90,25,8,0.55)":"rgba(35,10,5,0.35)",border:"1px solid rgba(200,168,78,0.12)",display:"flex",alignItems:"center",justifyContent:"center",cursor:s?"pointer":"default",borderRadius:3,position:"relative",fontSize:17}}
       onClick={()=>{if(!s)return;if(bankOpen){bankDeposit(i);return;}if(d.heal)eat(i);else if(d.slot)equip(i);else if(s.i==="bones"||s.i==="big_bones"||s.i==="dragon_bones")bury(i);else if(isLog)firemaking(i);}}
       onContextMenu={e=>{e.preventDefault();if(!s)return;if(bankOpen){bankDeposit(i);return;}drop(i);}}
     >{s&&<span>{d.i}</span>}{s&&d.s&&s.c>1&&<span style={{position:"absolute",top:0,left:2,fontSize:8,color:"#ff0",fontWeight:700}}>{s.c>99999?"99k+":s.c}</span>}
@@ -730,56 +766,58 @@ export default function RS(){
     </div>);}
 
   return (
-    <div style={{width:"100vw",height:"100vh",background:"#1a1510",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none"}}>
+    <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none"}}>
       {/* HUD */}
-      <div style={{height:36,background:"linear-gradient(180deg,#3a3020,#2a2518)",borderBottom:"2px solid #5a4a30",display:"flex",alignItems:"center",padding:"0 10px",gap:10,flexShrink:0,overflow:"hidden"}}>
-        <span style={{color:"#c8a84e",fontWeight:800,fontSize:14,letterSpacing:1}}>RuneScape</span>
+      <div style={{height:36,background:"linear-gradient(180deg,#280e06,#1c0804)",borderBottom:"2px solid #7a2010",display:"flex",alignItems:"center",padding:"0 10px",gap:10,flexShrink:0,overflow:"hidden"}}>
+        <span style={{color:"#d4a030",fontWeight:900,fontSize:15,letterSpacing:3,fontFamily:"'Courier New',monospace",textShadow:"1px 1px 0 #7a2808,2px 2px 0 #2a0804",textTransform:"uppercase"}}>Dunescape</span>
         {p&&<>
           <span style={{color:"#0c0",fontSize:11}}>❤️{p.hp}/{p.mhp}</span>
           <span style={{color:"#4af",fontSize:11}}>🙏{p.prayer}/{p.maxPrayer}</span>
           <span style={{color:p.run?"#0f0":"#888",fontSize:11,cursor:"pointer"}} onClick={()=>{if(p)p.run=!p.run;fr(n=>n+1);}}>{p.run?"🏃":"🚶"}{Math.floor(p.runE)}%</span>
           <span style={{color:"#da4",fontSize:11}}>⚔️{cLvl}</span>
           <span style={{color:"#888",fontSize:10}}>Total:{totalLvl}</span>
-          <div style={{marginLeft:"auto",display:"flex",gap:6}}>
+          <div style={{marginLeft:"auto",display:"flex",gap:6,alignItems:"center"}}>
             {["Accurate","Aggressive","Defensive"].map((s,i)=><button key={i} onClick={()=>{if(p)p.style=i;fr(n=>n+1);}}
-              style={{background:p.style===i?"#5a4a30":"transparent",border:"1px solid #4a3a20",color:p.style===i?"#ff0":"#666",fontSize:8,padding:"2px 6px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{s}</button>)}
+              style={{background:p.style===i?"#5a1808":"transparent",border:"1px solid #6a2010",color:p.style===i?"#ff0":"#555",fontSize:8,padding:"2px 6px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{s}</button>)}
+            <button onClick={()=>{if(!p||!gR.current)return;try{localStorage.setItem("dunescape_save",JSON.stringify({sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE}));addC("Game saved!");}catch(e){}}}
+              style={{background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"2px 6px",cursor:"pointer",borderRadius:3,fontWeight:600}}>💾</button>
           </div>
         </>}
       </div>
       {/* Main */}
       <div style={{flex:1,display:"flex",overflow:"hidden",minHeight:0}}>
-        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",background:"#0a0a0a",position:"relative",minWidth:0}}>
-          <canvas ref={cvR} width={CW} height={CH} style={{imageRendering:"pixelated",cursor:"crosshair",maxWidth:"100%",maxHeight:"100%",border:"2px solid #3a3020"}} />
-          {ctx_menu&&<div style={{position:"absolute",left:ctx_menu.x,top:ctx_menu.y,background:"rgba(10,8,4,0.96)",border:"1px solid #5a4a30",borderRadius:4,minWidth:150,zIndex:50,boxShadow:"0 4px 24px rgba(0,0,0,0.8)"}}>
-            <div style={{background:"#3a3020",padding:"3px 8px",fontSize:8,color:"#888",letterSpacing:1}}>Choose Option</div>
+        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",background:"#0d0403",position:"relative",minWidth:0}}>
+          <canvas ref={cvR} width={CW} height={CH} style={{imageRendering:"pixelated",cursor:"crosshair",maxWidth:"100%",maxHeight:"100%",border:"2px solid #5a1808"}} />
+          {ctx_menu&&<div style={{position:"absolute",left:ctx_menu.x,top:ctx_menu.y,background:"rgba(12,4,2,0.97)",border:"1px solid #7a2010",borderRadius:4,minWidth:150,zIndex:50,boxShadow:"0 4px 24px rgba(0,0,0,0.8)"}}>
+            <div style={{background:"#280e06",padding:"3px 8px",fontSize:8,color:"#888",letterSpacing:1}}>Choose Option</div>
             {ctx_menu.opts.map((o,i)=><div key={i} onClick={()=>{o.action();setCtx(null);}} style={{padding:"4px 10px",fontSize:11,color:o.color||"#ddd",cursor:"pointer",borderBottom:"1px solid rgba(90,74,48,0.2)"}}
               onMouseEnter={e=>e.currentTarget.style.background="rgba(200,168,78,0.12)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>{o.label}</div>)}
           </div>}
         </div>
         {/* Side panel */}
-        <div style={{width:195,background:"linear-gradient(180deg,#2a2218,#1e1a12)",borderLeft:"2px solid #4a3a20",display:"flex",flexDirection:"column",flexShrink:0}}>
-          <div style={{display:"flex",borderBottom:"1px solid #4a3a20"}}>
+        <div style={{width:195,background:"linear-gradient(180deg,#1e0a06,#180804)",borderLeft:"2px solid #5a1808",display:"flex",flexDirection:"column",flexShrink:0}}>
+          <div style={{display:"flex",borderBottom:"1px solid #5a1808"}}>
             {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"]].map(([t,ic])=>
-              <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"4px 0",background:tab===t?"#3a3020":"transparent",border:"none",color:tab===t?"#c8a84e":"#5a4a30",cursor:"pointer",fontSize:13,borderBottom:tab===t?"2px solid #c8a84e":"2px solid transparent"}}>{ic}</button>)}
+              <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"4px 0",background:tab===t?"#280e06":"transparent",border:"none",color:tab===t?"#c8a84e":"#5a2010",cursor:"pointer",fontSize:13,borderBottom:tab===t?"2px solid #c8a84e":"2px solid transparent"}}>{ic}</button>)}
           </div>
           <div style={{flex:1,overflow:"auto",padding:5}}>
             {tab==="inv"&&<div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:2}}>{invSlots}</div>}
             {tab==="skills"&&p&&<div style={{display:"flex",flexDirection:"column",gap:2}}>
               {SKILLS.map(s=>{const l=lvl(p.sk[s]),cur=p.sk[s],nxt=xpLvl(l+1),prv=xpLvl(l),pct=l>=99?1:(cur-prv)/(nxt-prv);
-                return <div key={s} style={{background:"rgba(60,50,30,0.45)",padding:"3px 5px",borderRadius:3,border:"1px solid rgba(200,168,78,0.08)"}}>
+                return <div key={s} style={{background:"rgba(70,20,5,0.45)",padding:"3px 5px",borderRadius:3,border:"1px solid rgba(200,168,78,0.08)"}}>
                   <div style={{display:"flex",justifyContent:"space-between",fontSize:9,color:SKILL_COLORS[s]||"#c8a84e",fontWeight:600}}><span>{s}</span><span>{l}/99</span></div>
-                  <div style={{height:3,background:"#1a1510",borderRadius:2,marginTop:1}}><div style={{height:"100%",background:l>=99?"#da0":SKILL_COLORS[s]||"#4a8a2a",borderRadius:2,width:(pct*100)+"%",transition:"width 0.3s",opacity:0.8}}/></div>
+                  <div style={{height:3,background:"#120604",borderRadius:2,marginTop:1}}><div style={{height:"100%",background:l>=99?"#da0":SKILL_COLORS[s]||"#4a8a2a",borderRadius:2,width:(pct*100)+"%",transition:"width 0.3s",opacity:0.8}}/></div>
                   <div style={{fontSize:7,color:"#554",marginTop:1}}>{cur.toLocaleString()} / {l>=99?"--":nxt.toLocaleString()}</div>
                 </div>;})}
               <div style={{textAlign:"center",fontSize:9,color:"#888",marginTop:4}}>Total XP: {(p.totalXp||0).toLocaleString()}</div>
             </div>}
             {tab==="equip"&&p&&<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:5,paddingTop:8}}>
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1}}>EQUIPMENT</div>
-              {["head","body","legs"].map(s=><div key={s} onClick={()=>unequip(s)} style={{width:42,height:42,background:p.eq[s]?"rgba(80,70,50,0.55)":"rgba(40,35,25,0.25)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",fontSize:p.eq[s]?16:8,color:p.eq[s]?"#fff":"#444",cursor:p.eq[s]?"pointer":"default"}}>{p.eq[s]?ITEMS[p.eq[s]].i:s}</div>)}
+              {["head","body","legs"].map(s=><div key={s} onClick={()=>unequip(s)} style={{width:42,height:42,background:p.eq[s]?"rgba(90,25,8,0.55)":"rgba(40,10,5,0.25)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",fontSize:p.eq[s]?16:8,color:p.eq[s]?"#fff":"#444",cursor:p.eq[s]?"pointer":"default"}}>{p.eq[s]?ITEMS[p.eq[s]].i:s}</div>)}
               <div style={{display:"flex",gap:6}}>
-                {["weapon","shield"].map(s=><div key={s} onClick={()=>unequip(s)} style={{width:42,height:42,background:p.eq[s]?"rgba(80,70,50,0.55)":"rgba(40,35,25,0.25)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",fontSize:p.eq[s]?16:8,color:p.eq[s]?"#fff":"#444",cursor:p.eq[s]?"pointer":"default"}}>{p.eq[s]?ITEMS[p.eq[s]].i:s}</div>)}
+                {["weapon","shield"].map(s=><div key={s} onClick={()=>unequip(s)} style={{width:42,height:42,background:p.eq[s]?"rgba(90,25,8,0.55)":"rgba(40,10,5,0.25)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",fontSize:p.eq[s]?16:8,color:p.eq[s]?"#fff":"#444",cursor:p.eq[s]?"pointer":"default"}}>{p.eq[s]?ITEMS[p.eq[s]].i:s}</div>)}
               </div>
-              <div onClick={()=>unequip("ring")} style={{width:42,height:42,background:p.eq.ring?"rgba(80,70,50,0.55)":"rgba(40,35,25,0.25)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",fontSize:p.eq.ring?16:8,color:p.eq.ring?"#fff":"#444",cursor:p.eq.ring?"pointer":"default"}}>{p.eq.ring?ITEMS[p.eq.ring].i:"ring"}</div>
+              <div onClick={()=>unequip("ring")} style={{width:42,height:42,background:p.eq.ring?"rgba(90,25,8,0.55)":"rgba(40,10,5,0.25)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center",fontSize:p.eq.ring?16:8,color:p.eq.ring?"#fff":"#444",cursor:p.eq.ring?"pointer":"default"}}>{p.eq.ring?ITEMS[p.eq.ring].i:"ring"}</div>
               <div style={{fontSize:9,color:"#8a7a5a",textAlign:"center",lineHeight:1.5,marginTop:4}}>
                 Atk:+{p.eq.weapon?ITEMS[p.eq.weapon].atk||0:0} Str:+{(p.eq.weapon?ITEMS[p.eq.weapon].str||0:0)+(p.eq.ring&&ITEMS[p.eq.ring].str?ITEMS[p.eq.ring].str:0)}<br/>
                 Def:+{["shield","head","body","legs"].reduce((a,s)=>a+(p.eq[s]?ITEMS[p.eq[s]].def||0:0),0)}
@@ -787,18 +825,21 @@ export default function RS(){
             </div>}
             {tab==="quest"&&p&&<div style={{padding:4}}>
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1,marginBottom:6}}>QUESTS</div>
-              <div style={{background:"rgba(60,50,30,0.45)",padding:8,borderRadius:4,border:"1px solid rgba(200,168,78,0.08)"}}>
+              <div style={{background:"rgba(70,20,5,0.45)",padding:8,borderRadius:4,border:"1px solid rgba(200,168,78,0.08)"}}>
                 <div style={{fontSize:11,color:p.quests.cook===2?"#0c0":p.quests.cook===1?"#ff0":"#c44",fontWeight:600}}>{p.quests.cook===2?"✅":"📜"} Cook's Assistant</div>
                 <div style={{fontSize:9,color:"#888",marginTop:3}}>{p.quests.cook===0?"Talk to the Cook in Lumbridge.":p.quests.cook===1?"Find: egg, milk, flour.":"Complete!"}</div>
                 {p.quests.cook===1&&<div style={{fontSize:8,color:"#665",marginTop:3}}>
                   {p.inv.some(x=>x.i==="egg")?"✅":"❌"} Egg {p.inv.some(x=>x.i==="milk")?"✅":"❌"} Milk {p.inv.some(x=>x.i==="flour")?"✅":"❌"} Flour
                 </div>}
               </div>
-              <div style={{background:"rgba(60,50,30,0.25)",padding:6,borderRadius:4,marginTop:4,fontSize:10,color:"#555"}}>🔒 More quests soon...</div>
+              <div style={{background:"rgba(70,20,5,0.45)",padding:8,borderRadius:4,marginTop:4,border:"1px solid rgba(200,168,78,0.08)"}}>
+                <div style={{fontSize:11,color:p.quests.desert===2?"#0c0":p.quests.desert===1?"#ff0":"#c44",fontWeight:600}}>{p.quests.desert===2?"✅":"📜"} Desert Vow</div>
+                <div style={{fontSize:9,color:"#888",marginTop:3}}>{p.quests.desert===0?"Talk to Ali in Al Kharid.":p.quests.desert===1?"Slay Scorpions: "+p.desertKills+"/3":"Complete!"}</div>
+              </div>
             </div>}
             {tab==="pray"&&p&&<div style={{padding:4}}>
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1,marginBottom:6}}>PRAYER {p.prayer}/{p.maxPrayer}</div>
-              <div style={{height:6,background:"#1a1510",borderRadius:3,marginBottom:8}}><div style={{height:"100%",background:"#4488cc",borderRadius:3,width:(p.prayer/p.maxPrayer*100)+"%"}}/></div>
+              <div style={{height:6,background:"#120604",borderRadius:3,marginBottom:8}}><div style={{height:"100%",background:"#4488cc",borderRadius:3,width:(p.prayer/p.maxPrayer*100)+"%"}}/></div>
               <div style={{fontSize:9,color:"#888",lineHeight:1.6}}>Bury bones for Prayer XP:<br/>Bones: +4 XP<br/>Big bones: +15 XP<br/>Dragon bones: +72 XP<br/><br/>Recharge at an altar.</div>
             </div>}
           </div>
@@ -806,17 +847,17 @@ export default function RS(){
       </div>
       {/* Bank */}
       {bankOpen&&p&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setBankOpen(false)}>
-        <div style={{background:"linear-gradient(180deg,#2a2218,#1e1a12)",border:"2px solid #5a4a30",borderRadius:8,padding:14,minWidth:320,maxWidth:520}} onClick={e=>e.stopPropagation()}>
+        <div style={{background:"linear-gradient(180deg,#1e0a06,#180804)",border:"2px solid #7a2010",borderRadius:8,padding:14,minWidth:320,maxWidth:520}} onClick={e=>e.stopPropagation()}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
             <span style={{color:"#c8a84e",fontWeight:700,fontSize:14}}>🏦 Bank</span>
             <div style={{display:"flex",gap:6}}>
               <button onClick={()=>{bankDepositAll();}} style={{background:"#3a5a2a",border:"1px solid #5a8a3a",color:"#af0",padding:"3px 10px",cursor:"pointer",borderRadius:4,fontSize:10,fontWeight:600}}>Deposit All</button>
-              <button onClick={()=>setBankOpen(false)} style={{background:"#4a3020",border:"none",color:"#c8a84e",padding:"3px 10px",cursor:"pointer",borderRadius:4}}>✕</button>
+              <button onClick={()=>setBankOpen(false)} style={{background:"#4a1010",border:"none",color:"#c8a84e",padding:"3px 10px",cursor:"pointer",borderRadius:4}}>✕</button>
             </div>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(8,1fr)",gap:2,marginBottom:10}}>
-            {p.bank.map((s,i)=><div key={i} onClick={()=>{bankWithdraw(i);}} title={ITEMS[s.i].n+" x"+s.c} style={{width:36,height:36,background:"rgba(80,70,50,0.45)",border:"1px solid rgba(200,168,78,0.1)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer",position:"relative"}}
-              onMouseEnter={e=>e.currentTarget.style.background="rgba(200,168,78,0.15)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(80,70,50,0.45)"}>
+            {p.bank.map((s,i)=><div key={i} onClick={()=>{bankWithdraw(i);}} title={ITEMS[s.i].n+" x"+s.c} style={{width:36,height:36,background:"rgba(80,20,5,0.45)",border:"1px solid rgba(200,168,78,0.1)",borderRadius:3,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,cursor:"pointer",position:"relative"}}
+              onMouseEnter={e=>e.currentTarget.style.background="rgba(200,168,78,0.15)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(80,20,5,0.45)"}>
               {ITEMS[s.i].i}{s.c>1&&<span style={{position:"absolute",top:0,left:2,fontSize:7,color:"#ff0",fontWeight:700}}>{s.c>9999?"9k+":s.c}</span>}
               <span style={{position:"absolute",bottom:0,right:1,fontSize:5,color:"#aa9",maxWidth:32,overflow:"hidden",whiteSpace:"nowrap"}}>{ITEMS[s.i].n}</span>
             </div>)}
@@ -826,14 +867,14 @@ export default function RS(){
       </div>}
       {/* Shop */}
       {shopOpen&&p&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setShopOpen(false)}>
-        <div style={{background:"linear-gradient(180deg,#2a2218,#1e1a12)",border:"2px solid #5a4a30",borderRadius:8,padding:14,minWidth:340,maxWidth:540}} onClick={e=>e.stopPropagation()}>
+        <div style={{background:"linear-gradient(180deg,#1e0a06,#180804)",border:"2px solid #7a2010",borderRadius:8,padding:14,minWidth:340,maxWidth:540}} onClick={e=>e.stopPropagation()}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
             <span style={{color:"#c8a84e",fontWeight:700,fontSize:14}}>🏪 General Store</span>
-            <button onClick={()=>setShopOpen(false)} style={{background:"#4a3020",border:"none",color:"#c8a84e",padding:"3px 10px",cursor:"pointer",borderRadius:4}}>✕</button>
+            <button onClick={()=>setShopOpen(false)} style={{background:"#4a1010",border:"none",color:"#c8a84e",padding:"3px 10px",cursor:"pointer",borderRadius:4}}>✕</button>
           </div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:3}}>
-            {SHOP_ITEMS.map((si,i)=><div key={i} onClick={()=>{buyItem(si);fr(n=>n+1);}} style={{background:"rgba(80,70,50,0.35)",border:"1px solid rgba(200,168,78,0.1)",borderRadius:4,padding:5,textAlign:"center",cursor:"pointer"}}
-              onMouseEnter={e=>e.currentTarget.style.background="rgba(200,168,78,0.12)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(80,70,50,0.35)"}>
+            {SHOP_ITEMS.map((si,i)=><div key={i} onClick={()=>{buyItem(si);fr(n=>n+1);}} style={{background:"rgba(80,20,5,0.35)",border:"1px solid rgba(200,168,78,0.1)",borderRadius:4,padding:5,textAlign:"center",cursor:"pointer"}}
+              onMouseEnter={e=>e.currentTarget.style.background="rgba(200,168,78,0.12)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(80,20,5,0.35)"}>
               <div style={{fontSize:16}}>{ITEMS[si.i].i}</div>
               <div style={{fontSize:7,color:"#c8a84e",fontWeight:600}}>{ITEMS[si.i].n}</div>
               <div style={{fontSize:8,color:"#da0"}}>{si.cost}gp</div>
@@ -842,8 +883,32 @@ export default function RS(){
           <div style={{color:"#888",fontSize:9,marginTop:6}}>Coins: {p.inv.find(x=>x.i==="coins")?.c||0}gp</div>
         </div>
       </div>}
+      {/* Smithing */}
+      {smithOpen&&p&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setSmithOpen(false)}>
+        <div style={{background:"linear-gradient(180deg,#1e0a06,#180804)",border:"2px solid #7a2010",borderRadius:8,padding:14,minWidth:320,maxWidth:480}} onClick={e=>e.stopPropagation()}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
+            <span style={{color:"#c8a84e",fontWeight:700,fontSize:14}}>🔨 Smithing Anvil</span>
+            <button onClick={()=>setSmithOpen(false)} style={{background:"#4a1010",border:"none",color:"#c8a84e",padding:"3px 10px",cursor:"pointer",borderRadius:4}}>✕</button>
+          </div>
+          {Object.entries(SMITH_RECIPES).map(([bar,recs])=>{
+            const hasBar=p.inv.some(x=>x.i===bar);const barCount=p.inv.reduce((a,x)=>x.i===bar?a+x.c:a,0);
+            return <div key={bar} style={{marginBottom:10}}>
+              <div style={{color:hasBar?"#c8a84e":"#554",fontSize:10,fontWeight:700,marginBottom:4}}>{ITEMS[bar].n} {hasBar?"(x"+barCount+")":"(none)"}</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:3}}>
+                {recs.map((rec,i)=><div key={i} onClick={()=>{if(hasBar)doSmith(bar,rec);else addC("You need a "+ITEMS[bar].n+".");fr(n=>n+1);}}
+                  style={{background:hasBar?"rgba(80,20,5,0.5)":"rgba(40,10,5,0.25)",border:"1px solid rgba(200,168,78,"+(hasBar?"0.2":"0.06")+")",borderRadius:4,padding:"5px 2px",textAlign:"center",cursor:hasBar?"pointer":"default",opacity:hasBar?1:0.5}}
+                  onMouseEnter={e=>{if(hasBar)e.currentTarget.style.background="rgba(200,168,78,0.15)";}} onMouseLeave={e=>{if(hasBar)e.currentTarget.style.background="rgba(80,20,5,0.5)";}}>
+                  <div style={{fontSize:16}}>{ITEMS[rec.out].i}</div>
+                  <div style={{fontSize:6,color:"#c8a84e",fontWeight:600,marginTop:1}}>{ITEMS[rec.out].n.replace("Bronze ","").replace("Iron ","").replace("Steel ","")}</div>
+                  <div style={{fontSize:7,color:"#888"}}>{rec.xp} xp</div>
+                </div>)}
+              </div>
+            </div>;})}
+          <div style={{color:"#666",fontSize:9,marginTop:4}}>Click an item to smith it. Requires bar in inventory.</div>
+        </div>
+      </div>}
       {/* Chat */}
-      <div style={{height:88,background:"linear-gradient(180deg,#1e1a12,#161210)",borderTop:"2px solid #4a3a20",padding:"2px 8px",overflow:"auto",flexShrink:0}}>
+      <div style={{height:88,background:"linear-gradient(180deg,#160804,#120604)",borderTop:"2px solid #5a1808",padding:"2px 8px",overflow:"auto",flexShrink:0}}>
         {chat.slice(-16).map((m,i)=><div key={i} style={{fontSize:11,color:i===chat.slice(-16).length-1?"#ddd":i>chat.slice(-16).length-4?"#999":"#666",lineHeight:1.35}}>{m}</div>)}
       </div>
     </div>

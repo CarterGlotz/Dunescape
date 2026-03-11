@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/Dunescape/",
+  base: process.env.VITE_APP_BASE_PATH || "/dunescape/",
   build: {
     target: "esnext",
     minify: "esbuild",
