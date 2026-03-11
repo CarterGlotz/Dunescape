@@ -15,21 +15,25 @@ on:
 
 permissions:
   contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
 
 jobs:
   deploy-pages:
     runs-on: ubuntu-latest
     timeout-minutes: 25
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     env:
-      GAME_SLUG: ${{ vars.GAME_SLUG || 'dunescape' }}
-      STUDIO_SITE_BRANCH: ${{ vars.STUDIO_SITE_BRANCH || 'main' }}
-      STUDIO_SITE_REPOSITORY: VaultSparkStudios/VaultSparkStudios.github.io
-      VITE_APP_BASE_PATH: /${{ vars.GAME_SLUG || 'dunescape' }}/
-      VITE_CANONICAL_URL: https://vaultsparkstudios.com/${{ vars.GAME_SLUG || 'dunescape' }}/
-      VITE_OG_IMAGE_URL: https://vaultsparkstudios.com/${{ vars.GAME_SLUG || 'dunescape' }}/images/cover.png
+      VITE_APP_BASE_PATH: /dunescape/
+      VITE_CANONICAL_URL: https://vaultsparkstudios.com/dunescape/
+      VITE_OG_IMAGE_URL: https://vaultsparkstudios.com/dunescape/images/cover.png
       VITE_DOMAIN: vaultsparkstudios.com
-      VITE_GAME_SERVICE_ORIGIN: ${{ vars.GAME_SERVICE_ORIGIN || '' }}
-      API_DOMAIN: ${{ vars.API_DOMAIN || '' }}
       GAME_ENV: prod
     steps:
       - uses: actions/checkout@v4
@@ -45,30 +49,11 @@ jobs:
       - name: Build Pages bundle
         run: npm run build:pages
 
-      - name: Checkout studio site repo
-        uses: actions/checkout@v4
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          repository: ${{ env.STUDIO_SITE_REPOSITORY }}
-          ref: ${{ env.STUDIO_SITE_BRANCH }}
-          token: ${{ secrets.STUDIO_SITE_TOKEN }}
-          path: studio-site
+          path: dist
 
-      - name: Sync bundle into studio site
-        run: |
-          set -euo pipefail
-          mkdir -p "studio-site/${GAME_SLUG}"
-          rsync -a --delete dist/ "studio-site/${GAME_SLUG}/"
-
-      - name: Commit and push
-        working-directory: studio-site
-        run: |
-          set -euo pipefail
-          git config user.name "VaultSpark Studios"
-          git config user.email "87046611+VaultSparkStudios@users.noreply.github.com"
-          git add "${GAME_SLUG}"
-          if git diff --cached --quiet; then
-            echo "No Pages changes to publish."
-            exit 0
-          fi
-          git commit -m "Deploy Dunescape Pages bundle (${GITHUB_SHA::7})"
-          git push origin "${STUDIO_SITE_BRANCH}"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

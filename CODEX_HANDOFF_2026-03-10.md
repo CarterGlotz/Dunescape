@@ -19,30 +19,21 @@
 
 ## Deployment model
 
-- Bundles are NOT deployed from this repo's own GitHub Pages.
-- `deploy-pages.yml` builds the static client and syncs it into
-  `VaultSparkStudios.github.io/dunescape/` using `STUDIO_SITE_TOKEN`.
-- GitHub Pages casing rule: the studio site repo owns the canonical lowercase URL.
+- This repo deploys its own GitHub Pages directly via `deploy-pages.yml`.
+- Because the repo name is lowercase (`dunescape`) and the org has a custom domain,
+  Pages is automatically served at `https://vaultsparkstudios.com/dunescape/`.
+- No cross-repo sync or `STUDIO_SITE_TOKEN` required.
+- **One-time setup required:** repo Settings → Pages → Source → GitHub Actions.
 
 ## Workflow files
 
 - `.github/workflows/ci.yml` — build on push/PR
 - `.github/workflows/deploy-pages.yml` — studio-site-sync deploy
 
-## Required GitHub variables (set in repo Settings → Variables)
+## Required GitHub setup
 
-| Variable | Value |
-|---|---|
-| `GAME_SLUG` | `dunescape` |
-| `STUDIO_SITE_BRANCH` | `main` |
-| `GAME_SERVICE_ORIGIN` | `https://play-dunescape.vaultsparkstudios.com` |
-| `API_DOMAIN` | `api-dunescape.vaultsparkstudios.com` |
-
-## Required GitHub secret (set in repo Settings → Secrets)
-
-| Secret | Purpose |
-|---|---|
-| `STUDIO_SITE_TOKEN` | PAT with write access to `VaultSparkStudios.github.io` |
+- Settings → Pages → Source: **GitHub Actions** (one-time)
+- No secrets or variables required for Pages deployment
 
 ## What was completed this session
 
@@ -64,8 +55,8 @@
 
 ## Known issues / next steps
 
-- GitHub repo variables and `STUDIO_SITE_TOKEN` secret must be set manually
-  in the GitHub repo settings before `deploy-pages.yml` will succeed.
+- **Set Pages source to GitHub Actions** in repo Settings → Pages (one-time manual step).
+- Rename repo from `Dunescape` → `dunescape` on GitHub (Settings → General).
 - Studio site `index.html`: add Dunescape card to `Vault-Forged` section
   at `/dunescape/` after the first successful bundle sync.
 - `deploy.yml` (old GitHub Pages workflow) should be removed or disabled

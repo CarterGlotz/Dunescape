@@ -28,28 +28,20 @@ changes, read these files first:
 - Keep this repo self-sufficient: deployment/domain/workflow context must remain
   understandable from repo files, not just prior chat context.
 - **Repo name is `dunescape` — lowercase with hyphens, following GitHub's recommended convention.**
-- **Do NOT deploy from this repo's own GitHub Pages.** Bundles are synced into
-  `VaultSparkStudios/VaultSparkStudios.github.io` at the `dunescape/`
-  subfolder using the `STUDIO_SITE_TOKEN` secret.
+- **This repo deploys its own GitHub Pages directly.** Because the repo name is lowercase
+  (`dunescape`) and the org has a custom domain, Pages is automatically served at
+  `https://vaultsparkstudios.com/dunescape/`. No cross-repo sync required.
+- GitHub Pages source must be set to **GitHub Actions** in repo Settings → Pages.
 - Keep frontend Pages deployment separate from backend/runtime deployment.
 - Update `CODEX_HANDOFF_YYYY-MM-DD.md` after deployment-related changes.
 - If you create a temporary clone of another repo inside this repo, add it to
   `.git/info/exclude` so it cannot be accidentally staged here.
 
-## Required GitHub variables (set in this repo's settings)
+## Required GitHub setup
 
-| Variable | Value |
-|---|---|
-| `GAME_SLUG` | `dunescape` |
-| `STUDIO_SITE_BRANCH` | `main` |
-| `GAME_SERVICE_ORIGIN` | `https://play-dunescape.vaultsparkstudios.com` |
-| `API_DOMAIN` | `api-dunescape.vaultsparkstudios.com` |
+**Settings → Pages:** Set Source to **GitHub Actions** (one-time, enables the deploy).
 
-## Required GitHub secret (set in this repo's settings)
-
-| Secret | Purpose |
-|---|---|
-| `STUDIO_SITE_TOKEN` | PAT with write access to `VaultSparkStudios.github.io` |
+No secrets or variables are required for Pages deployment. Dunescape has no backend yet.
 
 ## Workflow files
 
