@@ -2,11 +2,12 @@
   "name": "dunescape",
   "private": true,
   "version": "1.0.0",
-  "description": "Dunescape - A RuneScape-like parody game",
+  "description": "Dunescape - A desert browser RPG",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:pages": "vite build && node scripts/postbuild-pages.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
