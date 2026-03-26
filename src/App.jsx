@@ -308,9 +308,9 @@ const CRAFT_RECIPES=[
   {needs:{ruby:1,gold_bar:1},out:"ruby_ring",xp:70,lvl:34,tool:"chisel"},
 ];
 const HERB_RECIPES=[
-  {needs:{herb:1,vial:1},out:"attack_potion",xp:25,lvl:3},
-  {needs:{herb:1,vial:1},out:"strength_potion",xp:40,lvl:12},
-  {needs:{herb:2,vial:1},out:"prayer_potion",xp:38,lvl:38},
+  {needs:{clean_herb:1,vial:1},out:"attack_potion",xp:25,lvl:3},
+  {needs:{clean_herb:1,vial:1},out:"strength_potion",xp:40,lvl:12},
+  {needs:{clean_herb:2,vial:1},out:"prayer_potion",xp:38,lvl:38},
 ];
 const SLAYER_TASKS=[
   {monster:"Goblin",count:15,xp:150},{monster:"Chicken",count:20,xp:80},
@@ -398,6 +398,8 @@ export default function DS(){
   const [sellOpen,setSellOpen]=useState(false);
   const [smithOpen,setSmithOpen]=useState(false);
   const [craftOpen,setCraftOpen]=useState(false);
+  const [herbOpen,setHerbOpen]=useState(false);
+  const herbIdxR=useRef(null);
   const [uiScale,setUiScale]=useState(1);
   const [offlineTaskSel,setOfflineTaskSel]=useState(0);
   const chatR=useRef([]);chatR.current=chat;
@@ -408,7 +410,7 @@ export default function DS(){
   useEffect(()=>{
     const onKey=e=>{
       if(e.key==="m"||e.key==="M"){setMapOpen(v=>!v);return;}
-      if(e.key==="Escape"){setMapOpen(false);setBankOpen(false);setShopOpen(false);setSmithOpen(false);setCraftOpen(false);setSellOpen(false);}
+      if(e.key==="Escape"){setMapOpen(false);setBankOpen(false);setShopOpen(false);setSmithOpen(false);setCraftOpen(false);setSellOpen(false);setHerbOpen(false);}
       if(e.key==="r"||e.key==="R"){const g2=gR.current;if(g2){g2.p.run=!g2.p.run;fr(n=>n+1);}}
     };
     window.addEventListener("keydown",onKey);
@@ -1276,7 +1278,21 @@ export default function DS(){
   function sellItem(itemId){if(!p)return;const price=SELL_PRICES[itemId]||5;const coins=p.inv.find(x=>x.i==="coins");if(coins)coins.c+=price;else{if(p.inv.length<28)p.inv.push({i:"coins",c:price});}const idx=p.inv.findIndex(x=>x.i===itemId);if(idx>=0){const s2=p.inv[idx];if(ITEMS[itemId].s&&s2.c>1)s2.c--;else p.inv.splice(idx,1);}addC("Sold "+ITEMS[itemId].n+" for "+price+" gp.");fr(n=>n+1);}
   function useHerblore(idx){if(!p||!gR.current)return;const g2=gR.current;const s=p.inv[idx];if(!s)return;
     if(s.i==="herb"){const hl=lvl(p.sk.Herblore||0);if(hl<1){addC("You need Herblore level 1.");return;}p.inv.splice(idx,1);if(p.inv.length<28)p.inv.push({i:"clean_herb",c:1});addC("You clean the herb.");const ol=lvl(p.sk.Herblore||0);p.sk.Herblore=(p.sk.Herblore||0)+3;p.totalXp+=3;const nl=lvl(p.sk.Herblore);if(nl>ol)addC("🎉 Herblore level "+nl+"!");g2.fx.push({type:"xp",x:p.x,y:p.y,text:"+3 Herblore",color:SKILL_COLORS.Herblore,life:1500,age:0});fr(n=>n+1);return;}
-    if(s.i==="clean_herb"){const rec=HERB_RECIPES.find(r=>r.needs.herb&&hasI_react("vial"));if(!rec){addC("Need a vial of water to make a potion.");return;}const hl=lvl(p.sk.Herblore||0);if(hl<rec.lvl){addC("Need Herblore level "+rec.lvl+".");return;}const vidx=p.inv.findIndex(x=>x.i==="vial");if(vidx>=0)p.inv.splice(vidx,1);p.inv.splice(idx,1);if(p.inv.length<28)p.inv.push({i:rec.out,c:1});p.sk.Herblore=(p.sk.Herblore||0)+rec.xp;p.totalXp+=rec.xp;addC("You make a "+ITEMS[rec.out].n+".");fr(n=>n+1);}
+    if(s.i==="clean_herb"){herbIdxR.current=idx;setHerbOpen(true);}
+  }
+  function doHerblore(rec){if(!p||!gR.current)return;const g2=gR.current;
+    const hl=lvl(p.sk.Herblore||0);if(hl<rec.lvl){addC("Need Herblore level "+rec.lvl+".");setHerbOpen(false);return;}
+    const herbNeed=rec.needs.clean_herb||1;
+    const herbCount=p.inv.reduce((a,x)=>x.i==="clean_herb"?a+(x.c||1):a,0);
+    if(herbCount<herbNeed){addC("Need "+herbNeed+" clean herb"+(herbNeed>1?"s":"")+".");setHerbOpen(false);return;}
+    if(!hasI_react("vial")){addC("Need a vial of water.");setHerbOpen(false);return;}
+    let toRem=herbNeed;for(let i=p.inv.length-1;i>=0&&toRem>0;i--){if(p.inv[i].i==="clean_herb"){const tk=Math.min(toRem,p.inv[i].c);p.inv[i].c-=tk;toRem-=tk;if(p.inv[i].c<=0)p.inv.splice(i,1);}}
+    const vi=p.inv.findIndex(x=>x.i==="vial");if(vi>=0)p.inv.splice(vi,1);
+    const pot=p.inv.find(x=>x.i===rec.out);if(pot)pot.c++;else if(p.inv.length<28)p.inv.push({i:rec.out,c:1});
+    p.sk.Herblore=(p.sk.Herblore||0)+rec.xp;p.totalXp+=rec.xp;
+    const ol=lvl(p.sk.Herblore-rec.xp);const nl=lvl(p.sk.Herblore);if(nl>ol)addC("🎉 Herblore level "+nl+"!");
+    g2.fx.push({type:"xp",x:p.x,y:p.y,text:"+"+rec.xp+" Herblore",color:SKILL_COLORS.Herblore,life:1500,age:0});
+    addC("You brew a "+ITEMS[rec.out].n+".");setHerbOpen(false);fr(n=>n+1);
   }
   function hasI_react(id){return p?.inv.some(x=>x.i===id);}
   function saveGame(){if(!p||!gR.current)return;try{const g2=gR.current.p;localStorage.setItem("dunescape_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount}));addC("Game saved!");}catch(e){}}
@@ -1526,6 +1542,27 @@ export default function DS(){
                 <div style={{fontSize:7,color:"#c8a84e",fontWeight:600}}>{ITEMS[rec.out].n}</div>
                 <div style={{fontSize:7,color:"#888"}}>Lvl {rec.lvl} | {rec.xp}xp</div>
                 <div style={{fontSize:6,color:"#666"}}>{ITEMS[rec.tool].i}{Object.entries(rec.needs).map(([id,cnt])=>" "+ITEMS[id].i+(cnt>1?"x"+cnt:"")).join("")}</div>
+              </div>;})}
+          </div>
+        </div>
+      </div>}
+      {/* Herblore Modal */}
+      {herbOpen&&p&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setHerbOpen(false)}>
+        <div style={{background:"linear-gradient(180deg,#1e0a06,#180804)",border:"2px solid #7a2010",borderRadius:8,padding:14,minWidth:300,maxWidth:420}} onClick={e=>e.stopPropagation()}>
+          <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>
+            <span style={{color:"#c8a84e",fontWeight:700,fontSize:14}}>🌿 Herblore</span>
+            <button onClick={()=>setHerbOpen(false)} style={{background:"#4a1010",border:"none",color:"#c8a84e",padding:"3px 10px",cursor:"pointer",borderRadius:4}}>✕</button>
+          </div>
+          <div style={{fontSize:9,color:"#888",marginBottom:8}}>Clean herb: {p.inv.reduce((a,x)=>x.i==="clean_herb"?a+(x.c||1):a,0)} | Vial of water: {p.inv.reduce((a,x)=>x.i==="vial"?a+(x.c||1):a,0)}</div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:4}}>
+            {HERB_RECIPES.map((rec,i)=>{const hl=lvl(p.sk.Herblore||0);const canLevel=hl>=rec.lvl;const herbCount=p.inv.reduce((a,x)=>x.i==="clean_herb"?a+(x.c||1):a,0);const hasVial=p.inv.some(x=>x.i==="vial");const canBrew=canLevel&&herbCount>=(rec.needs.clean_herb||1)&&hasVial;
+              return <div key={i} onClick={()=>doHerblore(rec)}
+                style={{background:canBrew?"rgba(80,20,5,0.5)":"rgba(40,10,5,0.25)",border:"1px solid rgba(200,168,78,"+(canBrew?"0.2":"0.06")+")",borderRadius:4,padding:"8px 4px",textAlign:"center",cursor:canBrew?"pointer":"default",opacity:canBrew?1:0.5}}
+                onMouseEnter={e=>{if(canBrew)e.currentTarget.style.background="rgba(200,168,78,0.15)";}} onMouseLeave={e=>{if(canBrew)e.currentTarget.style.background=canBrew?"rgba(80,20,5,0.5)":"rgba(40,10,5,0.25)";}}>
+                <div style={{fontSize:18}}>{ITEMS[rec.out].i}</div>
+                <div style={{fontSize:7,color:"#c8a84e",fontWeight:600}}>{ITEMS[rec.out].n}</div>
+                <div style={{fontSize:7,color:"#888"}}>Lvl {rec.lvl} | {rec.xp}xp</div>
+                <div style={{fontSize:6,color:"#666"}}>{rec.needs.clean_herb||1}🌿 + 🧪vial</div>
               </div>;})}
           </div>
         </div>
