@@ -1,282 +1,122 @@
-# Agent Instructions — dunescape
+# Project Agent Guide
 
-## Project identity
+## Studio OS
 
-- Repo name: `dunescape` (lowercase with hyphens — GitHub recommended convention)
-- Public slug: `dunescape` (identical to repo name)
-- Public URL: `https://vaultsparkstudios.com/dunescape/`
-- Gameplay origin: `https://play-dunescape.vaultsparkstudios.com`
-- API origin: `https://api-dunescape.vaultsparkstudios.com`
-- Studio site repo: `VaultSparkStudios/VaultSparkStudios.github.io`
+This project runs under the VaultSpark Studio OS.
+Local path: `C:\Users\p4cka\documents\development\vaultspark-studio-ops`
+GitHub: https://github.com/VaultSparkStudios/vaultspark-studio-ops
 
-## Deployment standards
+Read `vaultspark-studio-ops/docs/templates/` for canonical templates and conventions.
+Read `vaultspark-studio-ops/portfolio/PROJECT_REGISTRY.md` for all active studio projects.
+Read `vaultspark-studio-ops/docs/STUDIO_HUB_ONBOARDING.md` for hub acceptance requirements.
 
-Before making deployment, domain, GitHub Pages, or studio-site integration
-changes, read these files first:
+## Read order
 
-- `docs/STUDIO_DEPLOYMENT_STANDARD.md`
-- `docs/STUDIO_BACKEND_PLAN.md`
-- `docs/DEPLOY_PAGES.md`
-- `docs/templates/deploy-pages.template.yml`
-- `docs/templates/deploy-backend.docker-compose.template.yml`
-- `docs/templates/Caddyfile.studio-backend.template`
-- `docs/templates/GAME_LAUNCH_CHECKLIST.template.md`
+1. `context/PROJECT_BRIEF.md`
+2. `context/SOUL.md`
+3. `context/BRAIN.md`
+4. `context/CURRENT_STATE.md`
+5. `context/DECISIONS.md`
+6. `context/TASK_BOARD.md`
+7. `context/LATEST_HANDOFF.md`
+8. `context/SELF_IMPROVEMENT_LOOP.md`
 
-## Required behavior
+## Required Studio OS files
 
-- Treat `docs/STUDIO_DEPLOYMENT_STANDARD.md` as the default studio-wide policy.
-- Keep this repo self-sufficient: deployment/domain/workflow context must remain
-  understandable from repo files, not just prior chat context.
-- **Repo name is `dunescape` — lowercase with hyphens, following GitHub's recommended convention.**
-- **This repo deploys its own GitHub Pages directly.** Because the repo name is lowercase
-  (`dunescape`) and the org has a custom domain, Pages is automatically served at
-  `https://vaultsparkstudios.com/dunescape/`. No cross-repo sync required.
-- GitHub Pages source must be set to **GitHub Actions** in repo Settings → Pages.
-- Keep frontend Pages deployment separate from backend/runtime deployment.
-- Update `CODEX_HANDOFF_YYYY-MM-DD.md` after deployment-related changes.
-- If you create a temporary clone of another repo inside this repo, add it to
-  `.git/info/exclude` so it cannot be accidentally staged here.
+Every session should confirm these files exist and are current:
 
-## Required GitHub setup
-
-**Settings → Pages:** Set Source to **GitHub Actions** (one-time, enables the deploy).
-
-No secrets or variables are required for Pages deployment. Dunescape has no backend yet.
-
-## Workflow files
-
-| File | Purpose |
+| File | When to update |
 |---|---|
-| `.github/workflows/ci.yml` | Typecheck, lint, build on push/PR |
-| `.github/workflows/deploy-pages.yml` | Build + sync bundle to studio site |
+| `context/LATEST_HANDOFF.md` | Every closeout — primary handoff |
+| `context/CURRENT_STATE.md` | When shipped behavior changes |
+| `context/TASK_BOARD.md` | When tasks complete or new ones are added |
+| `context/DECISIONS.md` | When a meaningful decision is made |
+| `context/PROJECT_BRIEF.md` | When scope or purpose changes |
+| `context/SELF_IMPROVEMENT_LOOP.md` | Every closeout — append audit + brainstorm entry |
+| `docs/CREATIVE_DIRECTION_RECORD.md` | Every time the human gives creative direction (ADDITIVE ONLY) |
+| `logs/WORK_LOG.md` | Every closeout — append session entry |
 
-## Key source files
+## Closeout write-back (mandatory)
 
-| File | Purpose |
-|---|---|
-| `src/App.jsx` | Main game component (`DS()`) — all gameplay logic |
-| `src/main.jsx` | React entry point |
-| `vite.config.js` | Vite config; base uses `VITE_APP_BASE_PATH` env var |
-| `scripts/postbuild-pages.mjs` | Copies `dist/index.html` → `dist/404.html` for SPA fallback |
+After any meaningful session, write back in this order:
+1. `context/CURRENT_STATE.md`
+2. `context/TASK_BOARD.md`
+3. `context/LATEST_HANDOFF.md`
+4. `logs/WORK_LOG.md`
+5. `context/DECISIONS.md` (if decisions made)
+6. `context/SELF_IMPROVEMENT_LOOP.md` — score, brainstorm, commit 1–2 items to TASK_BOARD
+7. `docs/CREATIVE_DIRECTION_RECORD.md` — append if human gave any creative direction this session
 
----
+## Self-Improvement Loop (mandatory)
 
-## Studio System Template
+Every closeout MUST include a Self-Improvement Loop entry in `context/SELF_IMPROVEMENT_LOOP.md`:
 
-This section defines the VaultSpark Studios standard for maintaining AI session
-memory across hundreds of sessions. Every project and every AI agent operating
-in this studio follows this system. Treat it as canon.
+1. Score project across 5 categories (Dev Health / Creative Alignment / Momentum / Engagement / Process Quality)
+2. Compare to prior scores — note ↑ ↓ → per category
+3. Name 1 top win and 1 top gap
+4. Brainstorm 3–5 innovative solutions or features
+5. Commit 1–2 brainstorm items to TASK_BOARD labeled `[SIL]`
 
-### Core principle
+At session start, read `context/SELF_IMPROVEMENT_LOOP.md` and check if prior `[SIL]` commitments were actioned. If a `[SIL]` item has been skipped 2+ sessions, escalate it to **Now** on TASK_BOARD.
 
-Never rely on chat history as the source of truth. Treat each AI session like
-a stateless contractor that reads a compact project package, does work, and
-writes back updates.
+## Creative Direction Record (mandatory enforcement)
 
-### 1. One canonical project folder
+`docs/CREATIVE_DIRECTION_RECORD.md` is ADDITIVE ONLY.
 
-Every project gets a root structure:
+**Agents MUST append an entry whenever the human provides:**
+- Any creative direction (features, feel, scope)
+- Feature assignments or explicit goals
+- Brand, tone, visual, or quality guidance
+- Canon-affecting decisions
+- Explicit "do this / don't do this" instruction
 
-```
-/{ProjectName}
-  /context
-  /docs
-  /plans
-  /specs
-  /logs
-  /handoffs
-  /prompts
-  /src
-```
+**Agents MUST NOT:**
+- Add CDR entries autonomously without human input
+- Modify or delete existing CDR entries
+- Skip CDR even for "small" directions — every human direction counts
 
-The AI never "remembers the project." It reads the project's memory files.
+## Studio Hub integration
 
-### 2. Five core memory files
+This project is tracked in the VaultSpark Studio Hub at `vaultsparkstudios.com/studio-hub/`.
+The hub reads `context/PROJECT_STATUS.json` from this repo via GitHub API.
 
-Every project maintains five always-updated files.
+For hub visibility, keep `context/PROJECT_STATUS.json` current with:
+- `status` — incubating / active / live / maintained / archived
+- `health` — green / yellow / red
+- `currentFocus` — one-line description of active work
+- `nextMilestone` — next concrete deliverable
+- `blockers` — array of blocking items (empty if none)
+- `lastUpdated` — ISO date of last update
 
-#### `context/PROJECT_BRIEF.md`
+## Active Session Beacon
 
-What the project is.
+To show an active session indicator in the Studio Hub, add these hooks to your `CLAUDE.md`:
 
-```
-# Project Brief
+```bash
+# On session start — replace PROJECT_ID and GIST_ID:
+gh gist edit GIST_ID -f active.json <<EOF
+{"active":[{"project":"PROJECT_ID","agent":"claude-code","since":"$(date -u +%Y-%m-%dT%H:%M:%SZ)"}]}
+EOF
 
-Name: <ProjectName>
-Type: <type>
-Core fantasy: <one sentence>
-Non-goals: <what this is not>
-
-Design pillars:
-- <pillar 1>
-- <pillar 2>
-- <pillar 3>
-```
-
-#### `context/CURRENT_STATE.md`
-
-What is true right now.
-
-```
-# Current State
-
-Build status:
-- <status 1>
-- <status 2>
-
-Current priorities:
-1. <priority 1>
-2. <priority 2>
-
-Known issues:
-- <issue 1>
-- <issue 2>
+# On session end:
+gh gist edit GIST_ID -f active.json <<EOF
+{"active":[]}
+EOF
 ```
 
-#### `context/DECISIONS.md`
+Get the Gist ID from Hub Settings → "Active Session Beacon — GitHub Gist ID".
+Get PROJECT_ID from the project's `id` field in `src/data/studioRegistry.js`.
 
-Why key choices were made.
+## Session aliases
 
-```
-# Decisions
+If the user says only `start`, follow `prompts/start.md`.
 
-- <decision and rationale>
-- <decision and rationale>
-```
+If the user says only `closeout`, follow `prompts/closeout.md`.
 
-#### `context/TASK_BOARD.md`
+## Escalate before changing
 
-The active queue.
-
-```
-# Task Board
-
-## Now
-- <active task>
-
-## Next
-- <queued task>
-
-## Later
-- <backlog item>
-```
-
-#### `handoffs/LATEST_HANDOFF.md`
-
-What the next AI session needs in under 60 seconds.
-
-```
-# Latest Handoff
-
-Last updated: YYYY-MM-DD
-
-What was completed:
-- <item>
-
-What is mid-flight:
-- <item>
-
-What to do next:
-1. <step>
-2. <step>
-
-Important constraints:
-- <constraint>
-```
-
-### 3. Required session bootstrap prompt
-
-Before any AI starts working, paste this standard bootstrap:
-
-```
-You are joining an existing project. Treat the repository files as source
-of truth, not prior chat history.
-
-Read in this order:
-1. context/PROJECT_BRIEF.md
-2. context/CURRENT_STATE.md
-3. context/DECISIONS.md
-4. context/TASK_BOARD.md
-5. handoffs/LATEST_HANDOFF.md
-
-Rules:
-- preserve existing functionality unless explicitly told to remove it
-- update memory files after making meaningful changes
-- explain changes in terms of current architecture
-- note assumptions clearly
-```
-
-### 4. Every work session ends with a write-back
-
-At the end of each session, the AI must update:
-
-- `context/CURRENT_STATE.md`
-- `context/TASK_BOARD.md`
-- `handoffs/LATEST_HANDOFF.md`
-
-Without write-back, the system collapses and the next session starts drifting.
-
-Standard closeout format:
-
-```
-## Session Closeout
-
-Completed:
-- ...
-
-Changed files:
-- ...
-
-Open problems:
-- ...
-
-Recommended next action:
-- ...
-```
-
-### 5. Use layered context, not giant dumps
-
-Give the AI only what it needs for the current task.
-
-- Layer 1: project identity
-- Layer 2: current state
-- Layer 3: active task
-- Layer 4: relevant code or spec excerpts only
-
-This keeps the model focused and avoids wasted tokens.
-
-### Operating rhythm
-
-| Session type | Read order | End action |
-|---|---|---|
-| Planning | brief → decisions → roadmap | update task board |
-| Coding | handoff → relevant files → implement | write back state + handoff |
-| Debugging | current state → reproduce → root cause | write back findings |
-| Creative | brand/style guide → generate | save prompt + output notes |
-
-### File pattern for multi-AI teams
-
-When using multiple AI tools (Claude, ChatGPT, Codex, local) in parallel,
-separate stable truth from temporary notes:
-
-```
-/context
-  PROJECT_BRIEF.md       ← long-lived truth
-  CURRENT_STATE.md
-  DECISIONS.md
-
-/specs
-  <system>.md            ← deep system detail
-
-/handoffs
-  HANDOFF_YYYY-MM-DD_CLAUDE.md
-  HANDOFF_YYYY-MM-DD_GPT.md
-  LATEST_HANDOFF.md      ← session transitions
-
-/logs
-  SESSION_LOG.md         ← chronological memory
-
-/prompts
-  bootstrap_prompt.md    ← reusable instructions
-  coding_prompt.md
-```
+- canon
+- public promises
+- rights or provenance
+- launch dates
+- security or data handling
