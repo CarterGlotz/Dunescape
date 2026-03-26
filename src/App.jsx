@@ -67,12 +67,12 @@ const ITEMS={
   egg:{n:"Egg",i:"🥚",s:false},milk:{n:"Bucket of milk",i:"🥛",s:false},flour:{n:"Pot of flour",i:"🏺",s:false},
   herb:{n:"Grimy herb",i:"🌿",s:false},vial:{n:"Vial of water",i:"🧪",s:false},
   leather:{n:"Leather",i:"🟫",s:false},cowhide:{n:"Cowhide",i:"🟫",s:false},
-  shortbow:{n:"Shortbow",i:"🏹",s:false,slot:"weapon",rng:7},
-  longbow:{n:"Longbow",i:"🏹",s:false,slot:"weapon",rng:9},
+  shortbow:{n:"Shortbow",i:"🏹",s:false,slot:"weapon",rng:7,aspd:3000},
+  longbow:{n:"Longbow",i:"🏹",s:false,slot:"weapon",rng:9,aspd:3600},
   bronze_arrow:{n:"Bronze arrow",i:"🏹",s:true},iron_arrow:{n:"Iron arrow",i:"🏹",s:true},
   steel_arrow:{n:"Steel arrow",i:"🏹",s:true},rune_arrow:{n:"Rune arrow",i:"🏹",s:true},
-  air_staff:{n:"Air staff",i:"🪄",s:false,slot:"weapon",mgc:true,mmax:4},
-  fire_staff:{n:"Fire staff",i:"🪄",s:false,slot:"weapon",mgc:true,mmax:8},
+  air_staff:{n:"Air staff",i:"🪄",s:false,slot:"weapon",mgc:true,mmax:4,aspd:3000},
+  fire_staff:{n:"Fire staff",i:"🪄",s:false,slot:"weapon",mgc:true,mmax:8,aspd:3000},
   leather_chaps:{n:"Leather chaps",i:"👖",s:false,slot:"legs",def:5},
   studded_body:{n:"Studded body",i:"🦺",s:false,slot:"body",def:15},
   mithril_bar:{n:"Mithril bar",i:"⬜",s:false},
@@ -104,6 +104,13 @@ const ITEMS={
   adamant_plate:{n:"Adamant platebody",i:"🦺",s:false,slot:"body",def:45},
   adamant_legs:{n:"Adamant platelegs",i:"👖",s:false,slot:"legs",def:33},
   adamant_shield:{n:"Adamant sq shield",i:"🛡️",s:false,slot:"shield",def:30},
+  rune_ore:{n:"Rune ore",i:"🪨",s:false},
+  rune_bar:{n:"Rune bar",i:"⬜",s:false},
+  rune_sword:{n:"Rune sword",i:"⚔️",s:false,slot:"weapon",atk:38,str:30},
+  rune_helm:{n:"Rune full helm",i:"⛑️",s:false,slot:"head",def:35},
+  rune_plate:{n:"Rune platebody",i:"🦺",s:false,slot:"body",def:58},
+  rune_legs:{n:"Rune platelegs",i:"👖",s:false,slot:"legs",def:42},
+  rune_shield:{n:"Rune sq shield",i:"🛡️",s:false,slot:"shield",def:38},
 };
 
 function genMap(){
@@ -232,6 +239,8 @@ function genObjs(map){
   [[59,81],[61,81]].forEach(([x,y])=>o.push({t:"fish",x,y,res:"raw_swordfish",sk:"Fishing",xp:100,tm:3200,hp:1,mhp:1,rsp:4000,id:nid(),lvl:50}));
   // Adamantite rocks (deep Wilderness)
   [[22,2],[24,3],[26,2],[28,3]].forEach(([x,y])=>o.push({t:"rock",x,y,res:"adamant_ore",sk:"Mining",xp:95,tm:5000,hp:1,mhp:1,rsp:25000,id:nid(),lvl:70}));
+  // Rune ore rocks (Wilderness, very deep — requires lvl 85)
+  [[5,1],[8,2],[11,1]].forEach(([x,y])=>o.push({t:"rock",x,y,res:"rune_ore",sk:"Mining",xp:125,tm:6000,hp:1,mhp:1,rsp:35000,id:nid(),lvl:85}));
   // Karamja banana trees (spawn)
   [[51,85],[53,87],[55,88],[57,86]].forEach(([x,y])=>o.push({t:"spawn",x,y,id:nid(),hp:1,mhp:1,item:"banana",rsp:15000}));
   // Karamja bank + range
@@ -317,6 +326,7 @@ const SMITH_RECIPES={
   steel_bar:[{out:"steel_sword",xp:37},{out:"steel_shield",xp:37},{out:"steel_helm",xp:37},{out:"steel_legs",xp:37},{out:"steel_axe",xp:37},{out:"steel_pick",xp:37}],
   mithril_bar:[{out:"mithril_sword",xp:55},{out:"mithril_helm",xp:55},{out:"mithril_plate",xp:55},{out:"mithril_legs",xp:55},{out:"mithril_shield",xp:55}],
   adamant_bar:[{out:"adamant_sword",xp:78},{out:"adamant_helm",xp:78},{out:"adamant_plate",xp:78},{out:"adamant_legs",xp:78},{out:"adamant_shield",xp:78}],
+  rune_bar:[{out:"rune_sword",xp:150},{out:"rune_helm",xp:150},{out:"rune_plate",xp:150},{out:"rune_legs",xp:150},{out:"rune_shield",xp:150}],
 };
 const SELL_PRICES=Object.fromEntries(SHOP_ITEMS.map(si=>[si.i,Math.max(5,Math.floor(si.cost*0.4))]));
 const CRAFT_RECIPES=[
@@ -477,7 +487,7 @@ export default function DS(){
         autoRetaliate:true,specialCd:0,specialNext:false,eagleEye:0,manaBurst:false,
         achievements:[],cookCount:0,visitedRegions:new Set(),
         haunted:0,jogreKills:0,demonKills:0,jadKills:0,relicParts:0,
-        slayerTask:null,slayerKills:0,
+        slayerTask:null,slayerKills:0,monsterKills:{},
         shipmentFish:0,iceWarriorKills:0,
         activePrayers:[],
         buffs:{},ironman:false,
@@ -493,7 +503,7 @@ export default function DS(){
     gR.current=g;
 
     // Load saved state
-    try{const sv=localStorage.getItem("dunescape_save");if(sv){const sp=JSON.parse(sv);const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests)p2.quests={};['desert','cook','goblin','rune','miner','haunted','karamja','knight','relic','awakening'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.desertKills)p2.desertKills=0;if(!p2.goblinKills)p2.goblinKills=0;if(!p2.achievements)p2.achievements=[];if(!p2.buffs)p2.buffs={};if(p2.autoRetaliate==null)p2.autoRetaliate=true;if(!p2.slayerTask)p2.slayerTask=null;if(!p2.sk.Herblore)p2.sk.Herblore=0;if(!p2.sk.Slayer)p2.sk.Slayer=0;if(!p2.sk.Fletching)p2.sk.Fletching=0;if(!p2.eq.cape)p2.eq.cape=null;if(!p2.activePrayers)p2.activePrayers=[];['shipment','forge','wildernessHunt'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.shipmentFish)p2.shipmentFish=0;if(!p2.iceWarriorKills)p2.iceWarriorKills=0;p2.visitedRegions=new Set(sp.visitedRegions||[]);p2.haunted=p2.haunted||0;p2.jogreKills=p2.jogreKills||0;p2.demonKills=p2.demonKills||0;p2.jadKills=p2.jadKills||0;p2.relicParts=p2.relicParts||0;p2.cookCount=p2.cookCount||0;addC("Save loaded. Welcome back!");}
+    try{const sv=localStorage.getItem("dunescape_save");if(sv){const sp=JSON.parse(sv);const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests)p2.quests={};['desert','cook','goblin','rune','miner','haunted','karamja','knight','relic','awakening'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.desertKills)p2.desertKills=0;if(!p2.goblinKills)p2.goblinKills=0;if(!p2.achievements)p2.achievements=[];if(!p2.buffs)p2.buffs={};if(p2.autoRetaliate==null)p2.autoRetaliate=true;if(!p2.slayerTask)p2.slayerTask=null;if(!p2.sk.Herblore)p2.sk.Herblore=0;if(!p2.sk.Slayer)p2.sk.Slayer=0;if(!p2.sk.Fletching)p2.sk.Fletching=0;if(!p2.eq.cape)p2.eq.cape=null;if(!p2.activePrayers)p2.activePrayers=[];['shipment','forge','wildernessHunt'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.shipmentFish)p2.shipmentFish=0;if(!p2.iceWarriorKills)p2.iceWarriorKills=0;if(!p2.monsterKills)p2.monsterKills={};p2.visitedRegions=new Set(sp.visitedRegions||[]);p2.haunted=p2.haunted||0;p2.jogreKills=p2.jogreKills||0;p2.demonKills=p2.demonKills||0;p2.jadKills=p2.jadKills||0;p2.relicParts=p2.relicParts||0;p2.cookCount=p2.cookCount||0;addC("Save loaded. Welcome back!");}
     // Offline progression
     const savedOffline=localStorage.getItem("dunescape_offline");
     if(savedOffline){try{const {task,leftAt}=JSON.parse(savedOffline);const elapsed=Math.min(Date.now()-leftAt,8*3600*1000);if(elapsed>30000&&task){const ticks=Math.floor(elapsed/task.interval);const gained=Math.min(ticks,task.maxItems);for(let i=0;i<gained;i++)addI(task.resource,1);const xpGained=gained*task.xpPer;g.p.sk[task.skill]=(g.p.sk[task.skill]||0)+xpGained;g.p.totalXp+=xpGained;addC("⏰ Offline: "+gained+" "+task.resource+" collected ("+Math.floor(elapsed/60000)+"min offline)");}}catch(e2){}localStorage.removeItem("dunescape_offline");}
@@ -536,6 +546,7 @@ export default function DS(){
       dirtyR.current=true;
     }
     g.checkAch=checkAchievement;
+    g.giveXp=giveXp;
     function playSound(type){
       if(!audioOnR.current||!audioR.current?.ctx)return;
       const ctx=audioR.current.ctx;
@@ -905,6 +916,7 @@ export default function DS(){
         else if(hasI("iron")&&hasI("coal")){remI("iron");remI("coal");addI("steel_bar",1);addC("You smelt a steel bar.");giveXp("Smithing",17);}
         else if(hasI("gold_ore")){remI("gold_ore");addI("gold_bar",1);addC("You smelt a gold bar.");giveXp("Smithing",22);}
         else if(hasI("adamant_ore")&&p.inv.reduce((a,x)=>x.i==="coal"?a+x.c:a,0)>=2){remI("adamant_ore");remI("coal");remI("coal");addI("adamant_bar",1);addC("You smelt an adamant bar.");giveXp("Smithing",37);}
+        else if(hasI("rune_ore")&&p.inv.reduce((a,x)=>x.i==="coal"?a+x.c:a,0)>=4){if(lvl(p.sk.Smithing)<85){addC("Need Smithing level 85 to smelt rune.");p.act=null;}else{remI("rune_ore");remI("coal");remI("coal");remI("coal");remI("coal");addI("rune_bar",1);addC("You smelt a rune bar.");giveXp("Smithing",50);}}
         else if(hasI("iron")){remI("iron");if(Math.random()<0.5){addI("iron_bar",1);addC("You smelt an iron bar.");giveXp("Smithing",12);}else addC("The iron ore is impure...");}
         else{p.act=null;p.actTgt=null;addC("No ores to smelt.");}
       }}
@@ -931,10 +943,10 @@ export default function DS(){
         // Move closer if out of range
         if(dist(p,mon)>attackRange){if(p.path.length===0)p.path=pathToAdjacent(mon.x,mon.y);}
         p.at+=dt;
-        if(p.at>=p.as&&dist(p,mon)<=attackRange){p.at=0;
+        if(p.at>=(cw?.aspd||2400)&&dist(p,mon)<=attackRange){p.at=0;
           const doKill=(tgtMon)=>{
             const km=tgtMon||mon;
-            km.dead=true;addC("You killed the "+km.nm+"!");
+            km.dead=true;addC("You killed the "+km.nm+"!");p.monsterKills=p.monsterKills||{};p.monsterKills[km.nm]=(p.monsterKills[km.nm]||0)+1;
             if(p.quests.desert===1&&km.nm==="Scorpion"){p.desertKills++;addC("Scorpions slain: "+p.desertKills+"/3.");}
             if(p.quests.goblin===1&&km.nm==="Goblin"){p.goblinKills++;addC("Goblins slain: "+p.goblinKills+"/5.");}
             if(km.nm==="Necromancer"&&p.quests.haunted===1){p.haunted=(p.haunted||0)+1;}
@@ -968,7 +980,7 @@ export default function DS(){
             remI(arrow,1);
             const rl=lvl(p.sk.Ranged);
             const prayRng=(p.activePrayers||[]).reduce((a,id)=>{const pr=PRAYERS.find(x=>x.id===id);return a+(pr?.rngBonus||0);},0);
-            const hitC=p.eagleEye>0?1:(0.32+rl*0.016)*(1+prayRng);
+            const hitC=p.eagleEye>0?1:Math.max(0.05,(0.32+rl*0.016-mon.def*0.006))*(1+prayRng);
             if(p.eagleEye>0)p.eagleEye--;
             g.fx.push({type:"arrow",sx:p.x,sy:p.y,tx:mon.x,ty:mon.y,color:"#c8a860",life:400,age:0});
             if(Math.random()<hitC){
@@ -983,7 +995,7 @@ export default function DS(){
             if(!hasRunes){addC("You have no runes for this spell!");p.act=null;p.cmb=null;return;}
             if(isFireStaff){remI("fire_rune",3);remI("air_rune",1);}else remI("air_rune",1);
             const ml=lvl(p.sk.Magic);const spMax=isFireStaff?20:10;
-            const hitC=0.38+ml*0.013;
+            const hitC=Math.max(0.05,0.38+ml*0.013-mon.def*0.004);
             g.fx.push({type:"magic",sx:p.x,sy:p.y,tx:mon.x,ty:mon.y,color:isFireStaff?"#f86020":"#80a0ff",life:500,age:0});
             if(Math.random()<hitC){
               if(p.manaBurst){
@@ -1004,7 +1016,7 @@ export default function DS(){
             const al=Math.floor(lvl(p.sk.Attack)*(1+prayAtk))+buffAmt,sl=Math.floor(lvl(p.sk.Strength)*(1+prayStr))+strBuff;
             const wb=cw?{a:cw.atk||0,s:cw.str||0}:{a:0,s:0};
             const rb=p.eq.ring&&ITEMS[p.eq.ring]?.str?ITEMS[p.eq.ring].str:0;
-            const hitC=0.35+al*0.018+wb.a*0.013;
+            const hitC=Math.max(0.05,0.35+al*0.018+wb.a*0.013-mon.def*0.007);
             if(Math.random()<hitC){
               const maxH=Math.max(1,Math.floor(sl*0.55+wb.s*0.88+rb*0.75))+1;let hit=Math.floor(Math.random()*maxH)+1;
               if(p.specialNext){hit*=2;p.specialNext=false;addC("⚡ Power Strike! "+hit+" damage!");}
@@ -1077,7 +1089,7 @@ export default function DS(){
       else if(p.y>=45&&p.y<65&&p.x<14)curReg="DarkForest";
       if(curReg&&!p.visitedRegions.has(curReg)){p.visitedRegions.add(curReg);if(p.visitedRegions.size>=12)checkAchievement("explorer");}
       // Auto-save every 60s
-      if(Math.floor(g.tk/60000)!==Math.floor((g.tk-dt)/60000)){try{localStorage.setItem("dunescape_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...p.visitedRegions],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0}));}catch(e){}}
+      if(Math.floor(g.tk/60000)!==Math.floor((g.tk-dt)/60000)){try{localStorage.setItem("dunescape_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...p.visitedRegions],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{}}));}catch(e){}}
       // Update FX
       g.fx=g.fx.filter(f=>{f.age+=dt;return f.age<f.life;});
       // Camera
@@ -1165,6 +1177,7 @@ export default function DS(){
       }
       // Monsters
       for(const m of g.mons){if(m.dead)continue;const sx=(m.x-cx)*TILE,sy=(m.y-cy)*TILE;if(sx<-TILE||sx>CW+TILE||sy<-TILE||sy>CH+TILE)continue;
+        if(p.slayerTask&&m.nm===p.slayerTask.monster){c.strokeStyle="#ff8000";c.lineWidth=2.5;c.beginPath();c.arc(sx+16,sy+16,13,0,6.28);c.stroke();}
         c.fillStyle="rgba(0,0,0,0.1)";c.beginPath();c.ellipse(sx+16,sy+28,10,4,0,0,6.28);c.fill();
         c.fillStyle=m.c;c.beginPath();c.arc(sx+16,sy+16,10,0,6.28);c.fill();
         c.fillStyle="rgba(0,0,0,0.12)";c.beginPath();c.arc(sx+16,sy+16,10,0,3.14);c.fill();
@@ -1326,18 +1339,14 @@ export default function DS(){
   function unequip(slot){if(!p||!p.eq[slot])return;if(p.inv.length>=28){addC("Inventory full.");return;}const it=p.eq[slot];p.eq[slot]=null;p.inv.push({i:it,c:1});}
   function bury(idx){if(!p||!g)return;const s=p.inv[idx];if(!s||(s.i!=="bones"&&s.i!=="big_bones"&&s.i!=="dragon_bones"))return;
     const xpAmt=s.i==="dragon_bones"?72:s.i==="big_bones"?15:4;p.inv.splice(idx,1);addC("You bury the bones.");
-    const ol=lvl(p.sk.Prayer);p.sk.Prayer+=xpAmt;p.totalXp+=xpAmt;
-    if(g)g.fx.push({type:"xp",x:p.x,y:p.y,text:"+"+xpAmt+" Prayer",color:SKILL_COLORS.Prayer,life:1500,age:0});
-    const nl=lvl(p.sk.Prayer);if(nl>ol){addC("🎉 Prayer level "+nl+"!");p.maxPrayer=nl;p.prayer=Math.min(p.prayer+1,p.maxPrayer);}}
+    if(gR.current?.giveXp)gR.current.giveXp("Prayer",xpAmt);fr(n=>n+1);}
   function firemaking(idx){if(!p||!g)return;const s=p.inv[idx];if(!s)return;
     const logTypes={logs:{xp:40,lvl:1},oak_logs:{xp:60,lvl:15},willow_logs:{xp:90,lvl:30},yew_logs:{xp:202,lvl:60}};
     const lt=logTypes[s.i];if(!lt)return;if(!p.inv.some(x=>x.i==="tinderbox")){addC("You need a tinderbox.");return;}
     const fl=lvl(p.sk.Firemaking);if(fl<lt.lvl){addC("Need Firemaking level "+lt.lvl+".");return;}
     p.inv.splice(idx,1);g.fires.push({x:p.x,y:p.y,time:Date.now()+45000});addC("You light a fire.");
-    if(g&&gR.current?.checkAch)gR.current.checkAch("fire_starter");
-    const ol=lvl(p.sk.Firemaking);p.sk.Firemaking+=lt.xp;p.totalXp+=lt.xp;
-    g.fx.push({type:"xp",x:p.x,y:p.y,text:"+"+lt.xp+" Firemaking",color:SKILL_COLORS.Firemaking,life:1500,age:0});
-    const nl=lvl(p.sk.Firemaking);if(nl>ol){addC("🎉 Firemaking level "+nl+"!");}}
+    if(gR.current?.checkAch)gR.current.checkAch("fire_starter");
+    if(gR.current?.giveXp)gR.current.giveXp("Firemaking",lt.xp);fr(n=>n+1);}
   function bankDeposit(idx,e){if(!p)return;const s=p.inv[idx];if(!s)return;
     let amt=1;if(e?.shiftKey)amt=Math.min(10,s.c);if(e?.ctrlKey)amt=s.c;
     const be=p.bank.find(b=>b.i===s.i);if(be)be.c+=amt;else p.bank.push({i:s.i,c:amt});
@@ -1389,7 +1398,7 @@ export default function DS(){
     addC("You fletch: "+ITEMS[rec.out].n+(outCnt>1?" x"+outCnt:"")+".");setFletchOpen(false);fr(n=>n+1);
   }
   function togglePrayer(id){if(!p)return;const pl=lvl(p.sk.Prayer);const pr=PRAYERS.find(x=>x.id===id);if(!pr)return;if(pl<pr.lvl){addC("Need Prayer level "+pr.lvl+".");return;}if(p.prayer<=0){addC("You have no Prayer points.");return;}const active=p.activePrayers||[];const idx=active.indexOf(id);if(idx>=0)p.activePrayers=active.filter(x=>x!==id);else p.activePrayers=[...active,id];fr(n=>n+1);}
-  function saveGame(){if(!p||!gR.current)return;try{localStorage.setItem("dunescape_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0}));addC("Game saved!");}catch(e){}}
+  function saveGame(){if(!p||!gR.current)return;try{localStorage.setItem("dunescape_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{}}));addC("Game saved!");}catch(e){}}
 
   const invSlots=[];
   if(p)for(let i=0;i<28;i++){const s=p.inv[i];const d=s?ITEMS[s.i]:null;const isLog=s&&["logs","oak_logs","willow_logs","yew_logs"].includes(s.i);
@@ -1402,7 +1411,7 @@ export default function DS(){
     </div>);}
 
   return (
-    <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none"}}>
+    <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none",zoom:uiScale}}>
       {/* HUD */}
       <div style={{height:36,background:"linear-gradient(180deg,#280e06,#1c0804)",borderBottom:"2px solid #7a2010",display:"flex",alignItems:"center",padding:"0 10px",gap:10,flexShrink:0,overflow:"hidden"}}>
         <span style={{color:"#d4a030",fontWeight:900,fontSize:15,letterSpacing:3,fontFamily:"'Courier New',monospace",textShadow:"1px 1px 0 #7a2808,2px 2px 0 #2a0804",textTransform:"uppercase"}}>Dunescape</span>
@@ -1440,7 +1449,7 @@ export default function DS(){
         {/* Side panel */}
         <div style={{width:195,background:"linear-gradient(180deg,#1e0a06,#180804)",borderLeft:"2px solid #5a1808",display:"flex",flexDirection:"column",flexShrink:0}}>
           <div style={{display:"flex",borderBottom:"1px solid #5a1808"}}>
-            {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"],["settings","⚙️"]].map(([t,ic])=>
+            {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"],["bestiary","📖"],["settings","⚙️"]].map(([t,ic])=>
               <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"4px 0",background:tab===t?"#280e06":"transparent",border:"none",color:tab===t?"#c8a84e":"#5a2010",cursor:"pointer",fontSize:11,borderBottom:tab===t?"2px solid #c8a84e":"2px solid transparent"}}>{ic}</button>)}
           </div>
           <div style={{flex:1,overflow:"auto",padding:5}}>
@@ -1526,6 +1535,25 @@ export default function DS(){
                 </div>;})}
               </div>
               <div style={{fontSize:8,color:"#555",marginTop:6,lineHeight:1.5}}>Bury bones for Prayer XP. Recharge at an altar.</div>
+            </div>}
+            {tab==="bestiary"&&p&&<div style={{padding:4}}>
+              <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1,marginBottom:4}}>BESTIARY ({Object.keys(p.monsterKills||{}).length} discovered)</div>
+              {(()=>{
+                const mons=gR.current?.mons||[];
+                const seen=new Map();
+                mons.forEach(m=>{if(!seen.has(m.nm))seen.set(m.nm,m);});
+                return [...seen.values()].sort((a,b)=>a.lvl-b.lvl).map(m=>{
+                  const kc=(p.monsterKills||{})[m.nm]||0;
+                  return <div key={m.nm} style={{background:"rgba(70,20,5,0.45)",padding:"4px 6px",borderRadius:3,marginBottom:2,border:"1px solid rgba(200,168,78,0.08)",opacity:kc>0?1:0.45}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <span style={{fontSize:10,color:kc>0?m.c:"#555",fontWeight:700}}>{kc>0?m.nm:"???"}</span>
+                      <span style={{fontSize:8,color:"#888"}}>Lvl {m.lvl} · {kc>0?<span style={{color:"#da0"}}>{kc} kills</span>:"unseen"}</span>
+                    </div>
+                    {kc>0&&<div style={{fontSize:7,color:"#777",marginTop:1}}>HP:{m.mhp} Atk:{m.atk} Def:{m.def} Str:{m.str}</div>}
+                    {kc>0&&<div style={{fontSize:8,marginTop:1}}>{m.drops.filter(d=>d.c>=0.05).map(d=>ITEMS[d.i]?.i||"?").join(" ")}</div>}
+                  </div>;
+                });
+              })()}
             </div>}
             {tab==="settings"&&p&&<div style={{padding:6,display:"flex",flexDirection:"column",gap:6}}>
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1}}>SETTINGS</div>
