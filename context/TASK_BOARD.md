@@ -2,12 +2,9 @@
 
 ## Now — Agent can do immediately
 
-- [SIL] Add daily run streak counter in localStorage + display in Daily tab
-- [SIL] Give Wave 30 boss a seeded daily name based on getDailySeed()
-- [SIL] Add "recent deaths" ticker — show new graves in chat on 5-min refresh
-- [SIL] Add grave clustering marker on world map when >5 graves within 3 tiles
-- [SIL] Oracle dialogue state machine — different lines based on sunBrightness thresholds
-- [SIL] Sunstone Shard offering mechanic on graves (increments sunstone_offerings)
+- [SIL] Sun pulse animation on HUD ☀ indicator (opacity pulsing, speed increases as brightness drops)
+- [SIL] Faction leaderboard split in Daily tab (Sunkeepers / Eclipsers / Neutral sections)
+- [Phase 4] Roguelite run mode (dungeon as primary game mode) — see TECH_IMPLEMENTATION_PLAN.md §4
 
 ## Now — Waiting on Carter (manual actions, flagged for delay)
 
@@ -20,9 +17,7 @@
 
 ## Next — Agent (after current Now items clear)
 
-- [Phase 4] Roguelite run mode (dungeon as primary game mode) — see TECH_IMPLEMENTATION_PLAN.md §4
 - [Phase 2] Shrine evolution (50 offerings → shrine, 200 → major shrine)
-- [Phase 3] Oracle NPC dialogue state machine (responds to sunBrightness thresholds)
 - [Phase 5] Season 1: The Wandering Comet config + launch prep
 
 ## Later
@@ -58,4 +53,10 @@
 - ✅ [Phase 3] HUD sun indicator: ☀N% with colour shift (gold→orange→red)
 - ✅ [SIL] Oracle NPC in The Sanctum (x:26,y:13) with sun-mythology dialogue
 - ✅ [SIL] Sunstone Shard starter item — in new player inventory, examine text, HUD welcome message
-- ✅ Build passing ✅ (327 KB JS, 99 KB gzipped)
+- ✅ [SIL] Daily run streak counter in localStorage + display in Daily tab
+- ✅ [SIL] Wave 30 boss seeded daily name (getDailyBossName → Shadow Drake renamed each day)
+- ✅ [SIL] Recent deaths ticker — new graves announced in chat on 5-min refresh
+- ✅ [SIL] Grave clustering — 💀 badge with count when ≥5 graves within 3 tiles
+- ✅ [SIL] Oracle dialogue state machine — 4 threshold branches based on sunBrightness
+- ✅ [SIL] Sunstone Shard offering mechanic — spend shard on grave, increments sunstone_offerings
+- ✅ Build passing ✅ (330 KB JS, 101 KB gzipped)

@@ -4,6 +4,19 @@ Last updated: 2026-03-27
 
 ## What was completed this session
 
+**SIL Sprint — All 6 committed SIL items (complete)**
+
+- `getDailyBossName()` — module-level helper, hash of `getDailySeed()+'-boss'` → deterministic prefix+suffix name from arrays; wired into both dungeon entrance handler (line ~1329) and wave-advance handler (line ~1630): Wave 30 Shadow Drake gets the daily name
+- `getDailyStreak()` + `updateStreak()` — localStorage `solara_streak` key `{lastDate,count}`; updateStreak() called in startDailyRun; streak display added to Daily tab header (🔥 N-day streak, shown when >0)
+- Recent deaths ticker — `fetchGraves` compares new results against `gravesRef.current` IDs; new graves → `addC("☠️ name fell at Wave N. A grave marks the world.")` (max 3 per poll)
+- Grave clustering — WorldMapCanvas groups graves within 3-tile radius; clusters ≥5 render 💀 + count badge instead of individual ✝ markers
+- Oracle dialogue state machine — `triggerAction` reads `sunBrightnessRef.current`; 4 branches: >75 (hopeful), >50 (concerned), >25 (urgent), ≤25 (desperate)
+- Sunstone Shard offering — `offerSunstone(grave)` consumes 1 shard from inventory; optimistic UI update to gravePopup + gravesRef; Supabase update in background; "🌟 Offer Shard" button shown in grave popup when player has shards
+
+- Build: ✅ 330 KB JS, 101 KB gzipped
+
+---
+
 **Phase 3 — Sun Phase Engine (complete) + SIL items**
 
 - `src/App.jsx`:
@@ -116,6 +129,7 @@ Last updated: 2026-03-27
 
 1. **Carter action** — GitHub repo rename + Supabase setup (run all 3 SQL blocks above)
 2. **Phase 4** — Roguelite engine (dungeon as primary game mode) — see TECH_IMPLEMENTATION_PLAN.md §4
+3. **[Phase 2] Shrine evolution** — 50 offerings → shrine visual, 200 → major shrine (is_shrine / is_major_shrine fields already in graves table schema)
 
 ## Constraints
 

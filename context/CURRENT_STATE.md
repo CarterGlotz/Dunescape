@@ -15,11 +15,12 @@
 - Phase 3 — Sun Phase Engine: sunBrightness state, fetchSunState (mount + 5-min interval), canvas desaturation filter, increment_death_counter() wired to every death, HUD sun indicator, graceful offline fallback
 - SIL items: Oracle NPC in The Sanctum, Sunstone Shard starter item with flavour text
 - save: solara_save key, SAVE_VERSION=5, migration shim active
-- build: Passing ✅ (327 KB JS, 99 KB gzipped)
+- SIL items (this session): Daily streak counter (localStorage + Daily tab display), seeded boss name for Wave 30, recent deaths ticker, grave clustering (💀 badge ≥5), Oracle dialogue state machine, Sunstone Shard offering mechanic
+- build: Passing ✅ (330 KB JS, 101 KB gzipped)
 
 ## Important paths
 
-- Main game: `src/App.jsx` (~2512 lines — do NOT split until 5000 lines)
+- Main game: `src/App.jsx` (~2520 lines — do NOT split until 5000 lines)
 - Supabase client: `src/supabase.js`
 - Env template: `.env.local` (fill in VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY)
 - Build output: `dist/`

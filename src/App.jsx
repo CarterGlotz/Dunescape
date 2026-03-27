@@ -509,6 +509,9 @@ const mulberry32=(seed)=>{return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.i
 const hashSeed=(str)=>{let h=0;for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);h=((h<<5)-h)+c;h=h&h;}return Math.abs(h);};
 const getDailySeed=()=>{const d=new Date();return`solara-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;};
 const getDayNumber=()=>{const start=new Date('2026-03-27');const now=new Date();return Math.max(1,Math.floor((now-start)/86400000)+1);};
+const getDailyBossName=()=>{const h=hashSeed(getDailySeed()+'-boss');const pfx=["Vexar","Solveth","Kael","Morthis","Dravan","Zephon","Ashan","Corrath","Duvak","Elrith","Faeron","Grauth"];const sfx=["the Ash-Born","of the Dim Flame","the Sunless","the Twilight Herald","the Eclipse-Born","the Shadow","of the Final Dark","the Eternal","the Burning","the Doomed","the Forgotten","the Last Light"];return pfx[h%pfx.length]+" "+sfx[Math.floor(h/pfx.length)%sfx.length];};
+const getDailyStreak=()=>{try{const s=JSON.parse(localStorage.getItem('solara_streak')||'{"lastDate":"","count":0}');return s.lastDate===getDailySeed()?s.count:0;}catch(e){return 0;}};
+const updateStreak=()=>{try{const s=JSON.parse(localStorage.getItem('solara_streak')||'{"lastDate":"","count":0}');const today=getDailySeed();const d=new Date();d.setDate(d.getDate()-1);const yesterday=`solara-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;const c=s.lastDate===yesterday?s.count+1:s.lastDate===today?s.count:1;localStorage.setItem('solara_streak',JSON.stringify({lastDate:today,count:c}));return c;}catch(e){return 1;}};
 const generateDailyRooms=()=>{const rng=mulberry32(hashSeed(getDailySeed()));return Array.from({length:30},(_,i)=>i===29?4:Math.floor(rng()*(DUNGEON_ROOMS.length-1)));};
 const generateShareCard=(playerName,waveReached,faction)=>{const bars=Math.min(5,Math.floor(waveReached/6));const row=Array(5).fill('').map((_,i)=>i<bars?'🔥':'☀️').join('');const fStr=faction?faction.charAt(0).toUpperCase()+faction.slice(1):'No faction';return`☀️ Solara: Sunfall — Day ${getDayNumber()} ${row}\nWave ${waveReached}/30 · ${fStr} · Season ${CURRENT_SEASON}: ${CURRENT_SEASON_NAME}\n\nPlay free → vaultsparkstudios.github.io/solara/\n#SolaraSunfall`;};
 
@@ -552,12 +555,28 @@ function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
     const p=g2.p;
     // Death tile
     if(g2.deathTile&&Date.now()<g2.deathTile.time){c.fillStyle="rgba(255,0,0,0.5)";c.fillRect(g2.deathTile.x*sc-2,g2.deathTile.y*sc-2,6,6);}
-    // Phase 2: Graves — render ✝ markers
+    // Phase 2 + SIL: Graves — render ✝ markers with clustering
     if(graves&&graves.length>0){
       c.font=`bold ${Math.max(6,Math.floor(sc*1.4))}px sans-serif`;c.textAlign="center";
-      graves.forEach(gr=>{
-        c.fillStyle="rgba(180,160,220,0.85)";
-        c.fillText("✝",gr.x*sc+sc/2,gr.y*sc+sc);
+      // Cluster graves within 3 tile radius
+      const clusters=[];const assigned=new Set();
+      graves.forEach((gr,i)=>{
+        if(assigned.has(i))return;
+        const cluster={cx:gr.x,cy:gr.y,members:[gr]};assigned.add(i);
+        graves.forEach((g2,j)=>{if(assigned.has(j))return;if(Math.abs(g2.x-gr.x)<=3&&Math.abs(g2.y-gr.y)<=3){cluster.members.push(g2);assigned.add(j);}});
+        clusters.push(cluster);
+      });
+      clusters.forEach(cl=>{
+        const px=cl.cx*sc+sc/2,py=cl.cy*sc+sc;
+        if(cl.members.length>=5){
+          c.fillStyle="rgba(220,180,255,0.9)";c.font=`bold ${Math.max(7,Math.floor(sc*1.6))}px sans-serif`;
+          c.fillText("💀",px,py);
+          c.fillStyle="#fff";c.font=`bold ${Math.max(4,Math.floor(sc*0.8))}px sans-serif`;
+          c.fillText(cl.members.length,px+sc*0.6,py-sc*0.6);
+        }else{
+          c.fillStyle="rgba(180,160,220,0.85)";c.font=`bold ${Math.max(6,Math.floor(sc*1.4))}px sans-serif`;
+          c.fillText("✝",px,py);
+        }
       });
     }
     // Monsters
@@ -599,6 +618,7 @@ export default function DS(){
   const [gravePopup,setGravePopup]=useState(null); // Phase 2: grave clicked on world map
   const [gravesTick,setGravesTick]=useState(0); // triggers WorldMapCanvas re-render
   const [sunBrightness,setSunBrightness]=useState(100); // Phase 3: 0–100, dims with deaths
+  const sunBrightnessRef=useRef(100); // mirrors sunBrightness for game-loop access
   const [totalDeaths,setTotalDeaths]=useState(0); // Phase 3: global death count
   const [tab,setTab]=useState("inv");
   const [mapOpen,setMapOpen]=useState(false);
@@ -648,6 +668,7 @@ export default function DS(){
 
   // Phase 3: apply canvas desaturation filter when sun brightness changes
   useEffect(()=>{
+    sunBrightnessRef.current=sunBrightness;
     const cv=cvR.current;if(!cv)return;
     const saturation=(0.15+(sunBrightness/100)*0.85).toFixed(2);
     const warmth=sunBrightness>60?1:0.7+(sunBrightness/60)*0.3;
@@ -681,7 +702,7 @@ export default function DS(){
     g2.mons=g2.mons.filter(m=>!m.dungeon);
     g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
     g2.p.x=9;g2.p.y=55;g2.p.path=[];g2.p.act=null;g2.p.cmb=null;g2.p.actTgt=null;
-    const chatArr=[...g2.chatRef||[]];void chatArr;
+    updateStreak();
     setDailyTick(n=>n+1);setTab("inv");
   },[]);
 
@@ -690,9 +711,16 @@ export default function DS(){
     if(!supabase)return;
     try{
       const {data}=await supabase.from('graves').select('id,player_name,epitaph,x,y,faction,wave_reached,season,date_seed,created_at').eq('season',CURRENT_SEASON).order('created_at',{ascending:false}).limit(200);
-      gravesRef.current=data||[];setGravesTick(n=>n+1);
+      const newGraves=data||[];
+      // SIL: recent deaths ticker — announce new graves in chat (max 3)
+      if(gravesRef.current.length>0){
+        const oldIds=new Set(gravesRef.current.map(g=>g.id));
+        const fresh=newGraves.filter(g=>!oldIds.has(g.id));
+        fresh.slice(0,3).forEach(g=>addC(`☠️ ${g.player_name} fell at Wave ${g.wave_reached||0}. A grave marks the world.`));
+      }
+      gravesRef.current=newGraves;setGravesTick(n=>n+1);
     }catch(e){console.warn('[Solara] Graves fetch failed:',e);}
-  },[]);
+  },[addC]);
 
   const submitGrave=useCallback(async(epitaph)=>{
     setShowEpitaphModal(false);setEpitaphDraft("");
@@ -708,6 +736,23 @@ export default function DS(){
       setTimeout(()=>fetchSunState(),2000);
     }catch(e){console.warn('[Solara] Grave submit failed:',e);}
   },[pendingGrave,fetchGraves]);
+
+  // SIL: Sunstone offering
+  const offerSunstone=useCallback(async(grave)=>{
+    const g2=gR.current;if(!g2)return;
+    const p=g2.p;const idx=p.inv.findIndex(x=>x.i==="sunstone_shard");
+    if(idx===-1){return;}
+    // Remove shard from inventory
+    if(p.inv[idx].c>1){p.inv[idx].c--;}else{p.inv.splice(idx,1);}
+    fr(n=>n+1);
+    setGravePopup(prev=>prev?{...prev,sunstone_offerings:(prev.sunstone_offerings||0)+1}:prev);
+    if(supabase){
+      try{await supabase.from('graves').update({sunstone_offerings:(grave.sunstone_offerings||0)+1}).eq('id',grave.id);}
+      catch(e){console.warn('[Solara] Sunstone offer failed:',e);}
+    }
+    // Update local graves cache
+    gravesRef.current=gravesRef.current.map(g=>g.id===grave.id?{...g,sunstone_offerings:(g.sunstone_offerings||0)+1}:g);
+  },[fr]);
 
   // Phase 3: Sun state
   const fetchSunState=useCallback(async()=>{
@@ -1131,7 +1176,14 @@ export default function DS(){
 
       function triggerAction(){
             const at=p.actTgt;
-            if(at.type==="talk"){g.dlg=at.npc;g.dlgL=0;p.actTgt=null;
+            if(at.type==="talk"){
+              // SIL: Oracle state machine — dialogue responds to sun brightness
+              if(at.npc.nm==="The Oracle"){
+                const br=sunBrightnessRef.current;
+                const oracleDlg=br>75?["The sun still burns. For now.","But every death leaves a mark on it.","I count the graves. I count the dimming.","Keep your Sunstone Shard close, traveller."]:br>50?["The sun falters. Can you not feel the warmth fading?","The deaths mount. The light retreats.","We are running out of time, and most do not know it.","Your Sunstone Shard grows warmer. That is not coincidence."]:br>25?["The sun has passed its zenith and will not return without sacrifice.",""+Math.round(100-br)+"% of its light is already gone.","I have watched this world for centuries. This is the worst I have seen.","There is still time. Barely. Fight well."]:["The sun burns at "+Math.round(br)+"%. I pray you feel that weight.","I have seen this before. I did not survive it.","If the sun reaches zero, the season ends. All is shadow.","You are the last light, traveller. Do not waste it."];
+                g.dlg={...at.npc,dlg:oracleDlg};
+              }else{g.dlg=at.npc;}
+              g.dlgL=0;p.actTgt=null;
               if(at.npc.quest==="cook"){
                 if(p.quests.cook===0){p.quests.cook=1;addC("📜 Quest started: Cook's Assistant!");}
                 else if(p.quests.cook===1&&hasI("egg")&&hasI("milk")&&hasI("flour")){
@@ -1274,7 +1326,7 @@ export default function DS(){
               if(isDailyRun)addC("☀️ Daily Rite — Wave "+(dailyRunRef.current.wave+1)+"/30 · "+room.msg);
               else addC(room.msg);
               g.dungeon.active=true;
-              const dungMons=[];room.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dead&&!m.dungeon);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true};if(isDailyRun)dm.dailyRun=true;g.mons.push(dm);dungMons.push(dm);}});g.dungeon.monsters=dungMons;dirtyR.current=true;p.actTgt=null;
+              const dungMons=[];room.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dead&&!m.dungeon);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true};if(isDailyRun)dm.dailyRun=true;if(isDailyRun&&dailyRunRef.current.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();g.mons.push(dm);dungMons.push(dm);}});g.dungeon.monsters=dungMons;dirtyR.current=true;p.actTgt=null;
             }
             // Arena (Task 12)
             else if(at.type==="arena"){
@@ -1575,7 +1627,7 @@ export default function DS(){
             addC("✅ Wave "+run.wave+" cleared! Entering Wave "+(run.wave+1)+"/30...");
             addC(nextRoom.msg);
             const dungMons=[];
-            nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,dailyRun:true};g.mons.push(dm);dungMons.push(dm);}});
+            nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,dailyRun:true};if(run.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();g.mons.push(dm);dungMons.push(dm);}});
             g.dungeon.monsters=dungMons;
           }
           dirtyR.current=true;setDailyTick(n=>n+1);
@@ -2207,6 +2259,7 @@ export default function DS(){
                 <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1}}>☀️ DAILY RITE</div>
                 <div style={{color:"#888",fontSize:7}}>Day {getDayNumber()} · {getDailySeed()}</div>
                 <div style={{color:"#555",fontSize:7}}>Season {CURRENT_SEASON}: {CURRENT_SEASON_NAME}</div>
+                {getDailyStreak()>0&&<div style={{color:"#c8a84e",fontSize:8,marginTop:2,fontWeight:600}}>🔥 {getDailyStreak()}-day streak</div>}
               </div>
               {/* Run state */}
               {!dailyRunRef.current&&<div>
@@ -2476,8 +2529,12 @@ export default function DS(){
               <button onClick={()=>setGravePopup(null)} style={{background:"transparent",border:"none",color:"#666",fontSize:12,cursor:"pointer",padding:0,lineHeight:1}}>✕</button>
             </div>
             <div style={{fontSize:10,color:"#c8a84e",fontStyle:"italic",lineHeight:1.5,marginBottom:4}}>"{gravePopup.epitaph||'They fell without words.'}"</div>
-            <div style={{fontSize:8,color:"#666",lineHeight:1.4}}>
+            <div style={{fontSize:8,color:"#666",lineHeight:1.4,marginBottom:6}}>
               Wave {gravePopup.wave_reached||0} · {gravePopup.faction||'neutral'} · {gravePopup.date_seed||'unknown date'}
+            </div>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <span style={{fontSize:7,color:"#555"}}>🌟 {gravePopup.sunstone_offerings||0} offering{(gravePopup.sunstone_offerings||0)!==1?"s":""}</span>
+              {gR.current?.p?.inv?.some(x=>x.i==="sunstone_shard")&&<button onClick={()=>offerSunstone(gravePopup)} style={{background:"#2a1040",border:"1px solid #7a4090",color:"#c8a0ff",fontSize:7,padding:"2px 6px",cursor:"pointer",borderRadius:3,fontWeight:600}}>🌟 Offer Shard</button>}
             </div>
           </div>}
         </div>

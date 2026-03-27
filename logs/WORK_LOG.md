@@ -84,3 +84,17 @@ Append chronological entries.
   - Preserved: Graceful offline fallback — all Supabase calls no-op when env vars absent
   - Created: None new
 - Recommended next move: Carter runs all 3 SQL blocks from LATEST_HANDOFF.md (daily_scores + graves + sun_state) to bring Phase 1+2+3 live; then Phase 4 roguelite engine
+
+---
+
+### 2026-03-27 - SIL Sprint — All 6 committed SIL items
+
+- Goal: Implement all 6 [SIL] items committed across Phase 1+2+3 sessions
+- What changed:
+  - src/App.jsx: `getDailyBossName()` module helper + wired at both dungeon entrance handler (wave 29 Shadow Drake rename) and wave-advance handler; `getDailyStreak()` + `updateStreak()` module helpers; updateStreak called in startDailyRun; streak display in Daily tab header; fetchGraves updated with recent deaths ticker (new graves → addC chat message, max 3); WorldMapCanvas grave rendering replaced with clustering algorithm (3-tile radius, ≥5 → 💀 badge); Oracle triggerAction updated with 4-branch sunBrightnessRef state machine; `offerSunstone()` function (optimistic UI + Supabase background update); grave popup updated with offerings count + "🌟 Offer Shard" button
+- Files or systems touched: src/App.jsx, context/*
+- Risks created or removed:
+  - Removed: All SIL debt cleared — 6 committed items across 3 sessions now shipped
+  - Preserved: Graceful offline fallback for all Supabase paths
+  - Created: None new
+- Recommended next move: Carter completes Supabase setup (all 3 SQL blocks in LATEST_HANDOFF.md); then Phase 4 roguelite engine or shrine evolution
