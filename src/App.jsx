@@ -142,6 +142,7 @@ const ITEMS={
   rune_plate:{n:"Rune platebody",i:"🦺",s:false,slot:"body",def:58},
   rune_legs:{n:"Rune platelegs",i:"👖",s:false,slot:"legs",def:42},
   rune_shield:{n:"Rune sq shield",i:"🛡️",s:false,slot:"shield",def:38},
+  sunstone_shard:{n:"Sunstone Shard",i:"🌟",s:false,examine:"A warm fragment of Solaran crystal. Legends say the sun shed these shards in its last great burning. It hums faintly in your hand."},
 };
 
 function genMap(){
@@ -314,6 +315,7 @@ function genNPCs(){
     {t:"npc",x:35,y:60,nm:"Dock Master",c:"#5a8a60",dlg:["The supply ship is overdue!","Bring me 10 lobsters and 5 swordfish","and I'll reward you handsomely."],id:22,quest:"shipment",ambient:["The sea looks rough...","Any fresh catches today?","Supplies are running low."]},
     {t:"npc",x:31,y:38,nm:"Forgemaster",c:"#a86040",dlg:["The White Fort garrison needs new armour.","Craft me a mithril platebody","and I'll reward you well."],id:23,quest:"forge",ambient:["Hear that ring of steel?","Mithril is hard to work...","Finest smiths work here."]},
     {t:"npc",x:25,y:3,nm:"Ashlands Scout",c:"#c04030",dlg:["The Ashlands are full of riches...","And dangers. Prove your courage:","slay 5 Ice Warriors and return."],id:24,quest:"wildernessHunt",ambient:["Don't stray too far north...","Ice Warriors patrol this area.","Stay vigilant out there."]},
+    {t:"npc",x:26,y:13,nm:"The Oracle",c:"#c0a0e0",dlg:["The sun weakens. I can feel it.","Every death dims its light a little more.","I will speak plainly when the time comes.","For now — keep your Sunstone Shard close."],id:26,ambient:["The sun... it flickers.","I have seen the Ashlands dark. I pray I do not see it again.","When the sun dies, so does memory."]},
     {t:"npc",x:65,y:43,nm:"Desert Merchant",c:"#a0c060",dlg:["Fine wares from across the desert!","My stock changes with each visit.","I move between towns regularly."],id:25,shop:true,caravan:true,ambient:["Rare goods here!","Just arrived!","Moving on soon..."]},
   ];
 }
@@ -596,9 +598,11 @@ export default function DS(){
   const [pendingGrave,setPendingGrave]=useState(null); // Phase 2: {x,y,wave,faction,playerName}
   const [gravePopup,setGravePopup]=useState(null); // Phase 2: grave clicked on world map
   const [gravesTick,setGravesTick]=useState(0); // triggers WorldMapCanvas re-render
+  const [sunBrightness,setSunBrightness]=useState(100); // Phase 3: 0–100, dims with deaths
+  const [totalDeaths,setTotalDeaths]=useState(0); // Phase 3: global death count
   const [tab,setTab]=useState("inv");
   const [mapOpen,setMapOpen]=useState(false);
-  const [chat,setChat]=useState(["Welcome to Solara: Sunfall!","Left-click to interact. Right-click for options.","Try chopping trees or fighting monsters!"]);
+  const [chat,setChat]=useState(["Welcome to Solara: Sunfall!","Left-click to interact. Right-click for options.","🌟 You carry a Sunstone Shard. The Oracle in The Sanctum speaks of it."]);
   const [,fr]=useState(0);
   const [ctx_menu,setCtx]=useState(null);
   const [bankOpen,setBankOpen]=useState(false);
@@ -634,6 +638,22 @@ export default function DS(){
     const iv=setInterval(()=>fetchGraves(),300000);
     return()=>clearInterval(iv);
   },[fetchGraves]);
+
+  // Phase 3: fetch sun state on mount + every 5 min
+  useEffect(()=>{
+    fetchSunState();
+    const iv=setInterval(()=>fetchSunState(),300000);
+    return()=>clearInterval(iv);
+  },[fetchSunState]);
+
+  // Phase 3: apply canvas desaturation filter when sun brightness changes
+  useEffect(()=>{
+    const cv=cvR.current;if(!cv)return;
+    const saturation=(0.15+(sunBrightness/100)*0.85).toFixed(2);
+    const warmth=sunBrightness>60?1:0.7+(sunBrightness/60)*0.3;
+    const sepia=(1-warmth).toFixed(2);
+    cv.style.filter=`saturate(${saturation}) sepia(${sepia})`;
+  },[sunBrightness]);
 
   const getPlayerFaction=useCallback((p)=>{if(!p?.rep)return'neutral';const {guard=0,merchant=0,bandit=0}=p.rep;const max=Math.max(guard,merchant,bandit);if(max<=0)return'neutral';if(guard===max)return'guard';if(merchant===max)return'merchant';return'bandit';},[]);
 
@@ -682,9 +702,21 @@ export default function DS(){
     if(!supabase)return;
     try{
       await supabase.from('graves').insert({player_name:playerName,epitaph:epitaph||'They fell without words.',x,y,faction:faction||'neutral',wave_reached:wave||0,season:CURRENT_SEASON,date_seed:getDailySeed()});
+      // Phase 3: increment global death counter → dims the sun
+      supabase.rpc('increment_death_counter').catch(e=>console.warn('[Solara] Death counter failed:',e));
       setTimeout(()=>fetchGraves(),1000);
+      setTimeout(()=>fetchSunState(),2000);
     }catch(e){console.warn('[Solara] Grave submit failed:',e);}
   },[pendingGrave,fetchGraves]);
+
+  // Phase 3: Sun state
+  const fetchSunState=useCallback(async()=>{
+    if(!supabase)return;
+    try{
+      const {data}=await supabase.from('sun_state').select('brightness,total_deaths').single();
+      if(data){setSunBrightness(Math.max(0,Math.min(100,Number(data.brightness))));setTotalDeaths(Number(data.total_deaths)||0);}
+    }catch(e){console.warn('[Solara] Sun state fetch failed:',e);}
+  },[]);
 
   useEffect(()=>{
     const map=genMap(),objects=genObjs(map),npcs=genNPCs(),mons=genMons();
@@ -692,7 +724,7 @@ export default function DS(){
       p:{x:20,y:28,path:[],mt:0,ms:200,
         sk:Object.fromEntries(SKILLS.map(s=>[s,s==="Hitpoints"?1154:0])),
         hp:10,mhp:10,prayer:1,maxPrayer:1,
-        inv:[{i:"bronze_sword",c:1},{i:"wooden_shield",c:1},{i:"bronze_axe",c:1},{i:"tinderbox",c:1},{i:"bread",c:5},{i:"coins",c:50}],
+        inv:[{i:"bronze_sword",c:1},{i:"wooden_shield",c:1},{i:"bronze_axe",c:1},{i:"tinderbox",c:1},{i:"bread",c:5},{i:"coins",c:50},{i:"sunstone_shard",c:1}],
         eq:{weapon:null,shield:null,head:null,body:null,legs:null,ring:null,cape:null},
         bank:[{i:"coins",c:200}],
         act:null,actTm:0,actTgt:null,cmb:null,at:0,as:2400,face:"s",run:false,runE:100,
@@ -1978,6 +2010,7 @@ export default function DS(){
           <span style={{color:"#888",fontSize:10}}>Total:{totalLvl}</span>
           {p.ironman&&<span style={{color:"#888",fontSize:10}}>🔒</span>}
           {gR.current?.isNight?<span style={{fontSize:10}}>🌙</span>:<span style={{fontSize:10}}>☀️</span>}
+          {supabase&&<span style={{fontSize:9,color:sunBrightness>60?"#f0c040":sunBrightness>30?"#c08020":"#802010",fontWeight:700}} title={`Global sun: ${sunBrightness.toFixed(1)}% · ${totalDeaths.toLocaleString()} deaths`}>☀{Math.round(sunBrightness)}%</span>}
           {p.slayerTask&&<span style={{color:"#8a2020",fontSize:9}}>🗡️{p.slayerTask.monster} {p.slayerTask.remaining}/{p.slayerTask.count}</span>}
           <div style={{marginLeft:"auto",display:"flex",gap:4,alignItems:"center"}}>
             <button onClick={()=>{if(p){p.autoRetaliate=!p.autoRetaliate;fr(n=>n+1);}}} style={{background:p.autoRetaliate?"#1a1808":"transparent",border:"1px solid #6a2010",color:p.autoRetaliate?"#ff0":"#555",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{p.autoRetaliate?"⚔️AR":"🚫AR"}</button>

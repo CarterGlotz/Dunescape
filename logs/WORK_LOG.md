@@ -70,3 +70,17 @@ Append chronological entries.
   - Preserved: All Supabase calls gracefully no-op when env vars not set — game fully offline-capable
   - Created: None new
 - Recommended next move: Carter: run graves table SQL (in LATEST_HANDOFF.md); then Phase 3 (sun_state table, increment_death_counter(), canvas desaturation)
+
+---
+
+### 2026-03-27 - Phase 3 — Sun Phase Engine + SIL items
+
+- Goal: Implement global sun brightness (Phase 3) + Oracle NPC + Sunstone Shard (SIL commitments)
+- What changed:
+  - src/App.jsx: Added `sunstone_shard` to ITEMS with Solaran flavour examine text; Oracle NPC (x:26,y:13) in The Sanctum with sun-mythology dialogue + ambient lines; Sunstone Shard added to new player starting inventory; welcome message updated; `sunBrightness`+`totalDeaths` state; `fetchSunState()` function; sun state fetch useEffect (mount + 5-min interval); canvas desaturation useEffect (saturate + sepia driven by sunBrightness); `increment_death_counter()` rpc wired in submitGrave; HUD sun indicator (☀N% with colour shift gold→orange→red)
+- Files or systems touched: src/App.jsx, context/*
+- Risks created or removed:
+  - Removed: No "shared sun" feedback risk — sun now visibly dims as players die (once Supabase is live)
+  - Preserved: Graceful offline fallback — all Supabase calls no-op when env vars absent
+  - Created: None new
+- Recommended next move: Carter runs all 3 SQL blocks from LATEST_HANDOFF.md (daily_scores + graves + sun_state) to bring Phase 1+2+3 live; then Phase 4 roguelite engine
