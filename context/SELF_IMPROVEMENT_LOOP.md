@@ -260,5 +260,37 @@ Rate 0–10 per category at each closeout:
 
 **Committed to TASK_BOARD this session**
 
-- [SIL] Shrine glow on world map — graves with ≥50 offerings render as ✦ gold instead of ✝ lavender
-- [SIL] Milestone death announcements — HUD flash at 100/500/1000 total deaths
+- [SIL] Shrine glow on world map — graves with ≥50 offerings render as ✦ gold instead of ✝ lavender — ✅ DONE (was already implemented)
+- [SIL] Milestone death announcements — HUD flash at 100/500/1000 total deaths — ✅ DONE (was already implemented)
+
+---
+
+### 2026-03-27 — Task Board Clearout (Phase 4 + SIL items)
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 9 | → | Build passing (348 KB / 106 KB gzip), 2851 lines, no regressions |
+| Creative Alignment | 10 | → | Roguelite engine fulfils the core "roguelite where deaths dim a shared sun" promise |
+| Momentum | 10 | → | Entire task board cleared in one session — Phase 4 + 4 SIL + shrine evolution |
+| Engagement | 2 | → | Still pre-launch, blocked on Supabase |
+| Process Quality | 10 | → | All context files updated, all SIL debt cleared including 2 escalated items |
+| **Total** | **41 / 50** | → | |
+
+**Top win:** Phase 4 roguelite engine shipped — the game's core pitch ("roguelite where deaths dim a shared sun") is now fully playable. Infinite waves, 4 difficulty tiers, boss fights, relic progression. Also cleared all SIL debt including 2 items that were escalated for being skipped 2+ sessions.
+
+**Top gap:** Supabase remains the sole blocker. The game is feature-complete for launch; it just can't connect to the social backend yet.
+
+**Innovative Solutions Brainstorm**
+
+1. **"First run today" tab pulse** — Subtle gold glow on ☀️ Daily tab when player hasn't played the daily yet today — silent engagement nudge
+2. **Roguelite leaderboard** — Track and display all-time roguelite best waves on a separate leaderboard (Supabase, similar to daily_scores)
+3. **Relic upgrade tiers** — Each relic can be earned multiple times, stacking +1 per duplicate (e.g., Solar Fragment II = +10 HP)
+4. **Mid-run shop** — Every 5 waves in roguelite, offer a merchant NPC with random healing items and temporary buffs purchasable with run coins
+5. **Roguelite share card** — Generate a share card on roguelite death similar to the daily share card (wave reached, relics active, difficulty tier)
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] "First run today" tab pulse — gold glow on ☀️ Daily tab when daily not yet played
+- [SIL] Roguelite share card — generate share text on roguelite death

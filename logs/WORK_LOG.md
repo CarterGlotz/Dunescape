@@ -122,3 +122,18 @@ Append chronological entries.
   - Created (minor): Ambient audio adds a new Web Audio API context — test that it doesn't interfere with existing sound effects
   - Preserved: All graceful Supabase fallbacks intact; build passing at 338 KB / 103 KB gzip
 - Recommended next move: Carter completes all 4 SQL blocks (adds oracle_subscriptions) + env vars + itch.io listing + Discord bot deployment; agent builds Phase 4 roguelite engine
+
+---
+
+### 2026-03-27 — Task Board Clearout (Phase 4 + SIL items)
+
+- Goal: Clear the entire task board — Phase 4 roguelite engine, shrine evolution, 4 SIL items (2 escalated)
+- What changed:
+  - src/App.jsx: Phase 4 roguelite engine — ROGUE_ROOMS (17 rooms, 4 tiers), ROGUE_BOSS (Shadow Drake every 10 waves), RELICS (5 persistent relics), getRogueRoom/scaleRogueMon/getRogueRelicReward helpers; rogueRunRef/rogueTick state; startRogueRun/endRogueRun functions; dungeon entrance handler extended for roguelite; wave-advance check for roguelite; death handler routes roguelite deaths; monster kill handler for rogueRun; roguelite stats in save; roguelite UI in Daily tab. Shrine evolution — offerSunstone updates is_shrine/is_major_shrine at 50/200 thresholds. Sun pulse animation — @keyframes sunPulse + speed tied to sunBrightness. Faction leaderboard split — grouped by Sunkeepers/Eclipsers/Unaligned.
+  - context/*: All context files updated
+- Files or systems touched: src/App.jsx, context/TASK_BOARD.md, context/CURRENT_STATE.md, context/LATEST_HANDOFF.md, context/SELF_IMPROVEMENT_LOOP.md, context/PROJECT_STATUS.json, logs/WORK_LOG.md
+- Risks created or removed:
+  - Removed: "Not a roguelite" risk — Phase 4 delivers the infinite run mode that makes the game's pitch real
+  - Removed: SIL escalation debt (sun pulse + faction split were skipped 2+ sessions)
+  - Created: None new — all paths remain gracefully offline-safe
+- Recommended next move: Carter completes Supabase setup; Phase 5 Season 1 config
