@@ -37,7 +37,7 @@
 ## Blockers
 
 - Supabase not configured — all Phase 1+2+3 social features gracefully disabled until Carter sets up project
-- GitHub repo rename (dunescape→solara) still pending (manual — Carter)
+- ~~GitHub repo rename~~ — done 2026-03-27 (VaultSparkStudios/solara)
 - Itch.io listing — Carter must post manually to itch.io (Innovation #18)
 - Discord bot deployment — Carter must create Discord app + bot token + run separately
 - Twitch extension submission — Carter must submit via Twitch Developer Console

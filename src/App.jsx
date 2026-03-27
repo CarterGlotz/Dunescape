@@ -600,13 +600,24 @@ function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
           c.fillStyle="rgba(255,220,120,0.9)";c.font=`bold ${Math.max(5,Math.floor(sc*0.9))}px sans-serif`;
           c.textAlign="center";c.fillText(lmName,px,py+sc*1.4);
         }else if(cl.members.length>=5){
-          c.fillStyle="rgba(220,180,255,0.9)";c.font=`bold ${Math.max(7,Math.floor(sc*1.6))}px sans-serif`;
+          const hasShrine=cl.members.some(m=>(m.sunstone_offerings||0)>=50);
+          c.fillStyle=hasShrine?"rgba(255,200,100,0.95)":"rgba(220,180,255,0.9)";c.font=`bold ${Math.max(7,Math.floor(sc*1.6))}px sans-serif`;
           c.fillText("💀",px,py);
           c.fillStyle="#fff";c.font=`bold ${Math.max(4,Math.floor(sc*0.8))}px sans-serif`;
           c.fillText(cl.members.length,px+sc*0.6,py-sc*0.6);
         }else{
-          c.fillStyle="rgba(180,160,220,0.85)";c.font=`bold ${Math.max(6,Math.floor(sc*1.4))}px sans-serif`;
-          c.fillText("✝",px,py);
+          // SIL: Shrine glow — check max offerings in cluster
+          const maxOff=Math.max(...cl.members.map(m=>m.sunstone_offerings||0));
+          if(maxOff>=200){
+            c.fillStyle="rgba(255,180,60,1)";c.font=`bold ${Math.max(7,Math.floor(sc*1.6))}px sans-serif`;
+            c.shadowColor="#ff0";c.shadowBlur=8;c.fillText("✦",px,py);c.shadowBlur=0;
+          }else if(maxOff>=50){
+            c.fillStyle="rgba(255,200,100,0.95)";c.font=`bold ${Math.max(7,Math.floor(sc*1.5))}px sans-serif`;
+            c.fillText("✦",px,py);
+          }else{
+            c.fillStyle="rgba(180,160,220,0.85)";c.font=`bold ${Math.max(6,Math.floor(sc*1.4))}px sans-serif`;
+            c.fillText("✝",px,py);
+          }
         }
       });
     }
@@ -651,6 +662,8 @@ export default function DS(){
   const [sunBrightness,setSunBrightness]=useState(100); // Phase 3: 0–100, dims with deaths
   const sunBrightnessRef=useRef(100); // mirrors sunBrightness for game-loop access
   const [totalDeaths,setTotalDeaths]=useState(0); // Phase 3: global death count
+  const prevTotalDeathsRef=useRef(0); // SIL: track previous deaths for milestone detection
+  const [deathMilestone,setDeathMilestone]=useState(null); // SIL: milestone flash message
   const [tab,setTab]=useState("inv");
   const [mapOpen,setMapOpen]=useState(false);
   const [chat,setChat]=useState(["Welcome to Solara: Sunfall!","Left-click to interact. Right-click for options.","🌟 You carry a Sunstone Shard. The Oracle in The Sanctum speaks of it."]);
@@ -823,9 +836,17 @@ export default function DS(){
     if(!supabase)return;
     try{
       const {data}=await supabase.from('sun_state').select('brightness,total_deaths').single();
-      if(data){setSunBrightness(Math.max(0,Math.min(100,Number(data.brightness))));setTotalDeaths(Number(data.total_deaths)||0);}
+      if(data){
+        setSunBrightness(Math.max(0,Math.min(100,Number(data.brightness))));
+        const newDeaths=Number(data.total_deaths)||0;
+        const prev=prevTotalDeathsRef.current;
+        const milestones=[100,500,1000,5000,10000,50000,100000];
+        for(const m of milestones){if(prev<m&&newDeaths>=m){setDeathMilestone(m);setTimeout(()=>setDeathMilestone(null),5000);addC(`☀️ The world has claimed ${m.toLocaleString()} lives. The sun dims.`);break;}}
+        prevTotalDeathsRef.current=newDeaths;
+        setTotalDeaths(newDeaths);
+      }
     }catch(e){console.warn('[Solara] Sun state fetch failed:',e);}
-  },[]);
+  },[addC]);
 
   useEffect(()=>{
     const map=genMap(),objects=genObjs(map),npcs=genNPCs(),mons=genMons();
@@ -2115,6 +2136,7 @@ export default function DS(){
 
   return (
     <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none",zoom:uiScale}}>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
       {/* HUD */}
       <div style={{height:36,background:"linear-gradient(180deg,#280e06,#1c0804)",borderBottom:"2px solid #7a2010",display:"flex",alignItems:"center",padding:"0 10px",gap:10,flexShrink:0,overflow:"hidden"}}>
         <span style={{color:"#d4a030",fontWeight:900,fontSize:15,letterSpacing:3,fontFamily:"'Courier New',monospace",textShadow:"1px 1px 0 #7a2808,2px 2px 0 #2a0804",textTransform:"uppercase"}}>Solara: Sunfall</span>
@@ -2127,6 +2149,7 @@ export default function DS(){
           {p.ironman&&<span style={{color:"#888",fontSize:10}}>🔒</span>}
           {gR.current?.isNight?<span style={{fontSize:10}}>🌙</span>:<span style={{fontSize:10}}>☀️</span>}
           {supabase&&<span style={{fontSize:9,color:sunBrightness>60?"#f0c040":sunBrightness>30?"#c08020":"#802010",fontWeight:700}} title={`Global sun: ${sunBrightness.toFixed(1)}% · ${totalDeaths.toLocaleString()} deaths`}>☀{Math.round(sunBrightness)}%</span>}
+          {deathMilestone&&<span style={{fontSize:8,color:"#f84",fontWeight:700,animation:"pulse 1s ease-in-out infinite",textShadow:"0 0 6px #f40"}}>☀ {deathMilestone.toLocaleString()} lives claimed</span>}
           {p.slayerTask&&<span style={{color:"#8a2020",fontSize:9}}>🗡️{p.slayerTask.monster} {p.slayerTask.remaining}/{p.slayerTask.count}</span>}
           <div style={{marginLeft:"auto",display:"flex",gap:4,alignItems:"center"}}>
             <button onClick={()=>{if(p){p.autoRetaliate=!p.autoRetaliate;fr(n=>n+1);}}} style={{background:p.autoRetaliate?"#1a1808":"transparent",border:"1px solid #6a2010",color:p.autoRetaliate?"#ff0":"#555",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{p.autoRetaliate?"⚔️AR":"🚫AR"}</button>
