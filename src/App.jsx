@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import { supabase } from './supabase.js';
 
 const TILE=32,MW=100,MH=100,VTX=17,VTY=14,CW=VTX*TILE,CH=VTY*TILE;
 const T={G:0,D:1,W:2,S:3,SA:4,WF:5,WA:6,BR:7,PA:8,DG:9,LAVA:10,DESERT:11};
@@ -19,7 +20,7 @@ const TC={
 
 const SKILLS=["Attack","Strength","Defence","Hitpoints","Ranged","Prayer","Magic","Cooking","Woodcutting","Fishing","Mining","Smithing","Crafting","Firemaking","Agility","Thieving","Herblore","Slayer","Fletching","Farming","Runecrafting"];
 const SKILL_COLORS={Attack:"#c03030",Strength:"#00a000",Defence:"#4466cc",Hitpoints:"#cc3030",Ranged:"#408030",Prayer:"#6080b0",Magic:"#3040c0",Cooking:"#8a4a10",Woodcutting:"#2a6a10",Fishing:"#2a5aaa",Mining:"#6a6050",Smithing:"#6a6a6a",Crafting:"#8a6a30",Firemaking:"#d06010",Agility:"#305080",Thieving:"#5a2080",Herblore:"#2a8a50",Slayer:"#8a2020",Fletching:"#a08020",Farming:"#4a8a20",Runecrafting:"#6040a0"};
-const SAVE_VERSION=4;
+const SAVE_VERSION=5;
 function xpLvl(l){let t=0;for(let i=1;i<l;i++)t+=Math.floor(i+300*Math.pow(2,i/7))/4;return Math.floor(t)}
 function lvl(xp){for(let l=1;l<99;l++)if(xp<xpLvl(l+1))return l;return 99}
 
@@ -95,7 +96,7 @@ const ITEMS={
   lore_5:{n:"Torn Parchment V",i:"📜",s:false,lore:"lore_5",examine:"A record about the first people of this land."},
   lore_6:{n:"Torn Parchment VI",i:"📜",s:false,lore:"lore_6",examine:"Notes about the frozen kingdom."},
   lore_7:{n:"Torn Parchment VII",i:"📜",s:false,lore:"lore_7",examine:"A shredded contract fragment."},
-  lore_8:{n:"Torn Parchment VIII",i:"📜",s:false,lore:"lore_8",examine:"A note about the Falador forests."},
+  lore_8:{n:"Torn Parchment VIII",i:"📜",s:false,lore:"lore_8",examine:"A note about The White Fort forests."},
   leather:{n:"Leather",i:"🟫",s:false},cowhide:{n:"Cowhide",i:"🟫",s:false},
   shortbow:{n:"Shortbow",i:"🏹",s:false,slot:"weapon",rng:7,aspd:3000},
   longbow:{n:"Longbow",i:"🏹",s:false,slot:"weapon",rng:9,aspd:3600},
@@ -289,30 +290,30 @@ function genObjs(map){
 
 function genNPCs(){
   return [
-    {t:"npc",x:20,y:28,nm:"Hans",c:"#cc3",dlg:["Welcome to Lumbridge!","Click trees, rocks, fish spots to gather.","Fight monsters for combat XP!","Head north to Varrock for shops & bank."],id:1,ambient:["Welcome, traveller!","Need directions?","Lumbridge is safe!"]},
-    {t:"npc",x:24,y:28,nm:"Cook",c:"#da4",dlg:["I need help making a cake!","Bring me an egg, bucket of milk, and flour.","The egg is in a building to the east,","flour in a building to the south."],id:2,quest:"cook",ambient:["Need ingredients!","Almost out of cake!","Who took my eggs?"]},
-    {t:"npc",x:10,y:59,nm:"Doric",c:"#57a",dlg:["Welcome to the mine, adventurer!","Mine copper and tin to smelt bronze.","The furnace is in Lumbridge.","I could use some mithril ore..."],id:3,quest:"miner"},
-    {t:"npc",x:58,y:21,nm:"Fishing Tutor",c:"#4a8",dlg:["Click on fishing spots to fish!","Different spots give different fish."],id:4},
-    {t:"npc",x:18,y:11,nm:"Banker",c:"#888",dlg:["Welcome to the Bank of Varrock.","Click a bank booth to open your bank."],id:5,bank:true,ambient:["Safe storage here.","Invest wisely!","Coins earn no interest."]},
-    {t:"npc",x:24,y:11,nm:"Shopkeeper",c:"#a84",dlg:["Welcome to my shop!"],id:6,shop:true,ambient:["Fine wares here!","Best prices in Varrock.","Come browse!"]},
-    {t:"npc",x:40,y:25,nm:"Barbarian",c:"#a64",dlg:["We are the Barbarians!","Strong warriors live here.","Prove yourself in combat!"],id:7,ambient:["VICTORY!","Prove your strength!","Honor in battle!"]},
-    {t:"npc",x:62,y:42,nm:"Ali",c:"#da8",dlg:["Welcome to Al Kharid!","The desert is dangerous...","Prove yourself: slay 3 Scorpions.","Return to me when done."],id:8,quest:"desert",ambient:["Hot today...","Scorpions are fierce.","The desert has secrets."]},
-    {t:"npc",x:34,y:74,nm:"Agility Trainer",c:"#58a",dlg:["Welcome to the Agility course!","Click obstacles to train Agility.","Higher levels = faster movement!"],id:9},
+    {t:"npc",x:20,y:28,nm:"Alder",c:"#cc3",dlg:["Welcome to Solara's Rest!","Click trees, rocks, fish spots to gather.","Fight monsters for combat XP!","Head north to The Sanctum for shops & bank."],id:1,ambient:["Welcome, traveller!","Need directions?","Solara's Rest is safe!"]},
+    {t:"npc",x:24,y:28,nm:"Mara",c:"#da4",dlg:["I need help making a cake!","Bring me an egg, bucket of milk, and flour.","The egg is in a building to the east,","flour in a building to the south."],id:2,quest:"cook",ambient:["Need ingredients!","Almost out of cake!","Who took my eggs?"]},
+    {t:"npc",x:10,y:59,nm:"Stone-Reader",c:"#57a",dlg:["Welcome to the mine, adventurer!","Mine copper and tin to smelt bronze.","The furnace is in Solara's Rest.","I could use some mithril ore..."],id:3,quest:"miner"},
+    {t:"npc",x:58,y:21,nm:"The Tide-Watcher",c:"#4a8",dlg:["Click on fishing spots to fish!","Different spots give different fish."],id:4},
+    {t:"npc",x:18,y:11,nm:"The Archivist",c:"#888",dlg:["Welcome to the Bank of The Sanctum.","Click a bank booth to open your bank."],id:5,bank:true,ambient:["Safe storage here.","Invest wisely!","Coins earn no interest."]},
+    {t:"npc",x:24,y:11,nm:"Sun Merchant",c:"#a84",dlg:["Welcome to my shop!"],id:6,shop:true,ambient:["Fine wares here!","Best prices in The Sanctum.","Come browse!"]},
+    {t:"npc",x:40,y:25,nm:"Outlander Elder",c:"#a64",dlg:["We are the Outlanders!","Strong warriors live here.","Prove yourself in combat!"],id:7,ambient:["VICTORY!","Prove your strength!","Honor in battle!"]},
+    {t:"npc",x:62,y:42,nm:"Farris",c:"#da8",dlg:["Welcome to The Amber District!","The desert is dangerous...","Prove yourself: slay 3 Scorpions.","Return to me when done."],id:8,quest:"desert",ambient:["Hot today...","Scorpions are fierce.","The desert has secrets."]},
+    {t:"npc",x:34,y:74,nm:"The Course-Keeper",c:"#58a",dlg:["Welcome to the Agility course!","Click obstacles to train Agility.","Higher levels = faster movement!"],id:9},
     {t:"npc",x:17,y:15,nm:"Guard",c:"#666",dlg:["Move along."],id:10,guard:true},
     {t:"npc",x:40,y:26,nm:"Barbarian Chief",c:"#c64",dlg:["Prove your might, warrior!","Kill 5 goblins and I shall reward you.","They infest the village to the east."],id:11,quest:"goblin",ambient:["VICTORY!","Prove your strength!","Honor in battle!"]},
     {t:"npc",x:20,y:14,nm:"Sedridor",c:"#3050c0",dlg:["I study the mysteries of the runes.","Bring me 10 air runes for my research.","You can find them on Dark Wizards."],id:12,quest:"rune",ambient:["Fascinating runes...","Magic is everywhere.","The arcane calls."]},
-    {t:"npc",x:36,y:59,nm:"Morgan",c:"#c8a",dlg:["Welcome to Draynor Village!","There are willow trees nearby for Woodcutting.","The bank is just to the north."],id:13},
-    {t:"npc",x:36,y:60,nm:"Draynor Banker",c:"#888",dlg:["Welcome to Draynor Bank."],id:14,bank:true},
-    {t:"npc",x:29,y:39,nm:"Sir Amik",c:"#ddd",dlg:["Welcome to Falador!","The Mining Guild to the south has rich ores.","The bank is nearby for your convenience.","Lesser Demons threaten our lands..."],id:15,quest:"knight"},
-    {t:"npc",x:54,y:83,nm:"Luthas",c:"#5a8",dlg:["Welcome to Karamja!","Pick bananas from the trees and sell them.","The fishing docks have great lobsters!","The Jogres in the south are causing trouble..."],id:16,quest:"karamja"},
-    {t:"npc",x:56,y:83,nm:"Karamja Banker",c:"#888",dlg:["Welcome to the Karamja Bank."],id:17,bank:true},
+    {t:"npc",x:36,y:59,nm:"Morgan",c:"#c8a",dlg:["Welcome to Ashfen!","There are willow trees nearby for Woodcutting.","The bank is just to the north."],id:13},
+    {t:"npc",x:36,y:60,nm:"Ashfen Archivist",c:"#888",dlg:["Welcome to Ashfen's Archives."],id:14,bank:true},
+    {t:"npc",x:29,y:39,nm:"Sir Amik",c:"#ddd",dlg:["Welcome to The White Fort!","The Mining Guild to the south has rich ores.","The bank is nearby for your convenience.","Lesser Demons threaten our lands..."],id:15,quest:"knight"},
+    {t:"npc",x:54,y:83,nm:"Luthas",c:"#5a8",dlg:["Welcome to The Southern Isle!","Pick bananas from the trees and sell them.","The fishing docks have great lobsters!","The Jogres in the south are causing trouble..."],id:16,quest:"karamja"},
+    {t:"npc",x:56,y:83,nm:"Isle Archivist",c:"#888",dlg:["Welcome to the Isle Archives."],id:17,bank:true},
     {t:"npc",x:4,y:48,nm:"Old Hermit",c:"#8a7a5a",dlg:["The forest is haunted...","Necromancers lurk among the dark trees.","Please, drive them away!"],id:18,quest:"haunted",ambient:["The forest weeps...","Darkness grows...","Beware the shadows."]},
     {t:"npc",x:22,y:12,nm:"Archaeologist",c:"#a89060",dlg:["I've been searching for a lost relic.","It was broken into 3 parts, scattered across the land.","Check stalls and chests — they may be hidden there."],id:19,quest:"relic",ambient:["Fascinating history here.","Ancient secrets abound.","The past speaks to me."]},
     {t:"npc",x:17,y:14,nm:"Seer",c:"#9060c0",dlg:["I have foreseen a great darkness...","Only one who has faced TzTok-Jad three times can stop it.","Are you that warrior?"],id:20,quest:"awakening",ambient:["The future is unclear...","I see great power in you.","Destiny calls..."]},
     {t:"npc",x:21,y:11,nm:"Mazchna",c:"#8a2020",dlg:["I am the Slayer Master.","I assign tasks to prove your worth.","Right-click me for a slayer assignment!"],id:21,slayer:true,ambient:["Slay with purpose.","The hunt never ends.","Prove your worth!"]},
     {t:"npc",x:35,y:60,nm:"Dock Master",c:"#5a8a60",dlg:["The supply ship is overdue!","Bring me 10 lobsters and 5 swordfish","and I'll reward you handsomely."],id:22,quest:"shipment",ambient:["The sea looks rough...","Any fresh catches today?","Supplies are running low."]},
-    {t:"npc",x:31,y:38,nm:"Forgemaster",c:"#a86040",dlg:["The Falador garrison needs new armour.","Craft me a mithril platebody","and I'll reward you well."],id:23,quest:"forge",ambient:["Hear that ring of steel?","Mithril is hard to work...","Finest smiths work here."]},
-    {t:"npc",x:25,y:3,nm:"Wilderness Scout",c:"#c04030",dlg:["The Wilderness is full of riches...","And dangers. Prove your courage:","slay 5 Ice Warriors and return."],id:24,quest:"wildernessHunt",ambient:["Don't stray too far north...","Ice Warriors patrol this area.","Stay vigilant out there."]},
+    {t:"npc",x:31,y:38,nm:"Forgemaster",c:"#a86040",dlg:["The White Fort garrison needs new armour.","Craft me a mithril platebody","and I'll reward you well."],id:23,quest:"forge",ambient:["Hear that ring of steel?","Mithril is hard to work...","Finest smiths work here."]},
+    {t:"npc",x:25,y:3,nm:"Ashlands Scout",c:"#c04030",dlg:["The Ashlands are full of riches...","And dangers. Prove your courage:","slay 5 Ice Warriors and return."],id:24,quest:"wildernessHunt",ambient:["Don't stray too far north...","Ice Warriors patrol this area.","Stay vigilant out there."]},
     {t:"npc",x:65,y:43,nm:"Desert Merchant",c:"#a0c060",dlg:["Fine wares from across the desert!","My stock changes with each visit.","I move between towns regularly."],id:25,shop:true,caravan:true,ambient:["Rare goods here!","Just arrived!","Moving on soon..."]},
   ];
 }
@@ -329,16 +330,16 @@ function genMons(){
     ...[[20,3],[25,2],[30,4]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Skeleton",c:"#c8c0b0",hp:63,mhp:63,atk:7,def:5,str:6,xp:28,weak:"melee",examine:"Here lies a warrior of the Dune Wars, cursed to wander until the desert reclaims all.",drops:[{i:"bones",c:1},{i:"coins",c:0.8,a:[10,60]},{i:"iron_helm",c:0.05},{i:"fire_rune",c:0.2,a:[2,8]},{i:"elemental_shard",c:0.15,a:[1,3]},{i:"lore_1",c:0.02}],rsp:15000,id:Math.random(),at:0,dead:false,agro:true,lvl:6})),
     ...[[35,2],[38,3]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Dark Wizard",c:"#3030a0",hp:45,mhp:45,atk:9,def:3,str:8,xp:25,weak:"ranged",examine:"Fragments of the Rune Accord. Page 7: The air runes were never meant to be free.",drops:[{i:"coins",c:0.7,a:[15,70]},{i:"nature_rune",c:0.15,a:[2,5]},{i:"air_rune",c:0.4,a:[5,15]},{i:"death_rune",c:0.08,a:[1,3]},{i:"elemental_shard",c:0.15,a:[1,3]},{i:"lore_4",c:0.02}],rsp:16000,id:Math.random(),at:0,dead:false,agro:true,lvl:7,atkType:"magic"})),
     ...[[27,57],[29,60],[31,57],[33,62]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Zombie",c:"#607850",hp:55,mhp:55,atk:6,def:4,str:5,xp:22,weak:"melee",examine:"Once a soldier, now a shambling horror.",drops:[{i:"bones",c:1},{i:"coins",c:0.6,a:[5,30]},{i:"iron_sword",c:0.05},{i:"nature_rune",c:0.1,a:[1,3]},{i:"grimy_tarromin",c:0.08}],rsp:12000,id:Math.random(),at:0,dead:false,agro:true,lvl:5})),
-    ...[[25,40],[27,42],[30,44],[33,40],[35,45]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"White Knight",c:"#d8d8d0",hp:100,mhp:100,atk:10,def:8,str:9,xp:40,weak:"magic",examine:"A proud guardian of Falador's white walls.",drops:[{i:"bones",c:1},{i:"coins",c:0.9,a:[20,100]},{i:"iron_sword",c:0.08},{i:"steel_shield",c:0.02},{i:"bronze_arrow",c:0.3,a:[5,20]}],rsp:18000,id:Math.random(),at:0,dead:false,agro:false,lvl:9})),
+    ...[[25,40],[27,42],[30,44],[33,40],[35,45]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"White Knight",c:"#d8d8d0",hp:100,mhp:100,atk:10,def:8,str:9,xp:40,weak:"magic",examine:"A proud guardian of The White Fort's walls.",drops:[{i:"bones",c:1},{i:"coins",c:0.9,a:[20,100]},{i:"iron_sword",c:0.08},{i:"steel_shield",c:0.02},{i:"bronze_arrow",c:0.3,a:[5,20]}],rsp:18000,id:Math.random(),at:0,dead:false,agro:false,lvl:9})),
     ...[[53,86],[56,88],[59,86],[62,88],[60,84]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Jogre",c:"#5a7a3a",hp:138,mhp:138,atk:12,def:7,str:11,xp:58,weak:"ranged",examine:"A brutish jungle creature with enormous fists.",drops:[{i:"jogre_bone",c:1},{i:"coins",c:0.8,a:[10,60]},{i:"herb",c:0.15},{i:"steel_arrow",c:0.25,a:[5,15]}],rsp:20000,id:Math.random(),at:0,dead:false,agro:true,lvl:11})),
-    ...[[64,90],[67,87],[65,93]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"TzTok-Jad",c:"#c04010",hp:500,mhp:500,atk:20,def:15,str:18,xp:150,weak:"ranged",examine:"Ancient records speak of a Fire God sleeping beneath Karamja. TzTok-Jad is its dreaming eye.",drops:[{i:"coins",c:1,a:[100,300]},{i:"rune_arrow",c:0.5,a:[10,30]},{i:"fire_staff",c:0.02},{i:"ruby",c:0.15},{i:"jad_pet",c:0.003},{i:"lore_3",c:0.05}],rsp:60000,id:Math.random(),at:0,dead:false,agro:true,lvl:20,phase:0,phaseTimer:0,phaseDur:8000,atkType:"magic"})),
+    ...[[64,90],[67,87],[65,93]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"TzTok-Jad",c:"#c04010",hp:500,mhp:500,atk:20,def:15,str:18,xp:150,weak:"ranged",examine:"Ancient records speak of a Fire God sleeping beneath The Southern Isle. TzTok-Jad is its dreaming eye.",drops:[{i:"coins",c:1,a:[100,300]},{i:"rune_arrow",c:0.5,a:[10,30]},{i:"fire_staff",c:0.02},{i:"ruby",c:0.15},{i:"jad_pet",c:0.003},{i:"lore_3",c:0.05}],rsp:60000,id:Math.random(),at:0,dead:false,agro:true,lvl:20,phase:0,phaseTimer:0,phaseDur:8000,atkType:"magic"})),
     ...[[40,32],[42,34],[44,32],[46,34]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Hobgoblin",c:"#6a4a20",hp:75,mhp:75,atk:8,def:5,str:7,xp:28,weak:"ranged",examine:"A larger, meaner cousin of the goblin.",drops:[{i:"bones",c:1},{i:"coins",c:0.8,a:[8,40]},{i:"iron_helm",c:0.04},{i:"bronze_arrow",c:0.3,a:[5,15]},{i:"grimy_harralander",c:0.06}],rsp:10000,id:Math.random(),at:0,dead:false,agro:true,lvl:10})),
     ...[[4,46],[8,48],[5,52],[10,50]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Flesh Crawler",c:"#8a6040",hp:70,mhp:70,atk:9,def:4,str:8,xp:25,weak:"magic",examine:"A grotesque creature that lurks in dark places.",drops:[{i:"coins",c:0.6,a:[5,25]},{i:"herb",c:0.12},{i:"nature_rune",c:0.08,a:[1,3]}],rsp:10000,id:Math.random(),at:0,dead:false,agro:true,lvl:10})),
     ...[[62,32],[64,28],[63,34]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Rock Crab",c:"#9a8060",hp:138,mhp:138,atk:7,def:12,str:6,xp:32,weak:"magic",examine:"Its hard shell is impervious to blades.",drops:[{i:"coins",c:0.5,a:[3,18]}],rsp:12000,id:Math.random(),at:0,dead:false,agro:false,lvl:13})),
     ...[[58,38],[60,40],[63,38]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Bandit",c:"#5a4030",hp:105,mhp:105,atk:10,def:6,str:9,xp:30,weak:"melee",examine:"A desperate criminal willing to kill for coin.",drops:[{i:"coins",c:0.9,a:[15,55]},{i:"iron_sword",c:0.06},{i:"bread",c:0.2},{i:"grimy_harralander",c:0.06}],rsp:11000,id:Math.random(),at:0,dead:false,agro:false,lvl:12})),
-    ...[[26,52],[29,54],[32,52]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Moss Giant",c:"#4a7a2a",hp:250,mhp:250,atk:13,def:9,str:12,xp:55,weak:"ranged",examine:"The Falador forest was clear-cut in the Year of Iron. The giants remember.",drops:[{i:"big_bones",c:1},{i:"coins",c:0.85,a:[20,100]},{i:"nature_rune",c:0.15,a:[2,6]},{i:"steel_shield",c:0.03},{i:"lore_8",c:0.02},{i:"moss_pet",c:0.005}],rsp:20000,id:Math.random(),at:0,dead:false,agro:true,lvl:16})),
+    ...[[26,52],[29,54],[32,52]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Moss Giant",c:"#4a7a2a",hp:250,mhp:250,atk:13,def:9,str:12,xp:55,weak:"ranged",examine:"The White Fort forest was clear-cut in the Year of Iron. The giants remember.",drops:[{i:"big_bones",c:1},{i:"coins",c:0.85,a:[20,100]},{i:"nature_rune",c:0.15,a:[2,6]},{i:"steel_shield",c:0.03},{i:"lore_8",c:0.02},{i:"moss_pet",c:0.005}],rsp:20000,id:Math.random(),at:0,dead:false,agro:true,lvl:16})),
     ...[[38,64],[41,66],[44,64]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Lesser Demon",c:"#c03a1a",hp:213,mhp:213,atk:14,def:8,str:13,xp:65,weak:"melee",examine:"Contract Fragment: ...in exchange for power, the summoner shall provide 1,000 souls...",drops:[{i:"coins",c:0.8,a:[20,120]},{i:"fire_rune",c:0.3,a:[5,20]},{i:"nature_rune",c:0.1,a:[2,5]},{i:"iron_plate",c:0.04},{i:"grimy_kwuarm",c:0.05},{i:"lore_7",c:0.02},{i:"demon_pet",c:0.005}],rsp:22000,id:Math.random(),at:0,dead:false,agro:true,lvl:15})),
-    ...[[15,3],[25,4],[18,2]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Ice Warrior",c:"#80c0e0",hp:288,mhp:288,atk:16,def:14,str:14,xp:80,weak:"melee",examine:"The Wilderness was once a kingdom. The Ice Warriors are its last frozen soldiers.",drops:[{i:"bones",c:1},{i:"coins",c:0.8,a:[25,120]},{i:"steel_helm",c:0.04},{i:"water_rune",c:0.4,a:[5,20]},{i:"elemental_shard",c:0.15,a:[1,3]},{i:"lore_6",c:0.02}],rsp:22000,id:Math.random(),at:0,dead:false,agro:true,lvl:18})),
+    ...[[15,3],[25,4],[18,2]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Ice Warrior",c:"#80c0e0",hp:288,mhp:288,atk:16,def:14,str:14,xp:80,weak:"melee",examine:"The Ashlands were once a kingdom. The Ice Warriors are its last frozen soldiers.",drops:[{i:"bones",c:1},{i:"coins",c:0.8,a:[25,120]},{i:"steel_helm",c:0.04},{i:"water_rune",c:0.4,a:[5,20]},{i:"elemental_shard",c:0.15,a:[1,3]},{i:"lore_6",c:0.02}],rsp:22000,id:Math.random(),at:0,dead:false,agro:true,lvl:18})),
     ...[[3,55],[11,57],[7,63]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Necromancer",c:"#6030a0",hp:150,mhp:150,atk:15,def:5,str:12,xp:60,weak:"melee",examine:"The Order of the Bone Moon once ruled these sands. Their rituals corrupted the oases.",drops:[{i:"death_rune",c:0.4,a:[3,10]},{i:"nature_rune",c:0.2,a:[2,6]},{i:"coins",c:0.7,a:[15,70]},{i:"air_rune",c:0.5,a:[5,15]},{i:"grimy_kwuarm",c:0.05},{i:"elemental_shard",c:0.15,a:[1,3]},{i:"lore_2",c:0.02}],rsp:18000,id:Math.random(),at:0,dead:false,agro:true,lvl:14,atkType:"magic"})),
   ];
 }
@@ -446,7 +447,7 @@ const OFFLINE_TASKS=[
   {label:"Fish lobsters",skill:"Fishing",resource:"raw_lobster",xpPer:90,interval:2800,maxItems:80},
 ];
 
-const MAP_LOCS=[["Lumbridge",20,28],["Varrock",22,12],["Al Kharid",65,43],["Barbarian V.",41,25],["Mine",14,60],["Fishing",60,25],["Draynor",32,59],["Falador",29,42],["Mining Guild",26,51],["Karamja",57,87],["Agility",37,74],["Dark Forest",7,54]];
+const MAP_LOCS=[["Solara's Rest",20,28],["The Sanctum",22,12],["Amber District",65,43],["Outlander Camp",41,25],["Mine",14,60],["Fishing",60,25],["Ashfen",32,59],["The White Fort",29,42],["Mining Guild",26,51],["Southern Isle",57,87],["Agility",37,74],["Dark Forest",7,54]];
 
 const DAILY_CHALLENGES=[
   {type:"cook",item:"lobster",count:10,skill:"Cooking",xp:500,reward:200},
@@ -472,20 +473,20 @@ const UNLOCKS=[
 ];
 
 const FACTIONS={
-  guard:{name:"Lumbridge Guard",color:"#6688cc",rewards:[
+  guard:{name:"Solara's Rest Guard",color:"#6688cc",rewards:[
     {rep:10,desc:"Guard shop discount 10%",id:"guard_discount"},
     {rep:25,desc:"Guard armor unlocked",id:"guard_armor"},
     {rep:50,desc:"Training dummy (AFK XP)",id:"guard_dummy"},
   ]},
-  merchant:{name:"Al Kharid Merchants",color:"#d4a030",rewards:[
+  merchant:{name:"Amber District Merchants",color:"#d4a030",rewards:[
     {rep:10,desc:"Shop sells extra items",id:"merchant_rune"},
     {rep:25,desc:"Bank interest: 1% coins/hr",id:"bank_interest"},
     {rep:50,desc:"Desert shortcut unlocked",id:"merchant_travel"},
   ]},
-  bandit:{name:"Wilderness Bandits",color:"#c04020",rewards:[
+  bandit:{name:"Ashlands Bandits",color:"#c04020",rewards:[
     {rep:10,desc:"Bandits become non-aggressive",id:"bandit_peace"},
-    {rep:25,desc:"Wilderness drop rate +10%",id:"bandit_drops"},
-    {rep:50,desc:"Special rune from wilderness kills",id:"bandit_rune"},
+    {rep:25,desc:"Ashlands drop rate +10%",id:"bandit_drops"},
+    {rep:50,desc:"Special rune from Ashlands kills",id:"bandit_rune"},
   ]},
 };
 
@@ -497,17 +498,29 @@ const DUNGEON_ROOMS=[
   {monsters:[{nm:"Shadow Drake",count:1,hp:400,mhp:400,atk:18,def:12,str:16,xp:200,lvl:25,c:"#303050",drops:[{i:"shadow_cape",c:0.25},{i:"coins",c:1,a:[200,500]}],rsp:90000,agro:true,atkType:"melee"}],msg:"Final room — a Shadow Drake lurks!"},
 ];
 
+// === PHASE 1: SEASON CONFIG ===
+const CURRENT_SEASON=Number(import.meta.env.VITE_SEASON_NUMBER)||1;
+const CURRENT_SEASON_NAME=import.meta.env.VITE_SEASON_NAME||'The Wandering Comet';
+
+// === PHASE 1: SEEDED PRNG (mulberry32) ===
+const mulberry32=(seed)=>{return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};};
+const hashSeed=(str)=>{let h=0;for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);h=((h<<5)-h)+c;h=h&h;}return Math.abs(h);};
+const getDailySeed=()=>{const d=new Date();return`solara-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;};
+const getDayNumber=()=>{const start=new Date('2026-03-27');const now=new Date();return Math.max(1,Math.floor((now-start)/86400000)+1);};
+const generateDailyRooms=()=>{const rng=mulberry32(hashSeed(getDailySeed()));return Array.from({length:30},(_,i)=>i===29?4:Math.floor(rng()*(DUNGEON_ROOMS.length-1)));};
+const generateShareCard=(playerName,waveReached,faction)=>{const bars=Math.min(5,Math.floor(waveReached/6));const row=Array(5).fill('').map((_,i)=>i<bars?'🔥':'☀️').join('');const fStr=faction?faction.charAt(0).toUpperCase()+faction.slice(1):'No faction';return`☀️ Solara: Sunfall — Day ${getDayNumber()} ${row}\nWave ${waveReached}/30 · ${fStr} · Season ${CURRENT_SEASON}: ${CURRENT_SEASON_NAME}\n\nPlay free → vaultsparkstudios.github.io/solara/\n#SolaraSunfall`;};
+
 const CARAVAN_ITEMS=[[{i:"rune_arrow",cost:20},{i:"emerald",cost:280},{i:"ruby",cost:500}],[{i:"death_rune",cost:180},{i:"prayer_potion",cost:350},{i:"ranging_potion",cost:300}],[{i:"elemental_shard",cost:50},{i:"kwuarm_seed",cost:200},{i:"festival_mask",cost:600}]];
 
 const LORE_ENTRIES=[
   {id:"lore_1",monster:"Skeleton",text:"'Here lies a warrior of the Dune Wars, cursed to wander until the desert reclaims all.'"},
   {id:"lore_2",monster:"Necromancer",text:"'The Order of the Bone Moon once ruled these sands. Their rituals corrupted the oases.'"},
-  {id:"lore_3",monster:"TzTok-Jad",text:"'Ancient records speak of a Fire God sleeping beneath Karamja. TzTok-Jad is its dreaming eye.'"},
+  {id:"lore_3",monster:"TzTok-Jad",text:"'Ancient records speak of a Fire God sleeping beneath The Southern Isle. TzTok-Jad is its dreaming eye.'"},
   {id:"lore_4",monster:"Dark Wizard",text:"'Fragments of the Rune Accord. Page 7: The air runes were never meant to be free.'"},
   {id:"lore_5",monster:"Hill Giant",text:"'Giants were the first people of this land. They do not forgive what was taken from them.'"},
-  {id:"lore_6",monster:"Ice Warrior",text:"'The Wilderness was once a kingdom. The Ice Warriors are its last frozen soldiers.'"},
+  {id:"lore_6",monster:"Ice Warrior",text:"'The Ashlands were once a kingdom. The Ice Warriors are its last frozen soldiers.'"},
   {id:"lore_7",monster:"Lesser Demon",text:"'Contract Fragment: ...in exchange for power, the summoner shall provide 1,000 souls...'"},
-  {id:"lore_8",monster:"Moss Giant",text:"'The Falador forest was clear-cut in the Year of Iron. The giants remember.'"},
+  {id:"lore_8",monster:"Moss Giant",text:"'The White Fort forest was clear-cut in the Year of Iron. The giants remember.'"},
 ];
 
 const SEASONAL_EVENTS=[
@@ -518,12 +531,12 @@ const SEASONAL_EVENTS=[
 ];
 
 const QUEST_TEMPLATES=[
-  {type:"kill",npcId:2,npcNm:"Cook",npcRegion:"Lumbridge",monsters:["Goblin","Cow","Chicken"],counts:[10,5,15],rewards:{xp:200,coins:150}},
-  {type:"gather",npcId:6,npcNm:"Shopkeeper",npcRegion:"Varrock",resources:["logs","coal","iron"],counts:[20,10,15],rewards:{xp:300,coins:200}},
-  {type:"cook",npcId:22,npcNm:"Dock Master",npcRegion:"Draynor",items:["raw_lobster","raw_swordfish","raw_trout"],counts:[8,5,15],rewards:{xp:400,coins:250}},
+  {type:"kill",npcId:2,npcNm:"Cook",npcRegion:"Solara's Rest",monsters:["Goblin","Cow","Chicken"],counts:[10,5,15],rewards:{xp:200,coins:150}},
+  {type:"gather",npcId:6,npcNm:"Shopkeeper",npcRegion:"The Sanctum",resources:["logs","coal","iron"],counts:[20,10,15],rewards:{xp:300,coins:200}},
+  {type:"cook",npcId:22,npcNm:"Dock Master",npcRegion:"Ashfen",items:["raw_lobster","raw_swordfish","raw_trout"],counts:[8,5,15],rewards:{xp:400,coins:250}},
 ];
 
-function WorldMapCanvas({gR,mapCvR}){
+function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
   const size=Math.min(500,Math.floor(Math.min(window.innerWidth,window.innerHeight)*0.7));
   useEffect(()=>{
     const cv=mapCvR.current,g2=gR.current;if(!cv||!g2)return;
@@ -537,6 +550,14 @@ function WorldMapCanvas({gR,mapCvR}){
     const p=g2.p;
     // Death tile
     if(g2.deathTile&&Date.now()<g2.deathTile.time){c.fillStyle="rgba(255,0,0,0.5)";c.fillRect(g2.deathTile.x*sc-2,g2.deathTile.y*sc-2,6,6);}
+    // Phase 2: Graves — render ✝ markers
+    if(graves&&graves.length>0){
+      c.font=`bold ${Math.max(6,Math.floor(sc*1.4))}px sans-serif`;c.textAlign="center";
+      graves.forEach(gr=>{
+        c.fillStyle="rgba(180,160,220,0.85)";
+        c.fillText("✝",gr.x*sc+sc/2,gr.y*sc+sc);
+      });
+    }
     // Monsters
     g2.mons.forEach(m=>{if(!m.dead){c.fillStyle="#f44";c.fillRect(m.x*sc,m.y*sc,Math.max(1.5,sc),Math.max(1.5,sc));}});
     // NPCs
@@ -547,8 +568,18 @@ function WorldMapCanvas({gR,mapCvR}){
     // Player (last, on top)
     c.fillStyle="#fff";c.fillRect(p.x*sc-2,p.y*sc-2,5,5);
     c.strokeStyle="#0f0";c.lineWidth=1;c.strokeRect(p.x*sc-2,p.y*sc-2,5,5);
-  });
-  return <canvas ref={mapCvR} width={size} height={size} style={{display:"block",imageRendering:"pixelated"}}/>;
+  },[graves,gravesTick]);
+  const handleMapClick=useCallback((e)=>{
+    if(!onGraveClick||!graves||graves.length===0)return;
+    const cv=mapCvR.current;if(!cv)return;
+    const rect=cv.getBoundingClientRect();
+    const mx=(e.clientX-rect.left)/rect.width*MW;
+    const my=(e.clientY-rect.top)/rect.height*MH;
+    const sc=cv.width/MW;const hitR=Math.max(1.5,sc*1.5)/sc;
+    const hit=graves.find(gr=>Math.abs(gr.x-mx)<hitR&&Math.abs(gr.y-my)<hitR);
+    if(hit)onGraveClick(hit);
+  },[graves,onGraveClick,mapCvR]);
+  return <canvas ref={mapCvR} width={size} height={size} onClick={handleMapClick} style={{display:"block",imageRendering:"pixelated",cursor:"crosshair"}}/>;
 }
 
 export default function DS(){
@@ -557,9 +588,17 @@ export default function DS(){
   const dirtyR=useRef(false);
   const audioR=useRef(null),audioOnR=useRef(false);
   const craftQueueR=useRef(null);
+  const dailyRunRef=useRef(null); // Phase 1: daily run state {wave,startTime,rooms,done,deathWave,shareCard}
+  const dailyLbRef=useRef([]); // Phase 1: leaderboard cache
+  const gravesRef=useRef([]); // Phase 2: cached graves from Supabase
+  const [showEpitaphModal,setShowEpitaphModal]=useState(false);
+  const [epitaphDraft,setEpitaphDraft]=useState("");
+  const [pendingGrave,setPendingGrave]=useState(null); // Phase 2: {x,y,wave,faction,playerName}
+  const [gravePopup,setGravePopup]=useState(null); // Phase 2: grave clicked on world map
+  const [gravesTick,setGravesTick]=useState(0); // triggers WorldMapCanvas re-render
   const [tab,setTab]=useState("inv");
   const [mapOpen,setMapOpen]=useState(false);
-  const [chat,setChat]=useState(["Welcome to Dunescape!","Left-click to interact. Right-click for options.","Try chopping trees or fighting monsters!"]);
+  const [chat,setChat]=useState(["Welcome to Solara: Sunfall!","Left-click to interact. Right-click for options.","Try chopping trees or fighting monsters!"]);
   const [,fr]=useState(0);
   const [ctx_menu,setCtx]=useState(null);
   const [bankOpen,setBankOpen]=useState(false);
@@ -574,6 +613,7 @@ export default function DS(){
   const [offlineTaskSel,setOfflineTaskSel]=useState(0);
   const [tooltip,setTooltip]=useState(null);// {text, x, y}
   const chatR=useRef([]);chatR.current=chat;
+  const [dailyTick,setDailyTick]=useState(0); // triggers re-render when daily run state changes
 
   const addC=useCallback(m=>{const c=[...chatR.current.slice(-100),m];setChat(c);},[]);
 
@@ -587,6 +627,64 @@ export default function DS(){
     window.addEventListener("keydown",onKey);
     return()=>window.removeEventListener("keydown",onKey);
   },[]);
+
+  // Phase 2: fetch graves on mount + every 5 min
+  useEffect(()=>{
+    fetchGraves();
+    const iv=setInterval(()=>fetchGraves(),300000);
+    return()=>clearInterval(iv);
+  },[fetchGraves]);
+
+  const getPlayerFaction=useCallback((p)=>{if(!p?.rep)return'neutral';const {guard=0,merchant=0,bandit=0}=p.rep;const max=Math.max(guard,merchant,bandit);if(max<=0)return'neutral';if(guard===max)return'guard';if(merchant===max)return'merchant';return'bandit';},[]);
+
+  const fetchDailyLeaderboard=useCallback(async()=>{
+    if(!supabase){return;}
+    try{
+      const {data}=await supabase.from('daily_scores').select('player_name,wave_reached,faction').eq('date_seed',getDailySeed()).order('wave_reached',{ascending:false}).limit(10);
+      dailyLbRef.current=data||[];setDailyTick(n=>n+1);
+    }catch(e){console.warn('[Solara] Leaderboard fetch failed:',e);}
+  },[]);
+
+  const submitDailyScore=useCallback(async(playerName,waveReached,faction)=>{
+    if(!supabase)return;
+    try{
+      await supabase.from('daily_scores').insert({player_name:playerName,wave_reached:waveReached,faction:faction||'neutral',date_seed:getDailySeed(),season:CURRENT_SEASON});
+      setTimeout(()=>fetchDailyLeaderboard(),1000);
+    }catch(e){console.warn('[Solara] Score submit failed:',e);}
+  },[fetchDailyLeaderboard]);
+
+  const startDailyRun=useCallback(()=>{
+    const g2=gR.current;if(!g2)return;
+    const rooms=generateDailyRooms();
+    const run={wave:0,startTime:Date.now(),rooms,done:false,deathWave:null,shareCard:null};
+    dailyRunRef.current=run;
+    g2.mons=g2.mons.filter(m=>!m.dungeon);
+    g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
+    g2.p.x=9;g2.p.y=55;g2.p.path=[];g2.p.act=null;g2.p.cmb=null;g2.p.actTgt=null;
+    const chatArr=[...g2.chatRef||[]];void chatArr;
+    setDailyTick(n=>n+1);setTab("inv");
+  },[]);
+
+  // Phase 2: Graves
+  const fetchGraves=useCallback(async()=>{
+    if(!supabase)return;
+    try{
+      const {data}=await supabase.from('graves').select('id,player_name,epitaph,x,y,faction,wave_reached,season,date_seed,created_at').eq('season',CURRENT_SEASON).order('created_at',{ascending:false}).limit(200);
+      gravesRef.current=data||[];setGravesTick(n=>n+1);
+    }catch(e){console.warn('[Solara] Graves fetch failed:',e);}
+  },[]);
+
+  const submitGrave=useCallback(async(epitaph)=>{
+    setShowEpitaphModal(false);setEpitaphDraft("");
+    if(!pendingGrave){return;}
+    const {x,y,wave,faction,playerName}=pendingGrave;
+    setPendingGrave(null);
+    if(!supabase)return;
+    try{
+      await supabase.from('graves').insert({player_name:playerName,epitaph:epitaph||'They fell without words.',x,y,faction:faction||'neutral',wave_reached:wave||0,season:CURRENT_SEASON,date_seed:getDailySeed()});
+      setTimeout(()=>fetchGraves(),1000);
+    }catch(e){console.warn('[Solara] Grave submit failed:',e);}
+  },[pendingGrave,fetchGraves]);
 
   useEffect(()=>{
     const map=genMap(),objects=genObjs(map),npcs=genNPCs(),mons=genMons();
@@ -651,19 +749,43 @@ export default function DS(){
     g.caravanPos=0;g.caravanTimer=0;
     gR.current=g;
 
+    // === SOLARA SAVE MIGRATION SHIM ===
+    // Migrates from Dunescape (legacy) to Solara save format
+    const migrateLegacySave = () => {
+      const legacyKey = 'dunescape_save';
+      const newKey = 'solara_save';
+      const oldData = localStorage.getItem(legacyKey);
+      const newData = localStorage.getItem(newKey);
+      if (oldData && !newData) {
+        try {
+          const save = JSON.parse(oldData);
+          save.saveVersion = 5;
+          save.migratedFrom = 'dunescape';
+          save.migratedAt = Date.now();
+          localStorage.setItem(newKey, JSON.stringify(save));
+          localStorage.removeItem(legacyKey);
+          console.log('[Solara] Legacy Dunescape save migrated successfully.');
+        } catch (err) {
+          console.warn('[Solara] Legacy save migration failed. Starting fresh.', err);
+        }
+      }
+    };
+    migrateLegacySave();
+    // === END MIGRATION SHIM ===
+
     // Load saved state
-    try{const sv=localStorage.getItem("dunescape_save");if(sv){const sp=JSON.parse(sv);const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests)p2.quests={};['desert','cook','goblin','rune','miner','haunted','karamja','knight','relic','awakening'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.desertKills)p2.desertKills=0;if(!p2.goblinKills)p2.goblinKills=0;if(!p2.achievements)p2.achievements=[];if(!p2.buffs)p2.buffs={};if(p2.autoRetaliate==null)p2.autoRetaliate=true;if(!p2.slayerTask)p2.slayerTask=null;if(!p2.sk.Herblore)p2.sk.Herblore=0;if(!p2.sk.Slayer)p2.sk.Slayer=0;if(!p2.sk.Fletching)p2.sk.Fletching=0;if(!p2.sk.Farming)p2.sk.Farming=0;if(!p2.sk.Runecrafting)p2.sk.Runecrafting=0;if(!p2.eq.cape)p2.eq.cape=null;if(!p2.activePrayers)p2.activePrayers=[];['shipment','forge','wildernessHunt'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.shipmentFish)p2.shipmentFish=0;if(!p2.iceWarriorKills)p2.iceWarriorKills=0;if(!p2.monsterKills)p2.monsterKills={};p2.visitedRegions=new Set(sp.visitedRegions||[]);p2.haunted=p2.haunted||0;p2.jogreKills=p2.jogreKills||0;p2.demonKills=p2.demonKills||0;p2.jadKills=p2.jadKills||0;p2.relicParts=p2.relicParts||0;p2.cookCount=p2.cookCount||0;
+    try{const sv=localStorage.getItem("solara_save");if(sv){const sp=JSON.parse(sv);const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests)p2.quests={};['desert','cook','goblin','rune','miner','haunted','karamja','knight','relic','awakening'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.desertKills)p2.desertKills=0;if(!p2.goblinKills)p2.goblinKills=0;if(!p2.achievements)p2.achievements=[];if(!p2.buffs)p2.buffs={};if(p2.autoRetaliate==null)p2.autoRetaliate=true;if(!p2.slayerTask)p2.slayerTask=null;if(!p2.sk.Herblore)p2.sk.Herblore=0;if(!p2.sk.Slayer)p2.sk.Slayer=0;if(!p2.sk.Fletching)p2.sk.Fletching=0;if(!p2.sk.Farming)p2.sk.Farming=0;if(!p2.sk.Runecrafting)p2.sk.Runecrafting=0;if(!p2.eq.cape)p2.eq.cape=null;if(!p2.activePrayers)p2.activePrayers=[];['shipment','forge','wildernessHunt'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.shipmentFish)p2.shipmentFish=0;if(!p2.iceWarriorKills)p2.iceWarriorKills=0;if(!p2.monsterKills)p2.monsterKills={};p2.visitedRegions=new Set(sp.visitedRegions||[]);p2.haunted=p2.haunted||0;p2.jogreKills=p2.jogreKills||0;p2.demonKills=p2.demonKills||0;p2.jadKills=p2.jadKills||0;p2.relicParts=p2.relicParts||0;p2.cookCount=p2.cookCount||0;
       // New field defaults (v4)
       if(!p2.pet)p2.pet=null;if(!p2.questPoints)p2.questPoints=0;if(!p2.unlocks)p2.unlocks=[];if(!p2.rep)p2.rep={guard:0,merchant:0,bandit:0};if(!p2.lastFireTile)p2.lastFireTile=null;if(!p2.prestige)p2.prestige={};if(!p2.farmPatches)p2.farmPatches=[];if(!p2.playerName)p2.playerName="Adventurer";if(!p2.camp)p2.camp=null;if(!p2.campBank)p2.campBank=[];if(!p2.appearance)p2.appearance={skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"};if(!p2.codex)p2.codex=[];if(!p2.sideQuests)p2.sideQuests=[];if(!p2.dailyChallengeProgress)p2.dailyChallengeProgress=0;p2.comboMeter=0;p2.lastCombatStyle=null;
       addC("Save loaded. Welcome back!");}
 
     // Offline progression
-    const savedOffline=localStorage.getItem("dunescape_offline");
-    if(savedOffline){try{const {task,leftAt}=JSON.parse(savedOffline);const elapsed=Math.min(Date.now()-leftAt,8*3600*1000);if(elapsed>30000&&task){const ticks=Math.floor(elapsed/task.interval);const gained=Math.min(ticks,task.maxItems);for(let i=0;i<gained;i++)addI(task.resource,1);const xpGained=gained*task.xpPer;g.p.sk[task.skill]=(g.p.sk[task.skill]||0)+xpGained;g.p.totalXp+=xpGained;addC("⏰ Offline: "+gained+" "+task.resource+" collected ("+Math.floor(elapsed/60000)+"min offline)");}}catch(e2){}localStorage.removeItem("dunescape_offline");}
+    const savedOffline=localStorage.getItem("solara_offline");
+    if(savedOffline){try{const {task,leftAt}=JSON.parse(savedOffline);const elapsed=Math.min(Date.now()-leftAt,8*3600*1000);if(elapsed>30000&&task){const ticks=Math.floor(elapsed/task.interval);const gained=Math.min(ticks,task.maxItems);for(let i=0;i<gained;i++)addI(task.resource,1);const xpGained=gained*task.xpPer;g.p.sk[task.skill]=(g.p.sk[task.skill]||0)+xpGained;g.p.totalXp+=xpGained;addC("⏰ Offline: "+gained+" "+task.resource+" collected ("+Math.floor(elapsed/60000)+"min offline)");}}catch(e2){}localStorage.removeItem("solara_offline");}
     }catch(e){}
 
     // Daily challenge setup (Task 9)
-    {const today=new Date().toDateString();const savedDaily=localStorage.getItem("dunescape_daily");let dailyChallenge=null;if(savedDaily){try{const d=JSON.parse(savedDaily);if(d.date===today){dailyChallenge=d;g.p.dailyChallengeProgress=d.progress||0;}}catch(e2){}}if(!dailyChallenge){const idx=Math.abs(today.split('').reduce((a,c2)=>a+c2.charCodeAt(0),0))%DAILY_CHALLENGES.length;dailyChallenge={...DAILY_CHALLENGES[idx],date:today,progress:0,done:false};localStorage.setItem("dunescape_daily",JSON.stringify(dailyChallenge));}g.dailyChallenge=dailyChallenge;}
+    {const today=new Date().toDateString();const savedDaily=localStorage.getItem("solara_daily");let dailyChallenge=null;if(savedDaily){try{const d=JSON.parse(savedDaily);if(d.date===today){dailyChallenge=d;g.p.dailyChallengeProgress=d.progress||0;}}catch(e2){}}if(!dailyChallenge){const idx=Math.abs(today.split('').reduce((a,c2)=>a+c2.charCodeAt(0),0))%DAILY_CHALLENGES.length;dailyChallenge={...DAILY_CHALLENGES[idx],date:today,progress:0,done:false};localStorage.setItem("solara_daily",JSON.stringify(dailyChallenge));}g.dailyChallenge=dailyChallenge;}
 
     // Side quests init (Task 18)
     {const p2=g.p;if(!p2.sideQuests||p2.sideQuests.length===0){p2.sideQuests=QUEST_TEMPLATES.map((t,i)=>{const opts=t.monsters||t.resources||t.items||["item"];const pick=Math.floor(Math.random()*opts.length);return {id:"side_"+i,type:t.type,target:opts[pick],count:t.counts?.[pick]||10,progress:0,done:false,reward:t.rewards,npcId:t.npcId,npcNm:t.npcNm};});}}
@@ -921,7 +1043,7 @@ export default function DS(){
       // TzTok-Jad phase switching (Task 7)
       g.mons.forEach(m=>{if(m.nm==="TzTok-Jad"&&!m.dead){m.phaseTimer=(m.phaseTimer||0)+dt;const dur=m.hp<m.mhp*0.5?4000:(m.phaseDur||8000);if(m.phaseTimer>=dur){m.phaseTimer=0;const phases=["magic","ranged","melee"];m.phase=((m.phase||0)+1)%3;m.atkType=phases[m.phase];const warn={magic:"⚠️ Jad prepares magic! Pray Magic!",ranged:"⚠️ Jad rears back! Pray Missiles!",melee:"⚠️ Jad charges! Pray Melee!"};addC(warn[m.atkType]);dirtyR.current=true;}}});
       // Caravan movement (Task 19)
-      g.caravanTimer+=dt;if(g.caravanTimer>=300000){g.caravanTimer=0;g.caravanPos=(g.caravanPos+1)%3;const pos=[[65,43],[22,12],[20,28]][g.caravanPos];const names=["Al Kharid","Varrock","Lumbridge"];const cn=g.npcs.find(n=>n.caravan);if(cn){cn.x=pos[0];cn.y=pos[1];}addC("🐪 The desert caravan has moved to "+names[g.caravanPos]+"!");dirtyR.current=true;}
+      g.caravanTimer+=dt;if(g.caravanTimer>=300000){g.caravanTimer=0;g.caravanPos=(g.caravanPos+1)%3;const pos=[[65,43],[22,12],[20,28]][g.caravanPos];const names=["The Amber District","The Sanctum","Solara's Rest"];const cn=g.npcs.find(n=>n.caravan);if(cn){cn.x=pos[0];cn.y=pos[1];}addC("🐪 The desert caravan has moved to "+names[g.caravanPos]+"!");dirtyR.current=true;}
       // Arena wave check (Task 12)
       if(g.arena.active){const alive=g.arena.waveMonsters.filter(m=>!m.dead);if(alive.length===0){if(g.arena.wave>=g.arena.maxWave){g.arena.active=false;addI("arena_trophy",1);giveXp("Attack",5000);giveXp("Strength",5000);addC("🏆 Arena complete! You defeated all 10 waves! Trophy awarded.");dirtyR.current=true;}else{g.arena.wave++;addC("⚔️ Wave "+g.arena.wave+"/"+g.arena.maxWave+" begins!");const waveMons=g.arena.wave<=3?["Goblin"]:g.arena.wave<=5?["Hobgoblin"]:g.arena.wave<=7?["Bandit"]:g.arena.wave<=9?["Moss Giant"]:["TzTok-Jad"];const waveCount=g.arena.wave<=9?5:1;const baseMon=g.mons.find(m=>m.nm===waveMons[0]);const newWave=[];for(let wi=0;wi<waveCount;wi++){const wm={...(baseMon||{nm:waveMons[0],c:"#f00",hp:30,mhp:30,atk:5,def:3,str:4,xp:10,drops:[],rsp:0,lvl:5}),x:38+wi*2,y:27,ox:40,oy:27,id:Math.random(),at:0,dead:false,agro:true,temp:true};g.mons.push(wm);newWave.push(wm);}g.arena.waveMonsters=newWave;dirtyR.current=true;}}}
       // Camp bank interest (Task 11 / Task 24)
@@ -941,8 +1063,8 @@ export default function DS(){
       // World events
       if(Date.now()>=g.nextEventTime&&!g.worldEvent){
         const events=[
-          {type:"goblin_raid",msg:"⚠️ A goblin raid is attacking Barbarian Village!",duration:120000,action:()=>{for(let i=0;i<5;i++){g.mons.push({x:40+Math.floor(Math.random()*6),y:24+Math.floor(Math.random()*6),ox:40,oy:26,t:"mon",nm:"Goblin",c:"#5a8a30",hp:13,mhp:13,atk:2,def:2,str:2,xp:5,drops:[{i:"bones",c:1},{i:"coins",c:0.8,a:[3,25]}],rsp:8000,id:Math.random(),at:0,dead:false,agro:true,lvl:2,temp:true});}}},
-          {type:"merchant",msg:"⚠️ A Desert Merchant has appeared near Al Kharid for 2 minutes!",duration:120000,action:()=>{g.tempMerchant={x:68,y:43,items:[{i:"rune_arrow",cost:15},{i:"emerald",cost:300},{i:"steel_sword",cost:200}]};}},
+          {type:"goblin_raid",msg:"⚠️ A goblin raid is attacking The Outlander Camp!",duration:120000,action:()=>{for(let i=0;i<5;i++){g.mons.push({x:40+Math.floor(Math.random()*6),y:24+Math.floor(Math.random()*6),ox:40,oy:26,t:"mon",nm:"Goblin",c:"#5a8a30",hp:13,mhp:13,atk:2,def:2,str:2,xp:5,drops:[{i:"bones",c:1},{i:"coins",c:0.8,a:[3,25]}],rsp:8000,id:Math.random(),at:0,dead:false,agro:true,lvl:2,temp:true});}}},
+          {type:"merchant",msg:"⚠️ A Desert Merchant has appeared near The Amber District for 2 minutes!",duration:120000,action:()=>{g.tempMerchant={x:68,y:43,items:[{i:"rune_arrow",cost:15},{i:"emerald",cost:300},{i:"steel_sword",cost:200}]};}},
           {type:"sandstorm",msg:"⚠️ A sandstorm sweeps through the desert!",duration:90000,action:()=>{g.sandstorm=true;}},
         ];
         const ev=events[Math.floor(Math.random()*events.length)];ev.action();addC(ev.msg);
@@ -1010,8 +1132,8 @@ export default function DS(){
               else if(p.quests.haunted===1){const kc=p.haunted||0;if(kc>=5){p.quests.haunted=2;giveXp("Prayer",800);addI("death_rune",20);addC("✅ Haunted Forest complete! +800 Prayer XP, 20 death runes.");completeQuest();}else addC("Necromancers slain: "+kc+"/5.");}
             }
             if(at.npc.quest==="karamja"){
-              if(!p.quests.karamja){p.quests.karamja=1;addC("📜 Quest: Karamja Expedition! Kill 3 Jogres and return.");}
-              else if(p.quests.karamja===1){const kc=p.jogreKills||0;if(kc>=3){p.quests.karamja=2;giveXp("Fishing",1200);addI("lobster",10);addI("coins",500);addC("✅ Karamja Expedition complete! +1200 Fishing XP, 10 lobsters.");completeQuest();}else addC("Jogres slain: "+kc+"/3.");}
+              if(!p.quests.karamja){p.quests.karamja=1;addC("📜 Quest: Southern Isle Expedition! Kill 3 Jogres and return.");}
+              else if(p.quests.karamja===1){const kc=p.jogreKills||0;if(kc>=3){p.quests.karamja=2;giveXp("Fishing",1200);addI("lobster",10);addI("coins",500);addC("✅ Southern Isle Expedition complete! +1200 Fishing XP, 10 lobsters.");completeQuest();}else addC("Jogres slain: "+kc+"/3.");}
             }
             if(at.npc.quest==="knight"){
               if(!p.quests.knight){p.quests.knight=1;addC("📜 Quest: Knight's Honor! Defeat 3 Lesser Demons for Sir Amik.");}
@@ -1039,12 +1161,12 @@ export default function DS(){
               }
             }
             if(at.npc.quest==="forge"){
-              if(!p.quests.forge){p.quests.forge=1;addC("📜 Quest: Falador's Forge! Smith a mithril platebody for the Forgemaster.");}
-              else if(p.quests.forge===1){const have=p.inv.some(x=>x.i==="mithril_plate")||p.bank.some(x=>x.i==="mithril_plate");if(have){remI("mithril_plate");p.quests.forge=2;giveXp("Smithing",3000);addI("adamant_bar",3);addC("✅ Falador's Forge complete! +3000 Smithing XP, 3 adamant bars.");completeQuest();}else addC("Bring me a mithril platebody. Smelt mithril bars at the furnace, then smith it at the anvil.");}
+              if(!p.quests.forge){p.quests.forge=1;addC("📜 Quest: The White Fort's Forge! Smith a mithril platebody for the Forgemaster.");}
+              else if(p.quests.forge===1){const have=p.inv.some(x=>x.i==="mithril_plate")||p.bank.some(x=>x.i==="mithril_plate");if(have){remI("mithril_plate");p.quests.forge=2;giveXp("Smithing",3000);addI("adamant_bar",3);addC("✅ The White Fort's Forge complete! +3000 Smithing XP, 3 adamant bars.");completeQuest();}else addC("Bring me a mithril platebody. Smelt mithril bars at the furnace, then smith it at the anvil.");}
             }
             if(at.npc.quest==="wildernessHunt"){
-              if(!p.quests.wildernessHunt){p.quests.wildernessHunt=1;p.iceWarriorKills=0;addC("📜 Quest: Wilderness Hunter! Kill 5 Ice Warriors in the Wilderness.");}
-              else if(p.quests.wildernessHunt===1){const kc=p.iceWarriorKills||0;if(kc>=5){p.quests.wildernessHunt=2;giveXp("Attack",2500);giveXp("Strength",2500);addI("adamant_sword",1);addI("coins",1000);addC("✅ Wilderness Hunter complete! +2500 Atk/Str XP, adamant sword, 1000gp.");completeQuest();}else addC("Ice Warriors slain: "+kc+"/5. Head deep into the Wilderness (north).");}
+              if(!p.quests.wildernessHunt){p.quests.wildernessHunt=1;p.iceWarriorKills=0;addC("📜 Quest: Ashlands Hunter! Kill 5 Ice Warriors in the Ashlands.");}
+              else if(p.quests.wildernessHunt===1){const kc=p.iceWarriorKills||0;if(kc>=5){p.quests.wildernessHunt=2;giveXp("Attack",2500);giveXp("Strength",2500);addI("adamant_sword",1);addI("coins",1000);addC("✅ Ashlands Hunter complete! +2500 Atk/Str XP, adamant sword, 1000gp.");completeQuest();}else addC("Ice Warriors slain: "+kc+"/5. Head deep into the Ashlands (north).");}
             }
             }
             else if(at.type==="gather"){
@@ -1113,10 +1235,14 @@ export default function DS(){
             }
             // Dungeon (Task 21)
             else if(at.type==="dungeon"){
-              const room=DUNGEON_ROOMS[g.dungeon.room||0];
+              const isDailyRun=dailyRunRef.current&&!dailyRunRef.current.done;
+              const roomIdx=isDailyRun?dailyRunRef.current.rooms[dailyRunRef.current.wave]:g.dungeon.room||0;
+              const room=DUNGEON_ROOMS[roomIdx];
               const req=room.skillReq;if(req&&lvl(p.sk[req.skill]||0)<req.lvl){addC("Need "+req.skill+" level "+req.lvl+" to enter this room.");p.actTgt=null;return;}
-              addC(room.msg);g.dungeon.active=true;
-              const dungMons=[];room.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dead);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true};g.mons.push(dm);dungMons.push(dm);}});g.dungeon.monsters=dungMons;dirtyR.current=true;p.actTgt=null;
+              if(isDailyRun)addC("☀️ Daily Rite — Wave "+(dailyRunRef.current.wave+1)+"/30 · "+room.msg);
+              else addC(room.msg);
+              g.dungeon.active=true;
+              const dungMons=[];room.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dead&&!m.dungeon);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true};if(isDailyRun)dm.dailyRun=true;g.mons.push(dm);dungMons.push(dm);}});g.dungeon.monsters=dungMons;dirtyR.current=true;p.actTgt=null;
             }
             // Arena (Task 12)
             else if(at.type==="arena"){
@@ -1148,7 +1274,7 @@ export default function DS(){
               if(!p.selfMinedOres)p.selfMinedOres={};p.selfMinedOres[obj.res]=(p.selfMinedOres[obj.res]||0)+1;}
             if(obj.sk==="Fishing")checkAchievement("first_fish");
             // Daily challenge tracking (Task 9)
-            if(g.dailyChallenge&&!g.dailyChallenge.done){const dc=g.dailyChallenge;if((dc.type==="mine"&&dc.resource===obj.res)||(dc.type==="fish"&&dc.resource===obj.res)||(dc.type==="chop"&&dc.resource===obj.res)){dc.progress=(dc.progress||0)+1;p.dailyChallengeProgress=dc.progress;if(dc.progress>=dc.count){dc.done=true;giveXp(dc.skill,dc.xp);addI("coins",dc.reward);addC("📅 Daily challenge complete! +"+dc.xp+" "+dc.skill+" XP, +"+dc.reward+"gp!");checkAchievement("first_quest");}localStorage.setItem("dunescape_daily",JSON.stringify(dc));dirtyR.current=true;}}
+            if(g.dailyChallenge&&!g.dailyChallenge.done){const dc=g.dailyChallenge;if((dc.type==="mine"&&dc.resource===obj.res)||(dc.type==="fish"&&dc.resource===obj.res)||(dc.type==="chop"&&dc.resource===obj.res)){dc.progress=(dc.progress||0)+1;p.dailyChallengeProgress=dc.progress;if(dc.progress>=dc.count){dc.done=true;giveXp(dc.skill,dc.xp);addI("coins",dc.reward);addC("📅 Daily challenge complete! +"+dc.xp+" "+dc.skill+" XP, +"+dc.reward+"gp!");checkAchievement("first_quest");}localStorage.setItem("solara_daily",JSON.stringify(dc));dirtyR.current=true;}}
             // Side quest tracking gather (Task 18)
             if(p.sideQuests){p.sideQuests.filter(sq=>sq.type==="gather"&&!sq.done&&sq.target===obj.res).forEach(sq=>{sq.progress++;if(sq.progress>=sq.count){sq.done=true;giveXp("Mining",sq.reward.xp||100);addI("coins",sq.reward.coins||50);addC("✅ Side quest complete! +"+sq.reward.coins+" coins.");}});}
             }
@@ -1170,7 +1296,7 @@ export default function DS(){
           const successChance=0.4+cl*0.025;
           if(neverBurn||Math.random()<successChance){addI(rec.out,1);addC("You cook the "+ITEMS[raw].n+"."+(isOwnFire?" (fire synergy!)":""));giveXp("Cooking",cookXp);playSound("cook");p.cookCount=(p.cookCount||0)+1;if(p.cookCount>=50)checkAchievement("deep_cook");
             // Daily/side quest tracking
-            if(g.dailyChallenge&&!g.dailyChallenge.done){const dc=g.dailyChallenge;if(dc.type==="cook"&&rec.out===dc.item){dc.progress=(dc.progress||0)+1;p.dailyChallengeProgress=dc.progress;if(dc.progress>=dc.count){dc.done=true;giveXp(dc.skill,dc.xp);addI("coins",dc.reward);addC("📅 Daily challenge complete!");}localStorage.setItem("dunescape_daily",JSON.stringify(dc));dirtyR.current=true;}}
+            if(g.dailyChallenge&&!g.dailyChallenge.done){const dc=g.dailyChallenge;if(dc.type==="cook"&&rec.out===dc.item){dc.progress=(dc.progress||0)+1;p.dailyChallengeProgress=dc.progress;if(dc.progress>=dc.count){dc.done=true;giveXp(dc.skill,dc.xp);addI("coins",dc.reward);addC("📅 Daily challenge complete!");}localStorage.setItem("solara_daily",JSON.stringify(dc));dirtyR.current=true;}}
             if(p.sideQuests){p.sideQuests.filter(sq=>sq.type==="cook"&&!sq.done&&sq.target===raw).forEach(sq=>{sq.progress++;if(sq.progress>=sq.count){sq.done=true;giveXp("Cooking",sq.reward.xp||100);addI("coins",sq.reward.coins||50);addC("✅ Side quest complete!");}});}
           }
           else{addI(rec.burnt,1);addC("You burn the "+ITEMS[raw].n+".");}
@@ -1195,7 +1321,7 @@ export default function DS(){
           const oreMap={bronze_bar:"copper",iron_bar:"iron",steel_bar:"iron",mithril_bar:"mithril",adamant_bar:"adamant_ore"};const ore=oreMap[bar];const bonusXp=ore&&p.selfMinedOres?.[ore]>0?5:0;if(bonusXp&&ore){p.selfMinedOres[ore]=Math.max(0,(p.selfMinedOres[ore]||0)-1);}
           addC("You smith: "+ITEMS[rec.out].n);giveXp("Smithing",rec.xp+bonusXp);
           // Daily challenge tracking
-          if(g.dailyChallenge&&!g.dailyChallenge.done){const dc=g.dailyChallenge;if(dc.type==="smith"&&dc.item===rec.out){dc.progress=(dc.progress||0)+1;if(dc.progress>=dc.count){dc.done=true;giveXp(dc.skill,dc.xp);addI("coins",dc.reward);addC("📅 Daily challenge complete!");}localStorage.setItem("dunescape_daily",JSON.stringify(dc));dirtyR.current=true;}}
+          if(g.dailyChallenge&&!g.dailyChallenge.done){const dc=g.dailyChallenge;if(dc.type==="smith"&&dc.item===rec.out){dc.progress=(dc.progress||0)+1;if(dc.progress>=dc.count){dc.done=true;giveXp(dc.skill,dc.xp);addI("coins",dc.reward);addC("📅 Daily challenge complete!");}localStorage.setItem("solara_daily",JSON.stringify(dc));dirtyR.current=true;}}
         }}
         else{addC("You no longer have the required bar.");smithQueueR.current=null;return;}
         if(smithQueueR.current){if(smithQueueR.current.remaining!=null){smithQueueR.current.remaining--;if(smithQueueR.current.remaining<=0)smithQueueR.current=null;}else smithQueueR.current=null;}
@@ -1251,7 +1377,7 @@ export default function DS(){
             if(km.nm==="Bandit"){p.rep.merchant=(p.rep.merchant||0)+1;}
             if(["Skeleton","Dark Wizard","Ice Warrior"].includes(km.nm)){p.rep.bandit=(p.rep.bandit||0)+1;}
             // Daily challenge kill tracking (Task 9)
-            if(g.dailyChallenge&&!g.dailyChallenge.done){const dc=g.dailyChallenge;if(dc.type==="kill"&&dc.monster===km.nm){dc.progress=(dc.progress||0)+1;p.dailyChallengeProgress=dc.progress;if(dc.progress>=dc.count){dc.done=true;giveXp(dc.skill,dc.xp);addI("coins",dc.reward);addC("📅 Daily challenge complete! +"+dc.xp+" "+dc.skill+" XP!");}localStorage.setItem("dunescape_daily",JSON.stringify(dc));dirtyR.current=true;}}
+            if(g.dailyChallenge&&!g.dailyChallenge.done){const dc=g.dailyChallenge;if(dc.type==="kill"&&dc.monster===km.nm){dc.progress=(dc.progress||0)+1;p.dailyChallengeProgress=dc.progress;if(dc.progress>=dc.count){dc.done=true;giveXp(dc.skill,dc.xp);addI("coins",dc.reward);addC("📅 Daily challenge complete! +"+dc.xp+" "+dc.skill+" XP!");}localStorage.setItem("solara_daily",JSON.stringify(dc));dirtyR.current=true;}}
             // Side quest kill tracking (Task 18)
             if(p.sideQuests){p.sideQuests.filter(sq=>sq.type==="kill"&&!sq.done&&sq.target===km.nm).forEach(sq=>{sq.progress++;if(sq.progress>=sq.count){sq.done=true;giveXp("Attack",sq.reward.xp||100);addI("coins",sq.reward.coins||50);addC("✅ Side quest complete!");}});}
             km.drops.forEach(d=>{
@@ -1264,8 +1390,14 @@ export default function DS(){
               dropToGround(d.i,a,km.x,km.y);addC("Drop: "+ITEMS[d.i]?.n+(a>1?" x"+a:""));if(d.i==="dragon_bones")checkAchievement("dragon_bone");}});
             // Auto-bury bones (Task 10: auto_bury unlock)
             if(p.unlocks?.includes("auto_bury")){const boneItem=km.drops.find(d=>d.i==="bones"||d.i==="big_bones"||d.i==="dragon_bones");if(boneItem&&Math.random()<boneItem.c){const xpAmt=boneItem.i==="dragon_bones"?72:boneItem.i==="big_bones"?15:4;giveXp("Prayer",xpAmt);addC("Bones auto-buried. +"+xpAmt+" Prayer XP.");}}
-            if(!tgtMon){g.rspQ.push({mon:km,time:Date.now()+km.rsp});p.act=null;p.cmb=null;p.actTgt=null;}
-            else g.rspQ.push({mon:km,time:Date.now()+km.rsp});
+            if(!km.dailyRun){
+              if(!tgtMon){g.rspQ.push({mon:km,time:Date.now()+km.rsp});p.act=null;p.cmb=null;p.actTgt=null;}
+              else g.rspQ.push({mon:km,time:Date.now()+km.rsp});
+            }else{
+              // Daily run monster — remove from world permanently, no respawn
+              g.mons=g.mons.filter(m=>m.id!==km.id);
+              if(!tgtMon){p.act=null;p.cmb=null;p.actTgt=null;}
+            }
             dirtyR.current=true;
           }
           // Combo meter (Task 25)
@@ -1357,6 +1489,21 @@ export default function DS(){
               g.deathTile={x:deathX,y:deathY,time:Date.now()+180000};
               p.hp=p.mhp;p.x=20;p.y=28;p.path=[];p.act=null;p.cmb=null;p.actTgt=null;
               g.fx.push({type:"death",x:deathX,y:deathY,life:1500,age:0});
+              // Phase 2: Epitaph modal — queue grave, show modal
+              {const wave=dailyRunRef.current&&!dailyRunRef.current.done?dailyRunRef.current.wave:0;
+              setPendingGrave({x:deathX,y:deathY,wave,faction:getPlayerFaction(p),playerName:p.playerName||"Adventurer"});
+              setShowEpitaphModal(true);}
+              // Phase 1: Daily run death hook
+              if(dailyRunRef.current&&!dailyRunRef.current.done){
+                const run=dailyRunRef.current;
+                run.done=true;run.deathWave=run.wave;
+                run.shareCard=generateShareCard(p.playerName||"Adventurer",run.wave,getPlayerFaction(p));
+                addC("💀 Daily Rite ended at Wave "+run.wave+". Score recorded.");
+                submitDailyScore(p.playerName||"Adventurer",run.wave,getPlayerFaction(p));
+                g.dungeon={active:false,room:0,cleared:false,monsters:[]};
+                g.mons=g.mons.filter(m=>!m.dailyRun);
+                setDailyTick(n=>n+1);
+              }
             }
           }else{addHitSplat(p.x,p.y,0,true);}
           // Auto-retaliate
@@ -1376,6 +1523,32 @@ export default function DS(){
             const nx=m.x+dx,ny=m.y+dy;if(walkable(nx,ny)&&Math.abs(nx-m.ox)<6&&Math.abs(ny-m.oy)<6){m.x=nx;m.y=ny;}}
         });
       }
+      // Phase 1: Daily run wave-advance check
+      if(dailyRunRef.current&&!dailyRunRef.current.done&&g.dungeon.active){
+        const aliveInDungeon=g.mons.filter(m=>m.dailyRun&&!m.dead);
+        if(aliveInDungeon.length===0&&(g.dungeon.monsters||[]).length>0){
+          const run=dailyRunRef.current;
+          // Clean up dead daily run monsters
+          g.mons=g.mons.filter(m=>!m.dailyRun);
+          g.dungeon.monsters=[];
+          run.wave++;
+          if(run.wave>=30){
+            run.done=true;run.deathWave=30;
+            run.shareCard=generateShareCard(p.playerName||"Adventurer",30,getPlayerFaction(p));
+            addC("🏆 Daily Rite complete! Wave 30 cleared! The sun brightens.");
+            g.dungeon={active:false,room:0,cleared:true,monsters:[]};
+            submitDailyScore(p.playerName||"Adventurer",30,getPlayerFaction(p));
+          }else{
+            const nextRoom=DUNGEON_ROOMS[run.rooms[run.wave]];
+            addC("✅ Wave "+run.wave+" cleared! Entering Wave "+(run.wave+1)+"/30...");
+            addC(nextRoom.msg);
+            const dungMons=[];
+            nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,dailyRun:true};g.mons.push(dm);dungMons.push(dm);}});
+            g.dungeon.monsters=dungMons;
+          }
+          dirtyR.current=true;setDailyTick(n=>n+1);
+        }
+      }
       // Respawns
       const now=Date.now();g.rspQ=g.rspQ.filter(r=>{if(now>=r.time){if(r.obj)r.obj.hp=r.obj.mhp;if(r.mon){r.mon.dead=false;r.mon.hp=r.mon.mhp;r.mon.at=0;}return false;}return true;});
       // Clean ground items
@@ -1388,8 +1561,8 @@ export default function DS(){
       const coins2=p.inv.find(x=>x.i==="coins");if(coins2&&coins2.c>=10000)checkAchievement("rich");
       // Track visited regions
       let curReg="";
-      if(p.y>=22&&p.y<38&&p.x>=12&&p.x<32)curReg="Lumbridge";
-      else if(p.y>=7&&p.y<20&&p.x>=12&&p.x<35)curReg="Varrock";
+      if(p.y>=22&&p.y<38&&p.x>=12&&p.x<32)curReg="SolarasRest";
+      else if(p.y>=7&&p.y<20&&p.x>=12&&p.x<35)curReg="TheSanctum";
       else if(p.y>=35&&p.y<55&&p.x>=55)curReg="AlKharid";
       else if(p.y>=22&&p.y<30&&p.x>=36&&p.x<46)curReg="Barbarian";
       else if(p.y>=55&&p.x>=8&&p.x<24)curReg="Mine";
@@ -1403,10 +1576,10 @@ export default function DS(){
       if(curReg&&!p.visitedRegions.has(curReg)){p.visitedRegions.add(curReg);if(p.visitedRegions.size>=12)checkAchievement("explorer");}
       // Auto-save every 60s
       if(Math.floor(g.tk/60000)!==Math.floor((g.tk-dt)/60000)){try{
-        localStorage.setItem("dunescape_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...p.visitedRegions],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},
+        localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...p.visitedRegions],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},
           pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g.objects.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0}));
         // Leaderboard (Task 23)
-        const lb=JSON.parse(localStorage.getItem("dunescape_leaderboard")||"[]");const entry={name:p.playerName||"Adventurer",totalXp:p.totalXp,totalLvl:SKILLS.reduce((a,s)=>a+lvl(p.sk[s]||0),0),date:new Date().toLocaleDateString()};const existing=lb.find(e=>e.name===entry.name);if(existing){if(entry.totalXp>existing.totalXp)Object.assign(existing,entry);}else lb.push(entry);lb.sort((a,b)=>b.totalXp-a.totalXp);localStorage.setItem("dunescape_leaderboard",JSON.stringify(lb.slice(0,10)));
+        const lb=JSON.parse(localStorage.getItem("solara_leaderboard")||"[]");const entry={name:p.playerName||"Adventurer",totalXp:p.totalXp,totalLvl:SKILLS.reduce((a,s)=>a+lvl(p.sk[s]||0),0),date:new Date().toLocaleDateString()};const existing=lb.find(e=>e.name===entry.name);if(existing){if(entry.totalXp>existing.totalXp)Object.assign(existing,entry);}else lb.push(entry);lb.sort((a,b)=>b.totalXp-a.totalXp);localStorage.setItem("solara_leaderboard",JSON.stringify(lb.slice(0,10)));
       }catch(e){}}
 
       // Update FX
@@ -1648,23 +1821,23 @@ export default function DS(){
         c.fillStyle="#888";c.font="10px sans-serif";c.fillText("Click to continue...",30,CH-38);
       }
       // Location
-      let loc="Wilderness";
-      if(p.y>=22&&p.y<38&&p.x>=12&&p.x<32)loc="Lumbridge";
-      else if(p.y>=7&&p.y<20&&p.x>=12&&p.x<35)loc="Varrock";
-      else if(p.y>=55&&p.x>=8&&p.x<24)loc="Lumbridge Mine";
+      let loc="Ashlands";
+      if(p.y>=22&&p.y<38&&p.x>=12&&p.x<32)loc="Solara's Rest";
+      else if(p.y>=7&&p.y<20&&p.x>=12&&p.x<35)loc="The Sanctum";
+      else if(p.y>=55&&p.x>=8&&p.x<24)loc="The Mine";
       else if(p.y>=18&&p.y<35&&p.x>=55)loc="Fishing Coast";
       else if(p.y>=45&&p.y<65&&p.x<14)loc="Dark Forest";
-      else if(p.y>=35&&p.y<55&&p.x>=55)loc="Al Kharid";
-      else if(p.y>=22&&p.y<30&&p.x>=36&&p.x<46)loc="Barbarian Village";
-      else if(p.y>=55&&p.y<65&&p.x>=26&&p.x<40)loc="Draynor Village";
-      else if(p.y>=35&&p.y<50&&p.x>=22&&p.x<38)loc="Falador";
+      else if(p.y>=35&&p.y<55&&p.x>=55)loc="The Amber District";
+      else if(p.y>=22&&p.y<30&&p.x>=36&&p.x<46)loc="The Outlander Camp";
+      else if(p.y>=55&&p.y<65&&p.x>=26&&p.x<40)loc="Ashfen";
+      else if(p.y>=35&&p.y<50&&p.x>=22&&p.x<38)loc="The White Fort";
       else if(p.y>=47&&p.y<55&&p.x>=23&&p.x<32)loc="Mining Guild";
-      else if(p.y>=80&&p.x>=44&&p.x<72)loc="Karamja";
+      else if(p.y>=80&&p.x>=44&&p.x<72)loc="The Southern Isle";
       else if(p.y>=70&&p.x>=30&&p.x<45)loc="Agility Course";
       else if(p.y>=35&&p.y<50&&p.x>=35&&p.x<50)loc="Fields";
-      else if(p.y<7)loc="⚠️ Wilderness";
+      else if(p.y<7)loc="⚠️ The Ashlands";
       c.fillStyle="rgba(0,0,0,0.6)";c.fillRect(2,2,100,18);
-      c.fillStyle=loc.includes("Wilderness")?"#f44":"#ff0";c.font="bold 10px sans-serif";c.textAlign="left";c.fillText(loc,6,14);
+      c.fillStyle=loc.includes("Ashlands")?"#f44":"#ff0";c.font="bold 10px sans-serif";c.textAlign="left";c.fillText(loc,6,14);
       // Minimap
       const ms=88,mmx=CW-ms-4,mmy=4;
       c.fillStyle="rgba(0,0,0,0.8)";c.fillRect(mmx-2,mmy-2,ms+4,ms+4);c.strokeStyle="#5a4a30";c.lineWidth=1;c.strokeRect(mmx-2,mmy-2,ms+4,ms+4);
@@ -1776,7 +1949,7 @@ export default function DS(){
     addC("You fletch: "+ITEMS[rec.out].n+(outCnt>1?" x"+outCnt:"")+".");setFletchOpen(false);fr(n=>n+1);
   }
   function togglePrayer(id){if(!p)return;const pl=lvl(p.sk.Prayer);const pr=PRAYERS.find(x=>x.id===id);if(!pr)return;if(pl<pr.lvl){addC("Need Prayer level "+pr.lvl+".");return;}if(p.prayer<=0){addC("You have no Prayer points.");return;}const active=p.activePrayers||[];const idx=active.indexOf(id);if(idx>=0)p.activePrayers=active.filter(x=>x!==id);else p.activePrayers=[...active,id];fr(n=>n+1);}
-  function saveGame(){if(!p||!gR.current)return;const g2=gR.current;try{localStorage.setItem("dunescape_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g2.objects?.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0}));addC("Game saved!");}catch(e){}}
+  function saveGame(){if(!p||!gR.current)return;const g2=gR.current;try{localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g2.objects?.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0}));addC("Game saved!");}catch(e){}}
 
   const invSlots=[];
   if(p)for(let i=0;i<28;i++){const s=p.inv[i];const d=s?ITEMS[s.i]:null;const isLog=s&&["logs","oak_logs","willow_logs","yew_logs"].includes(s.i);
@@ -1796,7 +1969,7 @@ export default function DS(){
     <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none",zoom:uiScale}}>
       {/* HUD */}
       <div style={{height:36,background:"linear-gradient(180deg,#280e06,#1c0804)",borderBottom:"2px solid #7a2010",display:"flex",alignItems:"center",padding:"0 10px",gap:10,flexShrink:0,overflow:"hidden"}}>
-        <span style={{color:"#d4a030",fontWeight:900,fontSize:15,letterSpacing:3,fontFamily:"'Courier New',monospace",textShadow:"1px 1px 0 #7a2808,2px 2px 0 #2a0804",textTransform:"uppercase"}}>Dunescape</span>
+        <span style={{color:"#d4a030",fontWeight:900,fontSize:15,letterSpacing:3,fontFamily:"'Courier New',monospace",textShadow:"1px 1px 0 #7a2808,2px 2px 0 #2a0804",textTransform:"uppercase"}}>Solara: Sunfall</span>
         {p&&<>
           <span style={{color:"#0c0",fontSize:11}}>❤️{p.hp}/{p.mhp}</span>
           <span style={{color:"#4af",fontSize:11}}>🙏{p.prayer}/{p.maxPrayer}</span>
@@ -1811,8 +1984,8 @@ export default function DS(){
             {["Accurate","Aggressive","Defensive"].map((s,i)=><button key={i} onClick={()=>{if(p)p.style=i;fr(n=>n+1);}}
               style={{background:p.style===i?"#5a1808":"transparent",border:"1px solid #6a2010",color:p.style===i?"#ff0":"#555",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{s}</button>)}
             <button onClick={saveGame} style={{background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>💾</button>
-            <button onClick={()=>{const blob=new Blob([localStorage.getItem("dunescape_save")||"{}"],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="dunescape_save.json";a.click();}} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📤</button>
-            <label style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📥<input type="file" accept=".json" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);localStorage.setItem("dunescape_save",JSON.stringify(d));window.location.reload();}catch(err){}};r.readAsText(f);}}/></label>
+            <button onClick={()=>{const blob=new Blob([localStorage.getItem("solara_save")||"{}"],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="solara_save.json";a.click();}} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📤</button>
+            <label style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📥<input type="file" accept=".json" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);localStorage.setItem("solara_save",JSON.stringify(d));window.location.reload();}catch(err){}};r.readAsText(f);}}/></label>
             <button onClick={()=>{audioOnR.current=!audioOnR.current;if(audioOnR.current)initAudio();fr(n=>n+1);}} style={{background:"#0a1a0a",border:"1px solid #2a4a2a",color:"#4af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3}}>{audioOnR.current?"🔊":"🔇"}</button>
             <button onClick={()=>setMapOpen(v=>!v)} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>🗺️</button>
           </div>
@@ -1836,7 +2009,7 @@ export default function DS(){
         {/* Side panel */}
         <div style={{width:195,background:"linear-gradient(180deg,#1e0a06,#180804)",borderLeft:"2px solid #5a1808",display:"flex",flexDirection:"column",flexShrink:0}}>
           <div style={{display:"flex",borderBottom:"1px solid #5a1808"}}>
-            {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"],["bestiary","📖"],["settings","⚙️"]].map(([t,ic])=>
+            {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"],["bestiary","📖"],["daily","☀️"],["settings","⚙️"]].map(([t,ic])=>
               <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"4px 0",background:tab===t?"#280e06":"transparent",border:"none",color:tab===t?"#c8a84e":"#5a2010",cursor:"pointer",fontSize:10,borderBottom:tab===t?"2px solid #c8a84e":"2px solid transparent"}}>{ic}</button>)}
           </div>
           <div style={{flex:1,overflow:"auto",padding:5}}>
@@ -1847,7 +2020,7 @@ export default function DS(){
                 <select value={offlineTaskSel} onChange={e=>setOfflineTaskSel(Number(e.target.value))} style={{width:"100%",background:"#1a0804",color:"#ddd",border:"1px solid #5a1808",fontSize:8,padding:2,borderRadius:3}}>
                   {OFFLINE_TASKS.map((t,i)=><option key={i} value={i}>{t.label}</option>)}
                 </select>
-                <button onClick={()=>{const t=OFFLINE_TASKS[offlineTaskSel];localStorage.setItem("dunescape_offline",JSON.stringify({task:t,leftAt:Date.now()}));addC("⏰ Offline task set: "+t.label);}} style={{marginTop:3,width:"100%",background:"#1a2010",border:"1px solid #3a5020",color:"#4c0",fontSize:8,padding:"2px 0",cursor:"pointer",borderRadius:3}}>Set & Activate</button>
+                <button onClick={()=>{const t=OFFLINE_TASKS[offlineTaskSel];localStorage.setItem("solara_offline",JSON.stringify({task:t,leftAt:Date.now()}));addC("⏰ Offline task set: "+t.label);}} style={{marginTop:3,width:"100%",background:"#1a2010",border:"1px solid #3a5020",color:"#4c0",fontSize:8,padding:"2px 0",cursor:"pointer",borderRadius:3}}>Set & Activate</button>
               </div>
             </div>}
             {tab==="skills"&&p&&<div style={{display:"flex",flexDirection:"column",gap:2}}>
@@ -1900,19 +2073,19 @@ export default function DS(){
             {tab==="quest"&&p&&<div style={{padding:4}}>
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1,marginBottom:6}}>QUESTS ({Object.values(p.quests).filter(v=>v===2).length}/{Object.keys(p.quests).length})</div>
               {[
-                {key:"cook",name:"Cook's Assistant",desc:p.quests.cook===0?"Talk to the Cook in Lumbridge.":p.quests.cook===1?"Find: egg, milk, flour.":"Complete!"},
-                {key:"desert",name:"Desert Vow",desc:p.quests.desert===0?"Talk to Ali in Al Kharid.":p.quests.desert===1?"Scorpions: "+(p.desertKills||0)+"/3":"Complete!"},
-                {key:"goblin",name:"Goblin Trouble",desc:!p.quests.goblin?"Talk to Barbarian Chief.":p.quests.goblin===1?"Goblins: "+(p.goblinKills||0)+"/5":"Complete!"},
-                {key:"rune",name:"The Rune Mystery",desc:!p.quests.rune?"Talk to Sedridor in Varrock.":p.quests.rune===1?"Collect 10 air runes.":"Complete!"},
-                {key:"miner",name:"Troubled Miner",desc:!p.quests.miner?"Talk to Doric at the mine.":p.quests.miner===1?"Mine 5 mithril ore.":"Complete!"},
+                {key:"cook",name:"Cook's Assistant",desc:p.quests.cook===0?"Talk to Mara in Solara's Rest.":p.quests.cook===1?"Find: egg, milk, flour.":"Complete!"},
+                {key:"desert",name:"Desert Vow",desc:p.quests.desert===0?"Talk to Farris in The Amber District.":p.quests.desert===1?"Scorpions: "+(p.desertKills||0)+"/3":"Complete!"},
+                {key:"goblin",name:"Goblin Trouble",desc:!p.quests.goblin?"Talk to Outlander Chief.":p.quests.goblin===1?"Goblins: "+(p.goblinKills||0)+"/5":"Complete!"},
+                {key:"rune",name:"The Rune Mystery",desc:!p.quests.rune?"Talk to Sedridor in The Sanctum.":p.quests.rune===1?"Collect 10 air runes.":"Complete!"},
+                {key:"miner",name:"Troubled Miner",desc:!p.quests.miner?"Talk to Stone-Reader at the mine.":p.quests.miner===1?"Mine 5 mithril ore.":"Complete!"},
                 {key:"haunted",name:"Haunted Forest",desc:!p.quests.haunted?"Talk to Old Hermit (Dark Forest).":p.quests.haunted===1?"Necromancers: "+(p.haunted||0)+"/5":"Complete!"},
-                {key:"karamja",name:"Karamja Expedition",desc:!p.quests.karamja?"Talk to Luthas in Karamja.":p.quests.karamja===1?"Jogres: "+(p.jogreKills||0)+"/3":"Complete!"},
-                {key:"knight",name:"Knight's Honor",desc:!p.quests.knight?"Talk to Sir Amik in Falador.":p.quests.knight===1?"Lesser Demons: "+(p.demonKills||0)+"/3":"Complete!"},
-                {key:"relic",name:"Lost Relic",desc:!p.quests.relic?"Talk to Archaeologist in Varrock.":p.quests.relic===1?"Relic parts: "+(p.relicParts||0)+"/3":"Complete!"},
-                {key:"awakening",name:"The Final Awakening",desc:!p.quests.awakening?"Talk to the Seer in Varrock.":p.quests.awakening===1?"TzTok-Jad: "+(p.jadKills||0)+"/3":"Complete!"},
-                {key:"shipment",name:"The Lost Shipment",desc:!p.quests.shipment?"Talk to Dock Master in Draynor.":p.quests.shipment===1?"Need 10 lobsters + 5 swordfish.":"Complete!"},
-                {key:"forge",name:"Falador's Forge",desc:!p.quests.forge?"Talk to Forgemaster in Falador.":p.quests.forge===1?"Smith a mithril platebody.":"Complete!"},
-                {key:"wildernessHunt",name:"Wilderness Hunter",desc:!p.quests.wildernessHunt?"Talk to Wilderness Scout (north).":p.quests.wildernessHunt===1?"Ice Warriors: "+(p.iceWarriorKills||0)+"/5":"Complete!"},
+                {key:"karamja",name:"Southern Isle Expedition",desc:!p.quests.karamja?"Talk to Luthas in The Southern Isle.":p.quests.karamja===1?"Jogres: "+(p.jogreKills||0)+"/3":"Complete!"},
+                {key:"knight",name:"Knight's Honor",desc:!p.quests.knight?"Talk to Sir Amik in The White Fort.":p.quests.knight===1?"Lesser Demons: "+(p.demonKills||0)+"/3":"Complete!"},
+                {key:"relic",name:"Lost Relic",desc:!p.quests.relic?"Talk to Archaeologist in The Sanctum.":p.quests.relic===1?"Relic parts: "+(p.relicParts||0)+"/3":"Complete!"},
+                {key:"awakening",name:"The Final Awakening",desc:!p.quests.awakening?"Talk to the Seer in The Sanctum.":p.quests.awakening===1?"TzTok-Jad: "+(p.jadKills||0)+"/3":"Complete!"},
+                {key:"shipment",name:"The Lost Shipment",desc:!p.quests.shipment?"Talk to Dock Master in Ashfen.":p.quests.shipment===1?"Need 10 lobsters + 5 swordfish.":"Complete!"},
+                {key:"forge",name:"The White Fort's Forge",desc:!p.quests.forge?"Talk to Forgemaster in The White Fort.":p.quests.forge===1?"Smith a mithril platebody.":"Complete!"},
+                {key:"wildernessHunt",name:"Ashlands Hunter",desc:!p.quests.wildernessHunt?"Talk to Ashlands Scout (north).":p.quests.wildernessHunt===1?"Ice Warriors: "+(p.iceWarriorKills||0)+"/5":"Complete!"},
               ].map(q=><div key={q.key} style={{background:"rgba(70,20,5,0.45)",padding:"5px 8px",borderRadius:4,marginBottom:3,border:"1px solid rgba(200,168,78,0.08)"}}>
                 <div style={{fontSize:10,color:p.quests[q.key]===2?"#0c0":p.quests[q.key]>=1?"#ff0":"#c44",fontWeight:600}}>{p.quests[q.key]===2?"✅":"📜"} {q.name}</div>
                 <div style={{fontSize:8,color:"#888",marginTop:1}}>{q.desc}</div>
@@ -1995,6 +2168,45 @@ export default function DS(){
                 });
               })()}
             </div>}
+            {tab==="daily"&&<div style={{display:"flex",flexDirection:"column",gap:6}}>
+              {/* Header */}
+              <div style={{textAlign:"center",borderBottom:"1px solid rgba(200,168,78,0.1)",paddingBottom:4}}>
+                <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1}}>☀️ DAILY RITE</div>
+                <div style={{color:"#888",fontSize:7}}>Day {getDayNumber()} · {getDailySeed()}</div>
+                <div style={{color:"#555",fontSize:7}}>Season {CURRENT_SEASON}: {CURRENT_SEASON_NAME}</div>
+              </div>
+              {/* Run state */}
+              {!dailyRunRef.current&&<div>
+                <button onClick={startDailyRun} style={{width:"100%",background:"linear-gradient(180deg,#3a1808,#280e04)",border:"2px solid #c8a84e",color:"#da0",fontSize:10,padding:"8px 4px",cursor:"pointer",borderRadius:4,fontWeight:700,marginBottom:3}}>☀️ Play Today's Dungeon</button>
+                <div style={{fontSize:7,color:"#555",textAlign:"center",lineHeight:1.4}}>30 waves · seeded by today's date<br/>same dungeon for all players worldwide</div>
+              </div>}
+              {dailyRunRef.current&&!dailyRunRef.current.done&&<div style={{background:"rgba(40,20,5,0.6)",border:"1px solid #5a3010",borderRadius:4,padding:"6px 4px",textAlign:"center"}}>
+                <div style={{color:"#da0",fontSize:12,fontWeight:700}}>⚔️ Wave {dailyRunRef.current.wave}/30</div>
+                <div style={{fontSize:8,color:"#888",marginTop:2}}>Go to the dungeon entrance (south of The Mine)!</div>
+                <div style={{height:4,background:"#120604",borderRadius:2,marginTop:4}}><div style={{height:"100%",background:"#c8a84e",borderRadius:2,width:((dailyRunRef.current.wave/30)*100)+"%"}}/></div>
+              </div>}
+              {dailyRunRef.current&&dailyRunRef.current.done&&<div style={{background:"rgba(40,20,5,0.6)",border:"1px solid rgba(200,168,78,0.2)",borderRadius:4,padding:6}}>
+                <div style={{color:dailyRunRef.current.deathWave>=30?"#da0":"#f44",fontSize:11,fontWeight:700,textAlign:"center",marginBottom:4}}>
+                  {dailyRunRef.current.deathWave>=30?"🏆 COMPLETED!":"💀 Wave "+dailyRunRef.current.deathWave+"/30"}
+                </div>
+                {dailyRunRef.current.shareCard&&<>
+                  <pre style={{fontSize:7,color:"#8a7a5a",background:"rgba(0,0,0,0.4)",padding:4,borderRadius:3,marginBottom:4,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"'Courier New',monospace"}}>{dailyRunRef.current.shareCard}</pre>
+                  <button onClick={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});}catch(e){}}else{try{await navigator.clipboard.writeText(t);addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}} style={{width:"100%",background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>📋 Copy &amp; Share</button>
+                </>}
+              </div>}
+              {/* Leaderboard */}
+              <div>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
+                  <div style={{color:"#c8a84e",fontSize:9,fontWeight:700}}>TODAY'S TOP RUNS</div>
+                  <button onClick={fetchDailyLeaderboard} style={{background:"transparent",border:"none",color:"#6af",fontSize:9,cursor:"pointer",padding:0}} title="Refresh leaderboard">↻</button>
+                </div>
+                {!supabase&&<div style={{fontSize:7,color:"#444",textAlign:"center",lineHeight:1.4}}>Leaderboard available once<br/>Supabase is configured.</div>}
+                {supabase&&dailyLbRef.current.length===0&&<div style={{fontSize:7,color:"#555",textAlign:"center"}}>No scores yet today. Be the first!</div>}
+                {dailyLbRef.current.map((e,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:8,color:i===0?"#da0":i<3?"#c8a84e":"#777",padding:"2px 2px",borderBottom:"1px solid rgba(200,168,78,0.04)"}}>
+                  <span>{i+1}. {e.player_name}</span><span style={{color:e.wave_reached>=30?"#da0":"inherit"}}>Wave {e.wave_reached}{e.wave_reached>=30?" 🏆":""}</span>
+                </div>)}
+              </div>
+            </div>}
             {tab==="settings"&&p&&<div style={{padding:6,display:"flex",flexDirection:"column",gap:6}}>
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1}}>SETTINGS</div>
               {/* Player Name */}
@@ -2039,7 +2251,7 @@ export default function DS(){
                 <button onClick={()=>{if(p&&gR.current){const g2=gR.current;p.x=p.camp.x;p.y=p.camp.y;g2.cam={x:Math.max(0,p.x-8),y:Math.max(0,p.y-7)};addC("You return to your camp.");fr(n=>n+1);}}} style={{marginLeft:4,background:"#1a3010",border:"1px solid #3a5020",color:"#4c0",fontSize:7,padding:"1px 3px",cursor:"pointer",borderRadius:2}}>Goto</button>
               </div>:<div style={{fontSize:8,color:"#555"}}>No camp. Right-click empty ground to set camp.</div>}
               {/* Hall of Fame */}
-              {(()=>{const lb=JSON.parse(localStorage.getItem("dunescape_leaderboard")||"[]");if(!lb.length)return null;
+              {(()=>{const lb=JSON.parse(localStorage.getItem("solara_leaderboard")||"[]");if(!lb.length)return null;
                 return <div><div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>HALL OF FAME</div>
                   {lb.slice(0,5).map((e,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:8,color:i===0?"#da0":"#888",padding:"1px 0"}}>
                     <span>{i+1}. {e.name}</span><span>{(e.xp||0).toLocaleString()} XP</span>
@@ -2048,8 +2260,8 @@ export default function DS(){
               <div style={{fontSize:9,color:p.ironman?"#c8a84e":"#666"}}>Mode: {p.ironman?"🔒 Ironman":"Normal"}</div>
               {!p.ironman&&<button onClick={()=>{if(confirm("Enable Ironman? Cannot buy from shops.")){p.ironman=true;fr(n=>n+1);}}} style={{background:"#2a1010",border:"1px solid #7a2010",color:"#c44",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>Enable Ironman</button>}
               <button onClick={saveGame} style={{background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>💾 Save Now</button>
-              <button onClick={()=>{const blob=new Blob([localStorage.getItem("dunescape_save")||"{}"],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="dunescape_save.json";a.click();}} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>📤 Export Save</button>
-              <button onClick={()=>{if(confirm("Reset ALL progress? Cannot be undone!")){localStorage.removeItem("dunescape_save");window.location.reload();}}} style={{background:"#3a0808",border:"1px solid #8a2010",color:"#f44",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>🗑️ Reset Save</button>
+              <button onClick={()=>{const blob=new Blob([localStorage.getItem("solara_save")||"{}"],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="solara_save.json";a.click();}} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>📤 Export Save</button>
+              <button onClick={()=>{if(confirm("Reset ALL progress? Cannot be undone!")){localStorage.removeItem("solara_save");window.location.reload();}}} style={{background:"#3a0808",border:"1px solid #8a2010",color:"#f44",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>🗑️ Reset Save</button>
             </div>}
           </div>
         </div>
@@ -2212,16 +2424,49 @@ export default function DS(){
         {tooltip.examine&&<div style={{fontSize:8,color:"#888",fontStyle:"italic",lineHeight:1.4}}>{tooltip.examine}</div>}
       </div>}
       {/* World Map Modal */}
-      {mapOpen&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:200,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}} onClick={()=>setMapOpen(false)}>
-        <div style={{border:"2px solid #7a2010",borderRadius:8,padding:4,background:"#0d0403"}} onClick={e=>e.stopPropagation()}>
+      {mapOpen&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.85)",zIndex:200,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center"}} onClick={()=>{setMapOpen(false);setGravePopup(null);}}>
+        <div style={{border:"2px solid #7a2010",borderRadius:8,padding:4,background:"#0d0403",position:"relative"}} onClick={e=>e.stopPropagation()}>
           <div style={{display:"flex",justifyContent:"space-between",padding:"4px 8px",marginBottom:4}}>
             <span style={{color:"#c8a84e",fontWeight:700,fontSize:13}}>🗺️ World Map</span>
-            <span style={{color:"#888",fontSize:9}}>Press M or ESC to close</span>
+            <span style={{color:"#888",fontSize:9}}>Press M or ESC to close · Click ✝ to read epitaphs</span>
           </div>
-          <WorldMapCanvas gR={gR} mapCvR={mapCvR}/>
+          <WorldMapCanvas gR={gR} mapCvR={mapCvR} graves={gravesRef.current} gravesTick={gravesTick} onGraveClick={setGravePopup}/>
           <div style={{display:"flex",flexWrap:"wrap",gap:8,padding:"6px 8px",fontSize:8,color:"#888"}}>
-            {[["●","#fff","You"],["●","#f44","Monster"],["●","#0ff","NPC"],["●","#da0","Point of interest"]].map(([sym,col,lbl])=>
+            {[["●","#fff","You"],["●","#f44","Monster"],["●","#0ff","NPC"],["●","#da0","Point of interest"],["✝","#b4a0dc","Grave"]].map(([sym,col,lbl])=>
               <span key={lbl}><span style={{color:col}}>{sym}</span> {lbl}</span>)}
+            {supabase&&<span style={{marginLeft:"auto",color:"#444"}}>{gravesRef.current.length} grave{gravesRef.current.length!==1?"s":""}</span>}
+          </div>
+          {/* Phase 2: Grave popup */}
+          {gravePopup&&<div style={{position:"absolute",bottom:60,left:"50%",transform:"translateX(-50%)",background:"rgba(12,4,2,0.97)",border:"1px solid #7a4090",borderRadius:6,padding:"8px 12px",minWidth:200,maxWidth:280,zIndex:10}} onClick={e=>e.stopPropagation()}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+              <span style={{color:"#b4a0dc",fontSize:11,fontWeight:700}}>✝ {gravePopup.player_name}</span>
+              <button onClick={()=>setGravePopup(null)} style={{background:"transparent",border:"none",color:"#666",fontSize:12,cursor:"pointer",padding:0,lineHeight:1}}>✕</button>
+            </div>
+            <div style={{fontSize:10,color:"#c8a84e",fontStyle:"italic",lineHeight:1.5,marginBottom:4}}>"{gravePopup.epitaph||'They fell without words.'}"</div>
+            <div style={{fontSize:8,color:"#666",lineHeight:1.4}}>
+              Wave {gravePopup.wave_reached||0} · {gravePopup.faction||'neutral'} · {gravePopup.date_seed||'unknown date'}
+            </div>
+          </div>}
+        </div>
+      </div>}
+      {/* Phase 2: Epitaph Modal */}
+      {showEpitaphModal&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.88)",zIndex:250,display:"flex",alignItems:"center",justifyContent:"center"}}>
+        <div style={{background:"#0d0403",border:"2px solid #7a4090",borderRadius:8,padding:20,width:320,maxWidth:"90vw",textAlign:"center"}}>
+          <div style={{color:"#b4a0dc",fontSize:16,fontWeight:700,marginBottom:4}}>✝ You Have Fallen</div>
+          <div style={{color:"#888",fontSize:10,marginBottom:12,lineHeight:1.5}}>Your grave will mark the world forever.<br/>Leave your last words. (optional, 80 chars)</div>
+          <input
+            autoFocus
+            maxLength={80}
+            value={epitaphDraft}
+            onChange={e=>setEpitaphDraft(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter")submitGrave(epitaphDraft);if(e.key==="Escape")submitGrave("");}}
+            placeholder="They died as they lived..."
+            style={{width:"100%",boxSizing:"border-box",background:"#1a0808",border:"1px solid #5a3060",borderRadius:4,color:"#ddd",fontSize:11,padding:"6px 8px",marginBottom:8,outline:"none"}}
+          />
+          <div style={{fontSize:8,color:"#555",marginBottom:12,textAlign:"right"}}>{epitaphDraft.length}/80</div>
+          <div style={{display:"flex",gap:8,justifyContent:"center"}}>
+            <button onClick={()=>submitGrave(epitaphDraft)} style={{background:"#5a2080",border:"none",color:"#fff",borderRadius:4,padding:"6px 16px",fontSize:11,cursor:"pointer",fontWeight:700}}>Leave Epitaph</button>
+            <button onClick={()=>submitGrave("")} style={{background:"transparent",border:"1px solid #444",color:"#666",borderRadius:4,padding:"6px 12px",fontSize:11,cursor:"pointer"}}>Skip</button>
           </div>
         </div>
       </div>}

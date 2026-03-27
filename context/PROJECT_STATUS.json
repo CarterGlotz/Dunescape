@@ -1,0 +1,11 @@
+{
+  "status": "active",
+  "health": "green",
+  "currentFocus": "Phase 3 — Sun Phase Engine (sun_state table, death counter, canvas desaturation)",
+  "nextMilestone": "Phase 3 live: sun dims globally with every player death",
+  "blockers": [
+    "Supabase project not created yet — Carter must set up project and add env vars (unblocks Phase 1+2+3)",
+    "GitHub repo rename (dunescape→solara) — manual action by Carter"
+  ],
+  "lastUpdated": "2026-03-27"
+}
