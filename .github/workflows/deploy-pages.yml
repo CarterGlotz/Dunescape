@@ -1,4 +1,4 @@
-name: Deploy Pages Bundle
+name: Deploy Solara
 
 on:
   workflow_dispatch:
@@ -30,9 +30,9 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     env:
-      VITE_APP_BASE_PATH: /dunescape/
-      VITE_CANONICAL_URL: https://vaultsparkstudios.com/dunescape/
-      VITE_OG_IMAGE_URL: https://vaultsparkstudios.com/dunescape/images/cover.png
+      VITE_APP_BASE_PATH: /solara/
+      VITE_CANONICAL_URL: https://vaultsparkstudios.github.io/solara/
+      VITE_OG_IMAGE_URL: https://vaultsparkstudios.github.io/solara/images/cover.png
       VITE_DOMAIN: vaultsparkstudios.com
       GAME_ENV: prod
     steps:
