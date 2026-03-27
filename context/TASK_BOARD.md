@@ -2,10 +2,8 @@
 
 ## Now — Agent can do immediately
 
-- [SIL] Shrine glow on world map — graves with ≥50 offerings render as ✦ gold instead of ✝ lavender
-- [SIL] Milestone death announcements — HUD flash when totalDeaths crosses 100/500/1000
-- [Phase 4] Roguelite run mode (dungeon as primary game mode) — see TECH_IMPLEMENTATION_PLAN.md §4
-- [Phase 2] Shrine evolution (50 offerings → shrine, 200 → major shrine; is_shrine / is_major_shrine fields ready in schema)
+- [SIL] "First run today" tab pulse — gold glow on ☀️ Daily tab when daily not yet played
+- [SIL] Roguelite share card — generate share text on roguelite death
 
 ## Now — Waiting on Carter (manual actions, flagged for delay)
 
@@ -17,12 +15,11 @@
 - ✅ [Manual] Rename GitHub repo: dunescape → solara — done 2026-03-27 via `gh repo rename`
 - [Manual] Post to itch.io — list game at itch.io/vaultsparkstudios with devlog entry (Innovation #18)
 
-## Next — Agent (after Phase 4 ships)
+## Next — Agent (after Supabase is live)
 
 - [Phase 5] Season 1: The Wandering Comet config + launch prep
 - [Phase 5b] Prophecy Scroll canvas image generator (image version of share card)
 - [Phase 5b] Season leaderboard + season reset flow
-- [Phase 3] Faction system: Sunkeepers vs Eclipsers (full selection UI + death weight modifier)
 - [Innovation #9] Player milestone push notifications (grave became Cairn/Shrine)
 - [Innovation #10] Daily Rites historical archive (replay any past day's seed)
 - [Innovation #16] Run of the Week community seed challenge
@@ -50,11 +47,18 @@
 - ✅ [Phase 2] fetchGraves from Supabase — on mount + every 5 minutes, graceful offline
 - ✅ [Phase 2] Render graves as ✝ markers on world map canvas
 - ✅ [Phase 2] Grave click → epitaph popup card on world map
+- ✅ [Phase 2] Shrine evolution — client-side is_shrine/is_major_shrine update at 50/200 offerings
 - ✅ [Phase 3] fetchSunState + sunBrightness state (0–100, default 100)
 - ✅ [Phase 3] Canvas desaturation filter tied to sunBrightness (saturate + sepia)
 - ✅ [Phase 3] Sun brightness fetch on mount + every 5 minutes, graceful offline
 - ✅ [Phase 3] increment_death_counter() wired to every player death (submitGrave)
 - ✅ [Phase 3] HUD sun indicator: ☀N% with colour shift (gold→orange→red)
+- ✅ [Phase 4] Roguelite run mode — infinite waves, 17 rooms + boss, difficulty scaling, relic system
+- ✅ [Phase 4] ROGUE_ROOMS pool (4 tiers × 4+ rooms + Shadow Drake boss every 10 waves)
+- ✅ [Phase 4] scaleRogueMon — monster stats scale +6% per wave
+- ✅ [Phase 4] RELICS system — 5 relics (Solar Fragment, Ember Ring, Shade Cloak, Comet Shard, Oracle's Eye)
+- ✅ [Phase 4] Roguelite UI in Daily tab — start button, wave display, stats, relic inventory
+- ✅ [Phase 4] Roguelite stats persisted in save (bestWave, totalRuns, relics)
 - ✅ [SIL] Oracle NPC in The Sanctum with sun-mythology dialogue
 - ✅ [SIL] Sunstone Shard starter item + HUD welcome message
 - ✅ [SIL] Daily run streak counter in localStorage + display in Daily tab
@@ -63,6 +67,10 @@
 - ✅ [SIL] Grave clustering — 💀 badge with count when ≥5 graves within 3 tiles
 - ✅ [SIL] Oracle dialogue state machine — 4 threshold branches based on sunBrightness
 - ✅ [SIL] Sunstone Shard offering mechanic — spend shard on grave
+- ✅ [SIL] Shrine glow on world map — ✦ gold for ≥50 offerings, glow for ≥200
+- ✅ [SIL] Milestone death announcements — HUD flash + chat at 100/500/1K/5K/10K/50K/100K
+- ✅ [SIL] Sun pulse animation — HUD ☀ blinks faster as brightness drops (4s→0.7s)
+- ✅ [SIL] Faction leaderboard split — grouped by Sunkeepers/Eclipsers/Unaligned
 - ✅ [Innovation #1] Archive of the Fallen — public/archive.html (SEO-indexed grave browser)
 - ✅ [Innovation #2] Oracle subscription UI — email subscribe in Daily tab, Supabase SQL in handoff
 - ✅ [Innovation #3] Sun Observatory widget — public/sun-widget.html (embeddable iframe)
@@ -76,4 +84,4 @@
 - ✅ [Innovation #13] Ambient audio system — phase-adaptive Web Audio API, tied to sunBrightness
 - ✅ [Innovation #14] Sunfall Event Boss HP Tracker — section in Daily tab when sun < 10%
 - ✅ [Innovation #15] Public Sun API — archive.html + widget both expose /sun state via Supabase public query
-- ✅ Build passing ✅ (330 KB JS, 101 KB gzipped)
+- ✅ Build passing ✅ (348 KB JS, 106 KB gzipped)

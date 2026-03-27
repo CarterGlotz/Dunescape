@@ -4,68 +4,44 @@ Last updated: 2026-03-27
 
 ## What was completed this session
 
-**Full Project Audit + Innovation Sprint (all 13 implementable items shipped)**
+**Full Task Board Clearout — Phase 4 Roguelite Engine + 4 SIL items + Shrine Evolution**
 
-### Audit deliverable
-- Full project scored at **72/100** across 8 categories
-- Category scores: Concept 9.5, Docs 9.5, Marketing 8.0, Social/Viral (design) 7.5, Game Design 7.0, Tech Architecture 6.5, Launch Readiness 4.5, Monetization 4.5
-- 20 innovation items brainstormed with effort/impact ratings
+### App.jsx changes (~2851 lines, build 348 KB / 106 KB gzip)
 
-### App.jsx changes (~2650 lines, build ✅ 338 KB / 103 KB gzip)
+**Phase 4: Roguelite Engine (primary game mode)**
+- `ROGUE_ROOMS` array — 17 rooms across 4 difficulty tiers (Goblin/Chicken/Scorpion/Cow → Spider/Zombie/Flesh Crawler/Hobgoblin/Wolf → Hill Giant/Necromancer/Moss Giant/Rock Crab → White Knight/Lesser Demon/Ice Warrior/Dark Conclave)
+- `ROGUE_BOSS` — Shadow Drake boss fight every 10 waves
+- `getRogueRoom(wave, rng)` — selects room from pool based on wave tier
+- `scaleRogueMon(stats, wave)` — scales HP/atk/def/str/xp by +6% per wave
+- `RELICS` array — 5 persistent relics: Solar Fragment (+5 HP), Ember Ring (+2 STR), Shade Cloak (+2 DEF), Comet Shard (+2 ATK), Oracle's Eye (+3 Prayer)
+- `getRogueRelicReward(wave)` — awards relic at wave 10, 20, 30, 40, 50
+- `rogueRunRef` state + `rogueTick` for UI reactivity
+- `startRogueRun()` — creates run with seeded RNG, applies relic bonuses, teleports to dungeon
+- `endRogueRun(wave)` — restores pre-run stats, awards relics, updates rogueliteStats, triggers epitaph
+- Dungeon entrance handler extended to support roguelite runs (room selection + stat scaling)
+- Wave-advance check added for roguelite (auto-spawns next wave after clearing)
+- Death handler routes roguelite deaths through endRogueRun before epitaph modal
+- Monster kill handler routes rogueRun monsters to permanent removal (no respawn)
+- Roguelite stats persisted in save: `rogueliteStats: {bestWave, totalRuns, relics}`
+- Roguelite UI in Daily tab: start button, wave/difficulty display, run stats, relic inventory
 
-**Innovation #7 — Landmark Auto-Naming:**
-- `LANDMARK_PREFIXES` + `LANDMARK_SUFFIXES` arrays
-- `getLandmarkName(clusterKey)` — deterministic name from hashSeed
-- WorldMapCanvas updated: clusters ≥15 members render with gold 💀, landmark name below, distinguishable from 5–14 member clusters
+**Phase 2: Shrine Evolution (client-side)**
+- `offerSunstone()` now checks offering thresholds (50 → is_shrine, 200 → is_major_shrine) and updates Supabase accordingly
+- Chat announcements when a grave evolves ("This grave has become a Shrine/Major Shrine!")
 
-**Innovation #11 — Prophetic Epitaph Suggestions:**
-- `PROPHECY_TEMPLATES` array (8 templates, faction/wave/name-aware)
-- `generateProphecy(wave, faction, playerName)` — deterministic pick from templates
-- Epitaph modal: "✨ Suggest Prophecy" button fills the input with a generated epitaph; player can edit before submitting
+**[SIL] Sun Pulse Animation**
+- New `@keyframes sunPulse` CSS animation (opacity 1→0.55→1 with text-shadow glow)
+- Applied to HUD ☀ indicator with speed based on sunBrightness (4s at >80%, 3s at >60%, 2s at >40%, 1.2s at >20%, 0.7s at ≤20%)
+- Creates visceral urgency as sun dims — pulsing gets faster and more alarming
 
-**Innovation #12 — Faction Recruitment Share Card:**
-- `generateFactionShareCard(faction, sunBrightness)` — faction-specific viral text with sun state embedded
-- "📣 Share Faction Card" button in quest tab factions section, uses navigator.share + clipboard fallback
+**[SIL] Faction Leaderboard Split**
+- Daily leaderboard now grouped by faction: ☀ Sunkeepers, 🌑 Eclipsers, ⚖ Unaligned
+- Each faction section shows its entries with faction-themed colors
+- Empty factions hidden automatically
 
-**Innovation #13 — Ambient Audio System:**
-- `ambientAudioR` ref holding `{ctx, osc, gainNode, active}`
-- `useEffect` on `sunBrightness` changes: creates Web Audio API oscillator if not started; adjusts frequency (220→130 Hz) and volume (0.04→0.08) based on phase; smooth transition via setTargetAtTime with 2s time constant
-- Requires audio toggle ON (existing 🔊 button) to activate
-
-**Innovation #2 — Oracle Subscription UI:**
-- `oracleSubEmail` state + `oracleSubbed` state (persisted to localStorage `solara_oracle_sub`)
-- Email input + subscribe button in Daily tab; validates basic email format; stores email locally with success message
-- SQL for `oracle_subscriptions` table in "What is mid-flight" section below
-
-**Innovation #5 — Faction Rivalry Dashboard:**
-- Section in Daily tab below leaderboard
-- Shows Sunkeeper % vs Eclipser % bar (based on today's leaderboard faction split)
-- Graceful offline placeholder when Supabase not configured
-
-**Innovation #14 — Sunfall Event Boss HP Tracker:**
-- Renders in Daily tab when `sunBrightness <= 10`
-- Shows community HP bar scaled to sun brightness × 10
-- Shows total season deaths and warning text
-
-### New external files
-
-| File | Purpose |
-|---|---|
-| `public/archive.html` | Archive of the Fallen — SEO-indexed public grave browser; fetches graves + sun state from Supabase REST; full search/filter/sort; no login required |
-| `public/sun-widget.html` | Sun Observatory embeddable widget — self-contained 220px iframe; shows phase, %, bar, deaths, play CTA; refreshes every 5 min |
-| `discord-bot/index.js` | Solara Sun Bot — 4 slash commands: /sun, /top, /graves, /season; fires Oracle broadcast embeds at 60/40/20% thresholds automatically |
-| `discord-bot/package.json` | Bot dependencies (discord.js, dotenv) |
-| `discord-bot/.env.example` | Template for bot env vars |
-| `twitch-extension/panel.html` | Twitch Extension panel — sun state, deaths, season, streamer wave, play CTA; Twitch PubSub ready |
-| `twitch-extension/manifest.json` | Twitch Extension manifest for Developer Console submission |
-| `docs/templates/STATE_OF_SUN_WEEKLY.md` | Weekly "State of the Sun" digest template — fill in numbers and post to Reddit/Discord |
-
-### Memory + context files updated
-- `memory/project_innovation_catalog.md` — all 20 items tracked with status
-- `memory/MEMORY.md` — index pointer added
-- `context/TASK_BOARD.md` — all 20 items added; 13 marked ✅ Done; 6 queued Phase 4–5; 3 Carter manual
-- `context/CURRENT_STATE.md` — updated to reflect innovation sprint
-- `context/LATEST_HANDOFF.md` — this file
+**Already implemented (marked ✅ — were on task board but code already existed):**
+- Shrine glow on world map (✦ gold for ≥50 offerings, glow+shadow for ≥200)
+- Milestone death announcements (HUD flash + chat at 100/500/1K/5K/10K/50K/100K)
 
 ---
 
@@ -74,8 +50,7 @@ Last updated: 2026-03-27
 **Carter's Supabase manual tasks (still blocked, no change):**
 
 1. Create Supabase project at supabase.com (free tier)
-2. Run **all 3** SQL blocks in Supabase SQL editor (unchanged from last handoff — see below)
-3. Add VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to .env.local + GitHub Secrets
+2. Run **all 4** SQL blocks in Supabase SQL editor (unchanged from prior handoff):
 
 **Block 1 — daily_scores (Phase 1):**
 ```sql
@@ -158,28 +133,28 @@ ALTER TABLE oracle_subscriptions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Anyone can subscribe" ON oracle_subscriptions FOR INSERT WITH CHECK (true);
 ```
 
-**Carter additional manual actions (new this session):**
-- Post to itch.io — list game at itch.io with devlog: "I built a browser RPG where every death dims a shared sun"
-- Discord bot — create app at discord.com/developers; get token; run `npm install && node index.js` in `discord-bot/`
-- Twitch extension — submit `twitch-extension/` folder via Twitch Developer Console; configure Supabase URL/key in extension config service
+3. Add VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to .env.local + GitHub Secrets
+
+**Carter additional manual actions:**
+- Post to itch.io — list game at itch.io with devlog
+- Discord bot — create app at discord.com/developers; get token; run in discord-bot/
+- Twitch extension — submit twitch-extension/ via Twitch Developer Console
 
 ## What to do next
 
 1. **Carter action** — Supabase setup (all 4 SQL blocks above) + env vars
 2. **Carter action** — itch.io listing + Discord bot launch + Twitch extension submission
-3. **Phase 4** — Roguelite engine (dungeon as primary game mode) — see TECH_IMPLEMENTATION_PLAN.md §4
-4. **Phase 2** — Shrine evolution (50 offerings → shrine, 200 → major shrine)
+3. **Phase 5** — Season 1: The Wandering Comet config + launch prep
 
 ## Constraints
 
-- App.jsx is ~2650 lines — do NOT split until 5000 lines
+- App.jsx is ~2851 lines — do NOT split until 5000 lines
 - Supabase free tier: 500MB, 50k MAU — monitor usage dashboard
 - Never destroy `dunescape_save` data — migration shim handles it
-- Discord bot requires separate hosting (Railway, Fly.io, or local machine) — not part of GitHub Pages deploy
+- Discord bot requires separate hosting — not part of GitHub Pages deploy
 
 ## Read these first next session
 
 1. `AGENTS.md`
 2. `context/LATEST_HANDOFF.md` (this file)
 3. `context/SELF_IMPROVEMENT_LOOP.md` — check prior SIL commitments
-4. `SOLARA_SUNFALL_HANDOFF/SOLARA_SUNFALL_HANDOFF/03_TECHNICAL/TECH_IMPLEMENTATION_PLAN.md` §4

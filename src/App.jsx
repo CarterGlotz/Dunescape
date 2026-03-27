@@ -500,6 +500,38 @@ const DUNGEON_ROOMS=[
   {monsters:[{nm:"Shadow Drake",count:1,hp:400,mhp:400,atk:18,def:12,str:16,xp:200,lvl:25,c:"#303050",drops:[{i:"shadow_cape",c:0.25},{i:"coins",c:1,a:[200,500]}],rsp:90000,agro:true,atkType:"melee"}],msg:"Final room — a Shadow Drake lurks!"},
 ];
 
+// === PHASE 4: ROGUELITE ENGINE ===
+const ROGUE_ROOMS=[
+  {tier:1,monsters:[{nm:"Goblin",count:4}],msg:"A pack of goblins blocks your path."},
+  {tier:1,monsters:[{nm:"Chicken",count:8}],msg:"An angry flock descends on you!"},
+  {tier:1,monsters:[{nm:"Scorpion",count:3}],msg:"Scorpions scuttle from the shadows."},
+  {tier:1,monsters:[{nm:"Cow",count:4}],msg:"Enraged cattle stampede through the room."},
+  {tier:2,monsters:[{nm:"Giant Spider",count:3}],msg:"Webs cover the ceiling..."},
+  {tier:2,monsters:[{nm:"Zombie",count:4}],msg:"The dead rise again."},
+  {tier:2,monsters:[{nm:"Flesh Crawler",count:3}],msg:"Something writhes in the dark."},
+  {tier:2,monsters:[{nm:"Hobgoblin",count:3}],msg:"Armed hobgoblins stand guard."},
+  {tier:2,monsters:[{nm:"Desert Wolf",count:3}],msg:"Wolves circle in the gloom."},
+  {tier:3,monsters:[{nm:"Hill Giant",count:2}],msg:"The ground shakes with heavy steps."},
+  {tier:3,monsters:[{nm:"Necromancer",count:3}],msg:"Dark magic pulses through the room."},
+  {tier:3,monsters:[{nm:"Moss Giant",count:2}],msg:"Ancient guardians stir."},
+  {tier:3,monsters:[{nm:"Rock Crab",count:3}],msg:"The rocks are alive!"},
+  {tier:4,monsters:[{nm:"White Knight",count:3}],msg:"Fallen knights corrupted by shadow."},
+  {tier:4,monsters:[{nm:"Lesser Demon",count:2}],msg:"Hellfire fills the chamber."},
+  {tier:4,monsters:[{nm:"Ice Warrior",count:2}],msg:"Frozen warriors emerge from the walls."},
+  {tier:4,monsters:[{nm:"Necromancer",count:2},{nm:"Dark Wizard",count:2}],msg:"An unholy conclave of dark mages."},
+];
+const ROGUE_BOSS={monsters:[{nm:"Shadow Drake",count:1,hp:400,mhp:400,atk:18,def:12,str:16,xp:200,lvl:25,c:"#303050",drops:[{i:"shadow_cape",c:0.25},{i:"coins",c:1,a:[200,500]}],rsp:90000,agro:true,atkType:"melee"}],msg:"A Shadow Drake blocks the way forward!"};
+const RELICS=[
+  {id:"solar_fragment",n:"Solar Fragment",i:"☀️",bonus:{hp:5},desc:"+5 max HP per run"},
+  {id:"ember_ring",n:"Ember Ring",i:"🔥",bonus:{str:2},desc:"+2 Strength in runs"},
+  {id:"shade_cloak",n:"Shade Cloak",i:"🌑",bonus:{def:2},desc:"+2 Defence in runs"},
+  {id:"comet_shard",n:"Comet Shard",i:"☄️",bonus:{atk:2},desc:"+2 Attack in runs"},
+  {id:"oracle_eye",n:"Oracle's Eye",i:"👁️",bonus:{pray:3},desc:"+3 max Prayer in runs"},
+];
+const getRogueRoom=(wave,rng)=>{if(wave>0&&wave%10===0){return ROGUE_BOSS;}const tier=wave<10?1:wave<20?2:wave<30?3:4;const pool=ROGUE_ROOMS.filter(r=>r.tier<=tier);return pool[Math.floor(rng()*pool.length)];};
+const scaleRogueMon=(stats,wave)=>{const s=1+wave*0.06;return{hp:Math.floor((stats.hp||50)*s),mhp:Math.floor((stats.mhp||50)*s),atk:Math.floor((stats.atk||5)*s),def:Math.floor((stats.def||3)*s),str:Math.floor((stats.str||5)*s),xp:Math.floor((stats.xp||10)*s)};};
+const getRogueRelicReward=(wave)=>{if(wave<10)return null;return RELICS[Math.floor(wave/10-1)%RELICS.length];};
+
 // === PHASE 1: SEASON CONFIG ===
 const CURRENT_SEASON=Number(import.meta.env.VITE_SEASON_NUMBER)||1;
 const CURRENT_SEASON_NAME=import.meta.env.VITE_SEASON_NAME||'The Wandering Comet';
@@ -652,6 +684,8 @@ export default function DS(){
   const audioR=useRef(null),audioOnR=useRef(false);
   const craftQueueR=useRef(null);
   const dailyRunRef=useRef(null); // Phase 1: daily run state {wave,startTime,rooms,done,deathWave,shareCard}
+  const rogueRunRef=useRef(null); // Phase 4: roguelite run state {wave,rng,done,deathWave,startTime,mode}
+  const [rogueTick,setRogueTick]=useState(0); // triggers re-render when roguelite state changes
   const dailyLbRef=useRef([]); // Phase 1: leaderboard cache
   const gravesRef=useRef([]); // Phase 2: cached graves from Supabase
   const [showEpitaphModal,setShowEpitaphModal]=useState(false);
@@ -783,6 +817,56 @@ export default function DS(){
     setDailyTick(n=>n+1);setTab("inv");
   },[]);
 
+  // Phase 4: Start roguelite run
+  const startRogueRun=useCallback(()=>{
+    const g2=gR.current;if(!g2)return;
+    if(dailyRunRef.current&&!dailyRunRef.current.done){addC("Finish your Daily Rite first!");return;}
+    if(rogueRunRef.current&&!rogueRunRef.current.done){addC("You already have a roguelite run in progress!");return;}
+    const p=g2.p;const seed=Date.now();const rng=mulberry32(seed);
+    // Apply relic bonuses
+    const relics=p.rogueliteStats?.relics||[];
+    let bonusHp=0,bonusStr=0,bonusDef=0,bonusAtk=0,bonusPray=0;
+    relics.forEach(rId=>{const r=RELICS.find(x=>x.id===rId);if(!r)return;bonusHp+=(r.bonus.hp||0);bonusStr+=(r.bonus.str||0);bonusDef+=(r.bonus.def||0);bonusAtk+=(r.bonus.atk||0);bonusPray+=(r.bonus.pray||0);});
+    const run={seed,rng,wave:0,startTime:Date.now(),done:false,deathWave:null,mode:'roguelite',
+      bonusHp,bonusStr,bonusDef,bonusAtk,bonusPray,preRunHp:p.hp,preRunMhp:p.mhp,preRunPrayer:p.maxPrayer};
+    rogueRunRef.current=run;
+    // Apply relic bonuses to player
+    p.mhp+=bonusHp;p.hp=p.mhp;p.maxPrayer+=bonusPray;p.prayer=p.maxPrayer;
+    g2.mons=g2.mons.filter(m=>!m.rogueRun);
+    g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
+    p.x=9;p.y=55;p.path=[];p.act=null;p.cmb=null;p.actTgt=null;
+    addC("⚔️ Roguelite Run begins! Survive as long as you can.");
+    addC("🏛️ Relics active: "+relics.length+" (+"+(bonusHp?"HP:"+bonusHp+" ":"")+(bonusStr?"STR:"+bonusStr+" ":"")+(bonusDef?"DEF:"+bonusDef+" ":"")+(bonusAtk?"ATK:"+bonusAtk+" ":"")+")");
+    setRogueTick(n=>n+1);setTab("inv");
+  },[addC]);
+
+  // Phase 4: End roguelite run
+  const endRogueRun=useCallback((wave)=>{
+    const g2=gR.current;if(!g2)return;
+    const p=g2.p;const run=rogueRunRef.current;if(!run||run.done)return;
+    run.done=true;run.deathWave=wave;
+    // Restore pre-run stats
+    p.mhp=run.preRunMhp;p.hp=p.mhp;p.maxPrayer=run.preRunPrayer;p.prayer=p.maxPrayer;
+    // Clean up roguelite monsters
+    g2.mons=g2.mons.filter(m=>!m.rogueRun);
+    g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
+    // Update roguelite stats
+    if(!p.rogueliteStats)p.rogueliteStats={bestWave:0,totalRuns:0,relics:[]};
+    p.rogueliteStats.totalRuns++;
+    if(wave>p.rogueliteStats.bestWave)p.rogueliteStats.bestWave=wave;
+    // Award relic
+    const relic=getRogueRelicReward(wave);
+    if(relic&&!p.rogueliteStats.relics.includes(relic.id)){
+      p.rogueliteStats.relics.push(relic.id);
+      addC("🏆 Relic earned: "+relic.i+" "+relic.n+" — "+relic.desc);
+    }
+    addC("💀 Roguelite run ended at Wave "+wave+". Best: "+p.rogueliteStats.bestWave);
+    // Submit grave for roguelite deaths too
+    setPendingGrave({x:p.x,y:p.y,wave,faction:getPlayerFaction(p),playerName:p.playerName||"Adventurer"});
+    setShowEpitaphModal(true);
+    setRogueTick(n=>n+1);
+  },[addC,getPlayerFaction]);
+
   // Phase 2: Graves
   const fetchGraves=useCallback(async()=>{
     if(!supabase)return;
@@ -824,7 +908,7 @@ export default function DS(){
     fr(n=>n+1);
     setGravePopup(prev=>prev?{...prev,sunstone_offerings:(prev.sunstone_offerings||0)+1}:prev);
     if(supabase){
-      try{await supabase.from('graves').update({sunstone_offerings:(grave.sunstone_offerings||0)+1}).eq('id',grave.id);}
+      try{const newOff=(grave.sunstone_offerings||0)+1;const upd={sunstone_offerings:newOff};if(newOff>=200&&!grave.is_major_shrine){upd.is_major_shrine=true;upd.is_shrine=true;addC("✦ This grave has become a Major Shrine!");}else if(newOff>=50&&!grave.is_shrine){upd.is_shrine=true;addC("✦ This grave has become a Shrine!");}await supabase.from('graves').update(upd).eq('id',grave.id);}
       catch(e){console.warn('[Solara] Sunstone offer failed:',e);}
     }
     // Update local graves cache
@@ -938,7 +1022,7 @@ export default function DS(){
     // Load saved state
     try{const sv=localStorage.getItem("solara_save");if(sv){const sp=JSON.parse(sv);const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests)p2.quests={};['desert','cook','goblin','rune','miner','haunted','karamja','knight','relic','awakening'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.desertKills)p2.desertKills=0;if(!p2.goblinKills)p2.goblinKills=0;if(!p2.achievements)p2.achievements=[];if(!p2.buffs)p2.buffs={};if(p2.autoRetaliate==null)p2.autoRetaliate=true;if(!p2.slayerTask)p2.slayerTask=null;if(!p2.sk.Herblore)p2.sk.Herblore=0;if(!p2.sk.Slayer)p2.sk.Slayer=0;if(!p2.sk.Fletching)p2.sk.Fletching=0;if(!p2.sk.Farming)p2.sk.Farming=0;if(!p2.sk.Runecrafting)p2.sk.Runecrafting=0;if(!p2.eq.cape)p2.eq.cape=null;if(!p2.activePrayers)p2.activePrayers=[];['shipment','forge','wildernessHunt'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.shipmentFish)p2.shipmentFish=0;if(!p2.iceWarriorKills)p2.iceWarriorKills=0;if(!p2.monsterKills)p2.monsterKills={};p2.visitedRegions=new Set(sp.visitedRegions||[]);p2.haunted=p2.haunted||0;p2.jogreKills=p2.jogreKills||0;p2.demonKills=p2.demonKills||0;p2.jadKills=p2.jadKills||0;p2.relicParts=p2.relicParts||0;p2.cookCount=p2.cookCount||0;
       // New field defaults (v4)
-      if(!p2.pet)p2.pet=null;if(!p2.questPoints)p2.questPoints=0;if(!p2.unlocks)p2.unlocks=[];if(!p2.rep)p2.rep={guard:0,merchant:0,bandit:0};if(!p2.lastFireTile)p2.lastFireTile=null;if(!p2.prestige)p2.prestige={};if(!p2.farmPatches)p2.farmPatches=[];if(!p2.playerName)p2.playerName="Adventurer";if(!p2.camp)p2.camp=null;if(!p2.campBank)p2.campBank=[];if(!p2.appearance)p2.appearance={skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"};if(!p2.codex)p2.codex=[];if(!p2.sideQuests)p2.sideQuests=[];if(!p2.dailyChallengeProgress)p2.dailyChallengeProgress=0;p2.comboMeter=0;p2.lastCombatStyle=null;
+      if(!p2.pet)p2.pet=null;if(!p2.questPoints)p2.questPoints=0;if(!p2.unlocks)p2.unlocks=[];if(!p2.rep)p2.rep={guard:0,merchant:0,bandit:0};if(!p2.lastFireTile)p2.lastFireTile=null;if(!p2.prestige)p2.prestige={};if(!p2.farmPatches)p2.farmPatches=[];if(!p2.playerName)p2.playerName="Adventurer";if(!p2.camp)p2.camp=null;if(!p2.campBank)p2.campBank=[];if(!p2.appearance)p2.appearance={skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"};if(!p2.codex)p2.codex=[];if(!p2.sideQuests)p2.sideQuests=[];if(!p2.dailyChallengeProgress)p2.dailyChallengeProgress=0;if(!p2.rogueliteStats)p2.rogueliteStats={bestWave:0,totalRuns:0,relics:[]};p2.comboMeter=0;p2.lastCombatStyle=null;
       addC("Save loaded. Welcome back!");}
 
     // Offline progression
@@ -1402,16 +1486,29 @@ export default function DS(){
               }else{addC("The patch is still growing...");}
               p.actTgt=null;
             }
-            // Dungeon (Task 21)
+            // Dungeon (Task 21 + Phase 4 roguelite)
             else if(at.type==="dungeon"){
               const isDailyRun=dailyRunRef.current&&!dailyRunRef.current.done;
-              const roomIdx=isDailyRun?dailyRunRef.current.rooms[dailyRunRef.current.wave]:g.dungeon.room||0;
-              const room=DUNGEON_ROOMS[roomIdx];
-              const req=room.skillReq;if(req&&lvl(p.sk[req.skill]||0)<req.lvl){addC("Need "+req.skill+" level "+req.lvl+" to enter this room.");p.actTgt=null;return;}
-              if(isDailyRun)addC("☀️ Daily Rite — Wave "+(dailyRunRef.current.wave+1)+"/30 · "+room.msg);
-              else addC(room.msg);
+              const isRogueRun=rogueRunRef.current&&!rogueRunRef.current.done;
+              let room;
+              if(isRogueRun){
+                room=getRogueRoom(rogueRunRef.current.wave,rogueRunRef.current.rng);
+                addC("⚔️ Roguelite — Wave "+(rogueRunRef.current.wave+1)+" · "+room.msg);
+              }else if(isDailyRun){
+                const roomIdx=dailyRunRef.current.rooms[dailyRunRef.current.wave];
+                room=DUNGEON_ROOMS[roomIdx];
+                const req=room.skillReq;if(req&&lvl(p.sk[req.skill]||0)<req.lvl){addC("Need "+req.skill+" level "+req.lvl+" to enter this room.");p.actTgt=null;return;}
+                addC("☀️ Daily Rite — Wave "+(dailyRunRef.current.wave+1)+"/30 · "+room.msg);
+              }else{
+                room=DUNGEON_ROOMS[g.dungeon.room||0];
+                addC(room.msg);
+              }
               g.dungeon.active=true;
-              const dungMons=[];room.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dead&&!m.dungeon);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true};if(isDailyRun)dm.dailyRun=true;if(isDailyRun&&dailyRunRef.current.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();g.mons.push(dm);dungMons.push(dm);}});g.dungeon.monsters=dungMons;dirtyR.current=true;p.actTgt=null;
+              const dungMons=[];const waveNum=isRogueRun?rogueRunRef.current.wave:0;
+              room.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dead&&!m.dungeon);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:md.c||"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true};
+              if(isRogueRun){const scaled=scaleRogueMon(dm,waveNum);Object.assign(dm,scaled);dm.rogueRun=true;}
+              if(isDailyRun){dm.dailyRun=true;if(dailyRunRef.current.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();}
+              g.mons.push(dm);dungMons.push(dm);}});g.dungeon.monsters=dungMons;dirtyR.current=true;p.actTgt=null;
             }
             // Arena (Task 12)
             else if(at.type==="arena"){
@@ -1559,7 +1656,11 @@ export default function DS(){
               dropToGround(d.i,a,km.x,km.y);addC("Drop: "+ITEMS[d.i]?.n+(a>1?" x"+a:""));if(d.i==="dragon_bones")checkAchievement("dragon_bone");}});
             // Auto-bury bones (Task 10: auto_bury unlock)
             if(p.unlocks?.includes("auto_bury")){const boneItem=km.drops.find(d=>d.i==="bones"||d.i==="big_bones"||d.i==="dragon_bones");if(boneItem&&Math.random()<boneItem.c){const xpAmt=boneItem.i==="dragon_bones"?72:boneItem.i==="big_bones"?15:4;giveXp("Prayer",xpAmt);addC("Bones auto-buried. +"+xpAmt+" Prayer XP.");}}
-            if(!km.dailyRun){
+            if(km.rogueRun){
+              // Roguelite run monster — remove permanently
+              g.mons=g.mons.filter(m=>m.id!==km.id);
+              if(!tgtMon){p.act=null;p.cmb=null;p.actTgt=null;}
+            }else if(!km.dailyRun){
               if(!tgtMon){g.rspQ.push({mon:km,time:Date.now()+km.rsp});p.act=null;p.cmb=null;p.actTgt=null;}
               else g.rspQ.push({mon:km,time:Date.now()+km.rsp});
             }else{
@@ -1658,8 +1759,13 @@ export default function DS(){
               g.deathTile={x:deathX,y:deathY,time:Date.now()+180000};
               p.hp=p.mhp;p.x=20;p.y=28;p.path=[];p.act=null;p.cmb=null;p.actTgt=null;
               g.fx.push({type:"death",x:deathX,y:deathY,life:1500,age:0});
-              // Phase 2: Epitaph modal — queue grave, show modal
-              {const wave=dailyRunRef.current&&!dailyRunRef.current.done?dailyRunRef.current.wave:0;
+              // Phase 4: Roguelite run death hook (before epitaph so endRogueRun handles grave)
+              if(rogueRunRef.current&&!rogueRunRef.current.done){
+                const run=rogueRunRef.current;
+                endRogueRun(run.wave);
+              }
+              // Phase 2: Epitaph modal — queue grave, show modal (skip if roguelite already queued it)
+              else{const wave=dailyRunRef.current&&!dailyRunRef.current.done?dailyRunRef.current.wave:0;
               setPendingGrave({x:deathX,y:deathY,wave,faction:getPlayerFaction(p),playerName:p.playerName||"Adventurer"});
               setShowEpitaphModal(true);}
               // Phase 1: Daily run death hook
@@ -1718,6 +1824,24 @@ export default function DS(){
           dirtyR.current=true;setDailyTick(n=>n+1);
         }
       }
+      // Phase 4: Roguelite wave-advance check
+      if(rogueRunRef.current&&!rogueRunRef.current.done&&g.dungeon.active){
+        const aliveRogue=g.mons.filter(m=>m.rogueRun&&!m.dead);
+        if(aliveRogue.length===0&&(g.dungeon.monsters||[]).length>0){
+          const run=rogueRunRef.current;
+          g.mons=g.mons.filter(m=>!m.rogueRun);
+          g.dungeon.monsters=[];
+          run.wave++;
+          addC("✅ Wave "+run.wave+" cleared! Entering Wave "+(run.wave+1)+"...");
+          // Auto-enter next room
+          const nextRoom=getRogueRoom(run.wave,run.rng);
+          addC(nextRoom.msg);
+          const dungMons=[];
+          nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:md.c||"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,rogueRun:true};const scaled=scaleRogueMon(dm,run.wave);Object.assign(dm,scaled);g.mons.push(dm);dungMons.push(dm);}});
+          g.dungeon.monsters=dungMons;
+          dirtyR.current=true;setRogueTick(n=>n+1);
+        }
+      }
       // Respawns
       const now=Date.now();g.rspQ=g.rspQ.filter(r=>{if(now>=r.time){if(r.obj)r.obj.hp=r.obj.mhp;if(r.mon){r.mon.dead=false;r.mon.hp=r.mon.mhp;r.mon.at=0;}return false;}return true;});
       // Clean ground items
@@ -1746,7 +1870,7 @@ export default function DS(){
       // Auto-save every 60s
       if(Math.floor(g.tk/60000)!==Math.floor((g.tk-dt)/60000)){try{
         localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...p.visitedRegions],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},
-          pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g.objects.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0}));
+          pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g.objects.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0,rogueliteStats:p.rogueliteStats||{bestWave:0,totalRuns:0,relics:[]}}));
         // Leaderboard (Task 23)
         const lb=JSON.parse(localStorage.getItem("solara_leaderboard")||"[]");const entry={name:p.playerName||"Adventurer",totalXp:p.totalXp,totalLvl:SKILLS.reduce((a,s)=>a+lvl(p.sk[s]||0),0),date:new Date().toLocaleDateString()};const existing=lb.find(e=>e.name===entry.name);if(existing){if(entry.totalXp>existing.totalXp)Object.assign(existing,entry);}else lb.push(entry);lb.sort((a,b)=>b.totalXp-a.totalXp);localStorage.setItem("solara_leaderboard",JSON.stringify(lb.slice(0,10)));
       }catch(e){}}
@@ -2118,7 +2242,7 @@ export default function DS(){
     addC("You fletch: "+ITEMS[rec.out].n+(outCnt>1?" x"+outCnt:"")+".");setFletchOpen(false);fr(n=>n+1);
   }
   function togglePrayer(id){if(!p)return;const pl=lvl(p.sk.Prayer);const pr=PRAYERS.find(x=>x.id===id);if(!pr)return;if(pl<pr.lvl){addC("Need Prayer level "+pr.lvl+".");return;}if(p.prayer<=0){addC("You have no Prayer points.");return;}const active=p.activePrayers||[];const idx=active.indexOf(id);if(idx>=0)p.activePrayers=active.filter(x=>x!==id);else p.activePrayers=[...active,id];fr(n=>n+1);}
-  function saveGame(){if(!p||!gR.current)return;const g2=gR.current;try{localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g2.objects?.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0}));addC("Game saved!");}catch(e){}}
+  function saveGame(){if(!p||!gR.current)return;const g2=gR.current;try{localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g2.objects?.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0,rogueliteStats:p.rogueliteStats||{bestWave:0,totalRuns:0,relics:[]}}));addC("Game saved!");}catch(e){}}
 
   const invSlots=[];
   if(p)for(let i=0;i<28;i++){const s=p.inv[i];const d=s?ITEMS[s.i]:null;const isLog=s&&["logs","oak_logs","willow_logs","yew_logs"].includes(s.i);
@@ -2136,7 +2260,7 @@ export default function DS(){
 
   return (
     <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none",zoom:uiScale}}>
-      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}`}</style>
+      <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}@keyframes sunPulse{0%,100%{opacity:1;text-shadow:0 0 4px currentColor}50%{opacity:0.55;text-shadow:none}}`}</style>
       {/* HUD */}
       <div style={{height:36,background:"linear-gradient(180deg,#280e06,#1c0804)",borderBottom:"2px solid #7a2010",display:"flex",alignItems:"center",padding:"0 10px",gap:10,flexShrink:0,overflow:"hidden"}}>
         <span style={{color:"#d4a030",fontWeight:900,fontSize:15,letterSpacing:3,fontFamily:"'Courier New',monospace",textShadow:"1px 1px 0 #7a2808,2px 2px 0 #2a0804",textTransform:"uppercase"}}>Solara: Sunfall</span>
@@ -2148,7 +2272,7 @@ export default function DS(){
           <span style={{color:"#888",fontSize:10}}>Total:{totalLvl}</span>
           {p.ironman&&<span style={{color:"#888",fontSize:10}}>🔒</span>}
           {gR.current?.isNight?<span style={{fontSize:10}}>🌙</span>:<span style={{fontSize:10}}>☀️</span>}
-          {supabase&&<span style={{fontSize:9,color:sunBrightness>60?"#f0c040":sunBrightness>30?"#c08020":"#802010",fontWeight:700}} title={`Global sun: ${sunBrightness.toFixed(1)}% · ${totalDeaths.toLocaleString()} deaths`}>☀{Math.round(sunBrightness)}%</span>}
+          {supabase&&<span style={{fontSize:9,color:sunBrightness>60?"#f0c040":sunBrightness>30?"#c08020":"#802010",fontWeight:700,animation:`sunPulse ${sunBrightness>80?'4s':sunBrightness>60?'3s':sunBrightness>40?'2s':sunBrightness>20?'1.2s':'0.7s'} ease-in-out infinite`}} title={`Global sun: ${sunBrightness.toFixed(1)}% · ${totalDeaths.toLocaleString()} deaths`}>☀{Math.round(sunBrightness)}%</span>}
           {deathMilestone&&<span style={{fontSize:8,color:"#f84",fontWeight:700,animation:"pulse 1s ease-in-out infinite",textShadow:"0 0 6px #f40"}}>☀ {deathMilestone.toLocaleString()} lives claimed</span>}
           {p.slayerTask&&<span style={{color:"#8a2020",fontSize:9}}>🗡️{p.slayerTask.monster} {p.slayerTask.remaining}/{p.slayerTask.count}</span>}
           <div style={{marginLeft:"auto",display:"flex",gap:4,alignItems:"center"}}>
@@ -2371,6 +2495,26 @@ export default function DS(){
                   <button onClick={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});}catch(e){}}else{try{await navigator.clipboard.writeText(t);addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}} style={{width:"100%",background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>📋 Copy &amp; Share</button>
                 </>}
               </div>}
+              {/* Phase 4: Roguelite Run */}
+              <div style={{borderTop:"1px solid rgba(200,168,78,0.08)",paddingTop:6,marginTop:4}}>
+                <div style={{color:"#8060c0",fontSize:10,fontWeight:700,letterSpacing:1,textAlign:"center",marginBottom:3}}>⚔️ ROGUELITE RUN</div>
+                {!rogueRunRef.current||rogueRunRef.current.done?<div>
+                  <button onClick={startRogueRun} style={{width:"100%",background:"linear-gradient(180deg,#1a0830,#0e0418)",border:"2px solid #8060c0",color:"#c8a0ff",fontSize:10,padding:"8px 4px",cursor:"pointer",borderRadius:4,fontWeight:700,marginBottom:3}}>⚔️ Start Roguelite Run</button>
+                  <div style={{fontSize:7,color:"#555",textAlign:"center",lineHeight:1.4}}>Infinite waves · difficulty scales · earn relics<br/>Boss every 10 waves · relics persist between runs</div>
+                  {p&&<div style={{marginTop:4}}>
+                    <div style={{fontSize:7,color:"#888"}}>Runs: {p.rogueliteStats?.totalRuns||0} · Best: Wave {p.rogueliteStats?.bestWave||0}</div>
+                    {(p.rogueliteStats?.relics||[]).length>0&&<div style={{fontSize:7,color:"#c8a0ff",marginTop:2}}>Relics: {p.rogueliteStats.relics.map(rId=>{const r=RELICS.find(x=>x.id===rId);return r?r.i+" "+r.n:rId;}).join(", ")}</div>}
+                    {(p.rogueliteStats?.relics||[]).length===0&&<div style={{fontSize:7,color:"#444",marginTop:2}}>No relics yet. Reach wave 10 to earn your first!</div>}
+                  </div>}
+                  {rogueRunRef.current&&rogueRunRef.current.done&&<div style={{background:"rgba(40,10,30,0.5)",border:"1px solid rgba(128,96,192,0.2)",borderRadius:4,padding:4,marginTop:3}}>
+                    <div style={{color:"#f44",fontSize:10,fontWeight:700,textAlign:"center"}}>💀 Fell at Wave {rogueRunRef.current.deathWave}</div>
+                  </div>}
+                </div>:<div style={{background:"rgba(40,10,30,0.5)",border:"1px solid #8060c0",borderRadius:4,padding:"6px 4px",textAlign:"center"}}>
+                  <div style={{color:"#c8a0ff",fontSize:12,fontWeight:700}}>⚔️ Wave {rogueRunRef.current.wave+1}</div>
+                  <div style={{fontSize:8,color:"#888",marginTop:2}}>Go to the dungeon entrance!</div>
+                  <div style={{fontSize:7,color:"#555",marginTop:2}}>Difficulty: {rogueRunRef.current.wave<10?"Normal":rogueRunRef.current.wave<20?"Hard":rogueRunRef.current.wave<30?"Brutal":"Nightmare"}</div>
+                </div>}
+              </div>
               {/* Leaderboard */}
               <div>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
@@ -2379,9 +2523,12 @@ export default function DS(){
                 </div>
                 {!supabase&&<div style={{fontSize:7,color:"#444",textAlign:"center",lineHeight:1.4}}>Leaderboard available once<br/>Supabase is configured.</div>}
                 {supabase&&dailyLbRef.current.length===0&&<div style={{fontSize:7,color:"#555",textAlign:"center"}}>No scores yet today. Be the first!</div>}
-                {dailyLbRef.current.map((e,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:8,color:i===0?"#da0":i<3?"#c8a84e":"#777",padding:"2px 2px",borderBottom:"1px solid rgba(200,168,78,0.04)"}}>
-                  <span>{i+1}. {e.player_name}</span><span style={{color:e.wave_reached>=30?"#da0":"inherit"}}>Wave {e.wave_reached}{e.wave_reached>=30?" 🏆":""}</span>
-                </div>)}
+                {(()=>{const lb=dailyLbRef.current;if(!lb.length)return null;const factions={sunkeeper:{label:"☀ Sunkeepers",color:"#f0c040",entries:[]},eclipser:{label:"🌑 Eclipsers",color:"#8060c0",entries:[]},neutral:{label:"⚖ Unaligned",color:"#888",entries:[]}};lb.forEach(e=>{const f=e.faction==='sunkeeper'?'sunkeeper':e.faction==='eclipser'?'eclipser':'neutral';factions[f].entries.push(e);});return Object.entries(factions).filter(([,v])=>v.entries.length>0).map(([k,v])=><div key={k} style={{marginBottom:3}}>
+                  <div style={{fontSize:7,color:v.color,fontWeight:700,marginBottom:1}}>{v.label}</div>
+                  {v.entries.map((e,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:8,color:i===0?v.color:"#777",padding:"1px 4px",borderBottom:"1px solid rgba(200,168,78,0.04)"}}>
+                    <span>{e.player_name}</span><span style={{color:e.wave_reached>=30?"#da0":"inherit"}}>W{e.wave_reached}{e.wave_reached>=30?" 🏆":""}</span>
+                  </div>)}
+                </div>);})()}
               </div>
               {/* Innovation #5: Faction Rivalry Dashboard */}
               <div style={{borderTop:"1px solid rgba(200,168,78,0.08)",paddingTop:6,marginTop:4}}>
