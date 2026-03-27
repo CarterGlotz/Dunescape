@@ -4,7 +4,21 @@ Last updated: 2026-03-27
 
 ## What was completed this session
 
-**Phase 2 — Living Map (complete)**
+**Phase 3 — Sun Phase Engine (complete) + SIL items**
+
+- `src/App.jsx`:
+  - `sunBrightness` state (0–100, default 100) + `totalDeaths` state
+  - `fetchSunState()` — fetches `brightness` + `total_deaths` from Supabase `sun_state` table on mount + every 5 min; graceful offline no-op
+  - Canvas desaturation filter useEffect: `saturate(X) sepia(Y)` computed from sunBrightness, applied to `cvR.current.style.filter`
+  - `increment_death_counter()` wired inside `submitGrave` — fires after every player death grave insert
+  - HUD sun indicator: `☀N%` with colour shift (gold >60%, orange 30–60%, red <30%), tooltip shows total deaths
+  - Oracle NPC added in The Sanctum (x:26, y:13) — sun-mythology dialogue + ambient lines
+  - Sunstone Shard item added to ITEMS constant with Solaran flavour text
+  - Sunstone Shard added to new player starting inventory
+  - Welcome message updated to point new players to The Oracle
+- Build: ✅ 327 KB JS, 99 KB gzipped
+
+**Phase 2 — Living Map (complete — shipped previous session)**
 
 - `src/App.jsx` — All Phase 2 additions:
   - `gravesRef` (ref, array of grave objects from Supabase)
@@ -70,31 +84,42 @@ Last updated: 2026-03-27
   CREATE POLICY "Anyone can update offerings" ON graves FOR UPDATE USING (true) WITH CHECK (true);
   ```
 
-  3. Copy Project URL + anon key → paste into `.env.local` (local dev) and GitHub Secrets (CI deploy)
+  **Block 3 — sun_state (Phase 3):**
+  ```sql
+  CREATE TABLE sun_state (
+    id INTEGER PRIMARY KEY DEFAULT 1,
+    brightness NUMERIC(5,2) DEFAULT 100.00,
+    total_deaths BIGINT DEFAULT 0,
+    season INTEGER DEFAULT 1,
+    season_name TEXT DEFAULT 'The Wandering Comet',
+    last_updated TIMESTAMP DEFAULT NOW()
+  );
+  INSERT INTO sun_state DEFAULT VALUES;
+
+  CREATE OR REPLACE FUNCTION increment_death_counter()
+  RETURNS void AS $$
+  BEGIN
+    UPDATE sun_state
+    SET total_deaths = total_deaths + 1,
+        brightness = GREATEST(0, brightness - 0.0008),
+        last_updated = NOW()
+    WHERE id = 1;
+  END;
+  $$ LANGUAGE plpgsql SECURITY DEFINER;
+
+  GRANT EXECUTE ON FUNCTION increment_death_counter() TO anon;
+  ```
+
+  4. Copy Project URL + anon key → paste into `.env.local` (local dev) and GitHub Secrets (CI deploy)
 
 ## What to do next
 
-1. **Carter action** — GitHub repo rename + Supabase setup (run both SQL blocks above)
-2. **Phase 3** — Sun Phase Engine: `sun_state` table, `increment_death_counter()` Supabase function, sun brightness fetch on load, canvas desaturation filter
-
-## Phase 3 first steps (next agent session)
-
-Read `SOLARA_SUNFALL_HANDOFF/SOLARA_SUNFALL_HANDOFF/03_TECHNICAL/TECH_IMPLEMENTATION_PLAN.md` §3 (PHASE 3: SUN PHASE ENGINE).
-
-Key SQL to run in Supabase (after Phases 1+2 SQL above):
-- Create `sun_state` table (see TECH_IMPLEMENTATION_PLAN.md §3.1)
-- Create `increment_death_counter()` function
-- Also call `increment_death_counter()` from the death hook (wire into submitGrave)
-
-Phase 3 game changes:
-- `fetchSunState()` — fetch `brightness` + `total_deaths` from Supabase on load + every 5 min
-- `sunBrightness` state (0–100, defaults to 100)
-- Canvas filter: `saturate(X) sepia(Y)` driven by `sunBrightness`
-- Call `supabase.rpc('increment_death_counter')` inside `submitGrave` (after grave insert)
+1. **Carter action** — GitHub repo rename + Supabase setup (run all 3 SQL blocks above)
+2. **Phase 4** — Roguelite engine (dungeon as primary game mode) — see TECH_IMPLEMENTATION_PLAN.md §4
 
 ## Constraints
 
-- App.jsx is ~2479 lines — do NOT split until 5000 lines
+- App.jsx is ~2512 lines — do NOT split until 5000 lines
 - Supabase free tier: 500MB, 50k MAU — monitor usage dashboard
 - Never destroy `dunescape_save` data — migration shim handles it
 
@@ -103,4 +128,4 @@ Phase 3 game changes:
 1. `AGENTS.md`
 2. `context/LATEST_HANDOFF.md` (this file)
 3. `context/SELF_IMPROVEMENT_LOOP.md` — check prior SIL commitments
-4. `SOLARA_SUNFALL_HANDOFF/SOLARA_SUNFALL_HANDOFF/03_TECHNICAL/TECH_IMPLEMENTATION_PLAN.md` §3
+4. `SOLARA_SUNFALL_HANDOFF/SOLARA_SUNFALL_HANDOFF/03_TECHNICAL/TECH_IMPLEMENTATION_PLAN.md` §4

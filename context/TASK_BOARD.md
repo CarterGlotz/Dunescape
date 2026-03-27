@@ -2,20 +2,19 @@
 
 ## Now
 
-- [Manual — Carter] Create Supabase project (free tier) + run daily_scores + graves table SQL
-- [Manual — Carter] Add VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to GitHub Secrets
+- [Manual — Carter] Create Supabase project (free tier) + run ALL 3 SQL blocks from LATEST_HANDOFF.md (daily_scores, graves, sun_state)
+- [Manual — Carter] Add VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY to GitHub Secrets + .env.local
 - [Manual — Carter] Rename GitHub repo dunescape→solara
-- [SIL] Add Oracle placeholder NPC in The Sanctum with sun-mythology dialogue
-- [SIL] Give new players a "Sunstone Shard" starter item with Solara flavour text
-- [Phase 3] Global sun state table + increment_death_counter() Supabase function
-- [Phase 3] Sun brightness fetch on load + 5-minute refresh
-- [Phase 3] Canvas desaturation filter tied to sun brightness
+- [SIL] Add daily run streak counter in localStorage + display in Daily tab
+- [SIL] Give Wave 30 boss a seeded daily name based on getDailySeed()
+- [SIL] Add "recent deaths" ticker — show new graves in chat on 5-min refresh
+- [SIL] Add grave clustering marker on world map when >5 graves within 3 tiles
 
 ## Next
 
+- [Phase 4] Roguelite run mode (dungeon as primary game mode)
 - [Phase 2] Shrine evolution (50 offerings → shrine, 200 → major shrine)
-- [Phase 3] Oracle NPC dialogue state machine
-- [Phase 3] Faction system: Sunkeepers vs Eclipsers
+- [Phase 3] Oracle NPC dialogue state machine (responds to sun brightness level)
 
 ## Blocked
 
@@ -52,3 +51,11 @@
 - ✅ [Phase 2] Render graves as ✝ markers on world map canvas
 - ✅ [Phase 2] Grave click → epitaph popup card on world map
 - ✅ [Phase 2] Build passing ✅ (326 KB, 99 KB gzipped)
+- ✅ [Phase 3] fetchSunState + sunBrightness state (0–100, default 100)
+- ✅ [Phase 3] Canvas desaturation filter tied to sunBrightness (saturate + sepia)
+- ✅ [Phase 3] Sun brightness fetch on mount + every 5 minutes, graceful offline
+- ✅ [Phase 3] increment_death_counter() wired to every player death (submitGrave)
+- ✅ [Phase 3] HUD sun indicator: ☀N% with colour shift (gold→orange→red)
+- ✅ [SIL] Oracle NPC in The Sanctum (x:26,y:13) with sun-mythology dialogue
+- ✅ [SIL] Sunstone Shard starter item — in new player inventory, examine text, HUD welcome message
+- ✅ [Phase 3] Build passing ✅ (327 KB, 99 KB gzipped)

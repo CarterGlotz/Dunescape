@@ -166,3 +166,35 @@ Rate 0–10 per category at each closeout:
 
 - [SIL] Add "recent deaths" ticker — show new graves in chat on 5-min refresh
 - [SIL] Add grave clustering marker on world map when >5 graves within 3 tiles
+
+---
+
+### 2026-03-27 — Phase 3 Sun Engine + SIL items
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 9 | → | Build passing, graceful Supabase fallback on all Phase 3 calls, 2512 lines (safe) |
+| Creative Alignment | 10 | ↑ | Sun dims with every death — the core promise is now fully playable; Oracle seeds lore; Sunstone Shard lands the mythology on first login |
+| Momentum | 10 | ↑ | Phase 3 + 2 SIL items in one session; Phases 0–3 complete |
+| Engagement | 2 | → | Still pre-launch, blocked on Supabase setup |
+| Process Quality | 9 | → | All context files updated, SQL blocks documented for Carter |
+| **Total** | **40 / 50** | ↑ | |
+
+**Top win:** The complete social loop is now implemented: deaths create graves (Phase 2), graves dim the sun (Phase 3), the sun is visible in the HUD and canvas filter — all gracefully offline until Supabase goes live
+
+**Top gap:** Still blocked entirely on Carter's Supabase setup. The gap between what exists in code and what players can experience is purely infrastructure.
+
+**Innovative Solutions Brainstorm**
+
+1. **Oracle reacts to sun brightness** — Give Oracle different dialogue branches based on sunBrightness thresholds (>75: optimistic, 50–75: concerned, 25–50: urgent, <25: desperate) — makes the sun state feel alive in the world
+2. **Sun pulse animation** — Add a slow CSS animation to the HUD sun indicator (pulsing opacity) that speeds up as brightness drops, creating visceral urgency
+3. **Death count milestone announcements** — When totalDeaths passes round numbers (1000, 5000, 10000), show a server-wide chat message: "☀️ The sun has weathered 1,000 deaths. It endures."
+4. **Sunstone Shard offering** — Let players drop a Sunstone Shard on a grave to give it a sunstone_offerings +1 — links the starter item to the shrine evolution mechanic
+5. **Faction sun contribution** — Track which faction (guard/merchant/bandit) has the most graves — show faction sun contribution breakdown on the Daily tab
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] Oracle dialogue state machine — different lines based on sunBrightness thresholds
+- [SIL] Sunstone Shard offering mechanic on graves

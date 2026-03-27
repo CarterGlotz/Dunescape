@@ -4,7 +4,7 @@
 
 - Date: 2026-03-27
 - Overall status: Active development
-- Current phase: Phase 2 complete — Phase 3 next
+- Current phase: Phase 3 complete — Phase 4 next
 
 ## What exists
 
@@ -12,12 +12,14 @@
 - branding: Solara: Sunfall (Phase 0 complete)
 - Phase 1 — Daily Rites: Seeded PRNG, 30-wave daily dungeon, wave tracking, share card generator, Supabase leaderboard client (graceful offline fallback)
 - Phase 2 — Living Map: Epitaph modal on death, graves submitted to Supabase, ✝ markers on world map, grave click → popup, 5-min auto-refresh
+- Phase 3 — Sun Phase Engine: sunBrightness state, fetchSunState (mount + 5-min interval), canvas desaturation filter, increment_death_counter() wired to every death, HUD sun indicator, graceful offline fallback
+- SIL items: Oracle NPC in The Sanctum, Sunstone Shard starter item with flavour text
 - save: solara_save key, SAVE_VERSION=5, migration shim active
-- build: Passing ✅ (326 KB JS, 99 KB gzipped)
+- build: Passing ✅ (327 KB JS, 99 KB gzipped)
 
 ## Important paths
 
-- Main game: `src/App.jsx` (~2479 lines — do NOT split until 5000 lines)
+- Main game: `src/App.jsx` (~2512 lines — do NOT split until 5000 lines)
 - Supabase client: `src/supabase.js`
 - Env template: `.env.local` (fill in VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY)
 - Build output: `dist/`
@@ -25,15 +27,15 @@
 
 ## In progress
 
-- active work: Phase 3 — Sun Phase Engine (global sun_state table, death counter, canvas desaturation)
+- active work: Phase 4 — Roguelite engine (dungeon as primary mode) OR unblock Supabase setup
 
 ## Blockers
 
-- Supabase not configured yet — all Phase 1+2 social features gracefully disabled until Carter sets up project and adds env vars
+- Supabase not configured — all Phase 1+2+3 social features gracefully disabled until Carter sets up project
 - GitHub repo rename (dunescape→solara) still pending (manual — Carter)
 
 ## Next 3 moves
 
-1. Carter: Rename GitHub repo + add env vars to GitHub Secrets (unblocks deployment)
-2. Carter: Run graves table SQL from TECH_IMPLEMENTATION_PLAN.md §2.1 (unblocks Phase 2 live)
-3. Phase 3: Sun state table, increment_death_counter() function, sun brightness fetch on load, canvas desaturation
+1. Carter: Create Supabase project + run all 3 SQL blocks from LATEST_HANDOFF.md (daily_scores, graves, sun_state)
+2. Carter: Add env vars to .env.local + GitHub Secrets + rename repo
+3. Phase 4: Roguelite run mode (dungeon as primary game mode)
