@@ -45,3 +45,14 @@ Append new entries. Do not erase historical reasoning unless it is wrong.
 - Alternatives considered: Full ID rename with save migration patch
 - Why this was chosen: Save migration was already complex; this is an invisible implementation detail
 - Follow-up: When Phase 4 roguelite engine ships, consider unifying all region IDs
+
+---
+
+### 2026-03-27 - Ship all 13 implementable innovation items in one sprint
+
+- Status: Accepted
+- Context: Full project audit scored 72/100. 20 innovation items brainstormed. Carter directed agent to implement all "highest leverage" (low effort, real impact) and "highest ceiling" (high effort, transformative) items in the same session.
+- Decision: Implement all 13 code-implementable items immediately; document remaining 7 Carter-manual/infrastructure items in LATEST_HANDOFF for deferred action
+- Alternatives considered: Incremental 1–2 items per session; prioritised subset only
+- Why this was chosen: Items are complementary — distribution infrastructure (archive, widget, Discord bot, Twitch ext) + virality mechanics (faction cards, prophecies, landmark naming) + engagement layer (ambient audio, faction dashboard, Oracle subscription) all reinforce each other at once; shipping together maximises launch readiness
+- Follow-up: Carter must complete Supabase setup + itch.io listing to activate all social features; Phase 4 roguelite engine is the next agent build task

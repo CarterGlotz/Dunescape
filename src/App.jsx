@@ -515,6 +515,27 @@ const updateStreak=()=>{try{const s=JSON.parse(localStorage.getItem('solara_stre
 const generateDailyRooms=()=>{const rng=mulberry32(hashSeed(getDailySeed()));return Array.from({length:30},(_,i)=>i===29?4:Math.floor(rng()*(DUNGEON_ROOMS.length-1)));};
 const generateShareCard=(playerName,waveReached,faction)=>{const bars=Math.min(5,Math.floor(waveReached/6));const row=Array(5).fill('').map((_,i)=>i<bars?'🔥':'☀️').join('');const fStr=faction?faction.charAt(0).toUpperCase()+faction.slice(1):'No faction';return`☀️ Solara: Sunfall — Day ${getDayNumber()} ${row}\nWave ${waveReached}/30 · ${fStr} · Season ${CURRENT_SEASON}: ${CURRENT_SEASON_NAME}\n\nPlay free → vaultsparkstudios.github.io/solara/\n#SolaraSunfall`;};
 
+// Innovation #12: Faction Recruitment Share Card
+const generateFactionShareCard=(faction,sunBrightness)=>{const sun=Math.round(sunBrightness);const phase=sun>80?'Full Dawn':sun>60?'Amber Warning':sun>40?'The Twilight':sun>20?'The Dimming':'The Eclipse';const calls={sunkeeper:['Join the Sunkeepers. Every death counts. Every Rite helps.','The sun needs defenders. We fight so it burns.','I chose the light. The sun is at '+sun+'%. Will you help?'],eclipser:['I chose the Eclipse. Darkness is transformation.','The Eclipsers embrace the end. The sun dimming is destiny.','I walk in shadow. The sun burns at '+sun+'%. Come join the end.'],neutral:['I play Solara: Sunfall. '+sun+'% sun remains this season.','Solara: Sunfall — where every death dims a shared sun. Now at '+sun+'%.','The '+phase+'. '+sun+'% sun. Your death shapes the world.']};const lines=calls[faction]||calls.neutral;const msg=lines[getDayNumber()%lines.length];return`${faction==='sunkeeper'?'☀️':faction==='eclipser'?'🌑':'🌅'} ${msg}\n\nSeason ${CURRENT_SEASON}: ${CURRENT_SEASON_NAME} · ${phase}\n\nPlay → vaultsparkstudios.github.io/solara/\n#SolaraSunfall #${faction==='sunkeeper'?'Sunkeeper':faction==='eclipser'?'Eclipser':'Solara'}`;};
+
+// Innovation #11: Prophetic Epitaph Suggestion
+const PROPHECY_TEMPLATES=[
+  (w,f,n)=>`${n} walked as far as Wave ${w}. The Oracle says: further than most, not far enough.`,
+  (w,f,n)=>`Wave ${w} was the last chapter. A ${f||'wanderer'}'s story, written in dust.`,
+  (w,f,n)=>`The ${f==='sunkeeper'?'sun':f==='eclipser'?'dark':'desert'} remembers ${n}. Wave ${w}. Always Wave ${w}.`,
+  (w,f,n)=>`Fell at ${w}. The Oracle watched. She does not weep, but she remembers.`,
+  (w,f,n)=>`${w<10?'Barely begun':'Half-gone'} at Wave ${w}. The sun is dimmer for it.`,
+  (w,f,n)=>`Wave ${w} asked too much. ${n} gave what they had. The grave holds the rest.`,
+  (w,f,n)=>`The ${f==='eclipser'?'Eclipse claims':'sun mourns'} ${n}. Wave ${w} was the answer to a question they didn't ask.`,
+  (w,f,n)=>`A ${f||'wanderer'} who reached Wave ${w} once. The world map knows their name.`,
+];
+const generateProphecy=(wave,faction,playerName)=>{const t=PROPHECY_TEMPLATES[hashSeed(playerName+(wave||0))%PROPHECY_TEMPLATES.length];return t(wave||0,faction||'neutral',playerName||'Adventurer');};
+
+// Innovation #7: Landmark auto-naming for grave clusters
+const LANDMARK_PREFIXES=['The Valley of','The Field of','The Ridge of','The Hollow of','The Crossing of','The Hill of','The Sands of','The Dark of','The Ruins of','The Gate of'];
+const LANDMARK_SUFFIXES=['First Blood','the Fallen','the Comet-Touched','Eternal Rest','the Sunless','the Forsaken','the Eclipse','Last Steps','the Brave','Quiet Graves','the Dimming','Undying Names'];
+const getLandmarkName=(clusterKey)=>{const h=hashSeed(clusterKey);return LANDMARK_PREFIXES[h%LANDMARK_PREFIXES.length]+' '+LANDMARK_SUFFIXES[Math.floor(h/LANDMARK_PREFIXES.length)%LANDMARK_SUFFIXES.length];};
+
 const CARAVAN_ITEMS=[[{i:"rune_arrow",cost:20},{i:"emerald",cost:280},{i:"ruby",cost:500}],[{i:"death_rune",cost:180},{i:"prayer_potion",cost:350},{i:"ranging_potion",cost:300}],[{i:"elemental_shard",cost:50},{i:"kwuarm_seed",cost:200},{i:"festival_mask",cost:600}]];
 
 const LORE_ENTRIES=[
@@ -568,7 +589,17 @@ function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
       });
       clusters.forEach(cl=>{
         const px=cl.cx*sc+sc/2,py=cl.cy*sc+sc;
-        if(cl.members.length>=5){
+        if(cl.members.length>=15){
+          // Innovation #7: Landmark — 15+ graves → named location
+          const lmKey=Math.round(cl.cx/5)+'_'+Math.round(cl.cy/5);
+          const lmName=getLandmarkName(lmKey);
+          c.fillStyle="rgba(255,200,100,0.95)";c.font=`bold ${Math.max(8,Math.floor(sc*1.8))}px sans-serif`;
+          c.fillText("💀",px,py);
+          c.fillStyle="#fff";c.font=`bold ${Math.max(4,Math.floor(sc*0.8))}px sans-serif`;
+          c.fillText(cl.members.length,px+sc*0.6,py-sc*0.6);
+          c.fillStyle="rgba(255,220,120,0.9)";c.font=`bold ${Math.max(5,Math.floor(sc*0.9))}px sans-serif`;
+          c.textAlign="center";c.fillText(lmName,px,py+sc*1.4);
+        }else if(cl.members.length>=5){
           c.fillStyle="rgba(220,180,255,0.9)";c.font=`bold ${Math.max(7,Math.floor(sc*1.6))}px sans-serif`;
           c.fillText("💀",px,py);
           c.fillStyle="#fff";c.font=`bold ${Math.max(4,Math.floor(sc*0.8))}px sans-serif`;
@@ -638,6 +669,11 @@ export default function DS(){
   const [tooltip,setTooltip]=useState(null);// {text, x, y}
   const chatR=useRef([]);chatR.current=chat;
   const [dailyTick,setDailyTick]=useState(0); // triggers re-render when daily run state changes
+  // Innovation #2: Oracle subscription
+  const [oracleSubEmail,setOracleSubEmail]=useState("");
+  const [oracleSubbed,setOracleSubbed]=useState(()=>{try{return!!localStorage.getItem('solara_oracle_sub');}catch(e){return false;}});
+  // Innovation #13: Ambient audio ref
+  const ambientAudioR=useRef({ctx:null,osc:null,gainNode:null,active:false});
 
   const addC=useCallback(m=>{const c=[...chatR.current.slice(-100),m];setChat(c);},[]);
 
@@ -674,6 +710,34 @@ export default function DS(){
     const warmth=sunBrightness>60?1:0.7+(sunBrightness/60)*0.3;
     const sepia=(1-warmth).toFixed(2);
     cv.style.filter=`saturate(${saturation}) sepia(${sepia})`;
+  },[sunBrightness]);
+
+  // Innovation #13: Ambient audio — phase-adaptive, tied to sunBrightness
+  useEffect(()=>{
+    const amb=ambientAudioR.current;
+    if(!audioOnR.current)return;
+    try{
+      if(!amb.ctx){amb.ctx=new (window.AudioContext||window.webkitAudioContext)();}
+      const ctx=amb.ctx;
+      if(ctx.state==='suspended')ctx.resume();
+      const freq=sunBrightness>80?220:sunBrightness>60?196:sunBrightness>40?174:sunBrightness>20?155:130;
+      const vol=sunBrightness>80?0.04:sunBrightness>60?0.05:sunBrightness>40?0.06:sunBrightness>20?0.07:0.08;
+      if(!amb.osc){
+        amb.osc=ctx.createOscillator();amb.gainNode=ctx.createGain();
+        const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=400;
+        amb.osc.type='sine';amb.osc.frequency.value=freq;amb.gainNode.gain.value=0.001;
+        amb.osc.connect(filter);filter.connect(amb.gainNode);amb.gainNode.connect(ctx.destination);
+        amb.osc.start();amb.active=true;
+      }
+      amb.osc.frequency.setTargetAtTime(freq,ctx.currentTime,2.0);
+      amb.gainNode.gain.setTargetAtTime(vol,ctx.currentTime,2.0);
+    }catch(e){}
+    return()=>{
+      try{
+        const amb2=ambientAudioR.current;
+        if(amb2.gainNode&&amb2.active)amb2.gainNode.gain.setTargetAtTime(0.001,amb2.ctx?.currentTime||0,0.5);
+      }catch(e){}
+    };
   },[sunBrightness]);
 
   const getPlayerFaction=useCallback((p)=>{if(!p?.rep)return'neutral';const {guard=0,merchant=0,bandit=0}=p.rep;const max=Math.max(guard,merchant,bandit);if(max<=0)return'neutral';if(guard===max)return'guard';if(merchant===max)return'merchant';return'bandit';},[]);
@@ -2208,6 +2272,10 @@ export default function DS(){
                   {f.rewards.map(r=><div key={r.id} style={{fontSize:7,color:rep>=r.rep?"#8a0":"#444",marginTop:2}}>{rep>=r.rep?"✅":"🔒"} {r.desc} (req: {r.rep})</div>)}
                 </div>;})}
               </div>
+              {/* Innovation #12: Faction Recruitment Share Card */}
+              <div style={{marginTop:6}}>
+                <button onClick={async()=>{const faction=getPlayerFaction(p);const card=generateFactionShareCard(faction,sunBrightness);if(navigator.share){try{await navigator.share({text:card});return;}catch(e){}}try{await navigator.clipboard.writeText(card);addC("📋 Faction card copied — recruit your side!");}catch(e){addC(card);}}} style={{width:"100%",background:"rgba(40,20,5,0.6)",border:"1px solid rgba(200,168,78,0.2)",color:"#c8a84e",fontSize:8,padding:"4px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>📣 Share Faction Card</button>
+              </div>
               {/* Lore Codex */}
               {(p.codex||[]).length>0&&<div style={{marginTop:8}}>
                 <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1,marginBottom:4}}>LORE CODEX ({(p.codex||[]).length}/{LORE_ENTRIES.length})</div>
@@ -2291,6 +2359,46 @@ export default function DS(){
                 {dailyLbRef.current.map((e,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",fontSize:8,color:i===0?"#da0":i<3?"#c8a84e":"#777",padding:"2px 2px",borderBottom:"1px solid rgba(200,168,78,0.04)"}}>
                   <span>{i+1}. {e.player_name}</span><span style={{color:e.wave_reached>=30?"#da0":"inherit"}}>Wave {e.wave_reached}{e.wave_reached>=30?" 🏆":""}</span>
                 </div>)}
+              </div>
+              {/* Innovation #5: Faction Rivalry Dashboard */}
+              <div style={{borderTop:"1px solid rgba(200,168,78,0.08)",paddingTop:6,marginTop:4}}>
+                <div style={{color:"#c8a84e",fontSize:9,fontWeight:700,marginBottom:4}}>FACTION BALANCE</div>
+                {!supabase&&<div style={{fontSize:7,color:"#444",textAlign:"center",lineHeight:1.4}}>Live balance once Supabase is configured.</div>}
+                {supabase&&<div>
+                  {(()=>{const lbFactions=dailyLbRef.current;const sk=lbFactions.filter(e=>e.faction==='sunkeeper').length;const ec=lbFactions.filter(e=>e.faction==='eclipser').length;const tot=sk+ec||1;const skPct=Math.round(sk/tot*100);const ecPct=100-skPct;return<div>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:7,marginBottom:2}}>
+                      <span style={{color:"#f0c040"}}>☀ Sunkeepers {skPct}%</span>
+                      <span style={{color:"#8060c0"}}>🌑 Eclipsers {ecPct}%</span>
+                    </div>
+                    <div style={{height:5,background:"#120604",borderRadius:3,overflow:"hidden",display:"flex"}}>
+                      <div style={{width:skPct+"%",background:"linear-gradient(90deg,#c8a84e,#f0c040)",transition:"width 0.8s"}}/>
+                      <div style={{flex:1,background:"linear-gradient(90deg,#5030a0,#8060c0)"}}/>
+                    </div>
+                    <div style={{fontSize:7,color:"#555",marginTop:3,textAlign:"center"}}>Based on today's leaderboard · Sun: {Math.round(sunBrightness)}%</div>
+                  </div>;})()}
+                </div>}
+                {!supabase&&<div style={{marginTop:4,display:"flex",justifyContent:"space-between",fontSize:7,color:"#333"}}>
+                  <span>☀ Sunkeepers</span><span>🌑 Eclipsers</span>
+                </div>}
+              </div>
+              {/* Innovation #14: Sunfall Event Boss Tracker */}
+              {sunBrightness<=10&&<div style={{borderTop:"1px solid rgba(200,168,78,0.08)",paddingTop:6,marginTop:4,background:"rgba(60,0,0,0.3)",borderRadius:4,padding:6}}>
+                <div style={{color:"#f44",fontSize:9,fontWeight:700,marginBottom:4,textAlign:"center"}}>⚠️ GRAND SUNFALL EVENT</div>
+                <div style={{fontSize:7,color:"#caa",textAlign:"center",marginBottom:4,lineHeight:1.4}}>The sun is nearly extinguished. The Harbinger stirs.</div>
+                <div style={{color:"#888",fontSize:7,marginBottom:2}}>Community HP Remaining</div>
+                <div style={{height:8,background:"#1a0404",borderRadius:4,overflow:"hidden",border:"1px solid #4a1010"}}>
+                  <div style={{height:"100%",width:Math.max(2,sunBrightness*10)+"%",background:"linear-gradient(90deg,#ff2020,#ff6040)",transition:"width 2s",boxShadow:"0 0 8px #ff4040"}}/>
+                </div>
+                <div style={{fontSize:7,color:"#f44",marginTop:2,textAlign:"center"}}>{Math.round(sunBrightness*10)}% Harbinger HP · {totalDeaths.toLocaleString()} fallen this season</div>
+              </div>}
+              {/* Innovation #2: Oracle Subscription */}
+              <div style={{borderTop:"1px solid rgba(200,168,78,0.08)",paddingTop:6,marginTop:4}}>
+                <div style={{color:"#c8a84e",fontSize:9,fontWeight:700,marginBottom:3}}>🔔 ORACLE ALERTS</div>
+                {oracleSubbed?<div style={{fontSize:7,color:"#4a0",textAlign:"center",padding:"3px 0"}}>✓ Subscribed. The Oracle will call when the sun crosses a threshold.</div>:<div>
+                  <div style={{fontSize:7,color:"#666",marginBottom:3,lineHeight:1.4}}>Get notified when the Oracle broadcasts (60%, 40%, 20% sun).</div>
+                  <input type="email" value={oracleSubEmail} onChange={e=>setOracleSubEmail(e.target.value)} placeholder="your@email.com" style={{width:"100%",boxSizing:"border-box",background:"#120604",color:"#ddd",border:"1px solid #5a2010",fontSize:8,padding:"3px 5px",borderRadius:3,marginBottom:3,outline:"none"}}/>
+                  <button onClick={()=>{if(!oracleSubEmail.includes('@')){addC("Enter a valid email for Oracle alerts.");return;}localStorage.setItem('solara_oracle_sub',oracleSubEmail);setOracleSubbed(true);addC("🔔 Oracle alerts registered. The Oracle will find you.");}} style={{width:"100%",background:"#2a1040",border:"1px solid #7a4090",color:"#c8a0ff",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>Subscribe to Oracle Broadcasts</button>
+                </div>}
               </div>
             </div>}
             {tab==="settings"&&p&&<div style={{padding:6,display:"flex",flexDirection:"column",gap:6}}>
@@ -2553,7 +2661,11 @@ export default function DS(){
             placeholder="They died as they lived..."
             style={{width:"100%",boxSizing:"border-box",background:"#1a0808",border:"1px solid #5a3060",borderRadius:4,color:"#ddd",fontSize:11,padding:"6px 8px",marginBottom:8,outline:"none"}}
           />
-          <div style={{fontSize:8,color:"#555",marginBottom:12,textAlign:"right"}}>{epitaphDraft.length}/80</div>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:8}}>
+            <span style={{fontSize:8,color:"#555"}}>{epitaphDraft.length}/80</span>
+            {/* Innovation #11: Prophecy suggestion */}
+            <button onClick={()=>{if(pendingGrave){const p2=generateProphecy(pendingGrave.wave,pendingGrave.faction,pendingGrave.playerName);setEpitaphDraft(p2.slice(0,80));}}} style={{background:"#2a1040",border:"1px solid #5a3080",color:"#b090e0",fontSize:7,padding:"2px 6px",cursor:"pointer",borderRadius:3}}>✨ Suggest Prophecy</button>
+          </div>
           <div style={{display:"flex",gap:8,justifyContent:"center"}}>
             <button onClick={()=>submitGrave(epitaphDraft)} style={{background:"#5a2080",border:"none",color:"#fff",borderRadius:4,padding:"6px 16px",fontSize:11,cursor:"pointer",fontWeight:700}}>Leave Epitaph</button>
             <button onClick={()=>submitGrave("")} style={{background:"transparent",border:"1px solid #444",color:"#666",borderRadius:4,padding:"6px 12px",fontSize:11,cursor:"pointer"}}>Skip</button>

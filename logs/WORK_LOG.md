@@ -98,3 +98,27 @@ Append chronological entries.
   - Preserved: Graceful offline fallback for all Supabase paths
   - Created: None new
 - Recommended next move: Carter completes Supabase setup (all 3 SQL blocks in LATEST_HANDOFF.md); then Phase 4 roguelite engine or shrine evolution
+
+---
+
+### 2026-03-27 — Full Project Audit + Innovation Sprint (13 items)
+
+- Goal: Full audit of the project with category scores; implement all "highest leverage" and "highest ceiling" innovation items from the brainstorm list
+- What changed:
+  - src/App.jsx: landmark auto-naming (LANDMARK_PREFIXES/SUFFIXES, getLandmarkName, WorldMapCanvas update for ≥15 clusters); faction share card (generateFactionShareCard); prophetic epitaph suggestions (PROPHECY_TEMPLATES, generateProphecy, "Suggest Prophecy" button in epitaph modal); ambient audio system (ambientAudioR ref, useEffect tied to sunBrightness, Web Audio API oscillator with phase-adaptive frequency/volume); Oracle subscription UI (oracleSubEmail/oracleSubbed state, email input + subscribe in Daily tab, localStorage persist); Faction Rivalry Dashboard (Sunkeeper/Eclipser % bar in Daily tab); Sunfall Event Boss HP Tracker (renders in Daily tab when sun ≤ 10%); Faction Recruitment Share Card button in quest tab factions section
+  - public/archive.html: Archive of the Fallen — SEO-indexed public grave browser with search/filter/sort, sun state display, Supabase REST integration, graceful offline fallback
+  - public/sun-widget.html: Embeddable sun observatory widget — 220px self-contained iframe, phase-adaptive colors, 5-min refresh
+  - discord-bot/index.js: Solara Sun Bot — /sun /top /graves /season slash commands, Oracle broadcast at 60/40/20% thresholds, Supabase REST integration
+  - discord-bot/package.json + .env.example
+  - twitch-extension/panel.html: Twitch Extension panel — live sun state, streamer wave display, Twitch PubSub ready, Supabase integration
+  - twitch-extension/manifest.json: Twitch Developer Console submission manifest
+  - docs/templates/STATE_OF_SUN_WEEKLY.md: Weekly "State of the Sun" digest template for Reddit/Discord
+  - memory/project_innovation_catalog.md: All 20 innovation items tracked with status
+  - All context files updated (LATEST_HANDOFF, CURRENT_STATE, TASK_BOARD, SELF_IMPROVEMENT_LOOP, PROJECT_STATUS)
+- Files or systems touched: src/App.jsx, public/archive.html, public/sun-widget.html, discord-bot/*, twitch-extension/*, docs/templates/STATE_OF_SUN_WEEKLY.md, context/*, memory/*
+- Risks created or removed:
+  - Removed: Distribution gap — game now has embeddable widget, Discord bot, Twitch extension, public archive page ready to deploy
+  - Removed: Viral gap — faction share cards, prophetic epitaphs, landmark names all add organic shareability
+  - Created (minor): Ambient audio adds a new Web Audio API context — test that it doesn't interfere with existing sound effects
+  - Preserved: All graceful Supabase fallbacks intact; build passing at 338 KB / 103 KB gzip
+- Recommended next move: Carter completes all 4 SQL blocks (adds oracle_subscriptions) + env vars + itch.io listing + Discord bot deployment; agent builds Phase 4 roguelite engine

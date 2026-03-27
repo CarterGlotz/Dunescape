@@ -2,10 +2,17 @@
   "status": "active",
   "health": "green",
   "currentFocus": "Phase 4 — Roguelite engine (dungeon as primary game mode)",
-  "nextMilestone": "Carter completes Supabase setup → Phases 1+2+3 go live for real players",
+  "nextMilestone": "Carter completes Supabase setup → all social features activate + itch.io listing posted",
   "blockers": [
-    "Supabase project not created yet — Carter must run 3 SQL blocks and add env vars (unblocks Phase 1+2+3)",
-    "GitHub repo rename (dunescape→solara) — manual action by Carter"
+    "Supabase project not created yet — Carter must run 4 SQL blocks and add env vars (unblocks Phase 1+2+3+Oracle alerts)",
+    "GitHub repo rename (dunescape→solara) — manual action by Carter",
+    "Itch.io listing — Carter must post to itch.io manually (Innovation #18)",
+    "Discord bot deployment — Carter must create Discord app + host separately",
+    "Twitch extension submission — Carter must submit via Twitch Developer Console"
   ],
+  "auditScore": "72/100 (2026-03-27) — projected 85+ after Supabase live + Phase 4",
+  "innovationItemsShipped": 13,
+  "innovationItemsQueued": 6,
+  "buildStatus": "passing — 338 KB / 103 KB gzip",
   "lastUpdated": "2026-03-27"
 }

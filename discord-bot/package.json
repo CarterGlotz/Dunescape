@@ -1,0 +1,16 @@
+{
+  "name": "solara-sun-bot",
+  "version": "1.0.0",
+  "description": "Solara: Sunfall Discord bot — live sun state, leaderboard, graves, Oracle broadcasts",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.0.0",
+    "dotenv": "^16.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

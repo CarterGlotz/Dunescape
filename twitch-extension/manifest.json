@@ -1,0 +1,25 @@
+{
+  "name": "Solara: Sunfall — Sun Observatory",
+  "summary": "Live sun brightness, death count, and season state for Solara: Sunfall streamers. Shows how every death dims the shared sun.",
+  "description": "Displays the global Solara: Sunfall sun state in real time. Includes current brightness percentage, phase name, total deaths this season, streamer's current wave, and estimated deaths until the Sunfall Event. Connects viewers to the shared world mechanic — every death in chat dims the sun.",
+  "author_name": "VaultSpark Studios",
+  "support_email": "support@vaultsparkstudios.com",
+  "version": "1.0.0",
+  "extension_types": ["panel"],
+  "panel_height": 310,
+  "views": {
+    "panel": {
+      "viewer_url": "panel.html",
+      "height": 310,
+      "can_link_external_content": true
+    }
+  },
+  "capabilities": [],
+  "icon_urls": {
+    "100x100": "icon-100.png",
+    "24x24": "icon-24.png"
+  },
+  "install_prompt": "Add Solara: Sunfall live sun tracking to your stream. Your viewers will see how every death you take brings the world closer to the Sunfall Event.",
+  "eula_tos_url": "https://vaultsparkstudios.github.io/solara/",
+  "privacy_policy_url": "https://vaultsparkstudios.github.io/solara/"
+}
