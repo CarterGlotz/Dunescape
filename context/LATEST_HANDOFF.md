@@ -39,7 +39,7 @@ Last updated: 2026-03-27
 
 - Supabase not wired up — Carter needs to:
   1. Create Supabase project at supabase.com (free tier)
-  2. Run **both** SQL blocks in Supabase SQL editor:
+  2. Run **all 3** SQL blocks in Supabase SQL editor:
 
   **Block 1 — daily_scores (Phase 1):**
   ```sql
