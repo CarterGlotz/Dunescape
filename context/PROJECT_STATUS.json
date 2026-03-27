@@ -5,7 +5,6 @@
   "nextMilestone": "Carter completes Supabase setup → all social features activate + itch.io listing posted",
   "blockers": [
     "Supabase project not created yet — Carter must run 4 SQL blocks and add env vars (unblocks Phase 1+2+3+Oracle alerts)",
-    "GitHub repo rename (dunescape→solara) — manual action by Carter",
     "Itch.io listing — Carter must post to itch.io manually (Innovation #18)",
     "Discord bot deployment — Carter must create Discord app + host separately",
     "Twitch extension submission — Carter must submit via Twitch Developer Console"

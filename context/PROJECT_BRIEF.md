@@ -10,13 +10,13 @@
 
 ## Why this exists
 
-- Problem or opportunity: A browser RPG with a shared, collective mechanic — every player death dims a global sun. Community must cooperate to save it.
-- Audience: Casual and mid-core browser RPG players; OSRS-adjacent audience
+- Problem or opportunity: A browser roguelite RPG where every player death dims a shared sun. Run the daily dungeon, leave your grave on the living map, and fight to keep the light alive. Community cooperation drives the entire meta-game.
+- Audience: Casual and mid-core browser RPG players; roguelite fans; OSRS-adjacent audience
 - Studio importance: Flagship game project, foundation for multi-season live service
 
 ## Success
 
-- What success looks like: Shipped as Solara: Sunfall, viral share loop active, players engaged across seasons
+- What success looks like: Shipped as Solara: Sunfall, viral share loop active, players engaged across seasons, sun state driving communal tension
 - What this project is not: A static game — it evolves with the community
 
 ## Scope

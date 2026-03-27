@@ -14,7 +14,7 @@
 - [Manual] Run SQL Block 2 — `graves` table (Phase 2) — full SQL in LATEST_HANDOFF.md
 - [Manual] Run SQL Block 3 — `sun_state` table + `increment_death_counter()` (Phase 3) — full SQL in LATEST_HANDOFF.md
 - [Manual] Add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` to `.env.local` (local) and GitHub Secrets (CI)
-- [Manual] Rename GitHub repo: dunescape → solara (GitHub Settings → Repository name)
+- ✅ [Manual] Rename GitHub repo: dunescape → solara — done 2026-03-27 via `gh repo rename`
 - [Manual] Post to itch.io — list game at itch.io/vaultsparkstudios with devlog entry (Innovation #18)
 
 ## Next — Agent (after Phase 4 ships)
