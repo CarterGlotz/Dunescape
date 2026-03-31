@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Solara — Full Rebrand & Game Concept Research Plan</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: Georgia, serif; background: #fdfaf4; color: #1a1a1a; line-height: 1.7; padding: 40px 20px; }
+  .container { max-width: 960px; margin: 0 auto; }
+  h1 { font-size: 2.2em; color: #b8600a; border-bottom: 3px solid #b8600a; padding-bottom: 12px; margin-bottom: 8px; }
+  h2 { font-size: 1.5em; color: #7a3d00; margin: 40px 0 12px; border-left: 4px solid #e8a030; padding-left: 12px; }
+  h3 { font-size: 1.15em; color: #4a2800; margin: 24px 0 8px; }
+  h4 { font-size: 1em; color: #333; margin: 16px 0 4px; font-style: italic; }
+  p { margin-bottom: 12px; }
+  ul, ol { margin: 8px 0 12px 24px; }
+  li { margin-bottom: 4px; }
+  .subtitle { color: #888; font-size: 1em; margin-bottom: 32px; font-style: italic; }
+  .callout { background: #fff8e6; border: 1px solid #e8c060; border-radius: 6px; padding: 16px 20px; margin: 20px 0; }
+  .callout.green { background: #f0faf0; border-color: #60b060; }
+  .callout.red { background: #fff4f4; border-color: #d06060; }
+  .callout.blue { background: #f0f4ff; border-color: #6080d0; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 0.88em; }
+  th { background: #7a3d00; color: #fff; padding: 8px 10px; text-align: left; }
+  td { padding: 7px 10px; border-bottom: 1px solid #e0d0b0; vertical-align: top; }
+  tr:nth-child(even) td { background: #fdf5e6; }
+  tr:hover td { background: #fff0cc; }
+  .score-high { color: #2a7a2a; font-weight: bold; }
+  .score-mid { color: #8a6000; }
+  .score-low { color: #aa2020; }
+  .medal { font-size: 1.1em; }
+  .tag { display: inline-block; background: #e8a030; color: #fff; border-radius: 3px; padding: 1px 7px; font-size: 0.8em; margin-right: 4px; }
+  .tag.blue { background: #4060b0; }
+  .tag.green { background: #3a8a3a; }
+  .tag.purple { background: #7040a0; }
+  code { background: #f0e8d8; border-radius: 3px; padding: 1px 5px; font-family: monospace; font-size: 0.9em; }
+  hr { border: none; border-top: 2px solid #e0c890; margin: 40px 0; }
+  .concept-block { border: 1px solid #ddd; border-radius: 8px; padding: 20px; margin: 24px 0; background: #fff; }
+  .concept-block h3 { margin-top: 0; color: #b8600a; }
+  .rank-1 { border-color: #d4a000; border-width: 2px; }
+  .rank-2 { border-color: #a0a0a0; border-width: 2px; }
+  .rank-3 { border-color: #a06030; border-width: 2px; }
+  .avg-score { float: right; font-size: 1.4em; font-weight: bold; color: #b8600a; }
+  .section-intro { font-size: 1.05em; color: #555; margin-bottom: 20px; font-style: italic; }
+  .prompt-box { background: #1a1a2e; color: #e0e0ff; border-radius: 8px; padding: 20px; margin: 20px 0; font-family: monospace; font-size: 0.9em; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>SOLARA — Complete Rebrand &amp; Game Concept Research Plan</h1>
+<p class="subtitle">VaultSpark Studios · Prepared March 2026 · For Deep Research / Build Planning Session</p>
+
+<div class="callout blue">
+<strong>Purpose of this document:</strong> This is a complete research synthesis and game concept scoring report prepared for further AI-assisted deep research and build planning. It covers: current architecture, rebrand rationale, IP/trademark status, 20 scored game concepts, market research findings, monetization data, infrastructure analysis, and a top recommendation with implementation direction. Feed this document into a research or planning session to generate detailed build specs, GDDs (game design documents), or implementation roadmaps.
+</div>
+
+<hr>
+
+<h2>1. Context — What We Are Building From</h2>
+
+<h3>Current Game: "Dunescape" (being retired)</h3>
+<ul>
+  <li><strong>Stack:</strong> React + Vite, single-page browser game, canvas rendering at 544×448px (17×14 tiles × 32px)</li>
+  <li><strong>Codebase:</strong> ~2,234 lines in <code>src/App.jsx</code> — all game logic in one file, all constants inline</li>
+  <li><strong>World:</strong> 100×100 tile map, desert theme, pixel art aesthetic</li>
+  <li><strong>Systems built and functional:</strong> 21 skills, quest system (13 quests), combat (melee/ranged/magic), prayer system, inventory/bank/equipment, NPC dialogue, monster system with boss variants, crafting/smithing/herblore/fletching, firemaking, cooking, farming, runecrafting, dungeon instances, arena wave mode, prestige system, pets, daily challenges, faction reputation, player camp, lore codex, side quests, QP unlock tree, character appearance, combo meter, async ghost dungeon (partial)</li>
+  <li><strong>Save system:</strong> localStorage key <code>dunescape_save</code>, SAVE_VERSION=4</li>
+  <li><strong>Deployment:</strong> GitHub Pages via <code>VaultSparkStudios/VaultSparkStudios.github.io</code> at <code>/dunescape/</code></li>
+</ul>
+
+<h3>Why Rebrand?</h3>
+<ul>
+  <li><strong>Trademark risk:</strong> "Dunescape" combines "-scape" (Jagex/RuneScape trademark signature) with "Dune" (Frank Herbert estate active IP). Double conflict exposure.</li>
+  <li><strong>Differentiation:</strong> The game has evolved well beyond a RuneScape clone — it deserves its own identity</li>
+  <li><strong>Growth ceiling:</strong> The "Dunescape" name signals derivative product to press, platforms, and players</li>
+</ul>
+
+<h3>New Name: SOLARA</h3>
+<div class="callout green">
+<strong>IP Status: CONFIRMED CLEAR</strong><br>
+USPTO Class 9 (software) and Class 41 (entertainment services) searches show no active gaming or entertainment conflicts. "Solara" marks exist only in pharmaceutical (Cytel Inc.) and financial services — no gaming overlap. Recommended: file USPTO intent-to-use application before launch. Attorney clearance search cost: $500–2,000. Can file up to 3 years before release.
+</div>
+<ul>
+  <li><strong>Avoid in naming:</strong> "Solar Empire" phrasing (Sins of a Solar Empire trademark), "Solarpunk" as primary name (early-access game dominates that search term)</li>
+  <li><strong>Safe territory:</strong> "Solara: [Subtitle]" as a combined mark is clean and highly trademarkable</li>
+</ul>
+
+<hr>
+
+<h2>2. Rebrand — Files &amp; Systems to Change</h2>
+
+<table>
+  <tr><th>File / Location</th><th>What Changes</th><th>Complexity</th></tr>
+  <tr><td><code>package.json</code></td><td>name, description fields</td><td>Trivial</td></tr>
+  <tr><td><code>index.html</code></td><td>&lt;title&gt;, meta tags, OG tags</td><td>Trivial</td></tr>
+  <tr><td><code>vite.config.js</code></td><td>base path <code>/dunescape/</code> → <code>/solara/</code></td><td>Trivial</td></tr>
+  <tr><td><code>src/App.jsx</code></td><td>All "Dunescape" strings, localStorage key migration (<code>dunescape_save</code> → <code>solara_save</code>), game title in UI</td><td>Low — one-pass find/replace + migration shim on load</td></tr>
+  <tr><td><code>.github/workflows/</code></td><td>GAME_SLUG env var, deploy paths</td><td>Trivial</td></tr>
+  <tr><td>GitHub repo</td><td>Rename dunescape → solara (done on GitHub settings)</td><td>Manual</td></tr>
+  <tr><td><code>VaultSparkStudios.github.io</code></td><td>Move /dunescape/ subfolder → /solara/</td><td>Manual — other repo</td></tr>
+  <tr><td>Save migration</td><td>On load: if <code>dunescape_save</code> exists and no <code>solara_save</code>, copy it over and delete old key</td><td>Low — ~10 lines</td></tr>
+</table>
+
+<hr>
+
+<h2>3. Research Findings Summary</h2>
+
+<h3>Browser Game Market (2025–2026)</h3>
+<ul>
+  <li>Browser games market projected to reach <strong>$9.07B by 2030</strong> (3.1% CAGR)</li>
+  <li>HTML5/WebGL enabling near-AA quality in-browser — resurgence underway</li>
+  <li>Trending NOW: low-fidelity social chaos games ("friendslop"), cozy games, daily puzzle format, idle-roguelite hybrids</li>
+  <li>42M+ sessions achieved by one browser game in Q3–Q4 2025 with minimal marketing spend — organic sharing drove it</li>
+  <li>70% of acquisition from social shares vs. paid ads in top-performing browser games</li>
+</ul>
+
+<h3>What Makes Games Viral</h3>
+<ul>
+  <li><strong>Shareable artifact:</strong> Something players send — emoji score card, seed code, screenshot, challenge URL</li>
+  <li><strong>Daily hook:</strong> Same puzzle/dungeon for all players globally = Wordle effect. Players share results to compare</li>
+  <li><strong>Identity investment:</strong> "My grave lives in that world" / "I named that canyon" / "My clan won this week" = emotional ownership</li>
+  <li><strong>Messaging app > public social:</strong> Players prefer sharing to Discord/WhatsApp over Twitter — messaging app shares generate the most installs</li>
+  <li><strong>Variable reward:</strong> Unpredictable drops, run outcomes, seed results = slot machine psychology (ethical version)</li>
+  <li>Wordle's viral math: player counts doubled weekly at peak — each shared emoji card = free ad to hundreds of followers</li>
+</ul>
+
+<h3>Genre Market Sizes (2024)</h3>
+<table>
+  <tr><th>Genre</th><th>Market Size 2024</th><th>Projected 2033</th><th>CAGR</th></tr>
+  <tr><td>Idle / Incremental Games</td><td>$2.5B</td><td>$6.1B</td><td>10.8%</td></tr>
+  <tr><td>Roguelike / Roguelite</td><td>$1.82–3.2B</td><td>$5.3–10.5B</td><td>10.5–13.2%</td></tr>
+  <tr><td>Indie Game Market (all)</td><td>$9.9B</td><td>$28.58B</td><td>12.5%</td></tr>
+  <tr><td>Browser Games (all)</td><td>~$7B est.</td><td>$9.07B</td><td>3.1%</td></tr>
+</table>
+
+<h3>Infrastructure Cost Reality</h3>
+<table>
+  <tr><th>Stack</th><th>Monthly Cost at Launch</th><th>At 10k MAU</th><th>At 100k MAU</th></tr>
+  <tr><td>GitHub Pages (pure static)</td><td>$0</td><td>$0</td><td>$0</td></tr>
+  <tr><td>Cloudflare Pages + Workers</td><td>$0 (100k req/day free)</td><td>$0</td><td>$0–5</td></tr>
+  <tr><td>+ Supabase (DB, auth, realtime)</td><td>$0 (500MB, 50k MAU free)</td><td>$0</td><td>$20–100</td></tr>
+  <tr><td>+ Colyseus (real-time multiplayer)</td><td>$0 (self-host Cloudflare)</td><td>$0–5</td><td>$10–50</td></tr>
+</table>
+
+<h3>Monetization Data</h3>
+<ul>
+  <li>Only <strong>2–5% of free-to-play players spend money</strong> — design so the 95% still love it</li>
+  <li><strong>$1–5 first purchase</strong> is the conversion sweet spot</li>
+  <li>Best model for small indie browser RPG: <strong>cosmetics + rewarded video ads + optional Patreon</strong></li>
+  <li>Rewarded ads = lowest friction, players choose to watch for in-game reward</li>
+  <li>Patreon/Ko-fi: supplementary, works when community is engaged</li>
+  <li>Battle pass works at 10,000+ playerbase; cosmetic unlocks work at any size</li>
+  <li>Average ARPPU for top small studios: $10–30/day at 10k players</li>
+</ul>
+
+<h3>Multiplayer Feasibility (No Dedicated Server)</h3>
+<table>
+  <tr><th>Technology</th><th>Cost</th><th>Player Limit</th><th>Best For</th></tr>
+  <tr><td>WebRTC / NetplayJS / PeerJS</td><td>$0 (needs STUN/signaling)</td><td>2–4 players</td><td>Turn-based co-op, 1v1</td></tr>
+  <tr><td>Colyseus (Node.js)</td><td>$0 self-hosted Cloudflare</td><td>50+ per room</td><td>Real-time, matchmaking</td></tr>
+  <tr><td>Supabase Realtime</td><td>$0 free tier</td><td>Moderate</td><td>Async, persistent world, leaderboards</td></tr>
+  <tr><td>PartyKit</td><td>$0 starter</td><td>Moderate</td><td>Shared state, collaborative</td></tr>
+</table>
+
+<h3>Claude-Only Build Ceiling</h3>
+<ul>
+  <li>Confirmed realistic ceiling: <strong>10,000–20,000 lines</strong> of game code (current codebase: ~2,234 lines — well within range)</li>
+  <li>Stretching but feasible: 30,000–40,000 lines with good architecture documentation</li>
+  <li>Current single-file architecture needs to be split into modules as it grows past ~5,000 lines</li>
+  <li>Key risk: AI loses architectural coherence at large scale — mitigated by modular design and comprehensive design docs fed each session</li>
+  <li>Sweet spots: idle/clicker, puzzle, turn-based, roguelite with preset content, browser canvas games</li>
+  <li>Hard without human oversight: real-time multiplayer, procedural narrative, cross-system balancing at scale</li>
+</ul>
+
+<hr>
+
+<h2>4. Scoring Methodology</h2>
+
+<p class="section-intro">Each concept scored 1–10 across 12 categories. Higher = better/safer/more opportunity in all cases.</p>
+
+<table>
+  <tr><th>Code</th><th>Category</th><th>What 10 means</th></tr>
+  <tr><td><strong>IP</strong></td><td>Trademark/Copyright Safety</td><td>Fully clear, no conflicts, strong trademark candidate</td></tr>
+  <tr><td><strong>MKT</strong></td><td>Marketing &amp; Positioning</td><td>Clear audience, strong hook, easy to pitch in one sentence</td></tr>
+  <tr><td><strong>VRL</strong></td><td>Viral / Shareability</td><td>Generates shareable artifacts naturally; word-of-mouth loop built in</td></tr>
+  <tr><td><strong>GAM</strong></td><td>Game Depth &amp; Replayability</td><td>Deep systems, high replay value, long-term progression</td></tr>
+  <tr><td><strong>BLD</strong></td><td>Claude-Only Buildability</td><td>Achievable on current stack without human architecture intervention</td></tr>
+  <tr><td><strong>CST</strong></td><td>Cost Efficiency</td><td>Free forever on static hosting; no scaling cost surprises</td></tr>
+  <tr><td><strong>INF</strong></td><td>Infrastructure Simplicity</td><td>Pure static, no backend, no server maintenance</td></tr>
+  <tr><td><strong>TRD</strong></td><td>Genre Trend Alignment</td><td>Riding a growing market; ideal timing in 2025–2026</td></tr>
+  <tr><td><strong>SOC</strong></td><td>Social / Collaborative Potential</td><td>Multiplayer, clan, async co-op, community hooks built in</td></tr>
+  <tr><td><strong>MON</strong></td><td>Monetization Potential</td><td>Natural cosmetic/pass/premium hooks; clear revenue path</td></tr>
+  <tr><td><strong>RET</strong></td><td>Daily Return / Retention</td><td>Strong reasons to return daily; habit formation mechanics</td></tr>
+  <tr><td><strong>NIC</strong></td><td>Niche Clarity</td><td>Strong identity; target audience knows immediately if it's for them</td></tr>
+</table>
+
+<hr>
+
+<h2>5. The 20 Scored Game Concepts</h2>
+
+<!-- CONCEPT 1 -->
+<div class="concept-block">
+<h3><span class="avg-score">7.8</span> 1. Solara: Desert Kingdom <span class="tag">Evolution</span></h3>
+<p><em>Sun-priest RPG civilization — you're an acolyte rising to build a theocratic desert civilization. All existing skills, quests, and combat reframed as acts of service to the Sun God. Closest to current game.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>7</td><td>6</td><td>8</td><td class="score-high">10</td><td class="score-high">10</td><td class="score-high">10</td><td>6</td><td>5</td><td>7</td><td>8</td><td>7</td></tr>
+</table>
+<p><strong>Pros:</strong> Fastest path — existing code maps 1:1. Strong RPG depth. "Sun priest" angle is narratively rich and distinct from RuneScape theming.</p>
+<p><strong>Cons:</strong> Lowest differentiation. Still perceived as a RuneScape derivative by press and players without significant new systems.</p>
+<p><strong>IP:</strong> "Desert Kingdom" is generic. "Solara: Desert Kingdom" as combined mark — clear, no conflicts.</p>
+</div>
+
+<!-- CONCEPT 2 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.3</span> 2. Solara: The Idle Sun <span class="tag purple">Idle</span> <span class="tag">Prestige</span></h3>
+<p><em>Your civilization grows while you're away. In-game sun cycles (20 min real-time = 1 game day) drive passive income. Prestige = "eclipse" — resets the world for permanent solar relics. Viral hook: share your Sun Age and eclipse count.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td>7</td><td>7</td><td class="score-high">9</td><td class="score-high">10</td><td class="score-high">10</td><td class="score-high">9</td><td>4</td><td>8</td><td class="score-high">10</td><td>8</td></tr>
+</table>
+<p><strong>Pros:</strong> Idle market at $2.5B growing to $6.1B. Eclipse prestige is an elegant viral hook. Daily return is baked in (offline progress = FOMO). Prestige system already exists in codebase.</p>
+<p><strong>Cons:</strong> Crowded idle market. Single-player by default — no social hooks without additional work.</p>
+<p><strong>IP:</strong> "The Idle Sun" — clear. No conflicts in USPTO class 9/41.</p>
+</div>
+
+<!-- CONCEPT 3 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.3</span> 3. Solara: Nomad Clans <span class="tag blue">Social</span> <span class="tag">Factions</span></h3>
+<p><em>5 nomad clans compete weekly for control of the Sunstone Throne. Players join a clan, contribute kills/resources/quests. Weekly clan leaderboard resets with shared rewards. Discord-native sharing — clan vs. clan rivalry drives organic spread.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">9</td><td>7</td><td>8</td><td>8</td><td>6</td><td>8</td><td class="score-high">10</td><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">9</td></tr>
+</table>
+<p><strong>Pros:</strong> Clan identity is inherently viral — belonging + competition drives sharing without prompting. Weekly resets = sustainable content calendar. Faction rep system already in codebase. Supabase free tier handles leaderboard.</p>
+<p><strong>Cons:</strong> Needs Supabase for shared clan state — no longer pure static. Cold start problem: clans are empty until playerbase exists.</p>
+<p><strong>IP:</strong> "Nomad Clans" generic. "Solara: Nomad Clans" — no conflicts.</p>
+</div>
+
+<!-- CONCEPT 4 -->
+<div class="concept-block rank-2">
+<h3><span class="avg-score">8.9</span> <span class="medal">🥈</span> 4. Solara: Sunfall <span class="tag purple">Roguelite</span> <span class="tag">Procedural</span></h3>
+<p><em>Procedural world. The sun dims every run — survive as long as possible gathering Solite shards to delay the eclipse. Each run = different world seed. The sun always falls eventually; your job is to delay it as long as possible. Share your run: "Run #47 — Day 312. I found the Second Oasis."</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">9</td><td>8</td><td class="score-high">10</td><td class="score-high">10</td><td class="score-high">10</td><td>6</td><td>8</td><td class="score-high">9</td><td class="score-high">9</td></tr>
+</table>
+<p><strong>Pros:</strong> Roguelite market at $3.2B growing 10.5% CAGR. World seed sharing is natively viral (Minecraft DNA). "Sun is dying" = emotional urgency and natural story arc per run. Pure static — no backend ever. Each run is a story worth sharing.</p>
+<p><strong>Cons:</strong> Requires full procedural map generator (significant build effort). Less friendly to casual players. Roguelite space is competitive.</p>
+<p><strong>IP:</strong> "Sunfall" — inactive 2013 mobile game exists. "Solara: Sunfall" as combined mark — safe. Conduct USPTO search before launch.</p>
+</div>
+
+<!-- CONCEPT 5 -->
+<div class="concept-block">
+<h3><span class="avg-score">7.8</span> 5. Solara: Oasis Wars <span class="tag blue">Async PvP</span></h3>
+<p><em>Multiple players fight for control of 3 Oases on a shared map. Controlling an oasis = passive sun-energy income. Asynchronous PvP — raid other players' bases when they're offline. No real-time server needed: battle state encoded in shareable URL parameters.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td>8</td><td>7</td><td>7</td><td>8</td><td>7</td><td>8</td><td>8</td><td>8</td><td>8</td><td>8</td></tr>
+</table>
+<p><strong>Pros:</strong> Async PvP avoids latency issues entirely. Resource control tension drives daily return. URL-seed sharing for battle challenges creates word-of-mouth loops.</p>
+<p><strong>Cons:</strong> Async PvP balance is tricky. Needs lightweight backend for raid validation and world state.</p>
+<p><strong>IP:</strong> "Oasis Wars" — clear. No conflicts found.</p>
+</div>
+
+<!-- CONCEPT 6 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.1</span> 6. Solara: The Runestone Atlas <span class="tag blue">Community</span> <span class="tag">Lore</span></h3>
+<p><em>Every player generates unique lore fragments (procedural). The community collectively builds the Solara Atlas — a living wiki of discovered history. Viral hook: "I found lore entry #2,847 — the Fall of Khareth. Share if you've seen this ruin." Lore credited to the player who found it.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td>8</td><td>8</td><td>8</td><td>8</td><td>7</td><td>7</td><td class="score-high">9</td><td>7</td><td>7</td><td class="score-high">10</td></tr>
+</table>
+<p><strong>Pros:</strong> Lore codex already exists in codebase (p.codex[]). Community world-building is a proven viral niche (ARGs, No Man's Sky Atlas). "Discovered by [PlayerName]" credit = identity-driven sharing.</p>
+<p><strong>Cons:</strong> Requires lore generation engine + community wiki. Engagement is intellectual — smaller audience than action-first games.</p>
+<p><strong>IP:</strong> Avoid "Runestone" as standalone (multiple trademarks). "Solara: The Atlas" or "Solara Codex" safer for subtitle.</p>
+</div>
+
+<!-- CONCEPT 7 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.4</span> 7. Solara: Solar Punk Rebuild <span class="tag green">Cozy</span> <span class="tag">Eco-RPG</span></h3>
+<p><em>Post-collapse ecological restoration RPG. The sun went dark for 100 years. Now it's back. Help your desert clan rebuild using solarpunk technology — grow gardens, craft solar arrays, restore biomes, forge alliances. Skills = ecological skills (Botany, Engineering, Diplomacy, Craft). Cozy but meaningful. Climate-conscious Gen Z audience.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td>7</td><td>8</td><td>8</td><td class="score-high">10</td><td class="score-high">10</td><td>8</td><td>6</td><td>8</td><td>8</td><td class="score-high">10</td></tr>
+</table>
+<p><strong>Pros:</strong> Solarpunk genre is underserved with passionate growing audience. No incumbent dominating niche. Climate-conscious Gen Z = strong word of mouth. Pure static. No combat to balance (major simplification).</p>
+<p><strong>Cons:</strong> Requires significant aesthetic overhaul of current desert pixel style. Skill rename/redesign required. Cozy games harder to monetize than action.</p>
+<p><strong>IP:</strong> "Solarpunk" is a public movement — not trademarkable by anyone. "Solara: Solar Punk Rebuild" — fully clear. Avoid naming game just "Solarpunk" (existing game dominates search).</p>
+</div>
+
+<!-- CONCEPT 8 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.3</span> 8. Solara: Heist of the Sunstone <span class="tag blue">Co-Op</span> <span class="tag">Roles</span></h3>
+<p><em>2–4 players plan and execute heists against the sunstone vaults of rival factions. Each player takes a role: Thief (locks), Distractor (NPCs), Cracker (puzzles), Runner (escape). Shareable heist invite links — send your friend a link, they join your crew instantly. Existing thieving skill maps directly to core mechanic.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">10</td><td>8</td><td>5</td><td>8</td><td>7</td><td>8</td><td class="score-high">10</td><td class="score-high">9</td><td>7</td><td class="score-high">9</td></tr>
+</table>
+<p><strong>Pros:</strong> Co-op heist is massively underserved in browser games. "Send a heist link to a friend" is frictionless viral invite. Role-based = streaming gold (each player sees different things). Thieving skill already exists.</p>
+<p><strong>Cons:</strong> Lowest BLD score — real-time co-op is genuinely hard even with WebRTC. P2P caps at 4 players. Requires significant new architecture beyond current single-player design.</p>
+<p><strong>IP:</strong> No conflicts. Heist genre has zero browser RPG entries — wide open niche.</p>
+</div>
+
+<!-- CONCEPT 9 -->
+<div class="concept-block rank-1">
+<h3><span class="avg-score">9.0</span> <span class="medal">🥇</span> 9. Solara: Daily Rites <span class="tag">Daily</span> <span class="tag purple">Viral</span> <span class="tag green">Wordle-loop</span></h3>
+<p><em>One dungeon per day. Same dungeon for all players globally. Compare scores on a shared global leaderboard. Share your result as an emoji card: "Day 312 · Solara Daily Rite 🌞🌞🌞🌗 · Cleared in 4:22 · Rank #847 globally." Built-in Wordle viral loop applied to an RPG dungeon.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">10</td><td class="score-high">10</td><td>7</td><td>8</td><td>7</td><td>6</td><td class="score-high">9</td><td>8</td><td class="score-high">9</td><td class="score-high">10</td><td class="score-high">9</td></tr>
+</table>
+<p><strong>Pros:</strong> Wordle proved this format is mega-viral. Daily global dungeon creates inherent community. Emoji result card is Twitter/Discord/WhatsApp native. Daily challenges already exist in codebase — this is an expansion, not a rewrite. Spotify paid $14M for Heardle (a Wordle clone) — proven monetization path. Dungeon system already exists.</p>
+<p><strong>Cons:</strong> Daily puzzle genre has been widely cloned post-Wordle — needs the RPG combat depth as a genuine differentiator. Needs Supabase for global leaderboard (minimal backend, free tier handles it).</p>
+<p><strong>IP:</strong> Fully clear. Daily format not trademarkable. "Daily Rites" as subtitle — distinctive, clear.</p>
+</div>
+
+<!-- CONCEPT 10 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.2</span> 10. Solara: World Seed <span class="tag purple">Procedural</span> <span class="tag">Sharing</span></h3>
+<p><em>Every player gets a unique world seed that generates their Solara. Trade seeds with friends. "Visit my world: SEED-KH4920" — friend pastes code, gets identical world. Seeds can be rated and favorited. Pure static — seed is the entire URL parameter. World generation deterministic from seed.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td class="score-high">9</td><td>8</td><td>7</td><td class="score-high">10</td><td class="score-high">10</td><td>8</td><td>7</td><td>7</td><td>7</td><td>8</td></tr>
+</table>
+<p><strong>Pros:</strong> Seed sharing is one of the purest viral mechanics (Minecraft DNA). Zero backend needed — URL is the shareable artifact. No Man's Sky proved this community layer works at scale.</p>
+<p><strong>Cons:</strong> Requires full procedural map generator to replace current hand-crafted world. Significant build effort. Difficult to ensure all seeds produce interesting worlds.</p>
+<p><strong>IP:</strong> "World Seed" generic. "Solara: World Seed" — clear.</p>
+</div>
+
+<!-- CONCEPT 11 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.2</span> 11. Solara: The Merchant Road <span class="tag">Economy</span> <span class="tag green">Cozy</span></h3>
+<p><em>You're a traveling merchant crossing desert trade routes. Buy low, sell high, hire guards, manage caravans, negotiate with faction leaders. Economy is player-driven and persistent. Share your Trade Record: "Week 4 — 12,000 gold profit. Survived 3 bandit raids. The Gilded Caravan lives."</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td>7</td><td class="score-high">9</td><td>8</td><td class="score-high">9</td><td>8</td><td>7</td><td>6</td><td>8</td><td>8</td><td class="score-high">9</td></tr>
+</table>
+<p><strong>Pros:</strong> Trading economy games have passionate niche. Existing shop/economy/faction systems map naturally. "Merchant Road" evokes Oregon Trail nostalgia + Silk Road romance. Stardew Valley-adjacent audience (cozy + meaningful).</p>
+<p><strong>Cons:</strong> Less viral out of the box. Economy balance is extremely hard to tune. Less immediately accessible than combat-focused games.</p>
+<p><strong>IP:</strong> Clear. "Merchant Road" is generic — no conflicts.</p>
+</div>
+
+<!-- CONCEPT 12 -->
+<div class="concept-block">
+<h3><span class="avg-score">7.7</span> 12. Solara: Eclipse Protocol <span class="tag blue">Competitive</span> <span class="tag">PvP</span></h3>
+<p><em>PvP arena where players fight for seasonal rank. One season = one solar cycle (28 days real-time). End of season: top players enshrined in the Hall of the Sun — permanent public record. Discord-shareable rank cards with sun-tier badges. Existing arena system maps directly.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td>8</td><td>7</td><td>6</td><td>6</td><td>4</td><td>8</td><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">9</td><td>8</td></tr>
+</table>
+<p><strong>Pros:</strong> Competitive seasonal ladder + hall of fame = proven engagement. Rank cards are highly shareable identity artifacts. PvP monetizes well (cosmetics). Arena system already in codebase.</p>
+<p><strong>Cons:</strong> Real-time PvP requires server — worst infrastructure score on the list. Hardest build involving live player-vs-player interaction.</p>
+<p><strong>IP:</strong> "Eclipse Protocol" — multiple "Eclipse" products exist. "Solara: Eclipse Protocol" as combined mark likely defensible in class 41. Run USPTO search.</p>
+</div>
+
+<!-- CONCEPT 13 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.2</span> 13. Solara: Sand &amp; Stars <span class="tag green">Cozy</span> <span class="tag">No Combat</span></h3>
+<p><em>Anti-RuneScape. No combat. You're an astronomer-cartographer mapping desert constellations, discovering ruins, trading stories with NPCs, and restoring ancient sundials. The "A Short Hike" of browser RPGs. Screenshot-worthy moments in every session. Ultra-accessible — playable by non-gamers.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td>8</td><td>7</td><td class="score-high">9</td><td class="score-high">10</td><td class="score-high">10</td><td>8</td><td>5</td><td>7</td><td>6</td><td class="score-high">10</td></tr>
+</table>
+<p><strong>Pros:</strong> Cozy games exploding in 2025–2026. Zero-combat = accessible to non-gamers (massive audience expansion). Screenshot-worthy moments = Instagram/TikTok native. Pure static. No combat to balance.</p>
+<p><strong>Cons:</strong> Lower retention without combat loops. Harder to monetize cozy format. Requires removing half the existing code and redesigning skill set.</p>
+<p><strong>IP:</strong> "Sand &amp; Stars" — generic phrase. Clear.</p>
+</div>
+
+<!-- CONCEPT 14 -->
+<div class="concept-block rank-2">
+<h3><span class="avg-score">8.7</span> <span class="medal">🥈</span> 14. Solara: Eternal Harvest <span class="tag green">Farming</span> <span class="tag">Stardew-adjacent</span></h3>
+<p><em>Solar-powered desert farm. Grow sun-crops, breed sun-beetles, craft solar artifacts, trade with nomads. Seasons are solar events — equinox = double harvest, eclipse = curse season (harder crops, higher rewards). Share your farm layout. Co-op: tend a friend's farm while they're away. Stardew Valley × desert × solar cycles.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td>7</td><td>8</td><td class="score-high">9</td><td class="score-high">10</td><td class="score-high">10</td><td class="score-high">9</td><td>7</td><td class="score-high">9</td><td class="score-high">9</td><td>8</td></tr>
+</table>
+<p><strong>Pros:</strong> Stardew Valley proved farming RPG is a monster market. Farming system already in codebase (farmPatches[]). Solar seasons = built-in content calendar requiring no new dev. Farm layout sharing = Pinterest/Discord native virality. Accessible + deep. Free to run forever. Cosmetic farm items = natural monetization.</p>
+<p><strong>Cons:</strong> "Stardew clone" perception risk without strong visual identity. Desert farming needs compelling aesthetic to distinguish from Stardew's pastoral setting.</p>
+<p><strong>IP:</strong> "Eternal Harvest" — clear. No conflicts in class 41.</p>
+</div>
+
+<!-- CONCEPT 15 -->
+<div class="concept-block rank-2">
+<h3><span class="avg-score">8.7</span> <span class="medal">🥈</span> 15. Solara: Dungeon of the Sun God <span class="tag blue">Async Co-Op</span> <span class="tag purple">Ghost Replay</span></h3>
+<p><em>Solo dungeon runs are recorded as "ghost data." Other players fight alongside your ghost in their own runs. Leave messages at death locations. Die in the dungeon: leave a glowing bloodstain with a tip visible to all future players. Pure Dark Souls async social layer applied to a browser RPG dungeon. Share your ghost: "My ghost #312 has helped 40 players."</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">9</td><td>7</td><td>8</td><td>7</td><td class="score-high">9</td><td class="score-high">9</td><td>8</td><td>8</td><td class="score-high">10</td></tr>
+</table>
+<p><strong>Pros:</strong> Dark Souls async social layer is massively underused in browser games — effectively zero competitors. "My ghost helped someone" = emotionally powerful and inherently shareable. No real-time server — just ghost data in Supabase (minimal, free tier). Dungeon system already in codebase (DUNGEON_ROOMS).</p>
+<p><strong>Cons:</strong> Ghost replay system is non-trivial to build. Needs backend for ghost data storage (lightweight — Supabase free tier sufficient). Requires dungeon to be significantly expanded to justify the mechanic.</p>
+<p><strong>IP:</strong> "Sun God" is generic mythology. Clear. No conflicts.</p>
+</div>
+
+<!-- CONCEPT 16 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.5</span> 16. Solara: The Living Map <span class="tag blue">Shared World</span> <span class="tag">Legacy</span></h3>
+<p><em>The world map is shared and persistent across all players. Players name locations, leave cairns, build outposts. "PlayerName was here — Year 3, Day 47." When you die, you leave a grave marker visible to every future player. Roguelite + persistent legacy. Each grave is a story. The oldest graves become landmarks. The world accumulates history.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">10</td><td>8</td><td>7</td><td>7</td><td>6</td><td class="score-high">9</td><td class="score-high">10</td><td>8</td><td>8</td><td class="score-high">10</td></tr>
+</table>
+<p><strong>Pros:</strong> "Your grave lives on forever" is one of the most emotionally powerful viral hooks in gaming history. Shared world discovery creates genuine community mythology over time. Naming locations yourself = deep identity investment. Almost no competitors in browser space. Community generates its own content (the history layer).</p>
+<p><strong>Cons:</strong> Requires backend for shared world state (Supabase). Cold start — living map is empty and sad at launch. Needs playerbase to feel alive.</p>
+<p><strong>IP:</strong> "The Living Map" — clear. Novel and distinctive — strong trademark candidate.</p>
+</div>
+
+<!-- CONCEPT 17 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.4</span> 17. Solara: Suncaller <span class="tag purple">Hero Collector</span> <span class="tag">Async Raid</span></h3>
+<p><em>Collect desert heroes (Suncallers) with unique skills — each is a card-style unit. Send your squad on async raids, return to see results. "Fair gacha" model — pull rates fully visible, no RNG manipulation (strong brand differentiator in 2025's post-backlash landscape). Share your best hero card as an image artifact.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td>8</td><td>8</td><td>8</td><td class="score-high">9</td><td class="score-high">9</td><td>8</td><td>7</td><td class="score-high">10</td><td class="score-high">9</td><td>7</td></tr>
+</table>
+<p><strong>Pros:</strong> Hero collector is the most monetizable mobile genre. Async raids = retention anchor (return to see results). "Fair gacha" is a strong brand differentiator post-consumer backlash. Card image sharing = social.</p>
+<p><strong>Cons:</strong> Gacha-adjacent reputation risk. Needs careful ethical monetization design to avoid community trust damage. Hero collector market is saturated on mobile.</p>
+<p><strong>IP:</strong> "Suncaller" — clear. Original compound word, strong trademark candidate.</p>
+</div>
+
+<!-- CONCEPT 18 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.2</span> 18. Solara: The Oracle <span class="tag">AI Narrative</span> <span class="tag purple">Procedural Story</span></h3>
+<p><em>Each player gets a unique storyline generated from narrative templates. The Oracle NPC reacts to every player choice, remembering what you've done. At the end of each arc, you receive a "prophecy card" — a procedural story summary. Share "my Oracle story" — players compare their divergent histories of the same world.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td class="score-high">9</td><td>8</td><td>8</td><td>7</td><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">9</td><td>6</td><td>7</td><td>7</td><td class="score-high">9</td></tr>
+</table>
+<p><strong>Pros:</strong> AI-narrative games are the hottest trend in 2025–2026. "Share your Oracle story" is inherently viral. Unique experience per player = strong word of mouth. Claude could generate narrative templates directly within the game.</p>
+<p><strong>Cons:</strong> Deep procedural narrative is hard to build coherently without live LLM API (adds cost and latency). Template-based narrative limits depth. Coherence across a full run is hard to maintain.</p>
+<p><strong>IP:</strong> "The Oracle" has many generic uses. "Solara: The Oracle" as combined mark — defensible in class 41.</p>
+</div>
+
+<!-- CONCEPT 19 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.3</span> 19. Solara: Dust &amp; Glory <span class="tag">Morality RPG</span> <span class="tag">Persistent Choices</span></h3>
+<p><em>Your choices reshape the world — help bandits or guards, destroy or protect oases, hoard or share sunstones. World state diverges per player into different political endings. Weekly: share your "Legacy Score" and world alignment. Social hook: compare divergent worlds with friends — "I chose the Bandit Queen. What did you choose?"</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td>8</td><td class="score-high">9</td><td class="score-high">9</td><td class="score-high">10</td><td class="score-high">10</td><td>7</td><td>6</td><td>7</td><td>8</td><td class="score-high">9</td></tr>
+</table>
+<p><strong>Pros:</strong> Morality/faction system already in codebase (rep:{guard,merchant,bandit}). "Show your Legacy Score" = shareable identity. Pure static. Deep RPG roleplay potential. Strong for narrative-oriented audience who want consequences.</p>
+<p><strong>Cons:</strong> Less inherently viral. Needs strong quest writing to deliver on the premise. Political/moral themes can polarize community.</p>
+<p><strong>IP:</strong> "Dust &amp; Glory" — clear. Evocative. Good trademark candidate in class 41.</p>
+</div>
+
+<!-- CONCEPT 20 -->
+<div class="concept-block">
+<h3><span class="avg-score">8.3</span> 20. Solara: The Eclipse Run <span class="tag blue">Speedrun</span> <span class="tag">Community</span></h3>
+<p><em>Built for speedrunners from day one. Every action timestamped. Ghost runs shareable via URL with full replay. Weekly community challenge: beat the Eclipse Run world record. Global leaderboard with Twitch extension support — streamers' runs are automatically tracked and posted. First browser RPG designed speedrun-first.</em></p>
+<table>
+  <tr><th>IP</th><th>MKT</th><th>VRL</th><th>GAM</th><th>BLD</th><th>CST</th><th>INF</th><th>TRD</th><th>SOC</th><th>MON</th><th>RET</th><th>NIC</th></tr>
+  <tr><td class="score-high">9</td><td>8</td><td class="score-high">9</td><td>7</td><td>8</td><td>8</td><td>7</td><td>8</td><td>8</td><td>7</td><td class="score-high">9</td><td class="score-high">9</td></tr>
+</table>
+<p><strong>Pros:</strong> Speedrunning community is massive, self-promoting, and streams constantly. Weekly challenge resets = DAU anchor. Ghost URL = zero-friction sharing artifact. No browser RPGs designed speedrun-first — genuinely unoccupied niche.</p>
+<p><strong>Cons:</strong> Speedrun-native design requires precision input logging from day one — retrofitting this is painful. Niche within a niche. Requires Supabase for global leaderboard.</p>
+<p><strong>IP:</strong> Clear. "The Eclipse Run" — distinctive. No conflicts.</p>
+</div>
+
+<hr>
+
+<h2>6. Final Leaderboard</h2>
+
+<table>
+  <tr><th>Rank</th><th>Concept</th><th>Avg Score</th><th>Strongest Categories</th><th>Key Risk</th></tr>
+  <tr><td>🥇</td><td><strong>Daily Rites</strong></td><td class="score-high">9.0</td><td>VRL:10 MKT:10 RET:10 TRD:9</td><td>Post-Wordle clone saturation</td></tr>
+  <tr><td>🥈</td><td><strong>Sunfall</strong> (Roguelite)</td><td class="score-high">8.9</td><td>TRD:10 GAM:9 NIC:9 INF:10</td><td>Procedural gen = high build effort</td></tr>
+  <tr><td>🥉</td><td><strong>Eternal Harvest</strong></td><td class="score-high">8.7</td><td>MKT:9 TRD:9 RET:9 MON:9</td><td>Stardew clone perception</td></tr>
+  <tr><td>🥉</td><td><strong>Dungeon of the Sun God</strong></td><td class="score-high">8.7</td><td>GAM:9 NIC:10 SOC:9 VRL:9</td><td>Ghost system non-trivial to build</td></tr>
+  <tr><td>5</td><td>The Living Map</td><td>8.5</td><td>VRL:10 SOC:10 NIC:10</td><td>Cold start — needs playerbase to feel alive</td></tr>
+  <tr><td>6</td><td>Solar Punk Rebuild</td><td>8.4</td><td>MKT:9 NIC:10 INF:10</td><td>Aesthetic overhaul required</td></tr>
+  <tr><td>6</td><td>Suncaller</td><td>8.4</td><td>MON:10 RET:9 GAM:8</td><td>Gacha reputation risk</td></tr>
+  <tr><td>8</td><td>Nomad Clans</td><td>8.3</td><td>SOC:10 VRL:9 NIC:9</td><td>Cold start on clans</td></tr>
+  <tr><td>8</td><td>Heist of the Sunstone</td><td>8.3</td><td>VRL:10 SOC:10 MKT:9</td><td>Real-time co-op hardest to build</td></tr>
+  <tr><td>8</td><td>The Idle Sun</td><td>8.3</td><td>RET:10 TRD:9 CST:10</td><td>Saturated idle market</td></tr>
+</table>
+
+<hr>
+
+<h2>7. Primary Recommendation — The Combined Stack</h2>
+
+<div class="callout green">
+<h3>Solara: Daily Rites + The Living Map + Dungeon of the Sun God</h3>
+<p>Three interlocking systems that each standalone but multiply each other's value when combined.</p>
+</div>
+
+<h3>Why This Combination?</h3>
+<table>
+  <tr><th>Layer</th><th>System</th><th>What It Provides</th><th>Existing Code It Uses</th></tr>
+  <tr><td><strong>Viral Hook</strong></td><td>Daily Rites</td><td>Daily emoji share card — Wordle viral loop. Every player is a free advertisement daily.</td><td>Daily challenges, dungeon system, DUNGEON_ROOMS</td></tr>
+  <tr><td><strong>Identity Hook</strong></td><td>The Living Map</td><td>Your grave, your names, your cairns persist forever. Emotional investment. Community mythology builds over time.</td><td>World map, player position x/y, NPC system</td></tr>
+  <tr><td><strong>Depth Hook</strong></td><td>Dungeon of the Sun God</td><td>Async ghost co-op — Dark Souls layer. Solo play feels social. "My ghost helped 40 strangers."</td><td>DUNGEON_ROOMS, combat, skill system</td></tr>
+</table>
+
+<h3>System Properties of the Combined Game</h3>
+<ul>
+  <li><strong>Viral by default:</strong> Daily emoji card sharing creates daily free marketing. Zero ad spend required to grow.</li>
+  <li><strong>Social without real-time servers:</strong> Ghost replays + shared world marks = multiplayer feeling with async architecture.</li>
+  <li><strong>Deeply replayable:</strong> Daily dungeon variation + roguelite elements + growing world history.</li>
+  <li><strong>Accessible entry:</strong> Daily Rites = one dungeon, any level. No commitment required to start.</li>
+  <li><strong>100% buildable on current architecture:</strong> All three systems have direct roots in existing code.</li>
+  <li><strong>Near-zero infrastructure cost:</strong> Supabase free tier handles ghost data + leaderboard. Main game remains static.</li>
+  <li><strong>Fully IP-safe:</strong> No conflicts. "Solara" as primary mark + subtitle = strong trademark position.</li>
+</ul>
+
+<h3>Infrastructure Architecture for Combined Game</h3>
+<table>
+  <tr><th>Component</th><th>Technology</th><th>Cost</th><th>What it stores</th></tr>
+  <tr><td>Main game hosting</td><td>GitHub Pages / Cloudflare Pages</td><td>$0</td><td>Static bundle</td></tr>
+  <tr><td>Player saves</td><td>localStorage (solara_save)</td><td>$0</td><td>Full player state</td></tr>
+  <tr><td>Daily dungeon seed</td><td>Date-deterministic (no server)</td><td>$0</td><td>Same seed for all players = date hash</td></tr>
+  <tr><td>Daily leaderboard</td><td>Supabase free tier</td><td>$0</td><td>Score, time, player name per day</td></tr>
+  <tr><td>Ghost run data</td><td>Supabase free tier</td><td>$0</td><td>Compressed action replay per dungeon run</td></tr>
+  <tr><td>Shared world marks</td><td>Supabase free tier</td><td>$0</td><td>Graves, cairns, named locations (x,y,name,player)</td></tr>
+  <tr><td>Total at 10k MAU</td><td>—</td><td><strong>$0</strong></td><td>All within Supabase free tier limits</td></tr>
+  <tr><td>Total at 100k MAU</td><td>—</td><td><strong>~$25/mo</strong></td><td>Supabase Pro plan ($25/mo)</td></tr>
+</table>
+
+<hr>
+
+<h2>8. Suggested Deep Research Prompts</h2>
+<p class="section-intro">Use these as follow-up prompts in a research or planning session to generate detailed build specs from this document.</p>
+
+<div class="prompt-box">
+PROMPT A — Game Design Document:<br>
+Using the architecture and concept data in this document, generate a full Game Design Document (GDD) for "Solara: Daily Rites" as the primary game, with The Living Map and Dungeon of the Sun God as integrated systems. Include: core loop diagram, daily player journey, progression systems, all skill/stat renamings from Dunescape to Solara, world lore framework, UI wireframe descriptions, and monetization plan.
+</div>
+
+<div class="prompt-box">
+PROMPT B — Technical Implementation Plan:<br>
+Based on the architecture described (React + Vite, single App.jsx, canvas 544×448, Supabase backend), generate a phased technical implementation plan for converting Dunescape into Solara: Daily Rites. Phase 1 = rebrand only. Phase 2 = Daily Rites dungeon + leaderboard. Phase 3 = Living Map graves + marks. Phase 4 = Ghost replay system. Include: data model changes, API endpoints needed, Supabase table schemas, localStorage key migration, and file split strategy as codebase grows past 5,000 lines.
+</div>
+
+<div class="prompt-box">
+PROMPT C — Monetization Strategy:<br>
+Using the monetization data in this document (2-5% spend rate, $1-5 sweet spot, cosmetics + rewarded ads + Patreon model), design a complete monetization plan for Solara: Daily Rites. Include: cosmetic item catalog, pricing tiers, rewarded ad placement (non-intrusive), Patreon tier structure, and a 12-month revenue projection model at 1k / 10k / 50k MAU.
+</div>
+
+<div class="prompt-box">
+PROMPT D — Viral Growth Strategy:<br>
+Design a complete organic growth strategy for Solara: Daily Rites using the viral mechanics research in this document. Include: daily emoji card format spec, Discord community structure, launch sequence, content creator outreach strategy, and how to engineer the first 1,000 players without paid advertising.
+</div>
+
+<div class="prompt-box">
+PROMPT E — Alternative Concept Deep Dive:<br>
+Take the #2 ranked concept "Solara: Sunfall" (roguelite, sun-is-dying theme) from this document and generate a full GDD. Focus on: procedural map generation algorithm design, sun-dimming mechanic systems, Solite shard economy, run progression arc, death/legacy system, world seed sharing implementation, and how it differentiates from Vampire Survivors and Hades in the browser space.
+</div>
+
+<div class="prompt-box">
+PROMPT F — Rebrand Execution Plan:<br>
+Generate a complete step-by-step rebrand plan to rename Dunescape to Solara. Include all file changes in src/App.jsx (full list of string replacements), localStorage save migration code, package.json and vite.config.js changes, GitHub repo rename steps, deploy workflow updates, and the save-version migration shim to preserve existing player saves under the new key "solara_save".
+</div>
+
+<hr>
+
+<h2>9. Key Decisions Required Before Build</h2>
+
+<ol>
+  <li><strong>Which concept(s) to build?</strong> Single concept or the combined Daily Rites + Living Map + Ghost Dungeon stack?</li>
+  <li><strong>Rebrand first or game redesign first?</strong> Rebrand is low-risk and fast (1 session). Game redesign requires concept lock first.</li>
+  <li><strong>World theme:</strong> Keep desert/sand aesthetic with "Solara" branding, or pivot to solarpunk, cozy, or space-solar?</li>
+  <li><strong>Backend now or later?</strong> Supabase setup enables Living Map + Ghost system. Pure static = Daily Rites only (leaderboard becomes local-only).</li>
+  <li><strong>File architecture split:</strong> Current single-file App.jsx will need splitting as it grows. Plan modules before adding systems.</li>
+  <li><strong>Trademark filing:</strong> File USPTO intent-to-use for "Solara" before heavy marketing investment. Cost: $250–350 filing fee + optional $500–2,000 attorney.</li>
+</ol>
+
+<hr>
+<p style="color:#aaa; font-size:0.85em; text-align:center;">Solara Research Report · VaultSpark Studios · March 2026 · Generated with Claude Code (claude-sonnet-4-6)</p>
+
+</div>
+</body>
+</html>

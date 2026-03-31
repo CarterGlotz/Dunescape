@@ -92,3 +92,39 @@ Agents MUST NOT modify or remove existing entries.
 - New required direction: Implement the smoke test now rather than leaving it as a follow-up
 - Why it matters: Converts the runtime fix from a one-off repair into an enforceable guardrail
 - Supersedes prior entry: —
+
+---
+
+### 2026-03-31 — Make the game playable and overhaul the gameplay screen
+
+- Category: Direction
+- Human input: "the game is currently very much unplayable. The map doesn't follow the character and I have no clue how to play. The screen should be full size (game play screen) this game may need a massive overhaul/renovatipn"
+- Area affected: Gameplay shell / first-run UX / overall playability
+- Previous state: Runtime was booting again, but the gameplay canvas still presented as a small fixed screen with weak onboarding
+- New required direction: Prioritize real playability over minor polish: make gameplay fill the screen, improve camera/screen feel, and make the game understandable on first contact even if it requires substantial renovation
+- Why it matters: A technically running build is still a failure if the player cannot understand or comfortably play it
+- Supersedes prior entry: —
+
+---
+
+### 2026-03-31 — Choose async shared-world over real-time multiplayer
+
+- Category: Direction
+- Human input: "we will do 1 as I think that is the original game idea"
+- Area affected: Multiplayer / social architecture / roadmap
+- Previous state: The project had async social systems in progress, but the multiplayer framing still needed a concrete product decision
+- New required direction: Treat Solara's core multiplayer premise as async shared-world play first: shared sun state, graves, leaderboards, ghosts, seasonal records, and social persistence rather than real-time synchronous co-op/PvP
+- Why it matters: This matches the original concept, fits the current architecture, and avoids a premature real-time server rewrite
+- Supersedes prior entry: —
+
+---
+
+### 2026-03-31 — Complete the async shared-world build order in one pass
+
+- Category: Assignment
+- Human input: "Complete the 1-5 build order in one go, make it the highest quality build possible"
+- Area affected: Front door / identity / async social systems / menu UX
+- Previous state: The project had only in-world tabs and scattered shared-state hooks; the async multiplayer idea was not productized end-to-end
+- New required direction: Implement the full async shared-world presentation layer now: main menu, how-to-play, knowledge base, features, update log, identity, and ghost/echo-style social memory in one quality-focused pass
+- Why it matters: This turns the original game idea into a player-facing build instead of a mostly internal roadmap
+- Supersedes prior entry: —

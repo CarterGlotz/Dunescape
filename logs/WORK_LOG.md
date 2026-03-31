@@ -169,3 +169,41 @@ Append chronological entries.
   - Preserved: no new heavy test stack or external dependency footprint
   - Created: smoke harness depends on targeted source rewriting, so future structural changes in `App.jsx` should keep the cutoff markers current
 - Recommended next move: add save-state validation so stale saves cannot poison the now-protected boot path
+
+---
+
+### 2026-03-31 — Runtime playability rehab
+
+- Goal: Make the live game feel playable again by fixing the small-screen shell and telling the player how to actually begin
+- What changed:
+  - `src/App.jsx`: gameplay canvas now scales to the full available viewport (`width: 100%`, `height: 100%`, `objectFit: contain`) instead of staying at native 544x448 size
+  - `src/App.jsx`: added collapsible utility panel (`☰` button + `Tab` shortcut) so the player can prioritize the playfield
+  - `src/App.jsx`: added quickstart overlay and persistent next-step hint describing movement, interaction, and the first practical actions
+  - `context/*`: refreshed state, task board, handoff, decision log, SIL, project status, and CDR for the usability pass
+- Files or systems touched: `src/App.jsx`, `context/*`, `logs/WORK_LOG.md`, `docs/CREATIVE_DIRECTION_RECORD.md`
+- Risks created or removed:
+  - Removed: fixed-size gameplay-shell bottleneck that made the world feel cramped and static
+  - Removed: first-run clarity gap where the game offered no meaningful explanation of controls or goals
+  - Preserved: build and smoke coverage remain green after the shell changes
+  - Created: deeper onboarding problems remain for starter equipment and objective guidance
+- Recommended next move: implement starter-loadout onboarding and an objective tracker before returning to broader Phase 5 work
+
+---
+
+### 2026-03-31 — Async shared-world front door
+
+- Goal: Complete the async shared-world build order in one pass so the game finally presents itself as the intended “multiplayer” concept
+- What changed:
+  - `src/App.jsx`: added a full-screen title/menu flow with Play, How To Play, Knowledge Base, Features, Update Log, and Settings sections
+  - `src/App.jsx`: added persistent traveler identity (name + sigil) that carries from menu into runtime and social records
+  - `src/App.jsx`: added starter-loadout auto-equip for fresh entries from the front door
+  - `src/App.jsx`: added async player echoes with local fallback plus Supabase-ready `player_echoes` integration
+  - `context/*`: updated state, task board, handoff, decisions, SIL, project status, and CDR for the new async-shared-world framing
+- Files or systems touched: `src/App.jsx`, `context/*`, `logs/WORK_LOG.md`, `docs/CREATIVE_DIRECTION_RECORD.md`
+- Risks created or removed:
+  - Removed: no-main-menu / no-front-door problem
+  - Removed: weak identity layer for shared-world records
+  - Removed: async multiplayer framing being implicit instead of explicit
+  - Preserved: build and smoke checks still pass after the larger App.jsx expansion
+  - Created: backend dependency is now more visible because `player_echoes` also wants Supabase to become fully communal
+- Recommended next move: activate Supabase including `player_echoes`, then add in-world objective guidance and richer ghost manifestations

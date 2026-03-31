@@ -535,6 +535,45 @@ const getRogueRelicReward=(wave)=>{if(wave<10)return null;return RELICS[Math.flo
 // === PHASE 1: SEASON CONFIG ===
 const CURRENT_SEASON=Number(import.meta.env.VITE_SEASON_NUMBER)||1;
 const CURRENT_SEASON_NAME=import.meta.env.VITE_SEASON_NAME||'The Wandering Comet';
+const MENU_SECTIONS=[
+  {id:"play",label:"Play"},
+  {id:"how",label:"How To Play"},
+  {id:"knowledge",label:"Knowledge Base"},
+  {id:"features",label:"Features"},
+  {id:"updates",label:"Update Log"},
+  {id:"settings",label:"Settings"},
+];
+const KNOWLEDGE_BASE=[
+  {title:"The Shared Sun",body:"Every recorded death dims the communal sun. The world state is supposed to feel heavier as the season accumulates losses."},
+  {title:"Daily Rites",body:"One seeded dungeon per day for everyone. The same date produces the same challenge, which is why the leaderboard and comparisons matter."},
+  {title:"Living Graves",body:"When a player falls, their grave is meant to persist on the world map. Offerings can turn those graves into shrines."},
+  {title:"Roguelite Legacy",body:"Roguelite runs are personal, but their best stories should still echo back into the shared world through records, relics, and eventually ghosts."},
+];
+const FEATURE_PILLARS=[
+  {title:"Front Door",body:"A real title/menu flow with play, onboarding, settings, codex, and patch notes instead of throwing the player straight into the runtime."},
+  {title:"Identity",body:"A persistent traveler name and sigil so asynchronous world events feel like they came from real people rather than anonymous save files."},
+  {title:"Shared World",body:"Daily scores, graves, shrines, sun-state, and echoes create multiplayer feeling without requiring synchronous combat netcode."},
+  {title:"Ghost Echoes",body:"Runs and deaths can leave behind readable traces for the next players, building communal memory rather than isolated sessions."},
+];
+const UPDATE_LOG_ITEMS=[
+  {date:"2026-03-31",title:"Studio Front Door + Shared World Pass",notes:["Added a full title/menu layer with play, codex, features, update log, and settings views.","Added persistent traveler identity and starter-loadout assist.","Added async player echoes with offline fallback and Supabase-ready hooks."]},
+  {date:"2026-03-31",title:"Runtime Playability Rehab",notes:["Gameplay canvas now uses the full viewport.","Utility panel can be collapsed with Tab / ☰.","Quickstart overlay now explains controls and first actions."]},
+  {date:"2026-03-30",title:"Boot Reliability",notes:["Fixed startup-order crash.","Added repo-native smoke coverage for mount/startup flow."]},
+];
+const HOW_TO_PLAY_STEPS=[
+  "Move with WASD / arrows or by left-clicking a destination.",
+  "Left-click NPCs, monsters, trees, rocks, and doors to interact.",
+  "Right-click for context actions and extra info.",
+  "Use the Daily tab for the async communal challenge and the Quest tab for local progression.",
+  "Deaths, graves, offerings, and the sun are meant to be shared-world systems once Supabase is live.",
+];
+
+function makeTravelerSigil(){
+  const parts=["ASH","SUN","RITE","ECHO","EMBER","VEIL","DUSK","AURIC"];
+  const pick=()=>parts[Math.floor(Math.random()*parts.length)];
+  const num=Math.floor(Math.random()*900+100);
+  return `${pick()}-${pick()}-${num}`;
+}
 
 // === PHASE 1: SEEDED PRNG (mulberry32) ===
 const mulberry32=(seed)=>{return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};};
@@ -700,6 +739,13 @@ export default function DS(){
   const [deathMilestone,setDeathMilestone]=useState(null); // SIL: milestone flash message
   const [tab,setTab]=useState("inv");
   const [mapOpen,setMapOpen]=useState(false);
+  const [menuOpen,setMenuOpen]=useState(true);
+  const [menuSection,setMenuSection]=useState("play");
+  const [panelOpen,setPanelOpen]=useState(()=>typeof window==="undefined"?true:window.innerWidth>=1180);
+  const [showGuide,setShowGuide]=useState(()=>{try{return localStorage.getItem("solara_quickstart_dismissed")!=="1";}catch(e){return true;}});
+  const [travelerNameDraft,setTravelerNameDraft]=useState(()=>{try{return localStorage.getItem("solara_profile_name")||"Adventurer";}catch(e){return "Adventurer";}});
+  const [travelerSigilDraft,setTravelerSigilDraft]=useState(()=>{try{return localStorage.getItem("solara_traveler_sigil")||makeTravelerSigil();}catch(e){return makeTravelerSigil();}});
+  const [echoes,setEchoes]=useState([]);
   const [chat,setChat]=useState(["Welcome to Solara: Sunfall!","Left-click to interact. Right-click for options.","🌟 You carry a Sunstone Shard. The Oracle in The Sanctum speaks of it."]);
   const [,fr]=useState(0);
   const [ctx_menu,setCtx]=useState(null);
@@ -722,13 +768,33 @@ export default function DS(){
   // Innovation #13: Ambient audio ref
   const ambientAudioR=useRef({ctx:null,osc:null,gainNode:null,active:false});
 
+  const dismissGuide=useCallback(()=>{setShowGuide(false);try{localStorage.setItem("solara_quickstart_dismissed","1");}catch(e){}},[]);
+
   const addC=useCallback(m=>{const c=[...chatR.current.slice(-100),m];setChat(c);},[]);
+  const persistIdentity=useCallback((name,sigil)=>{
+    const cleanName=(name||"Adventurer").trim().slice(0,16)||"Adventurer";
+    const cleanSigil=(sigil||makeTravelerSigil()).trim().slice(0,24)||makeTravelerSigil();
+    setTravelerNameDraft(cleanName);
+    setTravelerSigilDraft(cleanSigil);
+    try{
+      localStorage.setItem("solara_profile_name",cleanName);
+      localStorage.setItem("solara_traveler_sigil",cleanSigil);
+    }catch(e){}
+    const g2=gR.current;
+    if(g2?.p){
+      g2.p.playerName=cleanName;
+      g2.p.travelerSigil=cleanSigil;
+      fr(n=>n+1);
+    }
+    return {name:cleanName,sigil:cleanSigil};
+  },[]);
 
   // Keyboard shortcuts: M=map, ESC=close, R=run
   useEffect(()=>{
     const onKey=e=>{
       if(e.key==="m"||e.key==="M"){setMapOpen(v=>!v);return;}
       if(e.key==="Escape"){setMapOpen(false);setBankOpen(false);setShopOpen(false);setSmithOpen(false);setCraftOpen(false);setSellOpen(false);setHerbOpen(false);setFletchOpen(false);}
+      if(e.key==="Tab"){e.preventDefault();setPanelOpen(v=>!v);return;}
       if(e.key==="r"||e.key==="R"){const g2=gR.current;if(g2){g2.p.run=!g2.p.run;fr(n=>n+1);}}
     };
     window.addEventListener("keydown",onKey);
@@ -774,6 +840,57 @@ export default function DS(){
   },[sunBrightness]);
 
   const getPlayerFaction=useCallback((p)=>{if(!p?.rep)return'neutral';const {guard=0,merchant=0,bandit=0}=p.rep;const max=Math.max(guard,merchant,bandit);if(max<=0)return'neutral';if(guard===max)return'guard';if(merchant===max)return'merchant';return'bandit';},[]);
+  const fetchEchoes=useCallback(async()=>{
+    try{
+      const localEchoes=JSON.parse(localStorage.getItem("solara_local_echoes")||"[]");
+      if(!supabase){
+        setEchoes(localEchoes.slice(0,12));
+        return;
+      }
+      const {data}=await supabase.from('player_echoes').select('id,player_name,traveler_sigil,kind,headline,summary,wave_reached,faction,created_at').order('created_at',{ascending:false}).limit(12);
+      const merged=[...(data||[])];
+      localEchoes.forEach(e=>{if(!merged.some(x=>x.id===e.id))merged.push(e);});
+      merged.sort((a,b)=>new Date(b.created_at||0)-new Date(a.created_at||0));
+      setEchoes(merged.slice(0,12));
+    }catch(e){
+      try{setEchoes(JSON.parse(localStorage.getItem("solara_local_echoes")||"[]").slice(0,12));}catch(e2){setEchoes([]);}
+    }
+  },[]);
+  const submitEcho=useCallback(async(kind,headline,summary,waveReached=0)=>{
+    const g2=gR.current;if(!g2?.p)return;
+    const p2=g2.p;
+    const echo={
+      id:`echo-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+      player_name:p2.playerName||travelerNameDraft||"Adventurer",
+      traveler_sigil:p2.travelerSigil||travelerSigilDraft,
+      kind,
+      headline,
+      summary,
+      wave_reached:waveReached||0,
+      faction:getPlayerFaction(p2),
+      created_at:new Date().toISOString(),
+    };
+    try{
+      const localEchoes=JSON.parse(localStorage.getItem("solara_local_echoes")||"[]");
+      localStorage.setItem("solara_local_echoes",JSON.stringify([echo,...localEchoes].slice(0,24)));
+    }catch(e){}
+    setEchoes(prev=>[echo,...prev].slice(0,12));
+    if(!supabase)return;
+    try{
+      await supabase.from('player_echoes').insert({
+        player_name:echo.player_name,
+        traveler_sigil:echo.traveler_sigil,
+        kind:echo.kind,
+        headline:echo.headline,
+        summary:echo.summary,
+        wave_reached:echo.wave_reached,
+        faction:echo.faction,
+        season:CURRENT_SEASON,
+        date_seed:getDailySeed(),
+      });
+      setTimeout(()=>fetchEchoes(),800);
+    }catch(e){}
+  },[fetchEchoes,getPlayerFaction,travelerNameDraft,travelerSigilDraft]);
 
   const fetchDailyLeaderboard=useCallback(async()=>{
     if(!supabase){return;}
@@ -847,11 +964,12 @@ export default function DS(){
       addC("🏆 Relic earned: "+relic.i+" "+relic.n+" — "+relic.desc);
     }
     addC("💀 Roguelite run ended at Wave "+wave+". Best: "+p.rogueliteStats.bestWave);
+    submitEcho("roguelite","Roguelite echo — Wave "+wave,`${p.playerName||"Adventurer"} fell on a roguelite push at Wave ${wave}.`,wave);
     // Submit grave for roguelite deaths too
     setPendingGrave({x:p.x,y:p.y,wave,faction:getPlayerFaction(p),playerName:p.playerName||"Adventurer"});
     setShowEpitaphModal(true);
     setRogueTick(n=>n+1);
-  },[addC,getPlayerFaction]);
+  },[addC,getPlayerFaction,submitEcho]);
 
   // Phase 2: Graves
   const fetchGraves=useCallback(async()=>{
@@ -933,6 +1051,12 @@ export default function DS(){
   },[fetchSunState]);
 
   useEffect(()=>{
+    fetchEchoes();
+    const iv=setInterval(()=>fetchEchoes(),120000);
+    return()=>clearInterval(iv);
+  },[fetchEchoes]);
+
+  useEffect(()=>{
     const map=genMap(),objects=genObjs(map),npcs=genNPCs(),mons=genMons();
     const g={map,objects,npcs,mons,
       p:{x:20,y:28,path:[],mt:0,ms:200,
@@ -967,6 +1091,7 @@ export default function DS(){
         farmPatches:[],
         // Task 23: Player name
         playerName:"Adventurer",
+        travelerSigil:travelerSigilDraft,
         // Task 24: Desert camp
         camp:null,campBank:[],
         // Task 25: Combo meter (session-only, init here for safety)
@@ -987,6 +1112,8 @@ export default function DS(){
     };
     g.p.hp=Math.max(1,g.p.hp||lvl(g.p.sk.Hitpoints));g.p.mhp=lvl(g.p.sk.Hitpoints);
     g.p.prayer=Math.min(g.p.prayer||lvl(g.p.sk.Prayer),lvl(g.p.sk.Prayer));g.p.maxPrayer=lvl(g.p.sk.Prayer);
+    g.p.playerName=travelerNameDraft||g.p.playerName;
+    g.p.travelerSigil=travelerSigilDraft||g.p.travelerSigil;
     // Arena state
     g.arena={active:false,wave:0,kills:0,maxWave:10,waveMonsters:[]};
     // Dungeon state
@@ -1022,7 +1149,7 @@ export default function DS(){
     // Load saved state
     try{const sv=localStorage.getItem("solara_save");if(sv){const sp=JSON.parse(sv);const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests)p2.quests={};['desert','cook','goblin','rune','miner','haunted','karamja','knight','relic','awakening'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.desertKills)p2.desertKills=0;if(!p2.goblinKills)p2.goblinKills=0;if(!p2.achievements)p2.achievements=[];if(!p2.buffs)p2.buffs={};if(p2.autoRetaliate==null)p2.autoRetaliate=true;if(!p2.slayerTask)p2.slayerTask=null;if(!p2.sk.Herblore)p2.sk.Herblore=0;if(!p2.sk.Slayer)p2.sk.Slayer=0;if(!p2.sk.Fletching)p2.sk.Fletching=0;if(!p2.sk.Farming)p2.sk.Farming=0;if(!p2.sk.Runecrafting)p2.sk.Runecrafting=0;if(!p2.eq.cape)p2.eq.cape=null;if(!p2.activePrayers)p2.activePrayers=[];['shipment','forge','wildernessHunt'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.shipmentFish)p2.shipmentFish=0;if(!p2.iceWarriorKills)p2.iceWarriorKills=0;if(!p2.monsterKills)p2.monsterKills={};p2.visitedRegions=new Set(sp.visitedRegions||[]);p2.haunted=p2.haunted||0;p2.jogreKills=p2.jogreKills||0;p2.demonKills=p2.demonKills||0;p2.jadKills=p2.jadKills||0;p2.relicParts=p2.relicParts||0;p2.cookCount=p2.cookCount||0;
       // New field defaults (v4)
-      if(!p2.pet)p2.pet=null;if(!p2.questPoints)p2.questPoints=0;if(!p2.unlocks)p2.unlocks=[];if(!p2.rep)p2.rep={guard:0,merchant:0,bandit:0};if(!p2.lastFireTile)p2.lastFireTile=null;if(!p2.prestige)p2.prestige={};if(!p2.farmPatches)p2.farmPatches=[];if(!p2.playerName)p2.playerName="Adventurer";if(!p2.camp)p2.camp=null;if(!p2.campBank)p2.campBank=[];if(!p2.appearance)p2.appearance={skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"};if(!p2.codex)p2.codex=[];if(!p2.sideQuests)p2.sideQuests=[];if(!p2.dailyChallengeProgress)p2.dailyChallengeProgress=0;if(!p2.rogueliteStats)p2.rogueliteStats={bestWave:0,totalRuns:0,relics:[]};p2.comboMeter=0;p2.lastCombatStyle=null;
+      if(!p2.pet)p2.pet=null;if(!p2.questPoints)p2.questPoints=0;if(!p2.unlocks)p2.unlocks=[];if(!p2.rep)p2.rep={guard:0,merchant:0,bandit:0};if(!p2.lastFireTile)p2.lastFireTile=null;if(!p2.prestige)p2.prestige={};if(!p2.farmPatches)p2.farmPatches=[];if(!p2.playerName)p2.playerName=travelerNameDraft||"Adventurer";if(!p2.travelerSigil)p2.travelerSigil=travelerSigilDraft;if(!p2.camp)p2.camp=null;if(!p2.campBank)p2.campBank=[];if(!p2.appearance)p2.appearance={skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"};if(!p2.codex)p2.codex=[];if(!p2.sideQuests)p2.sideQuests=[];if(!p2.dailyChallengeProgress)p2.dailyChallengeProgress=0;if(!p2.rogueliteStats)p2.rogueliteStats={bestWave:0,totalRuns:0,relics:[]};p2.comboMeter=0;p2.lastCombatStyle=null;
       addC("Save loaded. Welcome back!");}
 
     // Offline progression
@@ -1280,6 +1407,7 @@ export default function DS(){
 
     // === UPDATE ===
     function update(dt){
+      if(menuOpen)return;
       const p=g.p;g.tk+=dt;
       // Day/night cycle (10 min)
       g.dayTime=(g.tk%600000)/600000;
@@ -1766,6 +1894,7 @@ export default function DS(){
               }
               // Phase 2: Epitaph modal — queue grave, show modal (skip if roguelite already queued it)
               else{const wave=dailyRunRef.current&&!dailyRunRef.current.done?dailyRunRef.current.wave:0;
+              submitEcho("death","A grave was cut into the ash",`${p.playerName||"Adventurer"} fell at (${deathX},${deathY}) and left another mark on the season.`,wave);
               setPendingGrave({x:deathX,y:deathY,wave,faction:getPlayerFaction(p),playerName:p.playerName||"Adventurer"});
               setShowEpitaphModal(true);}
               // Phase 1: Daily run death hook
@@ -1774,6 +1903,7 @@ export default function DS(){
                 run.done=true;run.deathWave=run.wave;
                 run.shareCard=generateShareCard(p.playerName||"Adventurer",run.wave,getPlayerFaction(p));
                 addC("💀 Daily Rite ended at Wave "+run.wave+". Score recorded.");
+                submitEcho("daily","Daily Rite failed at Wave "+run.wave,`${p.playerName||"Adventurer"} reached Wave ${run.wave} in today's communal dungeon.`,run.wave);
                 submitDailyScore(p.playerName||"Adventurer",run.wave,getPlayerFaction(p));
                 g.dungeon={active:false,room:0,cleared:false,monsters:[]};
                 g.mons=g.mons.filter(m=>!m.dailyRun);
@@ -1811,6 +1941,7 @@ export default function DS(){
             run.done=true;run.deathWave=30;
             run.shareCard=generateShareCard(p.playerName||"Adventurer",30,getPlayerFaction(p));
             addC("🏆 Daily Rite complete! Wave 30 cleared! The sun brightens.");
+            submitEcho("daily","Daily Rite completed",`${p.playerName||"Adventurer"} cleared all 30 waves of the Daily Rite.`,30);
             g.dungeon={active:false,room:0,cleared:true,monsters:[]};
             submitDailyScore(p.playerName||"Adventurer",30,getPlayerFaction(p));
           }else{
@@ -1870,7 +2001,7 @@ export default function DS(){
       // Auto-save every 60s
       if(Math.floor(g.tk/60000)!==Math.floor((g.tk-dt)/60000)){try{
         localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...p.visitedRegions],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},
-          pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g.objects.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0,rogueliteStats:p.rogueliteStats||{bestWave:0,totalRuns:0,relics:[]}}));
+          pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g.objects.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",travelerSigil:p.travelerSigil||travelerSigilDraft,camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0,rogueliteStats:p.rogueliteStats||{bestWave:0,totalRuns:0,relics:[]}}));
         // Leaderboard (Task 23)
         const lb=JSON.parse(localStorage.getItem("solara_leaderboard")||"[]");const entry={name:p.playerName||"Adventurer",totalXp:p.totalXp,totalLvl:SKILLS.reduce((a,s)=>a+lvl(p.sk[s]||0),0),date:new Date().toLocaleDateString()};const existing=lb.find(e=>e.name===entry.name);if(existing){if(entry.totalXp>existing.totalXp)Object.assign(existing,entry);}else lb.push(entry);lb.sort((a,b)=>b.totalXp-a.totalXp);localStorage.setItem("solara_leaderboard",JSON.stringify(lb.slice(0,10)));
       }catch(e){}}
@@ -2156,11 +2287,22 @@ export default function DS(){
     cv.addEventListener("touchend",onTouchEnd,{passive:false});
     fR.current=requestAnimationFrame(loop);
     return()=>{cancelAnimationFrame(fR.current);cv.removeEventListener("click",handleClick);cv.removeEventListener("contextmenu",handleRClick);cv.removeEventListener("touchstart",onTouchStart);cv.removeEventListener("touchend",onTouchEnd);window.removeEventListener("keydown",onKeyMove);};
-  },[addC]);
+  },[addC,menuOpen,submitEcho,travelerNameDraft,travelerSigilDraft]);
 
   const g=gR.current,p=g?.player||g?.p;
   const cLvl=p?Math.floor((lvl(p.sk.Attack)+lvl(p.sk.Strength)+lvl(p.sk.Defence)+lvl(p.sk.Hitpoints))/4):1;
   const totalLvl=p?SKILLS.reduce((a,s)=>a+lvl(p.sk[s]),0):16;
+  const hasExistingSave=(()=>{try{return !!localStorage.getItem("solara_save");}catch(e){return false;}})();
+  const backendConnected=!!supabase;
+
+  useEffect(()=>{
+    if(!p)return;
+    if((p.playerName||"Adventurer")!==travelerNameDraft||!p.travelerSigil){
+      p.playerName=travelerNameDraft||p.playerName||"Adventurer";
+      p.travelerSigil=p.travelerSigil||travelerSigilDraft;
+      fr(n=>n+1);
+    }
+  },[p,travelerNameDraft,travelerSigilDraft]);
 
   function initAudio(){
     if(audioR.current)return;
@@ -2242,7 +2384,41 @@ export default function DS(){
     addC("You fletch: "+ITEMS[rec.out].n+(outCnt>1?" x"+outCnt:"")+".");setFletchOpen(false);fr(n=>n+1);
   }
   function togglePrayer(id){if(!p)return;const pl=lvl(p.sk.Prayer);const pr=PRAYERS.find(x=>x.id===id);if(!pr)return;if(pl<pr.lvl){addC("Need Prayer level "+pr.lvl+".");return;}if(p.prayer<=0){addC("You have no Prayer points.");return;}const active=p.activePrayers||[];const idx=active.indexOf(id);if(idx>=0)p.activePrayers=active.filter(x=>x!==id);else p.activePrayers=[...active,id];fr(n=>n+1);}
-  function saveGame(){if(!p||!gR.current)return;const g2=gR.current;try{localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g2.objects?.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0,rogueliteStats:p.rogueliteStats||{bestWave:0,totalRuns:0,relics:[]}}));addC("Game saved!");}catch(e){}}
+  function saveGame(){if(!p||!gR.current)return;const g2=gR.current;try{localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g2.objects?.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",travelerSigil:p.travelerSigil||travelerSigilDraft,camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0,rogueliteStats:p.rogueliteStats||{bestWave:0,totalRuns:0,relics:[]}}));addC("Game saved!");}catch(e){}}
+  function autoEquipStarterLoadout(){
+    if(!p)return;
+    if((p.totalXp||0)>0)return;
+    if(!p.eq.weapon){
+      const wIdx=p.inv.findIndex(x=>x.i==="bronze_sword");
+      if(wIdx>=0){p.eq.weapon="bronze_sword";p.inv.splice(wIdx,1);}
+    }
+    if(!p.eq.shield){
+      const sIdx=p.inv.findIndex(x=>x.i==="wooden_shield");
+      if(sIdx>=0){p.eq.shield="wooden_shield";p.inv.splice(sIdx,1);}
+    }
+  }
+  function enterWorld(openTab){
+    const identity=persistIdentity(travelerNameDraft,travelerSigilDraft);
+    if(p){
+      p.playerName=identity.name;
+      p.travelerSigil=identity.sigil;
+      autoEquipStarterLoadout();
+      if(openTab)setTab(openTab);
+      saveGame();
+    }
+    setMenuOpen(false);
+    setShowGuide(true);
+    fr(n=>n+1);
+  }
+  function startFreshChronicle(){
+    if(!confirm("Start a new chronicle? Your current local progress will be cleared."))return;
+    try{
+      localStorage.removeItem("solara_save");
+      localStorage.removeItem("solara_offline");
+      localStorage.removeItem("solara_daily");
+    }catch(e){}
+    window.location.reload();
+  }
 
   const invSlots=[];
   if(p)for(let i=0;i<28;i++){const s=p.inv[i];const d=s?ITEMS[s.i]:null;const isLog=s&&["logs","oak_logs","willow_logs","yew_logs"].includes(s.i);
@@ -2257,6 +2433,10 @@ export default function DS(){
     >{s&&<span>{d.i}</span>}{s&&d.s&&s.c>1&&<span style={{position:"absolute",top:0,left:2,fontSize:8,color:"#ff0",fontWeight:700}}>{s.c>99999?"99k+":s.c}</span>}
       {s&&<span style={{position:"absolute",bottom:0,right:1,fontSize:6,color:"#aa9",maxWidth:34,overflow:"hidden",whiteSpace:"nowrap"}}>{d.n}</span>}
     </div>);}
+
+  const isFreshAdventurer=!!p&&(p.totalXp||0)<=0&&Object.values(p.quests||{}).every(v=>!v);
+  const guideStepLabel=!p?"Booting world...":dailyRunRef.current&&!dailyRunRef.current.done?"Daily Rite active: head to the dungeon entrance and clear the next wave.":rogueRunRef.current&&!rogueRunRef.current.done?"Roguelite active: reach the dungeon entrance and push as far as you can.":isFreshAdventurer?"Suggested start: equip your sword in the gear tab, then talk to Mara or start the Daily Rite.":"Suggested start: open the Daily tab for guided runs, or talk to NPCs in town for quests.";
+  const sidePanelWidth=panelOpen?235:0;
 
   return (
     <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none",zoom:uiScale}}>
@@ -2276,6 +2456,9 @@ export default function DS(){
           {deathMilestone&&<span style={{fontSize:8,color:"#f84",fontWeight:700,animation:"pulse 1s ease-in-out infinite",textShadow:"0 0 6px #f40"}}>☀ {deathMilestone.toLocaleString()} lives claimed</span>}
           {p.slayerTask&&<span style={{color:"#8a2020",fontSize:9}}>🗡️{p.slayerTask.monster} {p.slayerTask.remaining}/{p.slayerTask.count}</span>}
           <div style={{marginLeft:"auto",display:"flex",gap:4,alignItems:"center"}}>
+            <button onClick={()=>setMenuOpen(true)} style={{background:"#1a1208",border:"1px solid #5a3010",color:"#f0c060",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>⌂</button>
+            <button onClick={()=>setShowGuide(v=>!v)} style={{background:showGuide?"#3a2208":"#1a1208",border:"1px solid #7a5020",color:"#f0c060",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>?</button>
+            <button onClick={()=>setPanelOpen(v=>!v)} style={{background:panelOpen?"#2a1408":"#120804",border:"1px solid #6a2010",color:panelOpen?"#c8a84e":"#777",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}} title="Toggle utility panel (Tab)">☰</button>
             <button onClick={()=>{if(p){p.autoRetaliate=!p.autoRetaliate;fr(n=>n+1);}}} style={{background:p.autoRetaliate?"#1a1808":"transparent",border:"1px solid #6a2010",color:p.autoRetaliate?"#ff0":"#555",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{p.autoRetaliate?"⚔️AR":"🚫AR"}</button>
             {["Accurate","Aggressive","Defensive"].map((s,i)=><button key={i} onClick={()=>{if(p)p.style=i;fr(n=>n+1);}}
               style={{background:p.style===i?"#5a1808":"transparent",border:"1px solid #6a2010",color:p.style===i?"#ff0":"#555",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{s}</button>)}
@@ -2288,9 +2471,34 @@ export default function DS(){
         </>}
       </div>
       {/* Main */}
-      <div style={{flex:1,display:"flex",overflow:"hidden",minHeight:0}}>
-        <div style={{flex:1,display:"flex",alignItems:"center",justifyContent:"center",background:"#0d0403",position:"relative",minWidth:0}}>
-          <canvas ref={cvR} width={CW} height={CH} style={{imageRendering:"pixelated",cursor:"crosshair",maxWidth:"100%",maxHeight:"100%",border:"2px solid #5a1808",touchAction:"none"}} />
+      <div style={{flex:1,display:"flex",overflow:"hidden",minHeight:0,position:"relative"}}>
+        <div style={{flex:1,display:"flex",alignItems:"stretch",justifyContent:"center",background:"#0d0403",position:"relative",minWidth:0}}>
+          <canvas ref={cvR} width={CW} height={CH} style={{imageRendering:"pixelated",cursor:"crosshair",width:"100%",height:"100%",objectFit:"contain",border:"2px solid #5a1808",touchAction:"none",background:"#0d0403"}} />
+          {showGuide&&p&&<div style={{position:"absolute",top:12,left:12,maxWidth:320,background:"rgba(10,4,3,0.92)",border:"1px solid rgba(200,168,78,0.35)",borderRadius:10,padding:"12px 14px",boxShadow:"0 12px 28px rgba(0,0,0,0.45)",zIndex:20}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,gap:12}}>
+              <div>
+                <div style={{color:"#f0c060",fontSize:12,fontWeight:800,letterSpacing:1}}>QUICKSTART</div>
+                <div style={{color:"#88745a",fontSize:8}}>Playable route, controls, and next move</div>
+              </div>
+              <button onClick={dismissGuide} style={{background:"transparent",border:"none",color:"#775",cursor:"pointer",fontSize:12,padding:0,lineHeight:1}}>✕</button>
+            </div>
+            <div style={{color:"#ddd",fontSize:9,lineHeight:1.5,marginBottom:8}}>{guideStepLabel}</div>
+            <div style={{display:"grid",gap:5,fontSize:8,color:"#9f9485",marginBottom:10}}>
+              <div>Move: `WASD` / arrow keys or left-click the ground</div>
+              <div>Interact: left-click an NPC, tree, rock, door, or monster</div>
+              <div>Options: right-click anything for context actions</div>
+              <div>Goal: use `☀️` for Daily Rite or `📜` for starter quests</div>
+            </div>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              <button onClick={()=>{setTab("daily");setPanelOpen(true);}} style={{background:"linear-gradient(180deg,#3a1808,#241005)",border:"1px solid #c8a84e",color:"#f0c060",fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:700}}>Open Daily</button>
+              <button onClick={()=>{setTab("equip");setPanelOpen(true);}} style={{background:"#1c120a",border:"1px solid #5a3010",color:"#ddd",fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:600}}>Open Gear</button>
+              <button onClick={()=>{setTab("quest");setPanelOpen(true);}} style={{background:"#1c120a",border:"1px solid #5a3010",color:"#ddd",fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:600}}>Open Quests</button>
+            </div>
+          </div>}
+          {!showGuide&&p&&<div style={{position:"absolute",top:12,left:12,display:"flex",gap:8,alignItems:"center",background:"rgba(10,4,3,0.78)",border:"1px solid rgba(200,168,78,0.18)",borderRadius:999,padding:"6px 10px",zIndex:15}}>
+            <span style={{fontSize:8,color:"#f0c060",fontWeight:700}}>Next:</span>
+            <span style={{fontSize:8,color:"#c0b3a0"}}>{guideStepLabel}</span>
+          </div>}
           {/* Mobile D-pad (Task 13) */}
           {typeof window!=="undefined"&&/Mobi|Android/i.test(navigator.userAgent)&&p&&<div style={{position:"absolute",bottom:10,left:10,display:"grid",gridTemplateColumns:"repeat(3,40px)",gridTemplateRows:"repeat(3,40px)",gap:2,userSelect:"none"}}>
             {[["",null],["▲","n","ArrowUp"],["",null],["◄","w","ArrowLeft"],["·",null,null],["►","e","ArrowRight"],["",null],["▼","s","ArrowDown"],["",null]].map(([lbl,dir,key],i)=>dir?<button key={i} onTouchStart={e=>{e.preventDefault();if(key){const synth=new KeyboardEvent("keydown",{key,bubbles:true});window.dispatchEvent(synth);}}} onTouchEnd={e=>{e.preventDefault();if(key){const synth=new KeyboardEvent("keyup",{key,bubbles:true});window.dispatchEvent(synth);}}}
@@ -2303,7 +2511,7 @@ export default function DS(){
           </div>}
         </div>
         {/* Side panel */}
-        <div style={{width:195,background:"linear-gradient(180deg,#1e0a06,#180804)",borderLeft:"2px solid #5a1808",display:"flex",flexDirection:"column",flexShrink:0}}>
+        <div style={{width:sidePanelWidth,background:"linear-gradient(180deg,#1e0a06,#180804)",borderLeft:panelOpen?"2px solid #5a1808":"none",display:"flex",flexDirection:"column",flexShrink:0,transition:"width 0.2s ease",overflow:"hidden"}}>
           <div style={{display:"flex",borderBottom:"1px solid #5a1808"}}>
             {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"],["bestiary","📖"],["daily","☀️"],["settings","⚙️"]].map(([t,ic])=>
               <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"4px 0",background:tab===t?"#280e06":"transparent",border:"none",color:tab===t?"#c8a84e":"#5a2010",cursor:"pointer",fontSize:10,borderBottom:tab===t?"2px solid #c8a84e":"2px solid transparent"}}>{ic}</button>)}
@@ -2575,8 +2783,12 @@ export default function DS(){
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1}}>SETTINGS</div>
               {/* Player Name */}
               <div style={{fontSize:9,color:"#ddd"}}>Character Name:
-                <input type="text" value={p.playerName||"Adventurer"} maxLength={16} onChange={e=>{p.playerName=e.target.value;fr(n=>n+1);}} style={{marginLeft:4,background:"#120604",color:"#ff0",border:"1px solid #5a2010",fontSize:8,padding:"2px 4px",borderRadius:2,width:90}}/>
+                <input type="text" value={p.playerName||"Adventurer"} maxLength={16} onChange={e=>{persistIdentity(e.target.value,p.travelerSigil||travelerSigilDraft);}} style={{marginLeft:4,background:"#120604",color:"#ff0",border:"1px solid #5a2010",fontSize:8,padding:"2px 4px",borderRadius:2,width:90}}/>
               </div>
+              <div style={{fontSize:9,color:"#ddd"}}>Traveler Sigil:
+                <input type="text" value={p.travelerSigil||travelerSigilDraft} maxLength={24} onChange={e=>{persistIdentity(p.playerName||travelerNameDraft,e.target.value.toUpperCase());}} style={{marginLeft:4,background:"#120604",color:"#c8a0ff",border:"1px solid #5a2010",fontSize:8,padding:"2px 4px",borderRadius:2,width:130}}/>
+              </div>
+              <div style={{fontSize:8,color:backendConnected?"#6c6":"#a86",lineHeight:1.4}}>{backendConnected?"Shared-world backend connected.":"Shared-world backend not connected. Echoes and identity still save locally."}</div>
               {/* Appearance */}
               <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>APPEARANCE</div>
               {[["Skin","skin","#f0d8a0"],["Hair","hair","#333"],["Outfit","outfit","#2266cc"]].map(([label,key,def])=><label key={key} style={{fontSize:8,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
@@ -2621,6 +2833,14 @@ export default function DS(){
                     <span>{i+1}. {e.name}</span><span>{(e.xp||0).toLocaleString()} XP</span>
                   </div>)}
                 </div>;})()}
+              <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>RECENT ECHOES</div>
+              <div style={{display:"grid",gap:3}}>
+                {echoes.slice(0,3).map(e=><div key={e.id} style={{background:"rgba(20,10,5,0.6)",padding:"4px 6px",borderRadius:3,border:"1px solid rgba(200,168,78,0.06)"}}>
+                  <div style={{fontSize:8,color:"#ddd"}}>{e.headline}</div>
+                  <div style={{fontSize:7,color:"#666",marginTop:1}}>{e.player_name} · {e.traveler_sigil||"no-sigil"}</div>
+                </div>)}
+                {echoes.length===0&&<div style={{fontSize:8,color:"#555"}}>No echoes yet. Deaths and runs will begin filling this feed.</div>}
+              </div>
               <div style={{fontSize:9,color:p.ironman?"#c8a84e":"#666"}}>Mode: {p.ironman?"🔒 Ironman":"Normal"}</div>
               {!p.ironman&&<button onClick={()=>{if(confirm("Enable Ironman? Cannot buy from shops.")){p.ironman=true;fr(n=>n+1);}}} style={{background:"#2a1010",border:"1px solid #7a2010",color:"#c44",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>Enable Ironman</button>}
               <button onClick={saveGame} style={{background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>💾 Save Now</button>
@@ -2839,6 +3059,131 @@ export default function DS(){
           <div style={{display:"flex",gap:8,justifyContent:"center"}}>
             <button onClick={()=>submitGrave(epitaphDraft)} style={{background:"#5a2080",border:"none",color:"#fff",borderRadius:4,padding:"6px 16px",fontSize:11,cursor:"pointer",fontWeight:700}}>Leave Epitaph</button>
             <button onClick={()=>submitGrave("")} style={{background:"transparent",border:"1px solid #444",color:"#666",borderRadius:4,padding:"6px 12px",fontSize:11,cursor:"pointer"}}>Skip</button>
+          </div>
+        </div>
+      </div>}
+      {menuOpen&&<div style={{position:"fixed",inset:0,zIndex:400,background:"radial-gradient(circle at top, rgba(180,110,40,0.18), transparent 32%), linear-gradient(180deg, rgba(8,4,3,0.96), rgba(4,2,2,0.98))",display:"flex",alignItems:"stretch",justifyContent:"center",padding:24,boxSizing:"border-box"}}>
+        <div style={{width:"min(1160px,100%)",display:"grid",gridTemplateColumns:"260px 1fr",gap:18,minHeight:0}}>
+          <div style={{background:"rgba(18,8,6,0.92)",border:"1px solid rgba(200,168,78,0.22)",borderRadius:18,padding:18,display:"flex",flexDirection:"column",gap:12,boxShadow:"0 24px 60px rgba(0,0,0,0.35)"}}>
+            <div>
+              <div style={{color:"#f0c060",fontSize:12,letterSpacing:3,fontWeight:800}}>SOLARA: SUNFALL</div>
+              <div style={{color:"#ddd",fontSize:24,fontWeight:900,lineHeight:1.05,marginTop:6}}>Shared-world roguelite RPG</div>
+              <div style={{color:"#8f7d68",fontSize:11,lineHeight:1.55,marginTop:8}}>Every death should matter to everyone. This front door frames the async communal version of that idea.</div>
+            </div>
+            <div style={{display:"grid",gap:6}}>
+              {MENU_SECTIONS.map(sec=><button key={sec.id} onClick={()=>setMenuSection(sec.id)} style={{textAlign:"left",background:menuSection===sec.id?"linear-gradient(90deg,#3a1808,#231006)":"rgba(0,0,0,0.16)",border:"1px solid "+(menuSection===sec.id?"#c8a84e":"rgba(200,168,78,0.08)"),color:menuSection===sec.id?"#f0c060":"#b7a387",padding:"10px 12px",cursor:"pointer",borderRadius:10,fontSize:12,fontWeight:700}}>{sec.label}</button>)}
+            </div>
+            <div style={{marginTop:"auto",background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:12,padding:12}}>
+              <div style={{fontSize:10,color:"#f0c060",fontWeight:700,marginBottom:6}}>Shared World Status</div>
+              <div style={{fontSize:10,color:backendConnected?"#7fd37f":"#c68856",lineHeight:1.5}}>{backendConnected?"Supabase connected: live async world hooks are available.":"Supabase not connected: game falls back to local-only echoes and disabled shared systems."}</div>
+            </div>
+          </div>
+          <div style={{background:"rgba(10,4,3,0.9)",border:"1px solid rgba(200,168,78,0.18)",borderRadius:18,padding:22,overflow:"auto",boxShadow:"0 24px 60px rgba(0,0,0,0.35)"}}>
+            {menuSection==="play"&&<div style={{display:"grid",gap:18}}>
+              <div>
+                <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>PLAY</div>
+                <div style={{color:"#ddd",fontSize:28,fontWeight:900,marginTop:6}}>Enter the season with a real identity</div>
+                <div style={{color:"#927e67",fontSize:12,lineHeight:1.6,marginTop:8}}>This build treats Solara as an async shared world: daily rites, persistent graves, communal sun-state, and player echoes rather than real-time co-op.</div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12}}>
+                <div style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
+                  <div style={{fontSize:10,color:"#f0c060",fontWeight:700,marginBottom:8}}>Traveler Identity</div>
+                  <div style={{fontSize:9,color:"#8f7d68",marginBottom:4}}>Name</div>
+                  <input type="text" maxLength={16} value={travelerNameDraft} onChange={e=>setTravelerNameDraft(e.target.value)} style={{width:"100%",boxSizing:"border-box",background:"#120604",border:"1px solid #5a2010",borderRadius:8,color:"#ffecb0",padding:"8px 10px",fontSize:12,marginBottom:10}}/>
+                  <div style={{fontSize:9,color:"#8f7d68",marginBottom:4}}>Traveler Sigil</div>
+                  <div style={{display:"flex",gap:8}}>
+                    <input type="text" maxLength={24} value={travelerSigilDraft} onChange={e=>setTravelerSigilDraft(e.target.value.toUpperCase())} style={{flex:1,boxSizing:"border-box",background:"#120604",border:"1px solid #5a2010",borderRadius:8,color:"#c8a0ff",padding:"8px 10px",fontSize:12}}/>
+                    <button onClick={()=>setTravelerSigilDraft(makeTravelerSigil())} style={{background:"#221006",border:"1px solid #5a3010",color:"#ddd",borderRadius:8,padding:"0 10px",cursor:"pointer",fontSize:11}}>↻</button>
+                  </div>
+                </div>
+                <div style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
+                  <div style={{fontSize:10,color:"#f0c060",fontWeight:700,marginBottom:8}}>Session Options</div>
+                  <div style={{display:"grid",gap:8}}>
+                    <button onClick={()=>enterWorld()} style={{background:"linear-gradient(180deg,#4a220c,#2a1006)",border:"1px solid #c8a84e",color:"#f0c060",padding:"10px 12px",borderRadius:10,cursor:"pointer",fontSize:12,fontWeight:800}}>{hasExistingSave?"Continue Chronicle":"Enter the World"}</button>
+                    <button onClick={()=>enterWorld("daily")} style={{background:"#1b1408",border:"1px solid #5a3010",color:"#ddd",padding:"10px 12px",borderRadius:10,cursor:"pointer",fontSize:12,fontWeight:700}}>Go straight to Daily Rite</button>
+                    <button onClick={startFreshChronicle} style={{background:"#260909",border:"1px solid #7a2010",color:"#f58",padding:"10px 12px",borderRadius:10,cursor:"pointer",fontSize:12,fontWeight:700}}>Start Fresh Chronicle</button>
+                  </div>
+                </div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12}}>
+                <div style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
+                  <div style={{fontSize:10,color:"#f0c060",fontWeight:700,marginBottom:8}}>Backend Readiness</div>
+                  <div style={{fontSize:11,color:"#ddd",marginBottom:6}}>{backendConnected?"Live async services detected":"Live async services pending setup"}</div>
+                  <div style={{fontSize:9,color:"#8f7d68",lineHeight:1.6}}>Expected shared tables: `daily_scores`, `graves`, `sun_state`, `player_echoes`. Without them, this build still stores echoes locally and keeps the solo runtime playable.</div>
+                </div>
+                <div style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
+                  <div style={{fontSize:10,color:"#f0c060",fontWeight:700,marginBottom:8}}>Recent Echoes</div>
+                  <div style={{display:"grid",gap:7}}>
+                    {echoes.slice(0,4).map(e=><div key={e.id} style={{borderBottom:"1px solid rgba(200,168,78,0.06)",paddingBottom:6}}>
+                      <div style={{fontSize:10,color:"#ddd"}}>{e.headline}</div>
+                      <div style={{fontSize:8,color:"#7f6e5d",marginTop:2}}>{e.player_name} · {e.traveler_sigil||"no-sigil"} · {e.faction||"neutral"}</div>
+                    </div>)}
+                    {echoes.length===0&&<div style={{fontSize:9,color:"#6f6256"}}>No echoes recorded yet. This build will start generating them from deaths and runs.</div>}
+                  </div>
+                </div>
+              </div>
+            </div>}
+            {menuSection==="how"&&<div>
+              <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>HOW TO PLAY</div>
+              <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>First five minutes</div>
+              <div style={{display:"grid",gap:10,marginTop:16}}>
+                {HOW_TO_PLAY_STEPS.map((step,i)=><div key={step} style={{background:"rgba(0,0,0,0.2)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:12,padding:"12px 14px",display:"flex",gap:12}}>
+                  <div style={{color:"#f0c060",fontSize:18,fontWeight:900,minWidth:18}}>{i+1}</div>
+                  <div style={{color:"#c8b9a6",fontSize:12,lineHeight:1.6}}>{step}</div>
+                </div>)}
+              </div>
+            </div>}
+            {menuSection==="knowledge"&&<div>
+              <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>KNOWLEDGE BASE</div>
+              <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>Why the world matters</div>
+              <div style={{display:"grid",gap:12,marginTop:16}}>
+                {KNOWLEDGE_BASE.map(item=><div key={item.title} style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
+                  <div style={{fontSize:13,color:"#f0c060",fontWeight:800,marginBottom:6}}>{item.title}</div>
+                  <div style={{fontSize:11,color:"#b9ab98",lineHeight:1.65}}>{item.body}</div>
+                </div>)}
+              </div>
+            </div>}
+            {menuSection==="features"&&<div>
+              <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>FEATURES</div>
+              <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>Async multiplayer pillars</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12,marginTop:16}}>
+                {FEATURE_PILLARS.map(item=><div key={item.title} style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
+                  <div style={{fontSize:13,color:"#f0c060",fontWeight:800,marginBottom:6}}>{item.title}</div>
+                  <div style={{fontSize:11,color:"#b9ab98",lineHeight:1.65}}>{item.body}</div>
+                </div>)}
+              </div>
+            </div>}
+            {menuSection==="updates"&&<div>
+              <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>UPDATE LOG</div>
+              <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>Recent build history</div>
+              <div style={{display:"grid",gap:12,marginTop:16}}>
+                {UPDATE_LOG_ITEMS.map(item=><div key={item.date+item.title} style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
+                  <div style={{fontSize:10,color:"#8f7d68",marginBottom:4}}>{item.date}</div>
+                  <div style={{fontSize:13,color:"#f0c060",fontWeight:800,marginBottom:8}}>{item.title}</div>
+                  <div style={{display:"grid",gap:6}}>
+                    {item.notes.map(note=><div key={note} style={{fontSize:11,color:"#b9ab98",lineHeight:1.6}}>{note}</div>)}
+                  </div>
+                </div>)}
+              </div>
+            </div>}
+            {menuSection==="settings"&&<div style={{display:"grid",gap:14,maxWidth:560}}>
+              <div>
+                <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>SETTINGS</div>
+                <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>Front-door preferences</div>
+              </div>
+              <label style={{fontSize:12,color:"#ddd",display:"flex",alignItems:"center",gap:8}}>
+                <input type="checkbox" checked={showGuide} onChange={e=>setShowGuide(e.target.checked)}/>
+                Show quickstart overlay when entering the world
+              </label>
+              <label style={{fontSize:12,color:"#ddd",display:"flex",alignItems:"center",gap:8}}>
+                <input type="checkbox" checked={panelOpen} onChange={e=>setPanelOpen(e.target.checked)}/>
+                Open utility panel by default
+              </label>
+              <div style={{fontSize:12,color:"#ddd"}}>UI Scale:
+                {["S","M","L"].map((sz,i)=><button key={sz} onClick={()=>{setUiScale(i===0?0.85:i===1?1:1.15);}} style={{marginLeft:6,background:uiScale===(i===0?0.85:i===1?1:1.15)?"#5a1808":"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:10,padding:"2px 6px",cursor:"pointer",borderRadius:6}}>{sz}</button>)}
+              </div>
+              <div style={{fontSize:10,color:"#8f7d68",lineHeight:1.6}}>In-world settings remain available after you enter. This screen exists so the game finally has a proper front door before runtime begins.</div>
+            </div>}
           </div>
         </div>
       </div>}

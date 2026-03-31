@@ -9,10 +9,10 @@
   "owner": "VaultSpark Studios",
   "localPath": "C:\\Users\\p4cka\\documents\\development\\Solara",
   "github": "https://github.com/VaultSparkStudios/solara",
-  "currentFocus": "Phase 5 launch prep with runtime boot smoke coverage now in place",
-  "nextMilestone": "Ship remaining SIL polish items and move into Season 1 prep",
+  "currentFocus": "Async shared-world front door: main menu, knowledge surfaces, traveler identity, and player echoes",
+  "nextMilestone": "Activate Supabase shared-world tables including player_echoes, then add in-world objective guidance",
   "blockers": [
-    "Supabase project not created yet — Carter must run 4 SQL blocks and add env vars",
+    "Supabase project not created yet — Carter must run the shared-world SQL blocks and add env vars",
     "Itch.io listing — Carter must post manually",
     "Discord bot deployment — Carter must create Discord app + host separately",
     "Twitch extension submission — Carter must submit via Twitch Developer Console"
@@ -21,12 +21,12 @@
   "phasesComplete": "0, 1, 2, 3, 4",
   "innovationItemsShipped": 13,
   "innovationItemsQueued": 7,
-  "buildStatus": "passing — 347.72 KB / 106.22 KB gzip; startup boot regression fixed; npm run smoke passing",
-  "appLines": 2851,
-  "lastUpdated": "2026-03-30",
-  "silScore": 43,
-  "silAvg3": 42.0,
+  "buildStatus": "passing — 369.83 KB / 111.72 KB gzip; async shared-world front door and player echoes shipped; npm run smoke passing",
+  "appLines": 3196,
+  "lastUpdated": "2026-03-31",
+  "silScore": 41,
+  "silAvg3": 42.7,
   "silVelocity": 0,
   "silDebt": "\u2192",
-  "silLastSession": "2026-03-30"
+  "silLastSession": "2026-03-31"
 }
