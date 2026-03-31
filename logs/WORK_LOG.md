@@ -242,3 +242,38 @@ Append chronological entries.
   - Removed: fixed-box viewport behavior on larger screens
   - Preserved: build and smoke checks remain green after the camera/rendering pass
 - Recommended next move: browser-check the feel on desktop and then decide whether to keep the current dead-zone size or tune it further
+
+---
+
+### 2026-03-31 — HUD comfort + objective tracker control pass
+
+- Goal: Add player-facing music controls, improve the top HUD/icon affordances, expand settings, and stop the objective tracker from blocking gameplay
+- What changed:
+  - `src/App.jsx`: expanded the top HUD banner and action buttons, added hover descriptions to the HUD controls and side-panel icons, and exposed separate sound-effects/music toggles with persisted preferences
+  - `src/App.jsx`: expanded in-world settings into a fuller customization/reference surface with runtime UI toggles and shortcuts back to main menu pages
+  - `src/App.jsx`: made the objective tracker hideable and movable between screen corners, with persisted position
+  - `context/*`: refreshed current state, task board, latest handoff, decisions, project status, SIL, work log, and creative direction record for the UI-comfort pass
+- Files or systems touched: `src/App.jsx`, `context/*`, `logs/WORK_LOG.md`, `docs/CREATIVE_DIRECTION_RECORD.md`
+- Risks created or removed:
+  - Removed: fixed-position objective tracker blocking gameplay
+  - Removed: opaque HUD/action cluster with too little affordance for what each control does
+  - Preserved: build and smoke remain green after the expanded UI/settings patch
+- Recommended next move: keep tightening runtime ergonomics, then return to the season chronicle page and echo response loop
+
+---
+
+### 2026-03-31 — Layout manager + named custom layout pass
+
+- Goal: Finish the runtime layout-control system so presets, draggable overlays, and saved custom profiles are actually manageable
+- What changed:
+  - `src/App.jsx`: made the ghost stack draggable/hideable/resettable alongside the objective tracker
+  - `src/App.jsx`: added built-in layout presets (`Guided`, `Minimal`, `Explorer`)
+  - `src/App.jsx`: added three persistent custom layout slots with save/load support and saved overlay positions
+  - `src/App.jsx`: added renamable custom slot labels plus a dedicated layout manager modal
+  - `context/*`: refreshed current state, task board, latest handoff, decisions, project status, SIL, work log, and creative direction record for closeout
+- Files or systems touched: `src/App.jsx`, `context/*`, `logs/WORK_LOG.md`, `docs/CREATIVE_DIRECTION_RECORD.md`
+- Risks created or removed:
+  - Removed: narrow-settings-column bottleneck for layout management
+  - Removed: one-size-fits-all helper overlay presentation
+  - Preserved: build and smoke remain green after the layout-manager pass
+- Recommended next move: return to game-facing product work, starting with the season chronicle page and echo response loop

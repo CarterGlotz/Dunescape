@@ -606,6 +606,90 @@ const HOW_TO_PLAY_STEPS=[
   "Use the Daily tab for the async communal challenge and the Quest tab for local progression.",
   "Deaths, graves, offerings, and the sun are meant to be shared-world systems once Supabase is live.",
 ];
+const DEFAULT_UI_SCALE=1;
+const defaultPanelOpen=()=>typeof window==="undefined"?true:window.innerWidth>=1180;
+const loadPreferences=()=>{
+  const fallback={
+    showGuide:true,
+    panelOpen:defaultPanelOpen(),
+    uiScale:DEFAULT_UI_SCALE,
+    audioOn:false,
+    musicOn:true,
+    showGhostHud:true,
+    ghostPosition:null,
+    showObjectiveTracker:true,
+    objectivePosition:null,
+    tooltipsOn:true,
+    compactHud:false,
+    showMenuReference:true,
+    ambientMotion:true,
+  };
+  try{
+    const raw=JSON.parse(localStorage.getItem("solara_preferences")||"{}");
+    return{
+      ...fallback,
+      ...raw,
+      uiScale:[0.85,1,1.15].includes(raw.uiScale)?raw.uiScale:fallback.uiScale,
+      panelOpen:typeof raw.panelOpen==="boolean"?raw.panelOpen:fallback.panelOpen,
+      ghostPosition:raw.ghostPosition&&Number.isFinite(raw.ghostPosition.x)&&Number.isFinite(raw.ghostPosition.y)?{x:raw.ghostPosition.x,y:raw.ghostPosition.y}:fallback.ghostPosition,
+      objectivePosition:raw.objectivePosition&&Number.isFinite(raw.objectivePosition.x)&&Number.isFinite(raw.objectivePosition.y)?{x:raw.objectivePosition.x,y:raw.objectivePosition.y}:fallback.objectivePosition,
+    };
+  }catch(e){
+    return fallback;
+  }
+};
+const SIDE_PANEL_TABS=[
+  {id:"inv",icon:"🎒",label:"Inventory",desc:"Food, materials, tools, and loot you can use right now."},
+  {id:"skills",icon:"⚔️",label:"Skills",desc:"Your progression, XP bars, and any prestige-ready skills."},
+  {id:"equip",icon:"🛡️",label:"Gear",desc:"Equipped weapon, armour, and empty slots you can fill."},
+  {id:"quest",icon:"📜",label:"Quests",desc:"Main quests, side quests, and your current goals."},
+  {id:"pray",icon:"🙏",label:"Prayers",desc:"Combat prayers, drain rates, and protection options."},
+  {id:"bestiary",icon:"📖",label:"Bestiary",desc:"Monster knowledge, weaknesses, and encounter notes."},
+  {id:"daily",icon:"☀️",label:"Daily Rites",desc:"Shared daily dungeon, roguelite mode, and leaderboards."},
+  {id:"settings",icon:"⚙️",label:"Settings",desc:"Customize interface, audio, presentation, and reference tools."},
+];
+const MENU_REFERENCE_ITEMS=[
+  {id:"play",label:"Play",desc:"Reopen the main play hub and entry options."},
+  {id:"how",label:"How To Play",desc:"Read the first-five-minutes onboarding flow again."},
+  {id:"knowledge",label:"Knowledge Base",desc:"Review the world premise and async shared-sun systems."},
+  {id:"features",label:"Features",desc:"See the current async multiplayer pillars at a glance."},
+  {id:"updates",label:"Update Log",desc:"Review recent build changes and shipped improvements."},
+  {id:"settings",label:"Front-Door Settings",desc:"Open the title-screen preferences page."},
+];
+const LAYOUT_PRESETS=[
+  {
+    id:"guided",
+    label:"Guided",
+    desc:"Keeps coaching surfaces visible for onboarding and active questing.",
+    config:{showGuide:true,showObjectiveTracker:true,showGhostHud:true,tooltipsOn:true,compactHud:false,panelOpen:true,showMenuReference:true,resetObjective:true,resetGhost:true},
+  },
+  {
+    id:"minimal",
+    label:"Minimal",
+    desc:"Clears most helper chrome so the map and combat dominate the screen.",
+    config:{showGuide:false,showObjectiveTracker:false,showGhostHud:false,tooltipsOn:false,compactHud:true,panelOpen:false,showMenuReference:false,resetObjective:true,resetGhost:true},
+  },
+  {
+    id:"explorer",
+    label:"Explorer",
+    desc:"Keeps references and map context while reducing heavier helper cards.",
+    config:{showGuide:false,showObjectiveTracker:true,showGhostHud:false,tooltipsOn:true,compactHud:false,panelOpen:true,showMenuReference:true,resetObjective:false,resetGhost:true},
+  },
+];
+const CUSTOM_LAYOUT_SLOTS=["slot1","slot2","slot3"];
+const loadCustomLayouts=()=>{
+  try{
+    const raw=JSON.parse(localStorage.getItem("solara_custom_layouts")||"{}");
+    return CUSTOM_LAYOUT_SLOTS.reduce((acc,slot)=>{
+      const entry=raw?.[slot];
+      acc[slot]=entry&&typeof entry==="object"?entry:null;
+      return acc;
+    },{});
+  }catch(e){
+    return Object.fromEntries(CUSTOM_LAYOUT_SLOTS.map(slot=>[slot,null]));
+  }
+};
+const getDefaultCustomLayoutLabel=slot=>`Custom ${slot.replace("slot","")}`;
 
 function makeTravelerSigil(){
   const parts=["ASH","SUN","RITE","ECHO","EMBER","VEIL","DUSK","AURIC"];
@@ -825,11 +909,12 @@ function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
 }
 
 export default function DS(){
+  const initialPrefs=loadPreferences();
   const cvR=useRef(null),gR=useRef(null),fR=useRef(null),smithQueueR=useRef(null);
   const viewportHostR=useRef(null);
   const mapCvR=useRef(null),walkR=useRef(null),xpTrackR=useRef({});
   const dirtyR=useRef(false);
-  const audioR=useRef(null),audioOnR=useRef(false);
+  const audioR=useRef(null),audioOnR=useRef(initialPrefs.audioOn);
   const craftQueueR=useRef(null);
   const dailyRunRef=useRef(null); // Phase 1: daily run state {wave,startTime,rooms,done,deathWave,shareCard}
   const rogueRunRef=useRef(null); // Phase 4: roguelite run state {wave,rng,done,deathWave,startTime,mode}
@@ -850,8 +935,8 @@ export default function DS(){
   const [mapOpen,setMapOpen]=useState(false);
   const [menuOpen,setMenuOpen]=useState(true);
   const [menuSection,setMenuSection]=useState("play");
-  const [panelOpen,setPanelOpen]=useState(()=>typeof window==="undefined"?true:window.innerWidth>=1180);
-  const [showGuide,setShowGuide]=useState(()=>{try{return localStorage.getItem("solara_quickstart_dismissed")!=="1";}catch(e){return true;}});
+  const [panelOpen,setPanelOpen]=useState(initialPrefs.panelOpen);
+  const [showGuide,setShowGuide]=useState(initialPrefs.showGuide);
   const [travelerNameDraft,setTravelerNameDraft]=useState(()=>{try{return localStorage.getItem("solara_profile_name")||"Adventurer";}catch(e){return "Adventurer";}});
   const [travelerSigilDraft,setTravelerSigilDraft]=useState(()=>{try{return localStorage.getItem("solara_traveler_sigil")||makeTravelerSigil();}catch(e){return makeTravelerSigil();}});
   const [echoes,setEchoes]=useState([]);
@@ -866,7 +951,21 @@ export default function DS(){
   const [herbOpen,setHerbOpen]=useState(false);
   const herbIdxR=useRef(null);
   const [fletchOpen,setFletchOpen]=useState(false);
-  const [uiScale,setUiScale]=useState(1);
+  const [uiScale,setUiScale]=useState(initialPrefs.uiScale);
+  const [audioEnabled,setAudioEnabled]=useState(initialPrefs.audioOn);
+  const [musicOn,setMusicOn]=useState(initialPrefs.musicOn);
+  const [showGhostHud,setShowGhostHud]=useState(initialPrefs.showGhostHud);
+  const [ghostPosition,setGhostPosition]=useState(initialPrefs.ghostPosition);
+  const [showObjectiveTracker,setShowObjectiveTracker]=useState(initialPrefs.showObjectiveTracker);
+  const [objectivePosition,setObjectivePosition]=useState(initialPrefs.objectivePosition);
+  const [layoutPreset,setLayoutPreset]=useState("guided");
+  const [customLayouts,setCustomLayouts]=useState(()=>loadCustomLayouts());
+  const [customLayoutDrafts,setCustomLayoutDrafts]=useState(()=>Object.fromEntries(CUSTOM_LAYOUT_SLOTS.map(slot=>[slot,loadCustomLayouts()[slot]?.label||getDefaultCustomLayoutLabel(slot)])));
+  const [showLayoutManager,setShowLayoutManager]=useState(false);
+  const [tooltipsOn,setTooltipsOn]=useState(initialPrefs.tooltipsOn);
+  const [compactHud,setCompactHud]=useState(initialPrefs.compactHud);
+  const [showMenuReference,setShowMenuReference]=useState(initialPrefs.showMenuReference);
+  const [ambientMotion,setAmbientMotion]=useState(initialPrefs.ambientMotion);
   const [offlineTaskSel,setOfflineTaskSel]=useState(0);
   const [tooltip,setTooltip]=useState(null);// {text, x, y}
   const chatR=useRef([]);chatR.current=chat;
@@ -877,10 +976,24 @@ export default function DS(){
   // Innovation #13: Ambient audio ref
   const ambientAudioR=useRef({ctx:null,osc:null,gainNode:null,active:false});
   const saveHealthRef=useRef({issues:[]});
+  const objectiveDragRef=useRef(null);
+  const ghostDragRef=useRef(null);
+  const hudHeight=compactHud?42:56;
 
-  const dismissGuide=useCallback(()=>{setShowGuide(false);try{localStorage.setItem("solara_quickstart_dismissed","1");}catch(e){}},[]);
+  const dismissGuide=useCallback(()=>setShowGuide(false),[]);
 
   const addC=useCallback(m=>{const c=[...chatR.current.slice(-100),m];setChat(c);},[]);
+  const showUiTooltip=useCallback((event,name,examine,stats)=>{
+    if(!tooltipsOn)return;
+    setTooltip({
+      x:event.clientX,
+      y:event.clientY,
+      name,
+      examine,
+      stats,
+    });
+  },[tooltipsOn]);
+  const clearUiTooltip=useCallback(()=>setTooltip(null),[]);
   const persistIdentity=useCallback((name,sigil)=>{
     const cleanName=(name||"Adventurer").trim().slice(0,16)||"Adventurer";
     const cleanSigil=(sigil||makeTravelerSigil()).trim().slice(0,24)||makeTravelerSigil();
@@ -921,24 +1034,47 @@ export default function DS(){
     cv.style.filter=`saturate(${saturation}) sepia(${sepia})`;
   },[sunBrightness]);
 
-  // Innovation #13: Ambient audio — phase-adaptive, tied to sunBrightness
+  // Innovation #13: Ambient music — phase-adaptive, tied to sunBrightness
   useEffect(()=>{
     const amb=ambientAudioR.current;
-    if(!audioOnR.current)return;
+    if(!audioEnabled||!musicOn){
+      try{
+        if(amb.gainNode&&amb.ctx){
+          amb.gainNode.gain.setTargetAtTime(0.0001,amb.ctx.currentTime,0.35);
+        }
+      }catch(e){}
+      return;
+    }
     try{
       if(!amb.ctx){amb.ctx=new (window.AudioContext||window.webkitAudioContext)();}
       const ctx=amb.ctx;
       if(ctx.state==='suspended')ctx.resume();
-      const freq=sunBrightness>80?220:sunBrightness>60?196:sunBrightness>40?174:sunBrightness>20?155:130;
-      const vol=sunBrightness>80?0.04:sunBrightness>60?0.05:sunBrightness>40?0.06:sunBrightness>20?0.07:0.08;
+      const root=sunBrightness>80?220:sunBrightness>60?196:sunBrightness>40?174:sunBrightness>20?155:130;
+      const harmony=root*(sunBrightness>45?1.5:1.333);
+      const vol=(sunBrightness>80?0.03:sunBrightness>60?0.04:sunBrightness>40?0.05:sunBrightness>20?0.06:0.07)*(ambientMotion?1:0.72);
       if(!amb.osc){
-        amb.osc=ctx.createOscillator();amb.gainNode=ctx.createGain();
-        const filter=ctx.createBiquadFilter();filter.type='lowpass';filter.frequency.value=400;
-        amb.osc.type='sine';amb.osc.frequency.value=freq;amb.gainNode.gain.value=0.001;
-        amb.osc.connect(filter);filter.connect(amb.gainNode);amb.gainNode.connect(ctx.destination);
-        amb.osc.start();amb.active=true;
+        amb.osc=ctx.createOscillator();
+        amb.harmonyOsc=ctx.createOscillator();
+        amb.gainNode=ctx.createGain();
+        amb.filter=ctx.createBiquadFilter();
+        amb.filter.type='lowpass';
+        amb.osc.type='triangle';
+        amb.harmonyOsc.type='sine';
+        amb.osc.frequency.value=root;
+        amb.harmonyOsc.frequency.value=harmony;
+        amb.filter.frequency.value=sunBrightness>50?420:300;
+        amb.gainNode.gain.value=0.0001;
+        amb.osc.connect(amb.filter);
+        amb.harmonyOsc.connect(amb.filter);
+        amb.filter.connect(amb.gainNode);
+        amb.gainNode.connect(ctx.destination);
+        amb.osc.start();
+        amb.harmonyOsc.start();
+        amb.active=true;
       }
-      amb.osc.frequency.setTargetAtTime(freq,ctx.currentTime,2.0);
+      amb.osc.frequency.setTargetAtTime(root,ctx.currentTime,2.0);
+      amb.harmonyOsc.frequency.setTargetAtTime(harmony,ctx.currentTime,2.6);
+      amb.filter.frequency.setTargetAtTime(sunBrightness>50?420:sunBrightness>25?320:240,ctx.currentTime,2.0);
       amb.gainNode.gain.setTargetAtTime(vol,ctx.currentTime,2.0);
     }catch(e){}
     return()=>{
@@ -947,7 +1083,7 @@ export default function DS(){
         if(amb2.gainNode&&amb2.active)amb2.gainNode.gain.setTargetAtTime(0.001,amb2.ctx?.currentTime||0,0.5);
       }catch(e){}
     };
-  },[sunBrightness]);
+  },[ambientMotion,audioEnabled,musicOn,sunBrightness]);
 
   const getPlayerFaction=useCallback((p)=>{if(!p?.rep)return'neutral';const {guard=0,merchant=0,bandit=0}=p.rep;const max=Math.max(guard,merchant,bandit);if(max<=0)return'neutral';if(guard===max)return'guard';if(merchant===max)return'merchant';return'bandit';},[]);
   const fetchEchoes=useCallback(async()=>{
@@ -2454,9 +2590,88 @@ export default function DS(){
     }
   },[p,travelerNameDraft,travelerSigilDraft]);
 
+  useEffect(()=>{
+    const onMove=e=>{
+      if(objectiveDragRef.current){
+        const width=340;
+        const height=126;
+        const nextX=clamp(e.clientX-objectiveDragRef.current.offsetX,12,Math.max(12,window.innerWidth-width-12));
+        const nextY=clamp(e.clientY-objectiveDragRef.current.offsetY,hudHeight+12,Math.max(hudHeight+12,window.innerHeight-height-104));
+        setObjectivePosition({x:nextX,y:nextY});
+      }
+      if(ghostDragRef.current){
+        const width=220;
+        const height=Math.min(240,Math.max(90,recentEchoGhosts.length*82));
+        const nextX=clamp(e.clientX-ghostDragRef.current.offsetX,12,Math.max(12,window.innerWidth-width-12));
+        const nextY=clamp(e.clientY-ghostDragRef.current.offsetY,hudHeight+12,Math.max(hudHeight+12,window.innerHeight-height-104));
+        setGhostPosition({x:nextX,y:nextY});
+      }
+    };
+    const stopDrag=()=>{objectiveDragRef.current=null;ghostDragRef.current=null;};
+    window.addEventListener("pointermove",onMove);
+    window.addEventListener("pointerup",stopDrag);
+    return()=>{
+      window.removeEventListener("pointermove",onMove);
+      window.removeEventListener("pointerup",stopDrag);
+    };
+  },[hudHeight,recentEchoGhosts.length]);
+
+  useEffect(()=>{
+    const match=LAYOUT_PRESETS.find(preset=>{
+      const cfg=preset.config;
+      return cfg.showGuide===showGuide
+        && cfg.showObjectiveTracker===showObjectiveTracker
+        && cfg.showGhostHud===showGhostHud
+        && cfg.tooltipsOn===tooltipsOn
+        && cfg.compactHud===compactHud
+        && cfg.panelOpen===panelOpen
+        && cfg.showMenuReference===showMenuReference;
+    });
+    if(match){setLayoutPreset(match.id);return;}
+    const customMatch=Object.entries(customLayouts).find(([,entry])=>{
+      const cfg=entry?.config;
+      if(!cfg)return false;
+      return cfg.showGuide===showGuide
+        && cfg.showObjectiveTracker===showObjectiveTracker
+        && cfg.showGhostHud===showGhostHud
+        && cfg.tooltipsOn===tooltipsOn
+        && cfg.compactHud===compactHud
+        && cfg.panelOpen===panelOpen
+        && cfg.showMenuReference===showMenuReference
+        && JSON.stringify(cfg.objectivePosition||null)===JSON.stringify(objectivePosition||null)
+        && JSON.stringify(cfg.ghostPosition||null)===JSON.stringify(ghostPosition||null);
+    });
+    setLayoutPreset(customMatch?customMatch[0]:"custom");
+  },[compactHud,customLayouts,ghostPosition,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,tooltipsOn]);
+
+  useEffect(()=>{
+    audioOnR.current=audioEnabled;
+    if(audioEnabled)initAudio();
+    try{
+      localStorage.setItem("solara_preferences",JSON.stringify({
+        showGuide,
+        panelOpen,
+        uiScale,
+        audioOn:audioEnabled,
+        musicOn,
+        showGhostHud,
+        ghostPosition,
+        showObjectiveTracker,
+        objectivePosition,
+        tooltipsOn,
+        compactHud,
+        showMenuReference,
+        ambientMotion,
+      }));
+    }catch(e){}
+  },[ambientMotion,audioEnabled,compactHud,ghostPosition,musicOn,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,tooltipsOn,uiScale]);
+
   function initAudio(){
     if(audioR.current)return;
-    try{const ctx=new(window.AudioContext||window.webkitAudioContext)();const osc=ctx.createOscillator();const gain=ctx.createGain();osc.type="sine";osc.frequency.value=55;gain.gain.value=0.04;osc.connect(gain);gain.connect(ctx.destination);osc.start();audioR.current={ctx,drone:{osc,gain}};}catch(e){}
+    try{
+      const ctx=new(window.AudioContext||window.webkitAudioContext)();
+      audioR.current={ctx};
+    }catch(e){}
   }
   function eat(idx){if(!p)return;const s=p.inv[idx];if(!s)return;const d=ITEMS[s.i];
     if(d.buff){
@@ -2606,36 +2821,142 @@ export default function DS(){
 
   const guideStepLabel=!p?"Booting world...":dailyRunRef.current&&!dailyRunRef.current.done?"Daily Rite active: head to the dungeon entrance and clear the next wave.":rogueRunRef.current&&!rogueRunRef.current.done?"Roguelite active: reach the dungeon entrance and push as far as you can.":isFreshAdventurer?"Suggested start: equip your sword in the gear tab, then talk to Mara or start the Daily Rite.":"Suggested start: open the Daily tab for guided runs, or talk to NPCs in town for quests.";
   const sidePanelWidth=panelOpen?210:0;
+  const defaultObjectivePosition=typeof window==="undefined"?{x:12,y:96}:{x:window.innerWidth>900?window.innerWidth-372:12,y:window.innerHeight>760?window.innerHeight-176:96};
+  const objectiveStyle=objectivePosition?{left:objectivePosition.x,top:objectivePosition.y}:{left:defaultObjectivePosition.x,top:defaultObjectivePosition.y};
+  const resetObjectivePosition=()=>setObjectivePosition(null);
+  const defaultGhostPosition=typeof window==="undefined"?{x:12,y:96}:{x:window.innerWidth>900?window.innerWidth-244:12,y:Math.max(hudHeight+18,96)};
+  const ghostStyle=ghostPosition?{left:ghostPosition.x,top:ghostPosition.y}:{left:defaultGhostPosition.x,top:defaultGhostPosition.y};
+  const resetGhostPosition=()=>setGhostPosition(null);
+  const captureLayoutConfig=useCallback(()=>({
+    showGuide,
+    showObjectiveTracker,
+    showGhostHud,
+    tooltipsOn,
+    compactHud,
+    panelOpen,
+    showMenuReference,
+    objectivePosition,
+    ghostPosition,
+  }),[compactHud,ghostPosition,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,tooltipsOn]);
+  const applyLayoutConfig=useCallback((config,label="custom")=>{
+    if(!config)return;
+    setLayoutPreset(label);
+    setShowGuide(!!config.showGuide);
+    setShowObjectiveTracker(!!config.showObjectiveTracker);
+    setShowGhostHud(!!config.showGhostHud);
+    setTooltipsOn(!!config.tooltipsOn);
+    setCompactHud(!!config.compactHud);
+    setPanelOpen(!!config.panelOpen);
+    setShowMenuReference(!!config.showMenuReference);
+    setObjectivePosition(config.objectivePosition&&Number.isFinite(config.objectivePosition.x)&&Number.isFinite(config.objectivePosition.y)?config.objectivePosition:null);
+    setGhostPosition(config.ghostPosition&&Number.isFinite(config.ghostPosition.x)&&Number.isFinite(config.ghostPosition.y)?config.ghostPosition:null);
+  },[]);
+  const saveCustomLayout=useCallback((slot)=>{
+    const label=(customLayoutDrafts[slot]||getDefaultCustomLayoutLabel(slot)).trim().slice(0,24)||getDefaultCustomLayoutLabel(slot);
+    const next={
+      ...customLayouts,
+      [slot]:{
+        id:slot,
+        label,
+        savedAt:new Date().toISOString(),
+        config:captureLayoutConfig(),
+      },
+    };
+    setCustomLayouts(next);
+    setCustomLayoutDrafts(prev=>({...prev,[slot]:label}));
+    try{localStorage.setItem("solara_custom_layouts",JSON.stringify(next));}catch(e){}
+    setLayoutPreset(slot);
+  },[captureLayoutConfig,customLayoutDrafts,customLayouts]);
+  const loadCustomLayout=useCallback((slot)=>{
+    const entry=customLayouts[slot];
+    if(entry?.config)applyLayoutConfig(entry.config,slot);
+  },[applyLayoutConfig,customLayouts]);
+  const renameCustomLayout=useCallback((slot,label)=>{
+    const clean=(label||"").trim().slice(0,24)||getDefaultCustomLayoutLabel(slot);
+    setCustomLayoutDrafts(prev=>({...prev,[slot]:clean}));
+    if(!customLayouts[slot])return;
+    const next={
+      ...customLayouts,
+      [slot]:{
+        ...customLayouts[slot],
+        label:clean,
+      },
+    };
+    setCustomLayouts(next);
+    try{localStorage.setItem("solara_custom_layouts",JSON.stringify(next));}catch(e){}
+  },[customLayouts]);
+  const applyLayoutPreset=useCallback((presetId)=>{
+    const preset=LAYOUT_PRESETS.find(item=>item.id===presetId);
+    if(!preset)return;
+    const cfg=preset.config;
+    applyLayoutConfig(cfg,presetId);
+    if(cfg.resetObjective)setObjectivePosition(null);
+    if(cfg.resetGhost)setGhostPosition(null);
+  },[applyLayoutConfig]);
+  const startObjectiveDrag=e=>{
+    if(e.target.closest("button"))return;
+    const base=objectivePosition||defaultObjectivePosition;
+    objectiveDragRef.current={offsetX:e.clientX-base.x,offsetY:e.clientY-base.y};
+    e.preventDefault();
+  };
+  const startGhostDrag=e=>{
+    if(e.target.closest("button"))return;
+    const base=ghostPosition||defaultGhostPosition;
+    ghostDragRef.current={offsetX:e.clientX-base.x,offsetY:e.clientY-base.y};
+    e.preventDefault();
+  };
+  const hudButtonStyle={
+    background:"rgba(20,10,8,0.95)",
+    border:"1px solid #6a3012",
+    color:"#f0c060",
+    fontSize:compactHud?10:12,
+    minWidth:compactHud?28:34,
+    padding:compactHud?"4px 6px":"6px 8px",
+    cursor:"pointer",
+    borderRadius:6,
+    fontWeight:700,
+    lineHeight:1,
+  };
+  const styleModes=[
+    {id:0,label:"Acc",desc:"Accurate style. Lean into hit chance and steadier melee contact."},
+    {id:1,label:"Agg",desc:"Aggressive style. Pushes harder for damage momentum."},
+    {id:2,label:"Def",desc:"Defensive style. Trade some pace for sturdier progression."},
+  ];
 
   return (
     <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none",zoom:uiScale}}>
       <style>{`@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}@keyframes sunPulse{0%,100%{opacity:1;text-shadow:0 0 4px currentColor}50%{opacity:0.55;text-shadow:none}}`}</style>
       {/* HUD */}
-      <div style={{height:36,background:"linear-gradient(180deg,#280e06,#1c0804)",borderBottom:"2px solid #7a2010",display:"flex",alignItems:"center",padding:"0 10px",gap:10,flexShrink:0,overflow:"hidden"}}>
-        <span style={{color:"#d4a030",fontWeight:900,fontSize:15,letterSpacing:3,fontFamily:"'Courier New',monospace",textShadow:"1px 1px 0 #7a2808,2px 2px 0 #2a0804",textTransform:"uppercase"}}>Solara: Sunfall</span>
+      <div style={{minHeight:hudHeight,background:"linear-gradient(180deg,#341209,#1c0804)",borderBottom:"2px solid #7a2010",display:"flex",alignItems:"center",padding:compactHud?"4px 10px":"6px 12px",gap:12,flexShrink:0,overflow:"hidden"}}>
+        <div style={{display:"flex",flexDirection:"column",minWidth:compactHud?160:220}}>
+          <span style={{color:"#d4a030",fontWeight:900,fontSize:compactHud?17:20,letterSpacing:compactHud?2:3,fontFamily:"'Courier New',monospace",textShadow:"1px 1px 0 #7a2808,2px 2px 0 #2a0804",textTransform:"uppercase",lineHeight:1}}>Solara: Sunfall</span>
+          {!compactHud&&<span style={{color:"#8f765c",fontSize:9,letterSpacing:1.2,textTransform:"uppercase"}}>Shared-sun roguelite chronicle</span>}
+        </div>
         {p&&<>
-          <span style={{color:"#0c0",fontSize:11}}>❤️{p.hp}/{p.mhp}</span>
-          <span style={{color:"#4af",fontSize:11}}>🙏{p.prayer}/{p.maxPrayer}</span>
-          <span style={{color:p.run?"#0f0":"#888",fontSize:11,cursor:"pointer"}} onClick={()=>{if(p)p.run=!p.run;fr(n=>n+1);}}>{p.run?"🏃":"🚶"}{Math.floor(p.runE)}%</span>
-          <span style={{color:"#da4",fontSize:11}}>⚔️{cLvl}</span>
-          <span style={{color:"#888",fontSize:10}}>Total:{totalLvl}</span>
-          {p.ironman&&<span style={{color:"#888",fontSize:10}}>🔒</span>}
-          {gR.current?.isNight?<span style={{fontSize:10}}>🌙</span>:<span style={{fontSize:10}}>☀️</span>}
-          {supabase&&<span style={{fontSize:9,color:sunBrightness>60?"#f0c040":sunBrightness>30?"#c08020":"#802010",fontWeight:700,animation:`sunPulse ${sunBrightness>80?'4s':sunBrightness>60?'3s':sunBrightness>40?'2s':sunBrightness>20?'1.2s':'0.7s'} ease-in-out infinite`}} title={`Global sun: ${sunBrightness.toFixed(1)}% · ${totalDeaths.toLocaleString()} deaths`}>☀{Math.round(sunBrightness)}%</span>}
-          {deathMilestone&&<span style={{fontSize:8,color:"#f84",fontWeight:700,animation:"pulse 1s ease-in-out infinite",textShadow:"0 0 6px #f40"}}>☀ {deathMilestone.toLocaleString()} lives claimed</span>}
-          {p.slayerTask&&<span style={{color:"#8a2020",fontSize:9}}>🗡️{p.slayerTask.monster} {p.slayerTask.remaining}/{p.slayerTask.count}</span>}
-          <div style={{marginLeft:"auto",display:"flex",gap:4,alignItems:"center"}}>
-            <button onClick={()=>setMenuOpen(true)} style={{background:"#1a1208",border:"1px solid #5a3010",color:"#f0c060",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>⌂</button>
-            <button onClick={()=>setShowGuide(v=>!v)} style={{background:showGuide?"#3a2208":"#1a1208",border:"1px solid #7a5020",color:"#f0c060",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>?</button>
-            <button onClick={()=>setPanelOpen(v=>!v)} style={{background:panelOpen?"#2a1408":"#120804",border:"1px solid #6a2010",color:panelOpen?"#c8a84e":"#777",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}} title="Toggle utility panel (Tab)">☰</button>
-            <button onClick={()=>{if(p){p.autoRetaliate=!p.autoRetaliate;fr(n=>n+1);}}} style={{background:p.autoRetaliate?"#1a1808":"transparent",border:"1px solid #6a2010",color:p.autoRetaliate?"#ff0":"#555",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{p.autoRetaliate?"⚔️AR":"🚫AR"}</button>
-            {["Accurate","Aggressive","Defensive"].map((s,i)=><button key={i} onClick={()=>{if(p)p.style=i;fr(n=>n+1);}}
-              style={{background:p.style===i?"#5a1808":"transparent",border:"1px solid #6a2010",color:p.style===i?"#ff0":"#555",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{s}</button>)}
-            <button onClick={saveGame} style={{background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>💾</button>
-            <button onClick={exportSaveFile} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📤</button>
-            <label style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📥<input type="file" accept=".json" style={{display:"none"}} onChange={e=>importSaveFile(e.target.files[0])}/></label>
-            <button onClick={()=>{audioOnR.current=!audioOnR.current;if(audioOnR.current)initAudio();fr(n=>n+1);}} style={{background:"#0a1a0a",border:"1px solid #2a4a2a",color:"#4af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3}}>{audioOnR.current?"🔊":"🔇"}</button>
-            <button onClick={()=>setMapOpen(v=>!v)} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>🗺️</button>
+          <div style={{display:"flex",alignItems:"center",gap:compactHud?6:8,flexWrap:"wrap"}}>
+            <span style={{color:"#0c0",fontSize:compactHud?11:13}} title="Current health and max health">❤️{p.hp}/{p.mhp}</span>
+            <span style={{color:"#4af",fontSize:compactHud?11:13}} title="Prayer points and max prayer">🙏{p.prayer}/{p.maxPrayer}</span>
+            <button onClick={()=>{if(p)p.run=!p.run;fr(n=>n+1);}} style={{...hudButtonStyle,color:p.run?"#8cff88":"#aaa"}} title="Toggle run mode for faster movement at the cost of run energy" onMouseEnter={e=>showUiTooltip(e,"Run Mode","Sprint across the world faster while draining run energy.","Current: "+(p.run?"Enabled":"Disabled"))} onMouseLeave={clearUiTooltip}>{p.run?"🏃":"🚶"} {Math.floor(p.runE)}%</button>
+            <span style={{color:"#da4",fontSize:compactHud?11:13}} title="Combat level">⚔️{cLvl}</span>
+            <span style={{color:"#888",fontSize:compactHud?10:11}} title="Total combined skill level">Total {totalLvl}</span>
+            {p.ironman&&<span style={{color:"#888",fontSize:compactHud?10:11}} title="Ironman mode is enabled">🔒</span>}
+            {gR.current?.isNight?<span style={{fontSize:compactHud?11:13}} title="Night cycle active">🌙</span>:<span style={{fontSize:compactHud?11:13}} title="Day cycle active">☀️</span>}
+            {supabase&&<span style={{fontSize:compactHud?10:11,color:sunBrightness>60?"#f0c040":sunBrightness>30?"#c08020":"#802010",fontWeight:700,animation:`sunPulse ${sunBrightness>80?'4s':sunBrightness>60?'3s':sunBrightness>40?'2s':sunBrightness>20?'1.2s':'0.7s'} ease-in-out infinite`}} title={`Global sun: ${sunBrightness.toFixed(1)}% · ${totalDeaths.toLocaleString()} deaths`}>☀{Math.round(sunBrightness)}%</span>}
+            {deathMilestone&&<span style={{fontSize:8,color:"#f84",fontWeight:700,animation:"pulse 1s ease-in-out infinite",textShadow:"0 0 6px #f40"}}>☀ {deathMilestone.toLocaleString()} lives claimed</span>}
+            {p.slayerTask&&<span style={{color:"#8a2020",fontSize:9}} title="Current Slayer assignment">🗡️{p.slayerTask.monster} {p.slayerTask.remaining}/{p.slayerTask.count}</span>}
+          </div>
+          <div style={{marginLeft:"auto",display:"flex",gap:compactHud?4:6,alignItems:"center",flexWrap:"wrap",justifyContent:"flex-end"}}>
+            <button onClick={()=>setMenuOpen(true)} style={hudButtonStyle} title="Open the main menu and reference pages" onMouseEnter={e=>showUiTooltip(e,"Main Menu","Jump back to Play, How To Play, Knowledge Base, Features, Update Log, and front-door settings.","No progress is lost.")} onMouseLeave={clearUiTooltip}>⌂</button>
+            <button onClick={()=>setShowGuide(v=>!v)} style={{...hudButtonStyle,background:showGuide?"#3a2208":"rgba(20,10,8,0.95)"}} title="Show or hide the quickstart guidance overlay" onMouseEnter={e=>showUiTooltip(e,"Quickstart Overlay","Toggles the starter coaching card while you play.","Current: "+(showGuide?"Visible":"Hidden"))} onMouseLeave={clearUiTooltip}>?</button>
+            <button onClick={()=>setPanelOpen(v=>!v)} style={{...hudButtonStyle,color:panelOpen?"#f0c060":"#8a755d"}} title="Toggle utility panel (Tab)" onMouseEnter={e=>showUiTooltip(e,"Utility Panel","Collapse or reopen the right-side interface tabs.","Shortcut: Tab")} onMouseLeave={clearUiTooltip}>☰</button>
+            <button onClick={()=>{if(p){p.autoRetaliate=!p.autoRetaliate;fr(n=>n+1);}}} style={{...hudButtonStyle,color:p.autoRetaliate?"#ffde7a":"#9a8b74"}} title="Toggle auto-retaliate" onMouseEnter={e=>showUiTooltip(e,"Auto-Retaliate","Automatically counterattack monsters that hit you.","Current: "+(p.autoRetaliate?"Enabled":"Disabled"))} onMouseLeave={clearUiTooltip}>{p.autoRetaliate?"⚔️AR":"🚫AR"}</button>
+            {styleModes.map(mode=><button key={mode.id} onClick={()=>{if(p)p.style=mode.id;fr(n=>n+1);}} style={{...hudButtonStyle,background:p.style===mode.id?"#5a1808":"rgba(20,10,8,0.95)",color:p.style===mode.id?"#ffef9d":"#c4a17b"}} title={mode.desc} onMouseEnter={e=>showUiTooltip(e,mode.label==="Acc"?"Accurate":mode.label==="Agg"?"Aggressive":"Defensive",mode.desc,"Combat style selector")} onMouseLeave={clearUiTooltip}>{mode.label}</button>)}
+            <button onClick={saveGame} style={{...hudButtonStyle,background:"#1a3010",border:"1px solid #3a6020",color:"#74df74"}} title="Save your current chronicle immediately" onMouseEnter={e=>showUiTooltip(e,"Save Chronicle","Writes the current run, inventory, quests, and settings to local storage.","Safe manual checkpoint")} onMouseLeave={clearUiTooltip}>💾</button>
+            <button onClick={exportSaveFile} style={{...hudButtonStyle,background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#8ac7ff"}} title="Export your save to a JSON file" onMouseEnter={e=>showUiTooltip(e,"Export Save","Download a portable save backup you can keep outside the browser.","JSON export")} onMouseLeave={clearUiTooltip}>📤</button>
+            <label style={{...hudButtonStyle,background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#8ac7ff"}} title="Import a previously exported save file" onMouseEnter={e=>showUiTooltip(e,"Import Save","Load a JSON save backup into the current browser profile.","Repaired automatically when possible")} onMouseLeave={clearUiTooltip}>📥<input type="file" accept=".json" style={{display:"none"}} onChange={e=>importSaveFile(e.target.files[0])}/></label>
+            <button onClick={()=>setAudioEnabled(v=>!v)} style={{...hudButtonStyle,background:"#0a1a0a",border:"1px solid #2a4a2a",color:audioEnabled?"#7ae0ff":"#7b8b93"}} title="Toggle sound effects" onMouseEnter={e=>showUiTooltip(e,"Sound Effects","Turns hit sounds, XP stings, and other feedback on or off.","Current: "+(audioEnabled?"Enabled":"Muted"))} onMouseLeave={clearUiTooltip}>{audioEnabled?"🔊":"🔇"}</button>
+            <button onClick={()=>setMusicOn(v=>!v)} style={{...hudButtonStyle,background:"#10162a",border:"1px solid #304a7a",color:musicOn?"#a8beff":"#7b8297"}} title="Toggle ambient music" onMouseEnter={e=>showUiTooltip(e,"Ambient Music","Controls the evolving soundtrack tied to the sun phase.","Current: "+(musicOn?"Enabled":"Muted"))} onMouseLeave={clearUiTooltip}>{musicOn?"🎼":"🎵"}</button>
+            <button onClick={()=>setMapOpen(v=>!v)} style={{...hudButtonStyle,background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#8ac7ff"}} title="Open the world map and grave markers" onMouseEnter={e=>showUiTooltip(e,"World Map","Inspect regions, graves, shrines, and your current position.","Click graves for epitaphs")} onMouseLeave={clearUiTooltip}>🗺️</button>
           </div>
         </>}
       </div>
@@ -2668,10 +2989,14 @@ export default function DS(){
             <span style={{fontSize:8,color:"#f0c060",fontWeight:700}}>Next:</span>
             <span style={{fontSize:8,color:"#c0b3a0"}}>{guideStepLabel}</span>
           </div>}
-          {p&&objectiveState&&<div style={{position:"absolute",bottom:14,left:12,maxWidth:340,background:"rgba(10,4,3,0.9)",border:`1px solid ${objectiveState.accent}55`,borderRadius:12,padding:"10px 12px",boxShadow:"0 10px 26px rgba(0,0,0,0.35)",zIndex:16}}>
+          {p&&objectiveState&&showObjectiveTracker&&<div onPointerDown={startObjectiveDrag} style={{position:"absolute",width:340,maxWidth:340,background:"rgba(10,4,3,0.9)",border:`1px solid ${objectiveState.accent}55`,borderRadius:12,padding:"10px 12px",boxShadow:"0 10px 26px rgba(0,0,0,0.35)",zIndex:16,cursor:"grab",touchAction:"none",...objectiveStyle}}>
             <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:4}}>
               <div style={{fontSize:9,color:objectiveState.accent,fontWeight:800,letterSpacing:1}}>OBJECTIVE TRACKER</div>
-              <div style={{fontSize:8,color:"#8f7d68"}}>{objectiveState.dir} · {objectiveState.distance} tiles</div>
+              <div style={{display:"flex",alignItems:"center",gap:6}}>
+                <div style={{fontSize:8,color:"#8f7d68"}}>{objectiveState.dir} · {objectiveState.distance} tiles</div>
+                <button onClick={resetObjectivePosition} style={{background:"transparent",border:"1px solid rgba(200,168,78,0.16)",color:"#a89276",fontSize:8,padding:"2px 5px",cursor:"pointer",borderRadius:999}} title="Reset tracker position">⟲</button>
+                <button onClick={()=>setShowObjectiveTracker(false)} style={{background:"transparent",border:"1px solid rgba(200,168,78,0.16)",color:"#a89276",fontSize:8,padding:"2px 5px",cursor:"pointer",borderRadius:999}} title="Hide objective tracker">✕</button>
+              </div>
             </div>
             <div style={{fontSize:11,color:"#ddd",fontWeight:700,marginBottom:3}}>{objectiveState.title}</div>
             <div style={{fontSize:8,color:"#b8a994",lineHeight:1.5,marginBottom:8}}>{objectiveState.detail}</div>
@@ -2679,9 +3004,10 @@ export default function DS(){
               <button onClick={()=>{setTab(objectiveState.tab);setPanelOpen(true);}} style={{background:"#1c120a",border:`1px solid ${objectiveState.accent}66`,color:objectiveState.accent,fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:700}}>Open {objectiveState.tab}</button>
               <button onClick={()=>setMapOpen(true)} style={{background:"#120d18",border:"1px solid #5a4a7a",color:"#c8a0ff",fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:600}}>Open Map</button>
             </div>
+            <div style={{fontSize:7,color:"#7d6b5b",marginTop:7}}>Drag this card anywhere. Reset returns it to the default corner.</div>
             {saveHealthRef.current.issues.length>0&&<div style={{fontSize:7,color:"#c68856",lineHeight:1.45,marginTop:7}}>Save safety: {saveHealthRef.current.issues.join(" ")}</div>}
           </div>}
-          {p&&recentEchoGhosts.length>0&&<div style={{position:"absolute",top:12,right:12,width:220,display:"grid",gap:6,zIndex:16}}>
+          {p&&showGhostHud&&recentEchoGhosts.length>0&&<div onPointerDown={startGhostDrag} style={{position:"absolute",width:220,display:"grid",gap:6,zIndex:16,cursor:"grab",touchAction:"none",...ghostStyle}}>
             {recentEchoGhosts.map(ghost=><div key={ghost.id} style={{background:"rgba(18,10,22,0.82)",border:"1px solid rgba(200,160,255,0.18)",borderRadius:10,padding:"8px 10px",boxShadow:"0 8px 22px rgba(0,0,0,0.28)"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
                 <div style={{fontSize:8,color:"#c8a0ff",fontWeight:800,letterSpacing:1}}>GHOST MANIFESTATION</div>
@@ -2690,6 +3016,11 @@ export default function DS(){
               <div style={{fontSize:9,color:"#ddd",marginTop:3,lineHeight:1.45}}>{ghost.headline}</div>
               <div style={{fontSize:7,color:"#8f82a3",marginTop:4}}>{ghost.player} · {ghost.kind}</div>
             </div>)}
+            <div style={{display:"flex",justifyContent:"flex-end",gap:6}}>
+              <button onClick={resetGhostPosition} style={{background:"transparent",border:"1px solid rgba(200,168,78,0.16)",color:"#a89276",fontSize:8,padding:"2px 5px",cursor:"pointer",borderRadius:999}} title="Reset ghost card position">⟲</button>
+              <button onClick={()=>setShowGhostHud(false)} style={{background:"transparent",border:"1px solid rgba(200,168,78,0.16)",color:"#a89276",fontSize:8,padding:"2px 5px",cursor:"pointer",borderRadius:999}} title="Hide ghost cards">✕</button>
+            </div>
+            <div style={{fontSize:7,color:"#7d6b8d",textAlign:"right"}}>Drag this stack anywhere.</div>
           </div>}
           {/* Mobile D-pad (Task 13) */}
           {typeof window!=="undefined"&&/Mobi|Android/i.test(navigator.userAgent)&&p&&<div style={{position:"absolute",bottom:10,left:10,display:"grid",gridTemplateColumns:"repeat(3,40px)",gridTemplateRows:"repeat(3,40px)",gap:2,userSelect:"none"}}>
@@ -2705,9 +3036,9 @@ export default function DS(){
         {/* Side panel */}
         <div style={{width:sidePanelWidth,background:"linear-gradient(180deg,#1e0a06,#180804)",borderLeft:panelOpen?"2px solid #5a1808":"none",display:"flex",flexDirection:"column",flexShrink:0,transition:"width 0.2s ease",overflow:"hidden"}}>
           <div style={{display:"flex",borderBottom:"1px solid #5a1808"}}>
-            {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"],["bestiary","📖"],["daily","☀️"],["settings","⚙️"]].map(([t,ic])=>{
-              const pulse=t==="daily"&&!playedDailyToday&&(!dailyRunRef.current||dailyRunRef.current.done);
-              return <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"4px 0",background:tab===t?"#280e06":pulse?"rgba(120,72,12,0.32)":"transparent",border:"none",color:tab===t?"#c8a84e":pulse?"#f0c060":"#5a2010",cursor:"pointer",fontSize:10,borderBottom:tab===t?"2px solid #c8a84e":"2px solid transparent",boxShadow:pulse?"inset 0 0 10px rgba(240,192,96,0.25)":"none",animation:pulse?"pulse 1.5s ease-in-out infinite":"none"}}>{ic}</button>;
+            {SIDE_PANEL_TABS.map(item=>{
+              const pulse=item.id==="daily"&&!playedDailyToday&&(!dailyRunRef.current||dailyRunRef.current.done);
+              return <button key={item.id} onClick={()=>setTab(item.id)} title={`${item.label} — ${item.desc}`} onMouseEnter={e=>showUiTooltip(e,item.label,item.desc,item.id==="daily"?"Includes Daily Rite, roguelite, and leaderboards.":"Panel tab")} onMouseLeave={clearUiTooltip} style={{flex:1,padding:"7px 0",background:tab===item.id?"#280e06":pulse?"rgba(120,72,12,0.32)":"transparent",border:"none",color:tab===item.id?"#c8a84e":pulse?"#f0c060":"#7a3b18",cursor:"pointer",fontSize:14,borderBottom:tab===item.id?"2px solid #c8a84e":"2px solid transparent",boxShadow:pulse?"inset 0 0 10px rgba(240,192,96,0.25)":"none",animation:pulse?"pulse 1.5s ease-in-out infinite":"none"}}>{item.icon}</button>;
             })}
           </div>
           <div style={{flex:1,overflow:"auto",padding:5}}>
@@ -2979,7 +3310,7 @@ export default function DS(){
             </div>}
             {tab==="settings"&&p&&<div style={{padding:6,display:"flex",flexDirection:"column",gap:6}}>
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1}}>SETTINGS</div>
-              {/* Player Name */}
+              <div style={{fontSize:8,color:"#8f7d68",lineHeight:1.5}}>Customize identity, audio, interface density, runtime helpers, and quick links back to the front-door pages without leaving the game.</div>
               <div style={{fontSize:9,color:"#ddd"}}>Character Name:
                 <input type="text" value={p.playerName||"Adventurer"} maxLength={16} onChange={e=>{persistIdentity(e.target.value,p.travelerSigil||travelerSigilDraft);}} style={{marginLeft:4,background:"#120604",color:"#ff0",border:"1px solid #5a2010",fontSize:8,padding:"2px 4px",borderRadius:2,width:90}}/>
               </div>
@@ -2987,11 +3318,56 @@ export default function DS(){
                 <input type="text" value={p.travelerSigil||travelerSigilDraft} maxLength={24} onChange={e=>{persistIdentity(p.playerName||travelerNameDraft,e.target.value.toUpperCase());}} style={{marginLeft:4,background:"#120604",color:"#c8a0ff",border:"1px solid #5a2010",fontSize:8,padding:"2px 4px",borderRadius:2,width:130}}/>
               </div>
               <div style={{fontSize:8,color:backendConnected?"#6c6":"#a86",lineHeight:1.4}}>{backendConnected?"Shared-world backend connected.":"Shared-world backend not connected. Echoes and identity still save locally."}</div>
-              {/* Appearance */}
               <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>APPEARANCE</div>
               {[["Skin","skin","#f0d8a0"],["Hair","hair","#333"],["Outfit","outfit","#2266cc"]].map(([label,key,def])=><label key={key} style={{fontSize:8,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
                 {label}: <input type="color" value={(p.appearance||{})[key]||def} onChange={e=>{p.appearance=p.appearance||{};p.appearance[key]=e.target.value;fr(n=>n+1);}} style={{width:28,height:18,border:"none",background:"transparent",cursor:"pointer",padding:0}}/>
               </label>)}
+              <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>AUDIO</div>
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={audioEnabled} onChange={e=>setAudioEnabled(e.target.checked)}/>
+                Sound Effects
+              </label>
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={musicOn} onChange={e=>setMusicOn(e.target.checked)}/>
+                Ambient Music
+              </label>
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={ambientMotion} onChange={e=>setAmbientMotion(e.target.checked)}/>
+                Dynamic Music Swell
+              </label>
+              <div style={{fontSize:7,color:"#666",lineHeight:1.4}}>The soundtrack shifts with the global sun phase. Muting music keeps effects available if you still want combat feedback.</div>
+              <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>INTERFACE</div>
+              <div style={{background:"rgba(20,10,5,0.6)",padding:"6px 7px",borderRadius:4,border:"1px solid rgba(200,168,78,0.08)"}}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:4}}>
+                  <div style={{fontSize:9,color:"#c8a84e",fontWeight:700}}>LAYOUT PRESETS</div>
+                  <div style={{display:"flex",alignItems:"center",gap:6}}>
+                    <div style={{fontSize:7,color:"#8f7d68",textTransform:"uppercase"}}>{layoutPreset}</div>
+                    <button onClick={()=>setShowLayoutManager(true)} style={{background:"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:7,padding:"2px 5px",cursor:"pointer",borderRadius:999}}>Manage</button>
+                  </div>
+                </div>
+                <div style={{display:"grid",gap:4}}>
+                  {LAYOUT_PRESETS.map(preset=><button key={preset.id} onClick={()=>applyLayoutPreset(preset.id)} style={{textAlign:"left",background:layoutPreset===preset.id?"#261108":"#140906",border:"1px solid #5a2010",color:"#ddd",fontSize:8,padding:"5px 6px",cursor:"pointer",borderRadius:4}}>
+                    <div style={{color:layoutPreset===preset.id?"#f0c060":"#d8c2a8",fontWeight:700,marginBottom:1}}>{preset.label}</div>
+                    <div style={{color:"#77685b",fontSize:7,lineHeight:1.4}}>{preset.desc}</div>
+                  </button>)}
+                </div>
+                <div style={{fontSize:8,color:"#c8a84e",fontWeight:700,marginTop:6,marginBottom:4}}>CUSTOM LAYOUTS</div>
+                <div style={{display:"grid",gap:4}}>
+                  {CUSTOM_LAYOUT_SLOTS.map(slot=>{
+                    const entry=customLayouts[slot];
+                    return <div key={slot} style={{background:"rgba(12,6,4,0.7)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:4,padding:"5px 6px"}}>
+                      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:6,marginBottom:4}}>
+                        <input type="text" value={customLayoutDrafts[slot]||entry?.label||getDefaultCustomLayoutLabel(slot)} maxLength={24} onChange={e=>setCustomLayoutDrafts(prev=>({...prev,[slot]:e.target.value}))} onBlur={e=>renameCustomLayout(slot,e.target.value)} style={{flex:1,background:"#120604",color:layoutPreset===slot?"#f0c060":"#d8c2a8",border:"1px solid #5a2010",fontSize:8,fontWeight:700,padding:"2px 4px",borderRadius:3,minWidth:0}}/>
+                        <div style={{fontSize:7,color:"#6f6256"}}>{entry?.savedAt?new Date(entry.savedAt).toLocaleDateString():"empty"}</div>
+                      </div>
+                      <div style={{display:"flex",gap:4}}>
+                        <button onClick={()=>saveCustomLayout(slot)} style={{flex:1,background:"#241208",border:"1px solid #5a2010",color:"#ddd",fontSize:7,padding:"3px 4px",cursor:"pointer",borderRadius:3}}>Save Current</button>
+                        <button onClick={()=>loadCustomLayout(slot)} disabled={!entry} style={{flex:1,background:entry?"#161d12":"#151110",border:"1px solid #3a5020",color:entry?"#bfe0a8":"#6d655d",fontSize:7,padding:"3px 4px",cursor:entry?"pointer":"default",borderRadius:3}}>Load</button>
+                      </div>
+                    </div>;
+                  })}
+                </div>
+              </div>
               <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
                 <input type="checkbox" checked={p.autoRetaliate||false} onChange={e=>{p.autoRetaliate=e.target.checked;fr(n=>n+1);}}/>
                 Auto-Retaliate
@@ -3001,12 +3377,47 @@ export default function DS(){
                 Run Mode
               </label>
               <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
-                <input type="checkbox" checked={audioOnR.current} onChange={e=>{audioOnR.current=e.target.checked;if(e.target.checked)initAudio();fr(n=>n+1);}}/>
-                Sound Effects
+                <input type="checkbox" checked={showGuide} onChange={e=>setShowGuide(e.target.checked)}/>
+                Quickstart Overlay
+              </label>
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={showObjectiveTracker} onChange={e=>setShowObjectiveTracker(e.target.checked)}/>
+                Objective Tracker
+              </label>
+              {showObjectiveTracker&&<div style={{fontSize:8,color:"#8f7d68",lineHeight:1.5}}>Tracker Position: drag the objective card in-world. <button onClick={resetObjectivePosition} style={{marginLeft:4,background:"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:8,padding:"1px 4px",cursor:"pointer",borderRadius:2}}>Reset</button></div>}
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={showGhostHud} onChange={e=>setShowGhostHud(e.target.checked)}/>
+                Ghost Manifestations
+              </label>
+              {showGhostHud&&<div style={{fontSize:8,color:"#8f7d68",lineHeight:1.5}}>Ghost Position: drag the ghost stack in-world. <button onClick={resetGhostPosition} style={{marginLeft:4,background:"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:8,padding:"1px 4px",cursor:"pointer",borderRadius:2}}>Reset</button></div>}
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={tooltipsOn} onChange={e=>setTooltipsOn(e.target.checked)}/>
+                Hover Tooltips
+              </label>
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={compactHud} onChange={e=>setCompactHud(e.target.checked)}/>
+                Compact Top Banner
+              </label>
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={panelOpen} onChange={e=>setPanelOpen(e.target.checked)}/>
+                Utility Panel Open
+              </label>
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={showMenuReference} onChange={e=>setShowMenuReference(e.target.checked)}/>
+                Menu Reference Shortcuts
               </label>
               <div style={{fontSize:9,color:"#ddd"}}>UI Scale:
                 {["S","M","L"].map((sz,i)=><button key={sz} onClick={()=>{setUiScale(i===0?0.85:i===1?1:1.15);}} style={{marginLeft:4,background:uiScale===(i===0?0.85:i===1?1:1.15)?"#5a1808":"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:8,padding:"1px 4px",cursor:"pointer",borderRadius:2}}>{sz}</button>)}
               </div>
+              {showMenuReference&&<div style={{background:"rgba(20,10,5,0.6)",padding:"6px 7px",borderRadius:4,border:"1px solid rgba(200,168,78,0.08)"}}>
+                <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginBottom:4}}>MAIN MENU REFERENCE</div>
+                <div style={{display:"grid",gap:4}}>
+                  {MENU_REFERENCE_ITEMS.map(item=><button key={item.id} onClick={()=>{setMenuSection(item.id);setMenuOpen(true);}} style={{textAlign:"left",background:"#140906",border:"1px solid #5a2010",color:"#ddd",fontSize:8,padding:"5px 6px",cursor:"pointer",borderRadius:4}}>
+                    <div style={{color:"#f0c060",fontWeight:700,marginBottom:1}}>{item.label}</div>
+                    <div style={{color:"#77685b",fontSize:7,lineHeight:1.4}}>{item.desc}</div>
+                  </button>)}
+                </div>
+              </div>}
               {/* QP Unlocks */}
               <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>QUEST POINT UNLOCKS ({p.questPoints||0} QP)</div>
               {UNLOCKS.map(u=>{const owned=(p.unlocks||[]).includes(u.id);return <div key={u.id} style={{background:"rgba(40,20,5,0.5)",padding:"3px 6px",borderRadius:3,border:"1px solid rgba(200,168,78,0.08)",display:"flex",alignItems:"center",gap:4}}>
@@ -3049,6 +3460,44 @@ export default function DS(){
         </div>
       </div>
       {/* Bank */}
+      {showLayoutManager&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.76)",zIndex:140,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setShowLayoutManager(false)}>
+        <div style={{background:"linear-gradient(180deg,#1e0a06,#180804)",border:"2px solid #7a2010",borderRadius:10,padding:16,width:"min(720px,92vw)",maxHeight:"80vh",overflow:"auto"}} onClick={e=>e.stopPropagation()}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:12,marginBottom:12}}>
+            <div>
+              <div style={{color:"#c8a84e",fontWeight:800,fontSize:15,letterSpacing:1}}>Layout Manager</div>
+              <div style={{color:"#8f7d68",fontSize:9}}>Switch, save, rename, and restore overlay layouts without fighting the narrow settings column.</div>
+            </div>
+            <button onClick={()=>setShowLayoutManager(false)} style={{background:"#4a1010",border:"none",color:"#c8a84e",padding:"4px 10px",cursor:"pointer",borderRadius:4}}>✕</button>
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12}}>
+            <div style={{background:"rgba(20,10,5,0.6)",padding:"8px",borderRadius:6,border:"1px solid rgba(200,168,78,0.08)"}}>
+              <div style={{fontSize:10,color:"#c8a84e",fontWeight:700,marginBottom:6}}>Built-In Presets</div>
+              <div style={{display:"grid",gap:6}}>
+                {LAYOUT_PRESETS.map(preset=><button key={preset.id} onClick={()=>applyLayoutPreset(preset.id)} style={{textAlign:"left",background:layoutPreset===preset.id?"#261108":"#140906",border:"1px solid #5a2010",color:"#ddd",fontSize:9,padding:"8px 9px",cursor:"pointer",borderRadius:5}}>
+                  <div style={{color:layoutPreset===preset.id?"#f0c060":"#d8c2a8",fontWeight:700,marginBottom:2}}>{preset.label}</div>
+                  <div style={{color:"#77685b",fontSize:8,lineHeight:1.45}}>{preset.desc}</div>
+                </button>)}
+              </div>
+            </div>
+            <div style={{background:"rgba(20,10,5,0.6)",padding:"8px",borderRadius:6,border:"1px solid rgba(200,168,78,0.08)"}}>
+              <div style={{fontSize:10,color:"#c8a84e",fontWeight:700,marginBottom:6}}>Custom Slots</div>
+              <div style={{display:"grid",gap:6}}>
+                {CUSTOM_LAYOUT_SLOTS.map(slot=>{
+                  const entry=customLayouts[slot];
+                  return <div key={slot} style={{background:"rgba(12,6,4,0.72)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:5,padding:"7px 8px"}}>
+                    <input type="text" value={customLayoutDrafts[slot]||entry?.label||getDefaultCustomLayoutLabel(slot)} maxLength={24} onChange={e=>setCustomLayoutDrafts(prev=>({...prev,[slot]:e.target.value}))} onBlur={e=>renameCustomLayout(slot,e.target.value)} style={{width:"100%",boxSizing:"border-box",background:"#120604",color:layoutPreset===slot?"#f0c060":"#d8c2a8",border:"1px solid #5a2010",fontSize:9,fontWeight:700,padding:"4px 6px",borderRadius:4,marginBottom:5}}/>
+                    <div style={{fontSize:8,color:"#6f6256",marginBottom:6}}>{entry?.savedAt?`Saved ${new Date(entry.savedAt).toLocaleString()}`:"No layout saved yet"}</div>
+                    <div style={{display:"flex",gap:6}}>
+                      <button onClick={()=>saveCustomLayout(slot)} style={{flex:1,background:"#241208",border:"1px solid #5a2010",color:"#ddd",fontSize:8,padding:"5px 6px",cursor:"pointer",borderRadius:4}}>Save Current</button>
+                      <button onClick={()=>loadCustomLayout(slot)} disabled={!entry} style={{flex:1,background:entry?"#161d12":"#151110",border:"1px solid #3a5020",color:entry?"#bfe0a8":"#6d655d",fontSize:8,padding:"5px 6px",cursor:entry?"pointer":"default",borderRadius:4}}>Load</button>
+                    </div>
+                  </div>;
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>}
       {bankOpen&&p&&<div style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.7)",zIndex:100,display:"flex",alignItems:"center",justifyContent:"center"}} onClick={()=>setBankOpen(false)}>
         <div style={{background:"linear-gradient(180deg,#1e0a06,#180804)",border:"2px solid #7a2010",borderRadius:8,padding:14,minWidth:320,maxWidth:520}} onClick={e=>e.stopPropagation()}>
           <div style={{display:"flex",justifyContent:"space-between",marginBottom:10}}>

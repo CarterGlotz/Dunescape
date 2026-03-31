@@ -11,8 +11,8 @@
   "localPath": "C:\\Users\\p4cka\\documents\\development\\Solara",
   "github": "https://github.com/VaultSparkStudios/solara",
   "liveUrl": "",
-  "currentFocus": "Objective guidance, ghost manifestations, save validation, and backend activation prep shipped; live shared-world activation is next",
-  "nextMilestone": "Complete the Supabase activation pack and expose live daily scores, graves, sun-state, and player echoes",
+  "currentFocus": "Layout-manager pass shipped with draggable overlays, built-in presets, named custom layout slots, and manager modal; live shared-world activation is next",
+  "nextMilestone": "Complete the Supabase activation pack, then build the season chronicle page and echo response loop",
   "blockers": [
     "Supabase live activation still needs Carter to run the SQL blocks and verify env vars/secrets",
     "Itch.io listing — Carter must post manually",
@@ -20,9 +20,9 @@
     "Twitch extension submission — Carter must submit via Twitch Developer Console"
   ],
   "lastUpdated": "2026-03-31",
-  "silScore": 43,
+  "silScore": 45,
   "silAvg3": 42.7,
-  "silVelocity": 0,
+  "silVelocity": 1,
   "silDebt": "→",
   "silLastSession": "2026-03-31",
   "silSparkline": [],
@@ -37,6 +37,6 @@
   "phasesComplete": "0, 1, 2, 3, 4",
   "innovationItemsShipped": 13,
   "innovationItemsQueued": 7,
-  "buildStatus": "passing — 575.91 KB / 166.85 KB gzip; objective tracker, ghost manifestations, save validation, and activation prep shipped; npm run smoke passing",
-  "appLines": 3332
+  "buildStatus": "passing — 598.90 KB / 173.32 KB gzip; layout-manager/custom-layout pass shipped; npm run smoke passing",
+  "appLines": 3843
 }

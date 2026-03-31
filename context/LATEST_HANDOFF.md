@@ -1,39 +1,29 @@
-Session Intent: Audit the full project, implement the top recommendations, and add the resulting idea set with minimal waste
+Session Intent: Finish the layout-control layer, then commit, push, and close out cleanly
 
 # Latest Handoff
 
 Last updated: 2026-03-31
 
-## Where We Left Off (Session 13)
+## Where We Left Off (Session 15)
 
-- Shipped: 7 improvements across 4 groups — onboarding, shared-world presence, save resilience, activation truth surfaces
+- Shipped: 5 improvements across layout control, custom layout persistence, and closeout polish
 - Tests: 2 passing (1 build / 1 smoke / 0 server / 0 client) · delta: 0 this session
 - Deploy: pending
 
 ## What was completed this session
 
-**Completion pass from audit recommendations**
+**Layout manager completion**
 
-- Added a persistent objective tracker / waypoint layer in `src/App.jsx` so the player always has a concrete next move
-- Added daily-return pulse behavior in `src/App.jsx` so the Daily tab and play button visibly call for the first run of the day
-- Added roguelite death share cards in `src/App.jsx` so non-daily runs now produce an explicit share surface
-- Added save-shape sanitization for load/import in `src/App.jsx` so stale or malformed save payloads are repaired before they can poison boot-critical refs
-- Added runtime ghost manifestations in `src/App.jsx` so recent echoes appear as visible shared-world cards instead of only menu/settings memory
-- Replaced the stale `README.md` and added `docs/SUPABASE_ACTIVATION_PACK.md` so repo truth now matches the shipped Solara build and the external activation path is operationally clear
-- Verified both `npm run build` and `npm run smoke` pass after the completion pass
-
-**Responsive camera + viewport fix**
-
-- Reworked camera follow in `src/App.jsx` so the player no longer starts off-screen and the camera follows correctly instead of leaving the character behind
-- Replaced the fixed `17x14` draw assumption with viewport-derived tile counts in `src/App.jsx`, allowing wider screens to reveal more of the world instead of just stretching the old box
-- Removed the `objectFit: contain` gameplay constraint and bound the canvas size to the gameplay host, eliminating the large vertical black bars
-- Added a lightweight dead-zone camera behavior so movement feels less locked while still keeping the player on-screen
-- Verified both `npm run build` and `npm run smoke` still pass after the camera/viewport fix
+- Upgraded both the objective tracker and ghost manifestation stack in `src/App.jsx` from fixed helpers into draggable runtime overlays with reset + hide controls
+- Added built-in layout presets (`Guided`, `Minimal`, `Explorer`) in `src/App.jsx` so whole overlay profiles can switch in one action
+- Added three named custom layout slots in `src/App.jsx` with save/load support and persistent overlay positions
+- Added inline renaming plus a dedicated layout manager modal in `src/App.jsx` so saved layouts are manageable without fighting the narrow settings column
+- Verified both `npm run build` and `npm run smoke` pass after the layout-manager pass
 
 ## Root cause
 
-- The project had strong systems and strong concept, but the highest-value recommendations were still trapped in gaps between "prepared" and "felt": players lacked explicit direction, async presence was too hidden, and save/import paths were still permissive enough to threaten boot stability
-- Result: the build was promising, but not yet presenting its strongest qualities as reliably or clearly as it should
+- The UI comfort pass solved single-surface friction, but once overlays became movable and presets became real, the narrow settings column stopped being a good control surface for the growing layout system
+- Result: a dedicated manager layer became the cleanest way to keep customization usable instead of burying it in stacked micro-controls
 
 ## What is mid-flight
 
@@ -64,6 +54,7 @@ Last updated: 2026-03-31
 - `src/App.jsx` remains monolithic until 5000 lines
 - Never break save migration from `dunescape_save` to `solara_save`
 - Shared-world features must continue to degrade cleanly when Supabase is absent
+- Runtime overlays should stay user-controllable; avoid reintroducing fixed-position helper assumptions
 
 ## SQL Block 4 — `player_echoes`
 

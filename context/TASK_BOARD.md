@@ -18,6 +18,11 @@
 
 ## Next — Agent (after Supabase is live)
 
+- ✅ [SIL] Overlay layout presets — minimal / explorer / guided HUD layouts for quick interface switching
+- ✅ [SIL] Draggable runtime overlays — let objective/ghost cards be drag-positioned, not only corner-anchored
+- ✅ [UI Comfort] Custom layout slots + manager — named save/load layout profiles with dedicated modal
+- [SIL] Layout export/import — shareable UI layout presets for players
+- [SIL] App.jsx pressure release — extract layout-manager config/helpers while staying under the single-file rule
 - [Phase 5] Season 1: The Wandering Comet config + launch prep
 - [Phase 5b] Roguelite leaderboard — shared best-wave board parallel to the daily leaderboard
 - [Phase 5b] Prophecy Scroll canvas image generator (image version of share card)
@@ -32,6 +37,9 @@
 ## Done
 
 - ✅ [Completion Pass] Objective tracker — persistent on-screen pointer for current quest target / dungeon entrance / next meaningful step
+- ✅ [UI Comfort] Objective tracker controls — tracker can now be hidden or moved to different screen corners instead of blocking gameplay
+- ✅ [UI Comfort] Runtime settings expansion — persistent controls for music, tooltips, ghost cards, HUD density, and front-door reference shortcuts
+- ✅ [UI Comfort] Top HUD readability pass — larger banner/action icons with hover descriptions across the runtime controls
 - ✅ [Completion Pass] "First run today" tab pulse — gold glow on ☀️ Daily tab when daily not yet played
 - ✅ [Completion Pass] Roguelite share card — generate share text on roguelite death
 - ✅ [Completion Pass] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup

@@ -111,3 +111,25 @@ Append new entries. Do not erase historical reasoning unless it is wrong.
 - Alternatives considered: Hard-fail on malformed saves; leave load/import permissive and rely on smoke coverage only.
 - Why this was chosen: It preserves the migration-friendly philosophy of the project, keeps player progress recoverable, and reduces the chance that a single bad field can blank-screen the app.
 - Follow-up: Extend the same validation philosophy to future shared-world fields and any public import/export tooling.
+
+---
+
+### 2026-03-31 - Treat runtime overlays as user-controlled furniture, not fixed chrome
+
+- Status: Accepted
+- Context: The objective tracker helped onboarding, but a fixed-position card started blocking gameplay and immediately drew user feedback.
+- Decision: Persist runtime overlay preferences and let the player hide or reposition the objective tracker instead of hard-coding one placement.
+- Alternatives considered: Shrink the tracker only; remove it entirely; keep it fixed and ask the player to tolerate it.
+- Why this was chosen: Guidance is still valuable, but only when it stays subordinate to play space. User-controlled overlays preserve onboarding value without forcing a single layout.
+- Follow-up: Apply the same rule to future runtime helper overlays if more coaching surfaces are added.
+
+---
+
+### 2026-03-31 - Centralize layout control once overlay options become a system
+
+- Status: Accepted
+- Context: HUD comfort work expanded from a few toggles into draggable overlays, presets, and saved custom layouts. The regular settings column became too cramped for that interaction model.
+- Decision: Add a dedicated layout manager modal for built-in presets and named custom layout slots instead of keeping all layout actions inline.
+- Alternatives considered: Keep all layout controls in the settings column; stop at presets without custom saves; add more scattered buttons around the runtime HUD.
+- Why this was chosen: It keeps the main settings panel readable while still letting layout customization grow into a first-class system.
+- Follow-up: If layout control grows further, split the manager into overlay visibility vs saved profiles rather than overloading one panel.

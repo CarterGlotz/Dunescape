@@ -164,3 +164,39 @@ Agents MUST NOT modify or remove existing entries.
 - New required direction: Fix camera follow immediately, remove the boxed-in gameplay presentation, and complete the responsive viewport/camera follow-up plan rather than stopping at diagnosis
 - Why it matters: A game that lets the player fall off-screen or wastes most of the monitor on black bars is still effectively unplayable
 - Supersedes prior entry: —
+
+---
+
+### 2026-03-31 — Add music, stronger HUD affordances, and broader settings/customization
+
+- Category: Assignment
+- Human input: "start - add music to the game with mute option. Improve the siz e of the top banner and the icons and give them hoverable descriptions (like on the save buttons - that whole area of buttons/icons). There should be a settings option or menu that allows them to customize different aspects of the game - visually, features, settings, etc. It should also have the main menu pages built in for easy reference. Look for other ways to improve the game"
+- Area affected: Runtime HUD, audio, settings UX, menu/reference access
+- Previous state: Ambient audio existed technically, but it was not surfaced as a player-facing music control; the top action cluster was small and under-explained; settings were too thin
+- New required direction: Surface music with mute controls, enlarge/improve the top HUD and icon affordances, add hoverable descriptions across the action area, and expand settings into a broader customization/reference hub that also links back to the front-door pages
+- Why it matters: The game needs to feel readable and configurable in use, not only feature-rich in code
+- Supersedes prior entry: —
+
+---
+
+### 2026-03-31 — Make the objective tracker hideable or movable
+
+- Category: Direction
+- Human input: "the objective tracker is in the way and should be able to be hidden or moved around the screen"
+- Area affected: Runtime overlay ergonomics / objective guidance
+- Previous state: Objective tracker existed as a fixed-position helper card
+- New required direction: Treat the tracker as optional/user-positionable guidance instead of locked interface chrome
+- Why it matters: Guidance should support play, not obstruct it
+- Supersedes prior entry: —
+
+---
+
+### 2026-03-31 — Continue overlay/layout tooling and close out to git
+
+- Category: Assignment
+- Human input: "yes and then push'commit and closeout", "do that", and subsequent "yes" approvals for draggable ghost overlays, presets, custom slots, renaming, and layout-manager follow-up
+- Area affected: Runtime layout system, settings UX, repo closeout, git history
+- Previous state: Tracker drag/hide and ghost drag/hide were shipping incrementally, but preset/custom-slot management was still cramped inside the settings column
+- New required direction: Keep extending the overlay/layout control system through presets, named custom slots, and a cleaner management surface, then complete commit/push and Studio OS closeout in the same session
+- Why it matters: The user wanted the UI-control work finished end-to-end, not left half-wired or uncommitted
+- Supersedes prior entry: —

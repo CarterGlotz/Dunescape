@@ -4,7 +4,7 @@
 
 - Date: 2026-03-31
 - Overall status: Active development
-- Current phase: Async shared-world completion pass shipped — objective guidance, ghost manifestations, save validation, and activation prep added on top of Phase 4
+- Current phase: Layout manager pass shipped — UI comfort/settings expansion now includes draggable overlays, built-in layout presets, named custom layout slots, and a dedicated manager modal
 
 ## What exists
 
@@ -15,7 +15,10 @@
 - Phase 3 — Sun Phase Engine: sunBrightness state, fetchSunState (mount + 5-minute interval), canvas desaturation filter, increment_death_counter() wired to every death, HUD sun indicator with pulse animation, milestone death announcements, graceful offline fallback
 - Phase 4 — Roguelite Engine: Infinite wave roguelite mode, 17 room pool (4 difficulty tiers) + boss every 10 waves, monster stat scaling (+6% per wave), 5-relic system with persistent bonuses, roguelite stats (bestWave, totalRuns, relics) persisted in save
 - runtime stability: Boot regression fixed and protected by smoke coverage; stale/malformed save data is now sanitized on load/import before it reaches boot-critical refs
-- runtime usability: Gameplay canvas now resizes to the actual gameplay viewport instead of staying trapped in a fixed `17x14` view; camera follow is clamped and centered correctly; utility panel collapses with `Tab` / `☰`; quickstart overlay explains controls; a persistent objective tracker points the player toward the next meaningful step
+- runtime usability: Gameplay canvas now resizes to the actual gameplay viewport instead of staying trapped in a fixed `17x14` view; camera follow is clamped and centered correctly; utility panel collapses with `Tab` / `☰`; quickstart overlay explains controls; the objective tracker can now be hidden or moved between screen corners
+- runtime customization: In-world settings now persist interface/audio preferences, including sound-effects mute, ambient-music mute, HUD density, hover tooltips, ghost visibility, objective visibility, menu-reference shortcuts, and tracker position
+- layout control: Objective tracker and ghost stack are draggable, resettable, and hideable; players can switch between Guided / Minimal / Explorer presets or save/load three named custom layouts through the new layout manager modal
+- HUD pass: The top banner and runtime icon strip are larger, more readable, and carry hover descriptions so the action cluster is self-explanatory instead of relying on guesswork
 - front door: Full-screen title/menu flow exists before runtime entry, with Play / How To Play / Knowledge Base / Features / Update Log / Settings framing the async shared-world premise
 - identity: Persistent traveler name + sigil exist locally and are applied to the player profile; starter loadout auto-equips on fresh entry
 - echoes: Async player echoes record major run/death events locally and attempt Supabase sync through `player_echoes`; runtime now surfaces recent echoes as visible ghost manifestations instead of menu-only memory
@@ -24,11 +27,11 @@
 - SIL items: Oracle NPC, Sunstone Shard, daily streak, seeded boss name, deaths ticker, grave clustering, Oracle dialogue state machine, Sunstone offering mechanic, shrine glow on map, milestone death announcements, sun pulse animation, faction leaderboard split, objective tracker, daily tab pulse, roguelite share card, save-state validation
 - Innovation Sprint (2026-03-27): 13 items shipped — landmark auto-naming, faction share card, prophetic epitaph suggestions, ambient audio system (Web Audio API), faction rivalry dashboard in Daily tab, Oracle email subscription UI, Sunfall Event boss HP tracker, Archive of the Fallen (`public/archive.html`), Sun Observatory widget (`public/sun-widget.html`), Discord Bot (`discord-bot/`), Twitch Extension (`twitch-extension/`), Weekly State of Sun template
 - save: `solara_save` key, `SAVE_VERSION=5`, migration shim active, import/export path now sanitizes boot-critical fields
-- build: Passing (`577.37 KB` JS, `167.47 KB` gzip) with build + smoke verified after the responsive camera/viewport pass
+- build: Passing (`598.90 KB` JS, `173.32 KB` gzip) with build + smoke verified after the layout-manager/custom-layout pass
 
 ## Important paths
 
-- Main game: `src/App.jsx` (~3370 lines — do NOT split until 5000 lines)
+- Main game: `src/App.jsx` (~3843 lines — do NOT split until 5000 lines)
 - Supabase client: `src/supabase.js`
 - Supabase activation guide: `docs/SUPABASE_ACTIVATION_PACK.md`
 - Archive of the Fallen: `public/archive.html`
@@ -41,7 +44,7 @@
 
 ## In progress
 
-- active work: External activation runway — shared-world backend go-live, richer public season surfaces, and deeper async echo interaction
+- active work: External activation runway plus runtime comfort pass follow-through — shared-world backend go-live, richer public season surfaces, deeper async echo interaction, and quality-of-life UI refinement
 
 ## Blockers
 

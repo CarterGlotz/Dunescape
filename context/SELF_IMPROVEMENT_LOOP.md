@@ -462,3 +462,73 @@ Rate 0–10 per category at each closeout:
 
 - [SIL] Season chronicle page — public current-season ledger combining top runs, recent graves, echoes, and sun milestones
 - [SIL] Echo response loop — let players `commend` / `heed` / `mourn` echoes so the strongest async stories rise over time
+
+---
+
+## 2026-03-31 — Session 14 | Total: 44/50 | Velocity: 1 | Debt: →
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 10 | → | Build + smoke still green after another large monolith UI/settings patch |
+| Creative Alignment | 10 | → | Music controls, clearer HUD affordances, and user-controlled overlays improve feel without diluting the Solara premise |
+| Momentum | 10 | → | User feedback on friction was converted into a shipped fix immediately in-session |
+| Engagement | 4 | ↑ | Better top-level affordances, music surfacing, and less intrusive guidance should improve session stickiness even pre-launch |
+| Process Quality | 10 | → | Studio OS write-back maintained, CDR appended, handoff/current state refreshed |
+| **Total** | **44 / 50** | ↑ | |
+
+**IGNIS note:** Comfort friction in a live UI should be treated as product debt, not polish debt. Fixing “in the way” complaints quickly is leverage.
+
+**Top win this session:** The objective tracker stopped being a forced overlay and became a player-controlled helper, while the broader HUD/settings pass made the game easier to read and customize.
+
+**Top gap this session:** The runtime now has more helper surfaces, but layout control is still coarse; overlays can move by corner, not free drag or preset layouts.
+
+**Session intent outcome:** Completed — music controls, larger HUD affordances, richer settings/reference access, and tracker hide/reposition controls all shipped and verified.
+
+**Innovative Solutions Brainstorm**
+
+1. **Overlay layout presets** — one-click “Minimal / Explorer / Guided” HUD modes that change tracker/ghost/helper visibility together. Execution probability: High.
+2. **Draggable runtime overlays** — drag objective and ghost cards anywhere on-screen rather than cycling fixed corners. Execution probability: Medium.
+3. **Adaptive tooltip coach** — after hovering a HUD icon, offer one short contextual tip tied to current state (daily inactive, quest pending, low supplies). Execution probability: Medium.
+4. **Music phase themes** — expand the ambient layer into more distinct sun-phase motifs rather than frequency-only shifts. Execution probability: Medium.
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] Overlay layout presets — minimal / explorer / guided HUD layouts for quick interface switching
+- [SIL] Draggable runtime overlays — let objective/ghost cards be drag-positioned, not only corner-anchored
+
+---
+
+## 2026-03-31 — Session 15 | Total: 45/50 | Velocity: 1 | Debt: →
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 10 | → | Build + smoke remained green through another UI-state-heavy pass |
+| Creative Alignment | 10 | → | The game now lets the player shape its helper chrome instead of imposing a generic layout |
+| Momentum | 10 | → | Multiple follow-up UX requests were shipped consecutively without leaving half-finished state |
+| Engagement | 5 | ↑ | Named layouts, presets, and draggable overlays improve repeat-session comfort and personalization |
+| Process Quality | 10 | → | Full Studio OS closeout maintained before commit/push |
+| **Total** | **45 / 50** | ↑ | |
+
+**IGNIS note:** Once a UI exposes customization, management surfaces matter. A bad control surface can become the next friction point immediately after the first fix.
+
+**Top win this session:** Overlay control became a complete system instead of a one-off patch: draggable cards, presets, named custom slots, and a manager modal all now work together.
+
+**Top gap this session:** The monolithic `App.jsx` keeps growing, and the layout manager is still embedded directly in the same component rather than isolated behind a cleaner boundary.
+
+**Session intent outcome:** Completed — layout manager added, custom slots renamed, verification passed, and closeout prepared for commit/push.
+
+**Innovative Solutions Brainstorm**
+
+1. **Layout export/import** — let players export a preferred UI layout and share it like a build preset. Execution probability: Medium.
+2. **Contextual auto-layout** — switch to `minimal` during combat and back to `guided` in town/menu-heavy play. Execution probability: Medium.
+3. **Micro-preview thumbnails** — generate tiny visual previews for each saved layout in the manager modal. Execution probability: Medium.
+4. **App.jsx pressure release** — extract the layout manager data/config into constants/helpers without breaking the “single file until 5000 lines” rule. Execution probability: High.
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] Layout export/import — shareable UI layout presets for players
+- [SIL] App.jsx pressure release — extract layout-manager config/helpers while staying under the single-file rule
