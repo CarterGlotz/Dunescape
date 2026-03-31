@@ -28,7 +28,7 @@
   "silSparkline": [],
   "ignisScore": null,
   "ignisGrade": null,
-  "ignisLastComputed": "2026-03-28",
+  "ignisLastComputed": null,
   "testsTotal": null,
   "lastDeployStatus": "not-applicable",
   "truthAuditStatus": "yellow",
