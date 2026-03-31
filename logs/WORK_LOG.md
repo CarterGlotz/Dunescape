@@ -207,3 +207,22 @@ Append chronological entries.
   - Preserved: build and smoke checks still pass after the larger App.jsx expansion
   - Created: backend dependency is now more visible because `player_echoes` also wants Supabase to become fully communal
 - Recommended next move: activate Supabase including `player_echoes`, then add in-world objective guidance and richer ghost manifestations
+
+---
+
+### 2026-03-31 — Audit completion pass
+
+- Goal: Audit the full project, implement the top recommendations, and add the resulting idea set into project memory/tracking
+- What changed:
+  - `src/App.jsx`: added a persistent objective tracker / waypoint layer, daily tab pulse, roguelite share card, runtime ghost manifestations, and save/load sanitization for boot-critical fields
+  - `README.md`: replaced stale Dunescape copy with a repo description that matches the shipped Solara build
+  - `docs/SUPABASE_ACTIVATION_PACK.md`: added a central activation checklist for the shared-world backend
+  - `context/*`: refreshed current state, task board, handoff, project status, portfolio card, truth audit, SIL, decisions, and creative direction records
+- Files or systems touched: `src/App.jsx`, `README.md`, `docs/SUPABASE_ACTIVATION_PACK.md`, `context/*`, `logs/WORK_LOG.md`, `docs/CREATIVE_DIRECTION_RECORD.md`
+- Risks created or removed:
+  - Removed: weak first-session direction after the front-door pass
+  - Removed: permissive save/import path as a boot-risk
+  - Removed: stale public repo identity mismatch (`README.md`)
+  - Preserved: offline-safe degradation for shared-world systems when Supabase is absent
+  - Created: none
+- Recommended next move: Carter completes the Supabase activation pack; then build the season chronicle page and echo response loop

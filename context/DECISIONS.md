@@ -100,3 +100,14 @@ Append new entries. Do not erase historical reasoning unless it is wrong.
 - Alternatives considered: Pivot immediately toward real-time co-op/PvP; keep the async concept implicit instead of productized.
 - Why this was chosen: It matches the original idea, fits the current architecture, and creates a shippable social layer without a server-authoritative rewrite.
 - Follow-up: Activate Supabase tables and deepen the async layer with objective guidance and richer echoes/ghosts.
+
+---
+
+### 2026-03-31 - Sanitize saves instead of rejecting them outright
+
+- Status: Accepted
+- Context: The game now carries more identity and shared-world state, and the repo already had evidence that permissive save loading could become a boot-risk.
+- Decision: Coerce and repair boot-critical save fields during load/import rather than rejecting stale saves outright.
+- Alternatives considered: Hard-fail on malformed saves; leave load/import permissive and rely on smoke coverage only.
+- Why this was chosen: It preserves the migration-friendly philosophy of the project, keeps player progress recoverable, and reduces the chance that a single bad field can blank-screen the app.
+- Follow-up: Extend the same validation philosophy to future shared-world fields and any public import/export tooling.

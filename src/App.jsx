@@ -583,8 +583,77 @@ const getDayNumber=()=>{const start=new Date('2026-03-27');const now=new Date();
 const getDailyBossName=()=>{const h=hashSeed(getDailySeed()+'-boss');const pfx=["Vexar","Solveth","Kael","Morthis","Dravan","Zephon","Ashan","Corrath","Duvak","Elrith","Faeron","Grauth"];const sfx=["the Ash-Born","of the Dim Flame","the Sunless","the Twilight Herald","the Eclipse-Born","the Shadow","of the Final Dark","the Eternal","the Burning","the Doomed","the Forgotten","the Last Light"];return pfx[h%pfx.length]+" "+sfx[Math.floor(h/pfx.length)%sfx.length];};
 const getDailyStreak=()=>{try{const s=JSON.parse(localStorage.getItem('solara_streak')||'{"lastDate":"","count":0}');return s.lastDate===getDailySeed()?s.count:0;}catch(e){return 0;}};
 const updateStreak=()=>{try{const s=JSON.parse(localStorage.getItem('solara_streak')||'{"lastDate":"","count":0}');const today=getDailySeed();const d=new Date();d.setDate(d.getDate()-1);const yesterday=`solara-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;const c=s.lastDate===yesterday?s.count+1:s.lastDate===today?s.count:1;localStorage.setItem('solara_streak',JSON.stringify({lastDate:today,count:c}));return c;}catch(e){return 1;}};
+const markDailyPlayedToday=()=>{try{localStorage.setItem("solara_last_daily_played",getDailySeed());}catch(e){}};
+const hasPlayedDailyToday=()=>{try{return localStorage.getItem("solara_last_daily_played")===getDailySeed();}catch(e){return false;}};
 const generateDailyRooms=()=>{const rng=mulberry32(hashSeed(getDailySeed()));return Array.from({length:30},(_,i)=>i===29?4:Math.floor(rng()*(DUNGEON_ROOMS.length-1)));};
 const generateShareCard=(playerName,waveReached,faction)=>{const bars=Math.min(5,Math.floor(waveReached/6));const row=Array(5).fill('').map((_,i)=>i<bars?'🔥':'☀️').join('');const fStr=faction?faction.charAt(0).toUpperCase()+faction.slice(1):'No faction';return`☀️ Solara: Sunfall — Day ${getDayNumber()} ${row}\nWave ${waveReached}/30 · ${fStr} · Season ${CURRENT_SEASON}: ${CURRENT_SEASON_NAME}\n\nPlay free → vaultsparkstudios.github.io/solara/\n#SolaraSunfall`;};
+const generateRogueShareCard=(playerName,waveReached,bestWave,relicCount,sunBrightness)=>{const bars=Math.max(1,Math.min(6,Math.floor(waveReached/5)));const row=Array(6).fill('').map((_,i)=>i<bars?'🌒':'⬛').join('');const phase=sunBrightness>80?'Full Dawn':sunBrightness>60?'Amber Warning':sunBrightness>40?'The Twilight':sunBrightness>20?'The Dimming':'The Eclipse';return`🌘 Solara: Sunfall — Roguelite Push\n${playerName||'Adventurer'} · Wave ${waveReached} · Best ${bestWave}\n${row} · Relics ${relicCount} · ${phase} ${Math.round(sunBrightness)}%\n\nEvery death dims the shared sun.\nPlay free → vaultsparkstudios.github.io/solara/\n#SolaraSunfall #Roguelite`;};
+const safeNum=(value,fallback,min=-Infinity,max=Infinity)=>{const n=Number(value);if(!Number.isFinite(n))return fallback;return Math.min(max,Math.max(min,n));};
+const sanitizeText=(value,maxLen,fallback)=>{if(typeof value!=="string")return fallback;const clean=value.replace(/\s+/g," ").trim().slice(0,maxLen);return clean||fallback;};
+const sanitizeItemStack=stack=>{if(!stack||typeof stack!=="object"||typeof stack.i!=="string"||!ITEMS[stack.i])return null;return{i:stack.i,c:Math.max(1,Math.floor(safeNum(stack.c,1,1,999999)))};};
+const sanitizeSaveData=(raw,fallbackName,fallbackSigil)=>{
+  const issues=[];
+  if(!raw||typeof raw!=="object"||Array.isArray(raw))return{data:null,issues:["Save payload was not a valid object."]};
+  const inv=(Array.isArray(raw.inv)?raw.inv:[]).map(sanitizeItemStack).filter(Boolean).slice(0,64);
+  const bank=(Array.isArray(raw.bank)?raw.bank:[]).map(sanitizeItemStack).filter(Boolean).slice(0,512);
+  const gear=raw.eq&&typeof raw.eq==="object"&&!Array.isArray(raw.eq)?raw.eq:{};
+  const rep=raw.rep&&typeof raw.rep==="object"&&!Array.isArray(raw.rep)?raw.rep:{};
+  const rogueliteStats=raw.rogueliteStats&&typeof raw.rogueliteStats==="object"&&!Array.isArray(raw.rogueliteStats)?raw.rogueliteStats:{};
+  const sanitized={
+    ...raw,
+    sk:Object.fromEntries(SKILLS.map(skill=>[skill,Math.max(0,Math.floor(safeNum(raw.sk?.[skill],0,0,1e12)))])),
+    inv,
+    bank,
+    eq:{
+      weapon:ITEMS[gear.weapon]?gear.weapon:null,
+      shield:ITEMS[gear.shield]?gear.shield:null,
+      helm:ITEMS[gear.helm]?gear.helm:null,
+      body:ITEMS[gear.body]?gear.body:null,
+      legs:ITEMS[gear.legs]?gear.legs:null,
+      cape:ITEMS[gear.cape]?gear.cape:null,
+      amulet:ITEMS[gear.amulet]?gear.amulet:null,
+      ring:ITEMS[gear.ring]?gear.ring:null,
+      ammo:ITEMS[gear.ammo]?gear.ammo:null,
+    },
+    quests:raw.quests&&typeof raw.quests==="object"&&!Array.isArray(raw.quests)?raw.quests:{},
+    monsterKills:raw.monsterKills&&typeof raw.monsterKills==="object"&&!Array.isArray(raw.monsterKills)?raw.monsterKills:{},
+    activePrayers:Array.isArray(raw.activePrayers)?raw.activePrayers.filter(Boolean).slice(0,16):[],
+    visitedRegions:Array.isArray(raw.visitedRegions)?raw.visitedRegions.filter(v=>typeof v==="string").slice(0,128):[],
+    playerName:sanitizeText(raw.playerName,16,fallbackName||"Adventurer"),
+    travelerSigil:sanitizeText(raw.travelerSigil,24,fallbackSigil||makeTravelerSigil()).toUpperCase(),
+    codex:Array.isArray(raw.codex)?raw.codex.filter(v=>typeof v==="string").slice(0,128):[],
+    sideQuests:Array.isArray(raw.sideQuests)?raw.sideQuests.slice(0,32):[],
+    campBank:Array.isArray(raw.campBank)?raw.campBank.map(sanitizeItemStack).filter(Boolean).slice(0,128):[],
+    unlocks:Array.isArray(raw.unlocks)?raw.unlocks.filter(v=>typeof v==="string").slice(0,32):[],
+    appearance:{
+      skin:typeof raw.appearance?.skin==="string"?raw.appearance.skin:"#f0d8a0",
+      hair:typeof raw.appearance?.hair==="string"?raw.appearance.hair:"#333",
+      outfit:typeof raw.appearance?.outfit==="string"?raw.appearance.outfit:"#2266cc",
+    },
+    rep:{
+      guard:Math.floor(safeNum(rep.guard,0,-999999,999999)),
+      merchant:Math.floor(safeNum(rep.merchant,0,-999999,999999)),
+      bandit:Math.floor(safeNum(rep.bandit,0,-999999,999999)),
+    },
+    rogueliteStats:{
+      bestWave:Math.max(0,Math.floor(safeNum(rogueliteStats.bestWave,0,0,999999))),
+      totalRuns:Math.max(0,Math.floor(safeNum(rogueliteStats.totalRuns,0,0,999999))),
+      relics:Array.isArray(rogueliteStats.relics)?rogueliteStats.relics.filter(id=>RELICS.some(r=>r.id===id)).slice(0,RELICS.length):[],
+    },
+    hp:Math.floor(safeNum(raw.hp,10,0,999999)),
+    mhp:Math.max(1,Math.floor(safeNum(raw.mhp,10,1,999999))),
+    prayer:Math.floor(safeNum(raw.prayer,10,0,999999)),
+    maxPrayer:Math.max(1,Math.floor(safeNum(raw.maxPrayer,10,1,999999))),
+    totalXp:Math.max(0,Math.floor(safeNum(raw.totalXp,0,0,1e12))),
+    x:Math.floor(safeNum(raw.x,20,0,MW-1)),
+    y:Math.floor(safeNum(raw.y,28,0,MH-1)),
+    runE:safeNum(raw.runE,100,0,100),
+  };
+  if(inv.length!==(Array.isArray(raw.inv)?raw.inv.length:0))issues.push("Removed invalid inventory entries.");
+  if(bank.length!==(Array.isArray(raw.bank)?raw.bank.length:0))issues.push("Removed invalid bank entries.");
+  if(sanitized.playerName!==(raw.playerName||sanitized.playerName)||sanitized.travelerSigil!==(raw.travelerSigil||sanitized.travelerSigil))issues.push("Normalized traveler identity fields.");
+  return{data:sanitized,issues};
+};
 
 // Innovation #12: Faction Recruitment Share Card
 const generateFactionShareCard=(faction,sunBrightness)=>{const sun=Math.round(sunBrightness);const phase=sun>80?'Full Dawn':sun>60?'Amber Warning':sun>40?'The Twilight':sun>20?'The Dimming':'The Eclipse';const calls={sunkeeper:['Join the Sunkeepers. Every death counts. Every Rite helps.','The sun needs defenders. We fight so it burns.','I chose the light. The sun is at '+sun+'%. Will you help?'],eclipser:['I chose the Eclipse. Darkness is transformation.','The Eclipsers embrace the end. The sun dimming is destiny.','I walk in shadow. The sun burns at '+sun+'%. Come join the end.'],neutral:['I play Solara: Sunfall. '+sun+'% sun remains this season.','Solara: Sunfall — where every death dims a shared sun. Now at '+sun+'%.','The '+phase+'. '+sun+'% sun. Your death shapes the world.']};const lines=calls[faction]||calls.neutral;const msg=lines[getDayNumber()%lines.length];return`${faction==='sunkeeper'?'☀️':faction==='eclipser'?'🌑':'🌅'} ${msg}\n\nSeason ${CURRENT_SEASON}: ${CURRENT_SEASON_NAME} · ${phase}\n\nPlay → vaultsparkstudios.github.io/solara/\n#SolaraSunfall #${faction==='sunkeeper'?'Sunkeeper':faction==='eclipser'?'Eclipser':'Solara'}`;};
@@ -767,6 +836,7 @@ export default function DS(){
   const [oracleSubbed,setOracleSubbed]=useState(()=>{try{return!!localStorage.getItem('solara_oracle_sub');}catch(e){return false;}});
   // Innovation #13: Ambient audio ref
   const ambientAudioR=useRef({ctx:null,osc:null,gainNode:null,active:false});
+  const saveHealthRef=useRef({issues:[]});
 
   const dismissGuide=useCallback(()=>{setShowGuide(false);try{localStorage.setItem("solara_quickstart_dismissed","1");}catch(e){}},[]);
 
@@ -917,6 +987,7 @@ export default function DS(){
     g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
     g2.p.x=9;g2.p.y=55;g2.p.path=[];g2.p.act=null;g2.p.cmb=null;g2.p.actTgt=null;
     updateStreak();
+    markDailyPlayedToday();
     setDailyTick(n=>n+1);setTab("inv");
   },[]);
 
@@ -963,6 +1034,7 @@ export default function DS(){
       p.rogueliteStats.relics.push(relic.id);
       addC("🏆 Relic earned: "+relic.i+" "+relic.n+" — "+relic.desc);
     }
+    run.shareCard=generateRogueShareCard(p.playerName||"Adventurer",wave,p.rogueliteStats.bestWave,p.rogueliteStats.relics.length,sunBrightnessRef.current);
     addC("💀 Roguelite run ended at Wave "+wave+". Best: "+p.rogueliteStats.bestWave);
     submitEcho("roguelite","Roguelite echo — Wave "+wave,`${p.playerName||"Adventurer"} fell on a roguelite push at Wave ${wave}.`,wave);
     // Submit grave for roguelite deaths too
@@ -1147,10 +1219,10 @@ export default function DS(){
     // === END MIGRATION SHIM ===
 
     // Load saved state
-    try{const sv=localStorage.getItem("solara_save");if(sv){const sp=JSON.parse(sv);const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests)p2.quests={};['desert','cook','goblin','rune','miner','haunted','karamja','knight','relic','awakening'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.desertKills)p2.desertKills=0;if(!p2.goblinKills)p2.goblinKills=0;if(!p2.achievements)p2.achievements=[];if(!p2.buffs)p2.buffs={};if(p2.autoRetaliate==null)p2.autoRetaliate=true;if(!p2.slayerTask)p2.slayerTask=null;if(!p2.sk.Herblore)p2.sk.Herblore=0;if(!p2.sk.Slayer)p2.sk.Slayer=0;if(!p2.sk.Fletching)p2.sk.Fletching=0;if(!p2.sk.Farming)p2.sk.Farming=0;if(!p2.sk.Runecrafting)p2.sk.Runecrafting=0;if(!p2.eq.cape)p2.eq.cape=null;if(!p2.activePrayers)p2.activePrayers=[];['shipment','forge','wildernessHunt'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.shipmentFish)p2.shipmentFish=0;if(!p2.iceWarriorKills)p2.iceWarriorKills=0;if(!p2.monsterKills)p2.monsterKills={};p2.visitedRegions=new Set(sp.visitedRegions||[]);p2.haunted=p2.haunted||0;p2.jogreKills=p2.jogreKills||0;p2.demonKills=p2.demonKills||0;p2.jadKills=p2.jadKills||0;p2.relicParts=p2.relicParts||0;p2.cookCount=p2.cookCount||0;
+    try{const sv=localStorage.getItem("solara_save");if(sv){const parsedSave=JSON.parse(sv);const sanitizedSave=sanitizeSaveData(parsedSave,travelerNameDraft||"Adventurer",travelerSigilDraft);if(!sanitizedSave.data)throw new Error("Invalid save payload");const sp=sanitizedSave.data;saveHealthRef.current.issues=sanitizedSave.issues;const p2=g.p;Object.assign(p2,sp);p2.hp=Math.min(p2.hp,p2.mhp);p2.prayer=Math.min(p2.prayer,p2.maxPrayer);p2.path=[];p2.act=null;p2.actTgt=null;p2.cmb=null;if(!p2.quests)p2.quests={};['desert','cook','goblin','rune','miner','haunted','karamja','knight','relic','awakening'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.desertKills)p2.desertKills=0;if(!p2.goblinKills)p2.goblinKills=0;if(!p2.achievements)p2.achievements=[];if(!p2.buffs)p2.buffs={};if(p2.autoRetaliate==null)p2.autoRetaliate=true;if(!p2.slayerTask)p2.slayerTask=null;if(!p2.sk.Herblore)p2.sk.Herblore=0;if(!p2.sk.Slayer)p2.sk.Slayer=0;if(!p2.sk.Fletching)p2.sk.Fletching=0;if(!p2.sk.Farming)p2.sk.Farming=0;if(!p2.sk.Runecrafting)p2.sk.Runecrafting=0;if(!p2.eq.cape)p2.eq.cape=null;if(!p2.activePrayers)p2.activePrayers=[];['shipment','forge','wildernessHunt'].forEach(q=>{if(p2.quests[q]==null)p2.quests[q]=0;});if(!p2.shipmentFish)p2.shipmentFish=0;if(!p2.iceWarriorKills)p2.iceWarriorKills=0;if(!p2.monsterKills)p2.monsterKills={};p2.visitedRegions=new Set(sp.visitedRegions||[]);p2.haunted=p2.haunted||0;p2.jogreKills=p2.jogreKills||0;p2.demonKills=p2.demonKills||0;p2.jadKills=p2.jadKills||0;p2.relicParts=p2.relicParts||0;p2.cookCount=p2.cookCount||0;
       // New field defaults (v4)
       if(!p2.pet)p2.pet=null;if(!p2.questPoints)p2.questPoints=0;if(!p2.unlocks)p2.unlocks=[];if(!p2.rep)p2.rep={guard:0,merchant:0,bandit:0};if(!p2.lastFireTile)p2.lastFireTile=null;if(!p2.prestige)p2.prestige={};if(!p2.farmPatches)p2.farmPatches=[];if(!p2.playerName)p2.playerName=travelerNameDraft||"Adventurer";if(!p2.travelerSigil)p2.travelerSigil=travelerSigilDraft;if(!p2.camp)p2.camp=null;if(!p2.campBank)p2.campBank=[];if(!p2.appearance)p2.appearance={skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"};if(!p2.codex)p2.codex=[];if(!p2.sideQuests)p2.sideQuests=[];if(!p2.dailyChallengeProgress)p2.dailyChallengeProgress=0;if(!p2.rogueliteStats)p2.rogueliteStats={bestWave:0,totalRuns:0,relics:[]};p2.comboMeter=0;p2.lastCombatStyle=null;
-      addC("Save loaded. Welcome back!");}
+      addC(sanitizedSave.issues.length?"Save loaded. Invalid fields were repaired.":"Save loaded. Welcome back!");}
 
     // Offline progression
     const savedOffline=localStorage.getItem("solara_offline");
@@ -2294,6 +2366,23 @@ export default function DS(){
   const totalLvl=p?SKILLS.reduce((a,s)=>a+lvl(p.sk[s]),0):16;
   const hasExistingSave=(()=>{try{return !!localStorage.getItem("solara_save");}catch(e){return false;}})();
   const backendConnected=!!supabase;
+  const isFreshAdventurer=!!p&&(p.totalXp||0)<=0&&Object.values(p.quests||{}).every(v=>!v);
+  const playedDailyToday=hasPlayedDailyToday();
+  const recentEchoGhosts=echoes.slice(0,3).map((echo,i)=>({id:echo.id||`ghost-${i}`,headline:echo.headline,player:echo.player_name||"Unknown",sigil:echo.traveler_sigil||"??",kind:echo.kind||"echo",offset:i}));
+  const objectiveState=(()=>{
+    if(!p)return null;
+    let target={title:"Open Daily Rites",detail:"The shared-world loop is strongest when you start the daily dungeon.",x:8,y:55,tab:"daily",accent:"#f0c060"};
+    if(dailyRunRef.current&&!dailyRunRef.current.done)target={title:`Daily Rite · Wave ${dailyRunRef.current.wave+1}`,detail:"Reach the dungeon entrance south of The Mine and clear the next wave.",x:8,y:55,tab:"daily",accent:"#f0c060"};
+    else if(rogueRunRef.current&&!rogueRunRef.current.done)target={title:`Roguelite Push · Wave ${rogueRunRef.current.wave+1}`,detail:"Return to the dungeon entrance to continue your run and secure another relic chance.",x:8,y:55,tab:"daily",accent:"#c8a0ff"};
+    else if(isFreshAdventurer)target={title:"Talk to Mara",detail:"Start Cook's Assistant in Solara's Rest for the cleanest first objective.",x:24,y:28,tab:"quest",accent:"#d8a86a"};
+    else if((p.quests?.cook||0)===1)target={title:"Cook's Assistant",detail:"Bring Mara an egg, bucket of milk, and flour to finish your first town quest.",x:24,y:28,tab:"quest",accent:"#d8a86a"};
+    else if((p.quests?.rune||0)===1)target={title:"Rune Mystery",detail:"Dark Wizards in the Ashlands hold the air runes Sedridor wants.",x:35,y:3,tab:"quest",accent:"#8aa8ff"};
+    else if((p.quests?.relic||0)===1)target={title:"Lost Relic",detail:`Collect relic parts (${p.relicParts||0}/3) and return to the Archaeologist in The Sanctum.`,x:22,y:12,tab:"quest",accent:"#c8a84e"};
+    else if((p.quests?.awakening||0)===1)target={title:"Final Awakening",detail:`Defeat TzTok-Jad three times (${p.jadKills||0}/3) before the season goes dark.`,x:64,y:90,tab:"quest",accent:"#ff7440"};
+    const dx=target.x-p.x,dy=target.y-p.y;
+    const dir=`${dy<0?"N":dy>0?"S":""}${dx>0?"E":dx<0?"W":""}`||"HERE";
+    return{...target,distance:Math.abs(dx)+Math.abs(dy),dir};
+  })();
 
   useEffect(()=>{
     if(!p)return;
@@ -2385,6 +2474,25 @@ export default function DS(){
   }
   function togglePrayer(id){if(!p)return;const pl=lvl(p.sk.Prayer);const pr=PRAYERS.find(x=>x.id===id);if(!pr)return;if(pl<pr.lvl){addC("Need Prayer level "+pr.lvl+".");return;}if(p.prayer<=0){addC("You have no Prayer points.");return;}const active=p.activePrayers||[];const idx=active.indexOf(id);if(idx>=0)p.activePrayers=active.filter(x=>x!==id);else p.activePrayers=[...active,id];fr(n=>n+1);}
   function saveGame(){if(!p||!gR.current)return;const g2=gR.current;try{localStorage.setItem("solara_save",JSON.stringify({ver:SAVE_VERSION,sk:p.sk,inv:p.inv,eq:p.eq,bank:p.bank,hp:p.hp,mhp:p.mhp,prayer:p.prayer,maxPrayer:p.maxPrayer,quests:p.quests,desertKills:p.desertKills,goblinKills:p.goblinKills||0,totalXp:p.totalXp,x:p.x,y:p.y,runE:p.runE,achievements:p.achievements,autoRetaliate:p.autoRetaliate,slayerTask:p.slayerTask,haunted:p.haunted,jogreKills:p.jogreKills,demonKills:p.demonKills,jadKills:p.jadKills,relicParts:p.relicParts,buffs:p.buffs,ironman:p.ironman,visitedRegions:[...(p.visitedRegions||[])],cookCount:p.cookCount,activePrayers:p.activePrayers||[],shipmentFish:p.shipmentFish||0,iceWarriorKills:p.iceWarriorKills||0,monsterKills:p.monsterKills||{},pet:p.pet,questPoints:p.questPoints||0,unlocks:p.unlocks||[],rep:p.rep||{guard:0,merchant:0,bandit:0},lastFireTile:p.lastFireTile,prestige:p.prestige||{},farmPatches:g2.objects?.filter(o=>o.t==="farm_patch").map(o=>({id:o.id,seed:o.seed,readyAt:o.readyAt,grown:o.grown})),playerName:p.playerName||"Adventurer",travelerSigil:p.travelerSigil||travelerSigilDraft,camp:p.camp,campBank:p.campBank||[],appearance:p.appearance||{skin:"#f0d8a0",hair:"#333",outfit:"#2266cc"},codex:p.codex||[],sideQuests:p.sideQuests||[],dailyChallengeProgress:p.dailyChallengeProgress||0,rogueliteStats:p.rogueliteStats||{bestWave:0,totalRuns:0,relics:[]}}));addC("Game saved!");}catch(e){}}
+  function exportSaveFile(){try{const blob=new Blob([localStorage.getItem("solara_save")||"{}"],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="solara_save.json";a.click();}catch(e){addC("Export failed.");}}
+  function importSaveFile(file){
+    if(!file)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      try{
+        const raw=JSON.parse(ev.target.result);
+        const sanitized=sanitizeSaveData(raw,travelerNameDraft||"Adventurer",travelerSigilDraft);
+        if(!sanitized.data)throw new Error("invalid");
+        localStorage.setItem("solara_save",JSON.stringify(sanitized.data));
+        alert(sanitized.issues.length?`Save imported with repairs:\n- ${sanitized.issues.join('\n- ')}`:"Save imported successfully.");
+        window.location.reload();
+      }catch(err){
+        addC("Import failed. Save file was invalid.");
+        alert("Import failed. The selected file is not a valid Solara save.");
+      }
+    };
+    r.readAsText(file);
+  }
   function autoEquipStarterLoadout(){
     if(!p)return;
     if((p.totalXp||0)>0)return;
@@ -2434,7 +2542,6 @@ export default function DS(){
       {s&&<span style={{position:"absolute",bottom:0,right:1,fontSize:6,color:"#aa9",maxWidth:34,overflow:"hidden",whiteSpace:"nowrap"}}>{d.n}</span>}
     </div>);}
 
-  const isFreshAdventurer=!!p&&(p.totalXp||0)<=0&&Object.values(p.quests||{}).every(v=>!v);
   const guideStepLabel=!p?"Booting world...":dailyRunRef.current&&!dailyRunRef.current.done?"Daily Rite active: head to the dungeon entrance and clear the next wave.":rogueRunRef.current&&!rogueRunRef.current.done?"Roguelite active: reach the dungeon entrance and push as far as you can.":isFreshAdventurer?"Suggested start: equip your sword in the gear tab, then talk to Mara or start the Daily Rite.":"Suggested start: open the Daily tab for guided runs, or talk to NPCs in town for quests.";
   const sidePanelWidth=panelOpen?235:0;
 
@@ -2463,8 +2570,8 @@ export default function DS(){
             {["Accurate","Aggressive","Defensive"].map((s,i)=><button key={i} onClick={()=>{if(p)p.style=i;fr(n=>n+1);}}
               style={{background:p.style===i?"#5a1808":"transparent",border:"1px solid #6a2010",color:p.style===i?"#ff0":"#555",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>{s}</button>)}
             <button onClick={saveGame} style={{background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>💾</button>
-            <button onClick={()=>{const blob=new Blob([localStorage.getItem("solara_save")||"{}"],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="solara_save.json";a.click();}} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📤</button>
-            <label style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📥<input type="file" accept=".json" style={{display:"none"}} onChange={e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const d=JSON.parse(ev.target.result);localStorage.setItem("solara_save",JSON.stringify(d));window.location.reload();}catch(err){}};r.readAsText(f);}}/></label>
+            <button onClick={exportSaveFile} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📤</button>
+            <label style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>📥<input type="file" accept=".json" style={{display:"none"}} onChange={e=>importSaveFile(e.target.files[0])}/></label>
             <button onClick={()=>{audioOnR.current=!audioOnR.current;if(audioOnR.current)initAudio();fr(n=>n+1);}} style={{background:"#0a1a0a",border:"1px solid #2a4a2a",color:"#4af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3}}>{audioOnR.current?"🔊":"🔇"}</button>
             <button onClick={()=>setMapOpen(v=>!v)} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"2px 4px",cursor:"pointer",borderRadius:3,fontWeight:600}}>🗺️</button>
           </div>
@@ -2499,6 +2606,29 @@ export default function DS(){
             <span style={{fontSize:8,color:"#f0c060",fontWeight:700}}>Next:</span>
             <span style={{fontSize:8,color:"#c0b3a0"}}>{guideStepLabel}</span>
           </div>}
+          {p&&objectiveState&&<div style={{position:"absolute",bottom:14,left:12,maxWidth:340,background:"rgba(10,4,3,0.9)",border:`1px solid ${objectiveState.accent}55`,borderRadius:12,padding:"10px 12px",boxShadow:"0 10px 26px rgba(0,0,0,0.35)",zIndex:16}}>
+            <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:10,marginBottom:4}}>
+              <div style={{fontSize:9,color:objectiveState.accent,fontWeight:800,letterSpacing:1}}>OBJECTIVE TRACKER</div>
+              <div style={{fontSize:8,color:"#8f7d68"}}>{objectiveState.dir} · {objectiveState.distance} tiles</div>
+            </div>
+            <div style={{fontSize:11,color:"#ddd",fontWeight:700,marginBottom:3}}>{objectiveState.title}</div>
+            <div style={{fontSize:8,color:"#b8a994",lineHeight:1.5,marginBottom:8}}>{objectiveState.detail}</div>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+              <button onClick={()=>{setTab(objectiveState.tab);setPanelOpen(true);}} style={{background:"#1c120a",border:`1px solid ${objectiveState.accent}66`,color:objectiveState.accent,fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:700}}>Open {objectiveState.tab}</button>
+              <button onClick={()=>setMapOpen(true)} style={{background:"#120d18",border:"1px solid #5a4a7a",color:"#c8a0ff",fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:600}}>Open Map</button>
+            </div>
+            {saveHealthRef.current.issues.length>0&&<div style={{fontSize:7,color:"#c68856",lineHeight:1.45,marginTop:7}}>Save safety: {saveHealthRef.current.issues.join(" ")}</div>}
+          </div>}
+          {p&&recentEchoGhosts.length>0&&<div style={{position:"absolute",top:12,right:12,width:220,display:"grid",gap:6,zIndex:16}}>
+            {recentEchoGhosts.map(ghost=><div key={ghost.id} style={{background:"rgba(18,10,22,0.82)",border:"1px solid rgba(200,160,255,0.18)",borderRadius:10,padding:"8px 10px",boxShadow:"0 8px 22px rgba(0,0,0,0.28)"}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8}}>
+                <div style={{fontSize:8,color:"#c8a0ff",fontWeight:800,letterSpacing:1}}>GHOST MANIFESTATION</div>
+                <div style={{fontSize:7,color:"#7f6d95"}}>{ghost.sigil}</div>
+              </div>
+              <div style={{fontSize:9,color:"#ddd",marginTop:3,lineHeight:1.45}}>{ghost.headline}</div>
+              <div style={{fontSize:7,color:"#8f82a3",marginTop:4}}>{ghost.player} · {ghost.kind}</div>
+            </div>)}
+          </div>}
           {/* Mobile D-pad (Task 13) */}
           {typeof window!=="undefined"&&/Mobi|Android/i.test(navigator.userAgent)&&p&&<div style={{position:"absolute",bottom:10,left:10,display:"grid",gridTemplateColumns:"repeat(3,40px)",gridTemplateRows:"repeat(3,40px)",gap:2,userSelect:"none"}}>
             {[["",null],["▲","n","ArrowUp"],["",null],["◄","w","ArrowLeft"],["·",null,null],["►","e","ArrowRight"],["",null],["▼","s","ArrowDown"],["",null]].map(([lbl,dir,key],i)=>dir?<button key={i} onTouchStart={e=>{e.preventDefault();if(key){const synth=new KeyboardEvent("keydown",{key,bubbles:true});window.dispatchEvent(synth);}}} onTouchEnd={e=>{e.preventDefault();if(key){const synth=new KeyboardEvent("keyup",{key,bubbles:true});window.dispatchEvent(synth);}}}
@@ -2513,8 +2643,10 @@ export default function DS(){
         {/* Side panel */}
         <div style={{width:sidePanelWidth,background:"linear-gradient(180deg,#1e0a06,#180804)",borderLeft:panelOpen?"2px solid #5a1808":"none",display:"flex",flexDirection:"column",flexShrink:0,transition:"width 0.2s ease",overflow:"hidden"}}>
           <div style={{display:"flex",borderBottom:"1px solid #5a1808"}}>
-            {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"],["bestiary","📖"],["daily","☀️"],["settings","⚙️"]].map(([t,ic])=>
-              <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"4px 0",background:tab===t?"#280e06":"transparent",border:"none",color:tab===t?"#c8a84e":"#5a2010",cursor:"pointer",fontSize:10,borderBottom:tab===t?"2px solid #c8a84e":"2px solid transparent"}}>{ic}</button>)}
+            {[["inv","🎒"],["skills","⚔️"],["equip","🛡️"],["quest","📜"],["pray","🙏"],["bestiary","📖"],["daily","☀️"],["settings","⚙️"]].map(([t,ic])=>{
+              const pulse=t==="daily"&&!playedDailyToday&&(!dailyRunRef.current||dailyRunRef.current.done);
+              return <button key={t} onClick={()=>setTab(t)} style={{flex:1,padding:"4px 0",background:tab===t?"#280e06":pulse?"rgba(120,72,12,0.32)":"transparent",border:"none",color:tab===t?"#c8a84e":pulse?"#f0c060":"#5a2010",cursor:"pointer",fontSize:10,borderBottom:tab===t?"2px solid #c8a84e":"2px solid transparent",boxShadow:pulse?"inset 0 0 10px rgba(240,192,96,0.25)":"none",animation:pulse?"pulse 1.5s ease-in-out infinite":"none"}}>{ic}</button>;
+            })}
           </div>
           <div style={{flex:1,overflow:"auto",padding:5}}>
             {tab==="inv"&&<div>
@@ -2686,7 +2818,7 @@ export default function DS(){
               </div>
               {/* Run state */}
               {!dailyRunRef.current&&<div>
-                <button onClick={startDailyRun} style={{width:"100%",background:"linear-gradient(180deg,#3a1808,#280e04)",border:"2px solid #c8a84e",color:"#da0",fontSize:10,padding:"8px 4px",cursor:"pointer",borderRadius:4,fontWeight:700,marginBottom:3}}>☀️ Play Today's Dungeon</button>
+                <button onClick={startDailyRun} style={{width:"100%",background:"linear-gradient(180deg,#3a1808,#280e04)",border:"2px solid #c8a84e",color:"#da0",fontSize:10,padding:"8px 4px",cursor:"pointer",borderRadius:4,fontWeight:700,marginBottom:3,boxShadow:!playedDailyToday?"0 0 14px rgba(240,192,96,0.28)":"none",animation:!playedDailyToday?"pulse 1.5s ease-in-out infinite":"none"}}>☀️ {playedDailyToday?"Replay Today's Dungeon":"Play Today's Dungeon"}</button>
                 <div style={{fontSize:7,color:"#555",textAlign:"center",lineHeight:1.4}}>30 waves · seeded by today's date<br/>same dungeon for all players worldwide</div>
               </div>}
               {dailyRunRef.current&&!dailyRunRef.current.done&&<div style={{background:"rgba(40,20,5,0.6)",border:"1px solid #5a3010",borderRadius:4,padding:"6px 4px",textAlign:"center"}}>
@@ -2716,6 +2848,10 @@ export default function DS(){
                   </div>}
                   {rogueRunRef.current&&rogueRunRef.current.done&&<div style={{background:"rgba(40,10,30,0.5)",border:"1px solid rgba(128,96,192,0.2)",borderRadius:4,padding:4,marginTop:3}}>
                     <div style={{color:"#f44",fontSize:10,fontWeight:700,textAlign:"center"}}>💀 Fell at Wave {rogueRunRef.current.deathWave}</div>
+                    {rogueRunRef.current.shareCard&&<>
+                      <pre style={{fontSize:7,color:"#a996c8",background:"rgba(0,0,0,0.28)",padding:4,borderRadius:3,marginTop:4,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"'Courier New',monospace"}}>{rogueRunRef.current.shareCard}</pre>
+                      <button onClick={async()=>{const t=rogueRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});return;}catch(e){}}try{await navigator.clipboard.writeText(t);addC("📋 Roguelite share card copied.");}catch(e){addC("Copy failed — share card shown above.");}}} style={{width:"100%",background:"#241038",border:"1px solid #8060c0",color:"#c8a0ff",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:4}}>📋 Copy Roguelite Share</button>
+                    </>}
                   </div>}
                 </div>:<div style={{background:"rgba(40,10,30,0.5)",border:"1px solid #8060c0",borderRadius:4,padding:"6px 4px",textAlign:"center"}}>
                   <div style={{color:"#c8a0ff",fontSize:12,fontWeight:700}}>⚔️ Wave {rogueRunRef.current.wave+1}</div>
@@ -2844,7 +2980,7 @@ export default function DS(){
               <div style={{fontSize:9,color:p.ironman?"#c8a84e":"#666"}}>Mode: {p.ironman?"🔒 Ironman":"Normal"}</div>
               {!p.ironman&&<button onClick={()=>{if(confirm("Enable Ironman? Cannot buy from shops.")){p.ironman=true;fr(n=>n+1);}}} style={{background:"#2a1010",border:"1px solid #7a2010",color:"#c44",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>Enable Ironman</button>}
               <button onClick={saveGame} style={{background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>💾 Save Now</button>
-              <button onClick={()=>{const blob=new Blob([localStorage.getItem("solara_save")||"{}"],{type:"application/json"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="solara_save.json";a.click();}} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>📤 Export Save</button>
+              <button onClick={exportSaveFile} style={{background:"#0a1a2a",border:"1px solid #2a4a6a",color:"#6af",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>📤 Export Save</button>
               <button onClick={()=>{if(confirm("Reset ALL progress? Cannot be undone!")){localStorage.removeItem("solara_save");window.location.reload();}}} style={{background:"#3a0808",border:"1px solid #8a2010",color:"#f44",fontSize:8,padding:"3px 6px",cursor:"pointer",borderRadius:3}}>🗑️ Reset Save</button>
             </div>}
           </div>

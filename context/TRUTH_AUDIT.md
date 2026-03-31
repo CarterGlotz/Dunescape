@@ -1,9 +1,9 @@
 <!-- truth-audit-version: 1.0 -->
 # Truth Audit
 
-Last reviewed: YYYY-MM-DD
+Last reviewed: 2026-03-31
 Overall status: yellow
-Next action: Fix the highest-severity contradiction first.
+Next action: Finish the external Supabase activation so the repo truth and live public behavior finally match.
 
 ---
 
@@ -20,12 +20,12 @@ Next action: Fix the highest-severity contradiction first.
 
 | Dimension | Score | Notes |
 |---|---|---|
-| Schema alignment | 0 | |
-| Prompt/template alignment | 0 | |
-| Derived-view freshness | 0 | |
-| Handoff continuity | 0 | |
-| Contradiction density | 0 | |
-| **Total** | **0 / 25** | |
+| Schema alignment | 3 | `PROJECT_STATUS.json` refreshed and truth-audit fields added |
+| Prompt/template alignment | 2 | Prompt assets unchanged this session; no new drift introduced |
+| Derived-view freshness | 3 | `README.md`, `PORTFOLIO_CARD.md`, and activation docs refreshed |
+| Handoff continuity | 3 | Session lock, handoff, task board, and work log all refreshed in order |
+| Contradiction density | 3 | Major stale contradiction (`README.md` still saying Dunescape) resolved |
+| **Total** | **14 / 25** | Yellow: core truth is healthier, but external activation remains unresolved |
 
 ---
 
@@ -33,30 +33,30 @@ Next action: Fix the highest-severity contradiction first.
 
 | Area | Canonical source | Derived surfaces | Status | Last checked | Action |
 |---|---|---|---|---|---|
-| Project identity | `context/PROJECT_STATUS.json` | `context/PORTFOLIO_CARD.md` | yellow | YYYY-MM-DD | |
-| Session continuity | `context/LATEST_HANDOFF.md` | startup brief | yellow | YYYY-MM-DD | |
-| Live state | `context/CURRENT_STATE.md` | founder summaries | yellow | YYYY-MM-DD | |
-| Protocol assets | `prompts/` | `docs/templates/project-system/` | yellow | YYYY-MM-DD | |
+| Project identity | `context/PROJECT_STATUS.json` | `context/PORTFOLIO_CARD.md`, `README.md` | green | 2026-03-31 | refreshed this session |
+| Session continuity | `context/LATEST_HANDOFF.md` | startup brief | yellow | 2026-03-31 | keep Session Intent current at session start |
+| Live state | `context/CURRENT_STATE.md` | founder summaries | yellow | 2026-03-31 | external Studio Ops registry still needs regeneration outside this repo |
+| Backend activation truth | `docs/SUPABASE_ACTIVATION_PACK.md` | menu/backend messaging, public surfaces | yellow | 2026-03-31 | complete the live SQL/env pass |
 
 ---
 
 ## Contradictions
 
-- None recorded.
+- Resolved this session: `README.md` no longer describes the project as Dunescape.
 
 ---
 
 ## Freshness
 
-- `context/PROJECT_STATUS.json`: YYYY-MM-DD
-- `context/LATEST_HANDOFF.md`: YYYY-MM-DD
-- `context/CURRENT_STATE.md`: YYYY-MM-DD
-- Derived founder-facing views: YYYY-MM-DD
+- `context/PROJECT_STATUS.json`: 2026-03-31
+- `context/LATEST_HANDOFF.md`: 2026-03-31
+- `context/CURRENT_STATE.md`: 2026-03-31
+- Derived founder-facing views: 2026-03-31
 
 ---
 
 ## Recommended Actions
 
-1. Resolve any red contradictions before feature work.
-2. Refresh stale derived views from canonical JSON.
-3. Sync prompts and templates if protocol changed.
+1. Complete the Supabase activation pack so public async surfaces stop disagreeing with local-only fallback behavior.
+2. Regenerate any external founder-facing registry views that still reflect the pre-completion-pass focus.
+3. Keep `PROJECT_STATUS.json` and `PORTFOLIO_CARD.md` aligned whenever the next milestone or audit score changes.

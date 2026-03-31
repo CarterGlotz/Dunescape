@@ -2,37 +2,24 @@
 
 ## Now — Agent can do immediately
 
-- [SIL] Objective tracker — persistent on-screen pointer for current quest target / dungeon entrance / next meaningful step
-- [SIL] "First run today" tab pulse — gold glow on ☀️ Daily tab when daily not yet played
-- [SIL] Roguelite share card — generate share text on roguelite death
-- [SIL] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup
+- [SIL] Season chronicle page — public current-season ledger combining top runs, recent graves, echoes, and sun milestones
+- [SIL] Echo response loop — let players `commend` / `heed` / `mourn` echoes so the strongest async stories rise over time
 
 ## Human Action Required
 
-- [ ] **Create Supabase project** — create the Supabase project at supabase.com so Solara’s social systems can connect to a live backend
+- [ ] **Complete the Supabase activation pack** — follow `docs/SUPABASE_ACTIVATION_PACK.md`, add live env vars/secrets, and run the SQL blocks so the shared-world systems stop falling back to local-only behavior
 - [ ] **Run SQL Block 1 (`daily_scores`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 1 leaderboard storage
 - [ ] **Run SQL Block 2 (`graves`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 2 grave storage and map persistence
 - [ ] **Run SQL Block 3 (`sun_state`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 3 shared sun tracking and death counter RPC
 - [ ] **Run SQL Block 4 (`player_echoes`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate cross-player async echoes
-- [ ] **Add Supabase env vars** — set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env.local` and GitHub Secrets so local and CI builds can talk to Supabase
 - [ ] **Post the itch.io listing** — publish the game and devlog entry at itch.io/vaultsparkstudios to open the first real distribution channel
 - [ ] **Deploy the Discord bot** — create the Discord app/token and host `discord-bot/` so the social distribution layer can run
 - [ ] **Submit the Twitch extension** — submit `twitch-extension/` through the Twitch Developer Console to activate the stream-side surface
 
-## Now — Waiting on Carter (manual actions, flagged for delay)
-
-- [Manual] Create Supabase project at supabase.com (free tier) — BLOCKS all social features
-- [Manual] Run SQL Block 1 — `daily_scores` table (Phase 1) — full SQL in LATEST_HANDOFF.md
-- [Manual] Run SQL Block 2 — `graves` table (Phase 2) — full SQL in LATEST_HANDOFF.md
-- [Manual] Run SQL Block 3 — `sun_state` table + `increment_death_counter()` (Phase 3) — full SQL in LATEST_HANDOFF.md
-- [Manual] Run SQL Block 4 — `player_echoes` table (async shared-world echoes)
-- [Manual] Add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` to `.env.local` (local) and GitHub Secrets (CI)
-- ✅ [Manual] Rename GitHub repo: dunescape → solara — done 2026-03-27 via `gh repo rename`
-- [Manual] Post to itch.io — list game at itch.io/vaultsparkstudios with devlog entry (Innovation #18)
-
 ## Next — Agent (after Supabase is live)
 
 - [Phase 5] Season 1: The Wandering Comet config + launch prep
+- [Phase 5b] Roguelite leaderboard — shared best-wave board parallel to the daily leaderboard
 - [Phase 5b] Prophecy Scroll canvas image generator (image version of share card)
 - [Phase 5b] Season leaderboard + season reset flow
 - [Innovation #9] Player milestone push notifications (grave became Cairn/Shrine)
@@ -44,6 +31,13 @@
 
 ## Done
 
+- ✅ [Completion Pass] Objective tracker — persistent on-screen pointer for current quest target / dungeon entrance / next meaningful step
+- ✅ [Completion Pass] "First run today" tab pulse — gold glow on ☀️ Daily tab when daily not yet played
+- ✅ [Completion Pass] Roguelite share card — generate share text on roguelite death
+- ✅ [Completion Pass] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup
+- ✅ [Completion Pass] Ghost manifestations — recent async echoes now surface as runtime ghost cards, not only menu/settings memory
+- ✅ [Completion Pass] Supabase activation pack — `docs/SUPABASE_ACTIVATION_PACK.md` centralizes the live backend checklist
+- ✅ [Completion Pass] Public truth pass — `README.md` now reflects Solara instead of the stale Dunescape label
 - ✅ [Phase 0] All Dunescape → Solara: Sunfall string replacements
 - ✅ [Phase 0] Save migration shim (dunescape_save → solara_save, SAVE_VERSION 4→5)
 - ✅ [Phase 0] OSRS IP cleanup (all location/NPC names replaced)
@@ -85,7 +79,7 @@
 - ✅ [SIL] Sunstone Shard starter item + HUD welcome message
 - ✅ [SIL] Daily run streak counter in localStorage + display in Daily tab
 - ✅ [SIL] Wave 30 boss seeded daily name (getDailyBossName)
-- ✅ [SIL] Recent deaths ticker — new graves announced in chat on 5-min refresh
+- ✅ [SIL] Recent deaths ticker — new graves announced in chat on 5-minute refresh
 - ✅ [SIL] Grave clustering — 💀 badge with count when ≥5 graves within 3 tiles
 - ✅ [SIL] Oracle dialogue state machine — 4 threshold branches based on sunBrightness
 - ✅ [SIL] Sunstone Shard offering mechanic — spend shard on grave
@@ -108,4 +102,4 @@
 - ✅ [Innovation #15] Public Sun API — archive.html + widget both expose /sun state via Supabase public query
 - ✅ [Maintenance] Fix startup TDZ crash in `src/App.jsx` by moving Supabase polling effects below `fetchGraves` / `fetchSunState` callback initialization
 - ✅ [SIL] Add a lightweight boot smoke test for app mount + daily/roguelite startup flows
-- ✅ Build passing ✅ (348 KB JS, 106 KB gzipped)
+- ✅ Build passing ✅ (`575.91 KB` JS, `166.85 KB` gzipped)

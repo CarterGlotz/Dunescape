@@ -128,3 +128,27 @@ Agents MUST NOT modify or remove existing entries.
 - New required direction: Implement the full async shared-world presentation layer now: main menu, how-to-play, knowledge base, features, update log, identity, and ghost/echo-style social memory in one quality-focused pass
 - Why it matters: This turns the original game idea into a player-facing build instead of a mostly internal roadmap
 - Supersedes prior entry: —
+
+---
+
+### 2026-03-31 — Full project audit with scored recommendations
+
+- Category: Assignment
+- Human input: "Audit project in its entirety and provide score/rating, analysis/recommendations (short descriptions). Provide short innovative solutions brainstorm list with each items having a score/rating attached to it and how it would improve/impact the project's overall score, potential, momentum (etc.). Recommend the top items to implement by highest impact/potential. (do all of this with minimal token waste)"
+- Area affected: Full project audit, prioritization, roadmap, and implementation order
+- Previous state: The repo had strong shipped systems, but the next highest-impact actions had not been re-ranked after the front-door pass
+- New required direction: Produce a concise, scored audit of the entire project, generate a ranked idea list, and identify the highest-impact items for implementation
+- Why it matters: The project needed a reality-checked priority stack instead of continuing to add features on intuition alone
+- Supersedes prior entry: —
+
+---
+
+### 2026-03-31 — Complete all recommendations and add all ideas
+
+- Category: Assignment
+- Human input: "Complete all recommendations annd add all ideas"
+- Area affected: Runtime onboarding, shared-world presence, save resilience, repo truth surfaces, task board
+- Previous state: The audit produced a concrete recommendation list, but those improvements were not yet shipped
+- New required direction: Implement the full agent-side recommendation set now and add the resulting future ideas into project memory/tracking
+- Why it matters: It converts the audit from advisory output into shipped product movement and retained next-step intelligence
+- Supersedes prior entry: 2026-03-31 — Full project audit with scored recommendations

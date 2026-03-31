@@ -5,11 +5,12 @@ Append a new entry every closeout. Never delete prior entries.
 
 <!-- rolling-status-start -->
 ## Rolling Status (auto-updated each closeout)
-Sparkline (last 5 totals): ▅▅▆▇▇
-Avgs — 3: 42.0 | 5: 41.2 | 10: — | 25: — | all: 36.6
-  └ 3-session: Dev 9.0 | Align 10.0 | Momentum 9.3 | Engage 2.0 | Process 10.0
+Sparkline (last 5 totals): ▆▆▆▆▆
+Avgs — 3: 42.7 | 5: 42.6 | 10: 41.3 | 25: — | all: 37.8
+  └ 3-session: Dev 9.3 | Align 10.0 | Momentum 9.7 | Engage 2.3 | Process 10.0
 Velocity trend: →  |  Protocol velocity: →  |  Debt: →
-Last session: 2026-03-30 | Session 10 | Total: 43/50 | Velocity: 0 | protocolVelocity: 0
+Momentum runway: N/A — architecture phase; pre-load TASK_BOARD recommended before next implementation sprint  |  Intent rate: 80% (last 5)
+Last session: 2026-03-31 | Session 13 | Total: 43/50 | Velocity: 0 | protocolVelocity: 0
 ─────────────────────────────────────────────────────────────────────
 <!-- rolling-status-end -->
 
@@ -426,3 +427,38 @@ Rate 0–10 per category at each closeout:
 
 - [SIL] Objective tracker — persistent on-screen pointer for current quest target / dungeon entrance / next meaningful step
 - [SIL] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup
+
+---
+
+## 2026-03-31 — Session 13 | Total: 43/50 | Velocity: 0 | Debt: →
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 10 | ↑ | Build + smoke stayed green after a large monolith patch, and save/load paths now sanitize boot-critical fields |
+| Creative Alignment | 10 | → | Objective guidance, ghost manifestations, and the roguelite share layer all reinforce the shared-sun async premise |
+| Momentum | 10 | → | Full audit recommendations were converted into shipped work in the same session |
+| Engagement | 3 | ↑ | Daily-return pulse, ghost manifestations, and roguelite share output increase the project’s retention/share scaffolding even pre-launch |
+| Process Quality | 10 | → | Studio OS write-back completed, truth surfaces refreshed, activation guide added, CDR updated |
+| **Total** | **43 / 50** | ↑ | |
+
+**IGNIS note:** High-value progress came from closing the gap between “systems exist” and “players can feel them” rather than adding another isolated subsystem.
+
+**Top win this session:** The audit recommendations did not stay theoretical: objective guidance, ghost manifestations, save validation, daily pulse, and roguelite sharing all shipped together and were verified by build + smoke.
+
+**Top gap this session:** The async world still is not truly communal until the live Supabase activation is completed outside the repo.
+
+**Session intent outcome:** Redirected — the inherited handoff intent was replaced by a full audit + implementation pass, and the session followed the newer user directive.
+
+**Innovative Solutions Brainstorm**
+
+1. **Season chronicle page** — Create a public current-season ledger that blends top runs, recent graves, echoes, and sun milestones into one founder-facing/player-facing page. Implementation path: build a new public page that reads the same Supabase tables already used by the archive/widget. Execution probability: High.
+2. **Echo response loop** — Let players `commend`, `heed`, or `mourn` echoes so the strongest async stories rise naturally. Implementation path: add local-first reaction controls to the runtime echo feed, then map them to Supabase when live. Execution probability: High.
+3. **Roguelite leaderboard** — Add a persistent best-wave board for roguelite runs to complement the daily leaderboard. Implementation path: mirror the daily leaderboard pattern with a dedicated roguelite table and client fetch/render path. Execution probability: Medium.
+4. **Map-tied ghost traces** — Convert ghost manifestations from HUD cards into location-aware spectral traces on the world map. Implementation path: persist lightweight echo coordinates and render them as transient map markers before full ghost NPC logic. Execution probability: Medium.
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] Season chronicle page — public current-season ledger combining top runs, recent graves, echoes, and sun milestones
+- [SIL] Echo response loop — let players `commend` / `heed` / `mourn` echoes so the strongest async stories rise over time
