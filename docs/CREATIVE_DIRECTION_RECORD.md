@@ -152,3 +152,15 @@ Agents MUST NOT modify or remove existing entries.
 - New required direction: Implement the full agent-side recommendation set now and add the resulting future ideas into project memory/tracking
 - Why it matters: It converts the audit from advisory output into shipped product movement and retained next-step intelligence
 - Supersedes prior entry: 2026-03-31 — Full project audit with scored recommendations
+
+---
+
+### 2026-03-31 — Fix camera follow and expand gameplay viewport
+
+- Category: Direction
+- Human input: "again, the player starts the world off screen and then you have to move him onto screen and then when you move anywhere outside of the starting view box, he disappears again. The camera doesn't follow your character. Fix this issue. Also expand the gameplay to be bigger on the screen as there are two massive vertical black boxes that make the gameplay screen small. Audit and propose fix plan." and "Complete follow up plan"
+- Area affected: Runtime camera, viewport sizing, gameplay shell
+- Previous state: The gameplay shell was larger than before, but camera framing was still broken and the viewport still behaved like a fixed box on wide screens
+- New required direction: Fix camera follow immediately, remove the boxed-in gameplay presentation, and complete the responsive viewport/camera follow-up plan rather than stopping at diagnosis
+- Why it matters: A game that lets the player fall off-screen or wastes most of the monitor on black bars is still effectively unplayable
+- Supersedes prior entry: —

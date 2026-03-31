@@ -22,6 +22,14 @@ Last updated: 2026-03-31
 - Replaced the stale `README.md` and added `docs/SUPABASE_ACTIVATION_PACK.md` so repo truth now matches the shipped Solara build and the external activation path is operationally clear
 - Verified both `npm run build` and `npm run smoke` pass after the completion pass
 
+**Responsive camera + viewport fix**
+
+- Reworked camera follow in `src/App.jsx` so the player no longer starts off-screen and the camera follows correctly instead of leaving the character behind
+- Replaced the fixed `17x14` draw assumption with viewport-derived tile counts in `src/App.jsx`, allowing wider screens to reveal more of the world instead of just stretching the old box
+- Removed the `objectFit: contain` gameplay constraint and bound the canvas size to the gameplay host, eliminating the large vertical black bars
+- Added a lightweight dead-zone camera behavior so movement feels less locked while still keeping the player on-screen
+- Verified both `npm run build` and `npm run smoke` still pass after the camera/viewport fix
+
 ## Root cause
 
 - The project had strong systems and strong concept, but the highest-value recommendations were still trapped in gaps between "prepared" and "felt": players lacked explicit direction, async presence was too hidden, and save/import paths were still permissive enough to threaten boot stability

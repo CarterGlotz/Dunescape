@@ -226,3 +226,19 @@ Append chronological entries.
   - Preserved: offline-safe degradation for shared-world systems when Supabase is absent
   - Created: none
 - Recommended next move: Carter completes the Supabase activation pack; then build the season chronicle page and echo response loop
+
+---
+
+### 2026-03-31 — Responsive camera + viewport fix
+
+- Goal: Fix the broken camera follow, stop the player spawning off-screen, and complete the responsive viewport follow-up plan so gameplay uses more of the display
+- What changed:
+  - `src/App.jsx`: replaced the fixed `17x14` camera assumptions with viewport-derived draw metrics, clamped/centered camera initialization, dead-zone follow behavior, and correct recentering on world entry/camp return
+  - `src/App.jsx`: removed the gameplay `objectFit: contain` bottleneck and bound the canvas to the actual gameplay host via `ResizeObserver`, reducing the large vertical black bars and allowing wide screens to reveal more world
+- Files or systems touched: `src/App.jsx`, `context/CURRENT_STATE.md`, `context/LATEST_HANDOFF.md`, `docs/CREATIVE_DIRECTION_RECORD.md`, `logs/WORK_LOG.md`
+- Risks created or removed:
+  - Removed: player starting off-screen
+  - Removed: camera not following the player
+  - Removed: fixed-box viewport behavior on larger screens
+  - Preserved: build and smoke checks remain green after the camera/rendering pass
+- Recommended next move: browser-check the feel on desktop and then decide whether to keep the current dead-zone size or tune it further

@@ -1,7 +1,46 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from './supabase.js';
 
-const TILE=32,MW=100,MH=100,VTX=17,VTY=14,CW=VTX*TILE,CH=VTY*TILE;
+const TILE=32,MW=100,MH=100,BASE_VTX=17,BASE_VTY=14,CW=BASE_VTX*TILE,CH=BASE_VTY*TILE;
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+const getViewportMetrics=cv=>{
+  const width=cv?.width||CW;
+  const height=cv?.height||CH;
+  const spanX=Math.max(BASE_VTX,width/TILE);
+  const spanY=Math.max(BASE_VTY,height/TILE);
+  return{
+    width,
+    height,
+    spanX,
+    spanY,
+    tilesX:Math.ceil(spanX)+1,
+    tilesY:Math.ceil(spanY)+1,
+  };
+};
+const getCenteredCam=(x,y,cv)=>{
+  const {spanX,spanY}=getViewportMetrics(cv);
+  return{
+    x:clamp(x-spanX/2,0,Math.max(0,MW-spanX)),
+    y:clamp(y-spanY/2,0,Math.max(0,MH-spanY)),
+  };
+};
+const followCamera=(camX,camY,px,py,cv)=>{
+  const {spanX,spanY}=getViewportMetrics(cv);
+  const deadZoneX=Math.max(2,Math.floor(spanX*0.2));
+  const deadZoneY=Math.max(2,Math.floor(spanY*0.2));
+  let nextX=camX;
+  let nextY=camY;
+  const localX=px-camX;
+  const localY=py-camY;
+  if(localX<deadZoneX)nextX=px-deadZoneX;
+  else if(localX>spanX-deadZoneX-1)nextX=px-(spanX-deadZoneX-1);
+  if(localY<deadZoneY)nextY=py-deadZoneY;
+  else if(localY>spanY-deadZoneY-1)nextY=py-(spanY-deadZoneY-1);
+  return{
+    x:clamp(nextX,0,Math.max(0,MW-spanX)),
+    y:clamp(nextY,0,Math.max(0,MH-spanY)),
+  };
+};
 const T={G:0,D:1,W:2,S:3,SA:4,WF:5,WA:6,BR:7,PA:8,DG:9,LAVA:10,DESERT:11};
 const TC={
   [T.G]:["#9a2808","#8a2005","#a83010","#922510"],   // Red rocky ground (main terrain)
@@ -787,6 +826,7 @@ function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
 
 export default function DS(){
   const cvR=useRef(null),gR=useRef(null),fR=useRef(null),smithQueueR=useRef(null);
+  const viewportHostR=useRef(null);
   const mapCvR=useRef(null),walkR=useRef(null),xpTrackR=useRef({});
   const dirtyR=useRef(false);
   const audioR=useRef(null),audioOnR=useRef(false);
@@ -1176,7 +1216,7 @@ export default function DS(){
         // Task 18: Side quests
         sideQuests:[],
       },
-      cam:{x:0,y:0},tk:0,lt:Date.now(),dlg:null,dlgL:0,rspQ:[],
+      cam:getCenteredCam(20,28,cvR.current),tk:0,lt:Date.now(),dlg:null,dlgL:0,rspQ:[],
       fx:[],groundItems:[],fires:[],deathTile:null,
       npcChatter:[],nextChatterTime:Date.now()+15000,
       worldEvent:null,nextEventTime:Date.now()+600000,
@@ -1239,6 +1279,23 @@ export default function DS(){
     {const month=new Date().getMonth()+1;const ev=SEASONAL_EVENTS.find(e=>e.months.includes(month));if(ev&&ev.monsters.length>0){ev.monsters.forEach(md=>{const m={...md,id:Math.random(),at:0,dead:false,temp:true};g.mons.push(m);});addC(ev.icon+" "+ev.name+" is active! Special creatures roam the world.");g.seasonalEvent=ev;}}
 
     const cv=cvR.current,c=cv.getContext("2d");
+    const syncCanvasSize=()=>{
+      const host=viewportHostR.current;
+      if(!host||!cv)return;
+      const nextW=Math.max(CW,Math.floor(host.clientWidth));
+      const nextH=Math.max(CH,Math.floor(host.clientHeight));
+      if(cv.width!==nextW||cv.height!==nextH){
+        cv.width=nextW;
+        cv.height=nextH;
+        dirtyR.current=true;
+      }
+    };
+    syncCanvasSize();
+    let resizeObs=null;
+    if(typeof ResizeObserver!=="undefined"&&viewportHostR.current){
+      resizeObs=new ResizeObserver(()=>syncCanvasSize());
+      resizeObs.observe(viewportHostR.current);
+    }
 
     // === HELPERS ===
     function addI(id,cnt){const p=g.p,d=ITEMS[id];if(!d)return false;if(d.s){const e=p.inv.find(x=>x.i===id);if(e){e.c+=(cnt||1);dirtyR.current=true;return true;}}const maxInv=p.unlocks?.includes('xtra_inv')?32:28;if(p.inv.length>=maxInv){addC("Your inventory is full.");return false;}p.inv.push({i:id,c:cnt||1});dirtyR.current=true;return true;}
@@ -2081,43 +2138,47 @@ export default function DS(){
       // Update FX
       g.fx=g.fx.filter(f=>{f.age+=dt;return f.age<f.life;});
       // Camera
-      g.cam.x=p.x-Math.floor(VTX/2);g.cam.y=p.y-Math.floor(VTY/2);
+      g.cam=followCamera(g.cam.x,g.cam.y,p.x,p.y,cv);
     }
     } // end update()
 
     // === DRAW ===
     function draw(){
-      const p=g.p,cx=Math.floor(g.cam.x),cy=Math.floor(g.cam.y);
-      c.clearRect(0,0,CW,CH);
+      const p=g.p;
+      const {width,height,tilesX,tilesY}=getViewportMetrics(cv);
+      const cx=Math.floor(g.cam.x),cy=Math.floor(g.cam.y);
+      const offX=-Math.round((g.cam.x-cx)*TILE),offY=-Math.round((g.cam.y-cy)*TILE);
+      c.clearRect(0,0,width,height);
       // Terrain
-      for(let ty=0;ty<VTY+1;ty++)for(let tx=0;tx<VTX+1;tx++){
+      for(let ty=0;ty<tilesY;ty++)for(let tx=0;tx<tilesX;tx++){
         const mx=cx+tx,my=cy+ty;
-        if(mx<0||mx>=MW||my<0||my>=MH){c.fillStyle="#0d0403";c.fillRect(tx*TILE,ty*TILE,TILE,TILE);continue;}
-        const t=map[my][mx],cols=TC[t]||["#333"];c.fillStyle=cols[(mx*7+my*13)%cols.length];c.fillRect(tx*TILE,ty*TILE,TILE,TILE);
+        const drawX=offX+tx*TILE,drawY=offY+ty*TILE;
+        if(mx<0||mx>=MW||my<0||my>=MH){c.fillStyle="#0d0403";c.fillRect(drawX,drawY,TILE,TILE);continue;}
+        const t=map[my][mx],cols=TC[t]||["#333"];c.fillStyle=cols[(mx*7+my*13)%cols.length];c.fillRect(drawX,drawY,TILE,TILE);
         // Rocky ground details (pebbles + cracks)
-        if(t===T.G&&((mx*11+my*7)%17===0)){c.fillStyle="rgba(140,50,15,0.55)";c.beginPath();c.arc(tx*TILE+10,ty*TILE+18,3,0,6.28);c.fill();c.beginPath();c.arc(tx*TILE+22,ty*TILE+12,2,0,6.28);c.fill();c.beginPath();c.arc(tx*TILE+16,ty*TILE+24,2.5,0,6.28);c.fill();}
-        if(t===T.G&&((mx*13+my*11)%23===0)){c.strokeStyle="rgba(60,15,5,0.45)";c.lineWidth=1;c.beginPath();c.moveTo(tx*TILE+8,ty*TILE+10);c.lineTo(tx*TILE+18,ty*TILE+20);c.stroke();c.beginPath();c.moveTo(tx*TILE+20,ty*TILE+8);c.lineTo(tx*TILE+26,ty*TILE+16);c.stroke();}
+        if(t===T.G&&((mx*11+my*7)%17===0)){c.fillStyle="rgba(140,50,15,0.55)";c.beginPath();c.arc(drawX+10,drawY+18,3,0,6.28);c.fill();c.beginPath();c.arc(drawX+22,drawY+12,2,0,6.28);c.fill();c.beginPath();c.arc(drawX+16,drawY+24,2.5,0,6.28);c.fill();}
+        if(t===T.G&&((mx*13+my*11)%23===0)){c.strokeStyle="rgba(60,15,5,0.45)";c.lineWidth=1;c.beginPath();c.moveTo(drawX+8,drawY+10);c.lineTo(drawX+18,drawY+20);c.stroke();c.beginPath();c.moveTo(drawX+20,drawY+8);c.lineTo(drawX+26,drawY+16);c.stroke();}
         // Desert details
-        if(t===T.DESERT&&((mx*3+my*5)%11===0)){c.fillStyle="rgba(180,150,80,0.3)";c.fillRect(tx*TILE+5,ty*TILE+20,22,3);}
+        if(t===T.DESERT&&((mx*3+my*5)%11===0)){c.fillStyle="rgba(180,150,80,0.3)";c.fillRect(drawX+5,drawY+20,22,3);}
         // Water animation
-        if(t===T.W){const wv=Math.sin(g.tk*0.002+mx*0.5+my*0.3)*8;c.fillStyle="rgba(80,150,220,0.15)";c.fillRect(tx*TILE,ty*TILE+12+wv,TILE,4);}
+        if(t===T.W){const wv=Math.sin(g.tk*0.002+mx*0.5+my*0.3)*8;c.fillStyle="rgba(80,150,220,0.15)";c.fillRect(drawX,drawY+12+wv,TILE,4);}
       }
       // Fires
-      for(const f of g.fires){const sx=(f.x-cx)*TILE,sy=(f.y-cy)*TILE;if(sx<-TILE||sx>CW+TILE||sy<-TILE||sy>CH+TILE)continue;
+      for(const f of g.fires){const sx=Math.round((f.x-g.cam.x)*TILE),sy=Math.round((f.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;
         const flicker=Math.sin(g.tk*0.01+f.x)*3;
         c.fillStyle="#f80";c.beginPath();c.arc(sx+16,sy+16+flicker,8,0,6.28);c.fill();
         c.fillStyle="#ff0";c.beginPath();c.arc(sx+16,sy+14+flicker,5,0,6.28);c.fill();
         c.fillStyle="rgba(255,100,0,0.15)";c.beginPath();c.arc(sx+16,sy+16,18,0,6.28);c.fill();
       }
       // Ground items
-      for(const gi of g.groundItems){const sx=(gi.x-cx)*TILE,sy=(gi.y-cy)*TILE;if(sx<-TILE||sx>CW+TILE||sy<-TILE||sy>CH+TILE)continue;
+      for(const gi of g.groundItems){const sx=Math.round((gi.x-g.cam.x)*TILE),sy=Math.round((gi.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;
         c.fillStyle="rgba(255,120,0,0.2)";c.fillRect(sx+4,sy+16,24,16);
         c.font="14px sans-serif";c.textAlign="center";c.fillText(ITEMS[gi.i].i,sx+16,sy+28);
         c.font="bold 7px sans-serif";c.fillStyle="#ffe080";c.fillText(ITEMS[gi.i].n.substring(0,10),sx+16,sy+38);
       }
       // Objects
       for(const o of g.objects){
-        const sx=(o.x-cx)*TILE,sy=(o.y-cy)*TILE;if(sx<-TILE||sx>CW+TILE||sy<-TILE||sy>CH+TILE)continue;
+        const sx=Math.round((o.x-g.cam.x)*TILE),sy=Math.round((o.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;
         if(o.hp<=0){
           if(o.t==="tree"){c.fillStyle="#5a3a18";c.fillRect(sx+12,sy+16,8,14);}
           if(o.t==="rock"){c.fillStyle="#555";c.beginPath();c.arc(sx+16,sy+22,5,0,6.28);c.fill();}
@@ -2198,7 +2259,7 @@ export default function DS(){
         }
       }
       // Monsters
-      for(const m of g.mons){if(m.dead)continue;const sx=(m.x-cx)*TILE,sy=(m.y-cy)*TILE;if(sx<-TILE||sx>CW+TILE||sy<-TILE||sy>CH+TILE)continue;
+      for(const m of g.mons){if(m.dead)continue;const sx=Math.round((m.x-g.cam.x)*TILE),sy=Math.round((m.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;
         if(p.slayerTask&&m.nm===p.slayerTask.monster){c.strokeStyle="#ff8000";c.lineWidth=2.5;c.beginPath();c.arc(sx+16,sy+16,13,0,6.28);c.stroke();}
         c.fillStyle="rgba(0,0,0,0.1)";c.beginPath();c.ellipse(sx+16,sy+28,10,4,0,0,6.28);c.fill();
         c.fillStyle=m.c;c.beginPath();c.arc(sx+16,sy+16,10,0,6.28);c.fill();
@@ -2210,7 +2271,7 @@ export default function DS(){
         c.fillStyle=m.agro?"#f44":"#ff0";c.font="bold 9px sans-serif";c.textAlign="center";c.fillText(m.nm+" ("+m.lvl+")",sx+16,sy-7);
       }
       // NPCs
-      for(const n of g.npcs){const sx=(n.x-cx)*TILE,sy=(n.y-cy)*TILE;if(sx<-TILE||sx>CW+TILE||sy<-TILE||sy>CH+TILE)continue;
+      for(const n of g.npcs){const sx=Math.round((n.x-g.cam.x)*TILE),sy=Math.round((n.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;
         c.fillStyle="rgba(0,0,0,0.1)";c.beginPath();c.ellipse(sx+16,sy+28,8,3,0,0,6.28);c.fill();
         c.fillStyle=n.c;c.beginPath();c.arc(sx+16,sy+20,8,0,6.28);c.fill();
         c.fillStyle="#f0d8a0";c.beginPath();c.arc(sx+16,sy+10,7,0,6.28);c.fill();
@@ -2218,7 +2279,7 @@ export default function DS(){
         c.fillStyle="#0ff";c.font="bold 9px sans-serif";c.textAlign="center";c.fillText(n.nm,sx+16,sy-2);
       }
       // Player
-      const px=(p.x-cx)*TILE,py=(p.y-cy)*TILE;
+      const px=Math.round((p.x-g.cam.x)*TILE),py=Math.round((p.y-g.cam.y)*TILE);
       // Pet follower (Task 8) — drawn just behind player
       if(p.pet&&ITEMS[p.pet]){
         const petBob=Math.sin(g.tk*0.015+1)*2;
@@ -2258,7 +2319,7 @@ export default function DS(){
       }
       // Visual effects
       for(const f of g.fx){
-        const fsx=(f.x-cx)*TILE+16,fsy=(f.y-cy)*TILE;const alpha=1-f.age/f.life;
+        const fsx=Math.round((f.x-g.cam.x)*TILE)+16,fsy=Math.round((f.y-g.cam.y)*TILE);const alpha=1-f.age/f.life;
         if(f.type==="xp"){
           c.globalAlpha=alpha;c.font=f.big?"bold 12px sans-serif":"bold 10px sans-serif";c.textAlign="center";
           c.fillStyle="#000";c.fillText(f.text,fsx+1,fsy-15-f.age*0.03+1);
@@ -2284,8 +2345,8 @@ export default function DS(){
         }
         if(f.type==="arrow"||f.type==="magic"){
           const t2=Math.min(1,f.age/f.life);
-          const pfx=(f.sx-cx)*TILE+16+(f.tx-f.sx)*TILE*t2;
-          const pfy=(f.sy-cy)*TILE+16+(f.ty-f.sy)*TILE*t2;
+          const pfx=Math.round((f.sx-g.cam.x)*TILE)+16+(f.tx-f.sx)*TILE*t2;
+          const pfy=Math.round((f.sy-g.cam.y)*TILE)+16+(f.ty-f.sy)*TILE*t2;
           c.globalAlpha=alpha;c.fillStyle=f.color;
           c.beginPath();c.arc(pfx,pfy,f.type==="magic"?5:2.5,0,6.28);c.fill();
           if(f.type==="magic"){c.fillStyle="#fff";c.beginPath();c.arc(pfx,pfy,2,0,6.28);c.fill();}
@@ -2293,28 +2354,28 @@ export default function DS(){
         }
       }
       // NPC chatter bubbles
-      for(const ch of g.npcChatter){const n=g.npcs.find(n2=>n2.id===ch.npcId);if(!n)continue;const sx=(n.x-cx)*TILE,sy=(n.y-cy)*TILE;if(sx<-TILE||sx>CW+TILE||sy<-TILE||sy>CH+TILE)continue;const alpha=Math.min(1,(ch.time-Date.now())/1000);c.globalAlpha=alpha;c.fillStyle="rgba(255,255,220,0.95)";const tw=c.measureText(ch.text).width+12;c.fillRect(sx+16-tw/2,sy-28,tw,16);c.fillStyle="#333";c.font="bold 8px sans-serif";c.textAlign="center";c.fillText(ch.text,sx+16,sy-17);c.globalAlpha=1;}
+      for(const ch of g.npcChatter){const n=g.npcs.find(n2=>n2.id===ch.npcId);if(!n)continue;const sx=Math.round((n.x-g.cam.x)*TILE),sy=Math.round((n.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;const alpha=Math.min(1,(ch.time-Date.now())/1000);c.globalAlpha=alpha;c.fillStyle="rgba(255,255,220,0.95)";const tw=c.measureText(ch.text).width+12;c.fillRect(sx+16-tw/2,sy-28,tw,16);c.fillStyle="#333";c.font="bold 8px sans-serif";c.textAlign="center";c.fillText(ch.text,sx+16,sy-17);c.globalAlpha=1;}
       // Temp merchant
-      if(g.tempMerchant){const tm=g.tempMerchant;const sx=(tm.x-cx)*TILE,sy=(tm.y-cy)*TILE;if(sx>=-TILE&&sx<=CW+TILE&&sy>=-TILE&&sy<=CH+TILE){c.fillStyle="#a0c060";c.beginPath();c.arc(sx+16,sy+16,10,0,6.28);c.fill();c.fillStyle="#da0";c.font="bold 9px sans-serif";c.textAlign="center";c.fillText("Merchant",sx+16,sy-2);}}
+      if(g.tempMerchant){const tm=g.tempMerchant;const sx=Math.round((tm.x-g.cam.x)*TILE),sy=Math.round((tm.y-g.cam.y)*TILE);if(sx>=-TILE&&sx<=width+TILE&&sy>=-TILE&&sy<=height+TILE){c.fillStyle="#a0c060";c.beginPath();c.arc(sx+16,sy+16,10,0,6.28);c.fill();c.fillStyle="#da0";c.font="bold 9px sans-serif";c.textAlign="center";c.fillText("Merchant",sx+16,sy-2);}}
       // Sandstorm overlay
-      if(g.sandstorm){c.fillStyle="rgba(200,160,80,0.25)";c.fillRect(0,0,CW,CH);}
+      if(g.sandstorm){c.fillStyle="rgba(200,160,80,0.25)";c.fillRect(0,0,width,height);}
       // Night overlay
       const nightAlpha2=g.isNight?0.38:g.dayTime>0.6?(g.dayTime-0.6)/0.1*0.38:g.dayTime<0.15?(0.15-g.dayTime)/0.05*0.38:0;
-      if(nightAlpha2>0){c.fillStyle=`rgba(0,10,30,${nightAlpha2})`;c.fillRect(0,0,CW,CH);}
+      if(nightAlpha2>0){c.fillStyle=`rgba(0,10,30,${nightAlpha2})`;c.fillRect(0,0,width,height);}
       // Death tile marker
       if(g.deathTile&&Date.now()<g.deathTile.time){
-        const sx=(g.deathTile.x-cx)*TILE,sy=(g.deathTile.y-cy)*TILE;
+        const sx=Math.round((g.deathTile.x-g.cam.x)*TILE),sy=Math.round((g.deathTile.y-g.cam.y)*TILE);
         const rem=Math.ceil((g.deathTile.time-Date.now())/1000);
         c.fillStyle="rgba(200,0,0,0.2)";c.fillRect(sx,sy,TILE,TILE);
         c.fillStyle="#f44";c.font="bold 8px sans-serif";c.textAlign="center";c.fillText("⚰️"+rem+"s",sx+16,sy+12);
       }
       // Dialogue
       if(g.dlg){const n=g.dlg;
-        c.fillStyle="rgba(8,8,6,0.93)";c.fillRect(16,CH-110,CW-32,94);
-        c.strokeStyle="#c8a84e";c.lineWidth=2;c.strokeRect(16,CH-110,CW-32,94);
-        c.fillStyle="#ff0";c.font="bold 13px sans-serif";c.textAlign="left";c.fillText(n.nm+":",30,CH-90);
-        c.fillStyle="#ddd";c.font="12px sans-serif";c.fillText(n.dlg[Math.min(g.dlgL,n.dlg.length-1)],30,CH-68);
-        c.fillStyle="#888";c.font="10px sans-serif";c.fillText("Click to continue...",30,CH-38);
+        c.fillStyle="rgba(8,8,6,0.93)";c.fillRect(16,height-110,width-32,94);
+        c.strokeStyle="#c8a84e";c.lineWidth=2;c.strokeRect(16,height-110,width-32,94);
+        c.fillStyle="#ff0";c.font="bold 13px sans-serif";c.textAlign="left";c.fillText(n.nm+":",30,height-90);
+        c.fillStyle="#ddd";c.font="12px sans-serif";c.fillText(n.dlg[Math.min(g.dlgL,n.dlg.length-1)],30,height-68);
+        c.fillStyle="#888";c.font="10px sans-serif";c.fillText("Click to continue...",30,height-38);
       }
       // Location
       let loc="Ashlands";
@@ -2335,7 +2396,7 @@ export default function DS(){
       c.fillStyle="rgba(0,0,0,0.6)";c.fillRect(2,2,100,18);
       c.fillStyle=loc.includes("Ashlands")?"#f44":"#ff0";c.font="bold 10px sans-serif";c.textAlign="left";c.fillText(loc,6,14);
       // Minimap
-      const ms=88,mmx=CW-ms-4,mmy=4;
+      const ms=88,mmx=width-ms-4,mmy=4;
       c.fillStyle="rgba(0,0,0,0.8)";c.fillRect(mmx-2,mmy-2,ms+4,ms+4);c.strokeStyle="#5a4a30";c.lineWidth=1;c.strokeRect(mmx-2,mmy-2,ms+4,ms+4);
       const sc=ms/MW;
       for(let my=0;my<MH;my+=2)for(let mx=0;mx<MW;mx+=2){
@@ -2358,7 +2419,7 @@ export default function DS(){
     cv.addEventListener("touchstart",onTouchStart,{passive:false});
     cv.addEventListener("touchend",onTouchEnd,{passive:false});
     fR.current=requestAnimationFrame(loop);
-    return()=>{cancelAnimationFrame(fR.current);cv.removeEventListener("click",handleClick);cv.removeEventListener("contextmenu",handleRClick);cv.removeEventListener("touchstart",onTouchStart);cv.removeEventListener("touchend",onTouchEnd);window.removeEventListener("keydown",onKeyMove);};
+    return()=>{cancelAnimationFrame(fR.current);cv.removeEventListener("click",handleClick);cv.removeEventListener("contextmenu",handleRClick);cv.removeEventListener("touchstart",onTouchStart);cv.removeEventListener("touchend",onTouchEnd);window.removeEventListener("keydown",onKeyMove);if(resizeObs)resizeObs.disconnect();};
   },[addC,menuOpen,submitEcho,travelerNameDraft,travelerSigilDraft]);
 
   const g=gR.current,p=g?.player||g?.p;
@@ -2512,6 +2573,7 @@ export default function DS(){
       p.travelerSigil=identity.sigil;
       autoEquipStarterLoadout();
       if(openTab)setTab(openTab);
+      if(gR.current)gR.current.cam=getCenteredCam(p.x,p.y,cvR.current);
       saveGame();
     }
     setMenuOpen(false);
@@ -2543,7 +2605,7 @@ export default function DS(){
     </div>);}
 
   const guideStepLabel=!p?"Booting world...":dailyRunRef.current&&!dailyRunRef.current.done?"Daily Rite active: head to the dungeon entrance and clear the next wave.":rogueRunRef.current&&!rogueRunRef.current.done?"Roguelite active: reach the dungeon entrance and push as far as you can.":isFreshAdventurer?"Suggested start: equip your sword in the gear tab, then talk to Mara or start the Daily Rite.":"Suggested start: open the Daily tab for guided runs, or talk to NPCs in town for quests.";
-  const sidePanelWidth=panelOpen?235:0;
+  const sidePanelWidth=panelOpen?210:0;
 
   return (
     <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none",zoom:uiScale}}>
@@ -2579,8 +2641,8 @@ export default function DS(){
       </div>
       {/* Main */}
       <div style={{flex:1,display:"flex",overflow:"hidden",minHeight:0,position:"relative"}}>
-        <div style={{flex:1,display:"flex",alignItems:"stretch",justifyContent:"center",background:"#0d0403",position:"relative",minWidth:0}}>
-          <canvas ref={cvR} width={CW} height={CH} style={{imageRendering:"pixelated",cursor:"crosshair",width:"100%",height:"100%",objectFit:"contain",border:"2px solid #5a1808",touchAction:"none",background:"#0d0403"}} />
+        <div ref={viewportHostR} style={{flex:1,display:"flex",alignItems:"stretch",justifyContent:"stretch",background:"#0d0403",position:"relative",minWidth:0,overflow:"hidden"}}>
+          <canvas ref={cvR} width={CW} height={CH} style={{imageRendering:"pixelated",cursor:"crosshair",width:"100%",height:"100%",display:"block",border:"2px solid #5a1808",touchAction:"none",background:"#0d0403"}} />
           {showGuide&&p&&<div style={{position:"absolute",top:12,left:12,maxWidth:320,background:"rgba(10,4,3,0.92)",border:"1px solid rgba(200,168,78,0.35)",borderRadius:10,padding:"12px 14px",boxShadow:"0 12px 28px rgba(0,0,0,0.45)",zIndex:20}}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6,gap:12}}>
               <div>
@@ -2960,7 +3022,7 @@ export default function DS(){
               <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>DESERT CAMP</div>
               {p.camp?<div style={{background:"rgba(40,20,5,0.5)",padding:"4px 6px",borderRadius:3,fontSize:8,color:"#ddd",border:"1px solid rgba(200,168,78,0.08)"}}>
                 Camp at ({p.camp.x},{p.camp.y}) · Bank: {(p.campBank||[]).length} stacks
-                <button onClick={()=>{if(p&&gR.current){const g2=gR.current;p.x=p.camp.x;p.y=p.camp.y;g2.cam={x:Math.max(0,p.x-8),y:Math.max(0,p.y-7)};addC("You return to your camp.");fr(n=>n+1);}}} style={{marginLeft:4,background:"#1a3010",border:"1px solid #3a5020",color:"#4c0",fontSize:7,padding:"1px 3px",cursor:"pointer",borderRadius:2}}>Goto</button>
+                <button onClick={()=>{if(p&&gR.current){const g2=gR.current;p.x=p.camp.x;p.y=p.camp.y;g2.cam=getCenteredCam(p.x,p.y,cvR.current);addC("You return to your camp.");fr(n=>n+1);}}} style={{marginLeft:4,background:"#1a3010",border:"1px solid #3a5020",color:"#4c0",fontSize:7,padding:"1px 3px",cursor:"pointer",borderRadius:2}}>Goto</button>
               </div>:<div style={{fontSize:8,color:"#555"}}>No camp. Right-click empty ground to set camp.</div>}
               {/* Hall of Fame */}
               {(()=>{const lb=JSON.parse(localStorage.getItem("solara_leaderboard")||"[]");if(!lb.length)return null;
