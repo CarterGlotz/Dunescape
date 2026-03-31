@@ -68,3 +68,27 @@ Agents MUST NOT modify or remove existing entries.
 - New required direction: Full Studio OS closeout — verify nothing missed, update DECISIONS and CDR, stage correct files (exclude .claude/, Archived/, zips, SOLARA_SUNFALL_HANDOFF/), commit and push to origin/main
 - Why it matters: Ensures agent continuity and hub compliance across sessions
 - Supersedes prior entry: —
+
+---
+
+### 2026-03-30 — Diagnose and fix the game failure
+
+- Category: Assignment
+- Human input: "start prompt - then analyze why this game is not working and fix the problem"
+- Area affected: Runtime stability / game boot path
+- Previous state: Project built successfully, but the live app had a startup failure and was not usable
+- New required direction: Follow the startup protocol first, then isolate the concrete runtime break and ship the fix instead of speculating
+- Why it matters: A working build artifact is not enough if the browser boot path is broken; startup reliability is a prerequisite for every other milestone
+- Supersedes prior entry: —
+
+---
+
+### 2026-03-30 — Implement the smoke test
+
+- Category: Assignment
+- Human input: "yes"
+- Area affected: Runtime verification / CI guardrails
+- Previous state: Boot regression fixed, but there was still no automated smoke coverage for mount/startup flow
+- New required direction: Implement the smoke test now rather than leaving it as a follow-up
+- Why it matters: Converts the runtime fix from a one-off repair into an enforceable guardrail
+- Supersedes prior entry: —

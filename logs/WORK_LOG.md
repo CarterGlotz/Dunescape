@@ -137,3 +137,35 @@ Append chronological entries.
   - Removed: SIL escalation debt (sun pulse + faction split were skipped 2+ sessions)
   - Created: None new — all paths remain gracefully offline-safe
 - Recommended next move: Carter completes Supabase setup; Phase 5 Season 1 config
+
+---
+
+### 2026-03-30 — Runtime diagnosis + startup boot fix
+
+- Goal: Follow the startup protocol, analyze why the game was not working, and fix the actual regression
+- What changed:
+  - `src/App.jsx`: moved the mount polling effects for `fetchGraves` and `fetchSunState` below their callback declarations so the component no longer reads those `const` callbacks inside dependency arrays before initialization
+  - `context/*`: updated current state, task board, handoff, project status, decisions, SIL, and CDR to record the diagnosis and fix
+- Files or systems touched: `src/App.jsx`, `context/*`, `logs/WORK_LOG.md`, `docs/CREATIVE_DIRECTION_RECORD.md`
+- Risks created or removed:
+  - Removed: startup TDZ boot crash / blank-screen failure on app mount
+  - Preserved: offline-safe Supabase fallbacks and existing Phase 4 gameplay systems
+  - Created: none
+- Recommended next move: add a lightweight boot smoke test so future runtime-order regressions are caught before closeout
+
+---
+
+### 2026-03-30 — Boot smoke harness
+
+- Goal: Add a lightweight smoke test that catches app-boot regressions before closeout/CI merge
+- What changed:
+  - `scripts/smoke-runtime.mjs`: added a Node-safe smoke runner that mounts a rewritten copy of `App.jsx`, flushes mount effects, and validates Daily + Roguelite startup handlers
+  - `scripts/smoke/react-stub.mjs` and `scripts/smoke/supabase-stub.mjs`: added minimal runtime stubs for hooks and offline Supabase behavior
+  - `package.json`: added `npm run smoke`
+  - `.github/workflows/ci.yml`: CI now runs the smoke test after build
+- Files or systems touched: `scripts/smoke-runtime.mjs`, `scripts/smoke/*`, `package.json`, `.github/workflows/ci.yml`, `context/*`, `logs/WORK_LOG.md`, `docs/CREATIVE_DIRECTION_RECORD.md`
+- Risks created or removed:
+  - Removed: build-green / boot-broken gap for the app’s top-level mount and startup handlers
+  - Preserved: no new heavy test stack or external dependency footprint
+  - Created: smoke harness depends on targeted source rewriting, so future structural changes in `App.jsx` should keep the cutoff markers current
+- Recommended next move: add save-state validation so stale saves cannot poison the now-protected boot path

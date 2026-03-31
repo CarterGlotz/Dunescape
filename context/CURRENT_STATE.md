@@ -2,9 +2,9 @@
 
 ## Snapshot
 
-- Date: 2026-03-27
+- Date: 2026-03-30
 - Overall status: Active development
-- Current phase: Phase 4 complete — Phase 5 next
+- Current phase: Phase 4 complete — runtime stabilization + boot smoke coverage shipped, Phase 5 next
 
 ## What exists
 
@@ -14,10 +14,12 @@
 - Phase 2 — Living Map: Epitaph modal on death, graves submitted to Supabase, ✝ markers on world map, grave click → popup, shrine evolution at 50/200 offerings, 5-min auto-refresh
 - Phase 3 — Sun Phase Engine: sunBrightness state, fetchSunState (mount + 5-min interval), canvas desaturation filter, increment_death_counter() wired to every death, HUD sun indicator with pulse animation, milestone death announcements, graceful offline fallback
 - Phase 4 — Roguelite Engine: Infinite wave roguelite mode, 17 room pool (4 difficulty tiers) + boss every 10 waves, monster stat scaling (+6% per wave), 5-relic system with persistent bonuses, roguelite stats (bestWave, totalRuns, relics) persisted in save
+- runtime stability: App boot regression fixed after Phase 4 — `fetchGraves` and `fetchSunState` mount effects now run after their callbacks are initialized, preventing startup TDZ crashes/blank-screen boot failure
+- smoke coverage: `npm run smoke` now mounts a rewritten Node-safe copy of `App.jsx`, flushes mount effects, and verifies Daily + Roguelite startup handlers initialize without crashing
 - SIL items: Oracle NPC, Sunstone Shard, daily streak, seeded boss name, deaths ticker, grave clustering, Oracle dialogue state machine, Sunstone offering mechanic, shrine glow on map, milestone death announcements, sun pulse animation, faction leaderboard split
 - Innovation Sprint (2026-03-27): 13 items shipped — landmark auto-naming, faction share card, prophetic epitaph suggestions, ambient audio system (Web Audio API), faction rivalry dashboard in Daily tab, Oracle email subscription UI, Sunfall Event boss HP tracker, Archive of the Fallen (public/archive.html), Sun Observatory widget (public/sun-widget.html), Discord Bot (discord-bot/), Twitch Extension (twitch-extension/), Weekly State of Sun template
 - save: solara_save key, SAVE_VERSION=5, migration shim active
-- build: Passing (348 KB JS, 106 KB gzipped)
+- build: Passing (348 KB JS, 106 KB gzipped) with startup-order boot fix and smoke harness verified
 
 ## Important paths
 
@@ -44,6 +46,6 @@
 
 ## Next 3 moves
 
-1. Carter: Create Supabase project + run all 4 SQL blocks from LATEST_HANDOFF.md
-2. Carter: Add env vars to .env.local + GitHub Secrets + post itch.io listing
-3. Phase 5: Season 1 config + launch prep
+1. Agent: Implement `[SIL]` first-run Daily tab pulse and roguelite share card
+2. Agent: Add save-state validation for boot-critical refs during load
+3. Carter: Create Supabase project + run all 4 SQL blocks from LATEST_HANDOFF.md
