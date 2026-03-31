@@ -1,0 +1,233 @@
+
+<style>
+.inn-wrap{padding:1rem 0}
+.header-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1rem}
+.score-display{font-size:22px;font-weight:500;color:var(--color-text-primary)}
+.score-label{font-size:12px;color:var(--color-text-secondary);margin-left:6px}
+.cat-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:1.25rem}
+.cat-btn{font-size:12px;font-weight:500;padding:5px 13px;border-radius:20px;border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer;transition:all .15s;line-height:1}
+.cat-btn:hover{background:var(--color-background-secondary)}
+.cat-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary)}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.inn-card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:13px 15px;display:flex;flex-direction:column;gap:5px;transition:border-color .1s}
+.inn-card[data-genius="true"]{border-color:var(--color-border-warning)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.card-title{font-size:13px;font-weight:500;color:var(--color-text-primary);line-height:1.35}
+.tbadge{font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.card-desc{font-size:12px;color:var(--color-text-secondary);line-height:1.5;flex:1}
+.card-btn{font-size:11px;color:var(--color-text-info);cursor:pointer;border:none;background:none;padding:0;text-align:left;margin-top:2px;font-family:inherit}
+.card-btn:hover{text-decoration:underline}
+.impact-row{display:flex;align-items:center;gap:5px;margin-top:3px}
+.dot{width:6px;height:6px;border-radius:50%}
+.dot-on{background:#BA7517}
+.dot-off{background:var(--color-border-secondary)}
+.count-row{font-size:12px;color:var(--color-text-tertiary);margin-bottom:.75rem}
+</style>
+<div class="inn-wrap">
+<div class="header-row">
+  <div><span class="score-display" id="score-out">1000</span><span class="score-label">/ 1000 — full innovation stack</span></div>
+  <div id="count-out" style="font-size:12px;color:var(--color-text-tertiary)">36 innovations</div>
+</div>
+<div class="cat-row" id="cats"></div>
+<div class="count-row" id="showing-row">Showing all 36</div>
+<div class="card-grid" id="grid"></div>
+</div>
+
+<script>
+const cats = [
+  {id:'all', label:'All innovations'},
+  {id:'core', label:'Core mechanics'},
+  {id:'season', label:'Seasonal catastrophes'},
+  {id:'viral', label:'Viral engine'},
+  {id:'social', label:'Social depth'},
+  {id:'narrative', label:'Narrative & lore'},
+  {id:'mono', label:'Monetization'},
+];
+
+const ideas = [
+  {cat:'core', genius:true, impact:5, title:'The collective death equation',
+   desc:'Every player death anywhere in the world dims the global sun by a tiny fraction. No single player is to blame. Everyone is responsible. The sun is a shared organism.',
+   drill:'Explain exactly how the collective death dimming math should work'},
+  {cat:'core', genius:true, impact:5, title:'Sun phase threshold system',
+   desc:'At 80%, 60%, 40%, 20%, 0%: world desaturates, new enemy types spawn, item scarcity increases, and music shifts. The game literally becomes a different experience as civilization fails.',
+   drill:'Design all 5 sun phase states with exact gameplay changes for each'},
+  {cat:'core', genius:true, impact:5, title:'The death spiral mechanic',
+   desc:'Intentional design: dimmer sun = harder game = more deaths = faster dimming. The game creates its own urgency. No artificial countdown clock needed — the community drives it.',
+   drill:'How do we balance the death spiral so it feels dramatic but not hopeless?'},
+  {cat:'core', genius:true, impact:5, title:'The Grand Sunfall event',
+   desc:'When sun hits 0%, a 48-hour warning broadcasts. Then a server-wide final boss activates. All logged-in players fight simultaneously. The outcome determines the new sun\'s nature.',
+   drill:'Design the Grand Sunfall event in full detail — boss mechanics, outcome types, season transition'},
+  {cat:'core', genius:true, impact:5, title:'Sunkeepers vs Eclipsers faction war',
+   desc:'Sunkeepers\' deaths dim the sun less, they can perform Solar Rites to restore brightness. Eclipsers embrace darkness: their deaths speed dimming but grant double loot. Choose your ideology.',
+   drill:'Balance the Sunkeeper vs Eclipser faction mechanics so neither is obviously dominant'},
+  {cat:'core', genius:false, impact:4, title:'Solar energy scarcity',
+   desc:'Crafting costs, healing effectiveness, and magic power scale with current sun brightness. At 40% sun, healing items only restore 70% of their normal value. Scarcity is physical.',
+   drill:'Map exactly how solar energy scarcity should affect each game system at each sun phase'},
+  {cat:'core', genius:false, impact:4, title:'The dimming aesthetic layer',
+   desc:'CSS filter + canvas desaturation tied to global sun %. At full brightness: vivid gold desert. At 20%: near-monochrome ash. Every player sees a slightly different world every day.',
+   drill:'How should we implement the real-time sun brightness visual degradation technically?'},
+  {cat:'core', genius:false, impact:3, title:'Personal sun vs global sun',
+   desc:'Each player has a personal "solar attunement" meter that refills between runs. The global sun only recovers during Sunfall Events. Two meters, different rhythms, different stakes.',
+   drill:'Design the personal solar attunement system in detail'},
+
+  {cat:'season', genius:true, impact:5, title:'The Wandering Comet',
+   desc:'Season 1: A comet is harvesting solar energy as it passes. Comet-gravity mechanics pull projectiles off course. Meteor shower dungeon events. Sky shows comet arc at night phase.',
+   drill:'Full design doc for The Wandering Comet season'},
+  {cat:'season', genius:true, impact:5, title:'The Void Plague',
+   desc:'Season 2: Dimensional parasites feed on solar radiation. Corrupted void zones spread across the map. New void enemy faction. Purifying zones temporarily restores local brightness.',
+   drill:'Full design doc for The Void Plague season'},
+  {cat:'season', genius:true, impact:5, title:'The Ancient Machine',
+   desc:'Season 3: A pre-civilization solar harvester has been reactivated. Industrial-themed enemies guard it. Players can sabotage it — but the machine\'s owners fight back collectively.',
+   drill:'Full design doc for The Ancient Machine season'},
+  {cat:'season', genius:true, impact:5, title:'The Star-Eater',
+   desc:'Season 4: A cosmic entity approaches our sun. Lovecraftian dungeon rooms lined with alien architecture. Sanity mechanic activates. Some players begin to worship it (new faction).',
+   drill:'Full design doc for The Star-Eater season'},
+  {cat:'season', genius:true, impact:5, title:'The Twin Suns',
+   desc:'Season 5: A second sun is born, but it\'s wrong — its light causes disorientation. "False light" traps replace normal loot nodes. Two suns fighting creates eclipse cycles mid-run.',
+   drill:'Full design doc for The Twin Suns season'},
+  {cat:'season', genius:false, impact:4, title:'The Last Solar Wind',
+   desc:'Season 6: The sun goes silent — no new energy, only the fading warmth. Ghost NPCs appear carrying memories of past seasons. The most melancholy, most narrative-driven season.',
+   drill:'Full design doc for The Last Solar Wind season'},
+  {cat:'season', genius:false, impact:4, title:'The Unraveling',
+   desc:'Season 7: The laws of physics near the sun are failing. Run maps generate with impossible geometry. Some rooms loop. Item descriptions are wrong. The game itself destabilizes.',
+   drill:'Full design doc for The Unraveling — a meta-horror season'},
+
+  {cat:'viral', genius:true, impact:5, title:'The Prophecy Scroll',
+   desc:'On run-end, generate a unique shareable image: player silhouette against dimming sun, run stats, and a procedural flavor text prophecy. "You who reached Wave 14 — the Star-Eater remembers your face."',
+   drill:'Design the Prophecy Scroll generation system in full — layout, flavor text templates, sharing mechanic'},
+  {cat:'viral', genius:true, impact:5, title:'Live sun counter on the homepage',
+   desc:'"The sun burns at 67.3% — 4,201 players have fallen this week." Visible before you even start playing. The urgency is the first thing you see. No login required to feel it.',
+   drill:'Design the homepage sun state display and surrounding landing page content'},
+  {cat:'viral', genius:true, impact:5, title:'Oracle global broadcasts',
+   desc:'At each 20% sun threshold, a full-screen message appears for all active players simultaneously: "The Oracle speaks: I have seen the Star-Eater. You have 14 days." A shared moment.',
+   drill:'Write all Oracle broadcast messages for each sun threshold'},
+  {cat:'viral', genius:false, impact:4, title:'The Sunfall countdown timer',
+   desc:'Based on the current death rate, a live estimated time-to-Sunfall is displayed publicly. Not a fixed timer — it accelerates and slows with community behavior. Changes every hour.',
+   drill:'How should the Sunfall countdown estimation algorithm work?'},
+  {cat:'viral', genius:false, impact:4, title:'Seed trading via URL',
+   desc:'Each daily run is also playable by URL: solara.game/?seed=COMET-A4X7-312. Share your exact run for friends to attempt. "Beat my seed" becomes a weekly community challenge.',
+   drill:'Design the seed trading and challenge system'},
+  {cat:'viral', genius:false, impact:4, title:'Discord + Twitch integration',
+   desc:'Auto-Discord bot posts when sun drops a threshold. Twitch extension shows streamer\'s current wave and global sun brightness overlaid live. Streamers become public advocates.',
+   drill:'Spec the Discord bot and Twitch extension integrations'},
+  {cat:'viral', genius:false, impact:3, title:'Public sun brightness API',
+   desc:'Expose a public endpoint: /api/sun returns current brightness, deaths this season, estimated days to Sunfall. Fan developers build their own widgets, phone wallpapers, Discord bots.',
+   drill:'Design the public Solara API spec'},
+
+  {cat:'social', genius:true, impact:5, title:'Living eulogy system',
+   desc:'On death, write a 1-sentence epitaph that appears on your grave forever. "Here lies Kira — Wave 22, she chose the Eclipsers and never looked back." The map becomes a memorial.',
+   drill:'Design the full grave and epitaph system'},
+  {cat:'social', genius:true, impact:5, title:'Shrine evolution',
+   desc:'Graves that receive enough Sunstone offerings from other players upgrade from grave to cairn to shrine. Shrines permanently buff nearby players. The most-loved deaths become sacred ground.',
+   drill:'Design the shrine evolution system — thresholds, effects, visual progression'},
+  {cat:'social', genius:true, impact:4, title:'Ghost of the Fallen replay',
+   desc:'Visit any player\'s grave and watch a compressed replay of their final 30 seconds. See exactly how they died. Leave a Sunstone after. Shared grief creates shared mythology.',
+   drill:'How should the ghost replay system be technically implemented and stored?'},
+  {cat:'social', genius:false, impact:4, title:'Named landmarks',
+   desc:'When enough graves cluster in one location, the area receives a community-generated name. "The Valley of the First Deaths." "The Eclipser\'s Last Stand." Geography emerges from history.',
+   drill:'Design the landmark auto-naming and community naming vote system'},
+  {cat:'social', genius:false, impact:4, title:'The Sunkeeper Covenant',
+   desc:'Players who survive to Wave 30+ unlock Solar Rites — the ability to spend resources to restore 0.001% of global sun brightness. Rare, meaningful, publicly announced.',
+   drill:'Design the Sunkeeper Covenant qualification and Solar Rite mechanics'},
+  {cat:'social', genius:false, impact:3, title:'The Archive of the Fallen',
+   desc:'A public webpage showing every player death: name, wave reached, faction, epitaph, date. Like a war memorial. Fully searchable. Emotionally devastating in the best possible way.',
+   drill:'Design the Archive of the Fallen page'},
+
+  {cat:'narrative', genius:true, impact:5, title:'Lore fragment ARG',
+   desc:'Each run seeds 1-3 torn parchment fragments (already in the codebase). Community members assemble them collectively. At 500 fragments: the Oracle reveals why this season\'s catastrophe began.',
+   drill:'Design the lore fragment discovery and community assembly system'},
+  {cat:'narrative', genius:true, impact:5, title:'The Solar Codex',
+   desc:'Each season\'s full story compiles into a Solar Codex — 12 chapters revealed as community milestones are hit. Season-end: the Codex is finalized forever, crediting all who contributed.',
+   drill:'Write the structure for Season 1 Solar Codex (The Wandering Comet)'},
+  {cat:'narrative', genius:false, impact:4, title:'Oracle memory system',
+   desc:'The Oracle NPC\'s dialogue responds to global sun state, faction balance, and community behavior. At 30% sun with Eclipsers dominant: completely different dialogue than at 90% Sunkeeper-controlled.',
+   drill:'Design the Oracle dialogue state machine'},
+  {cat:'narrative', genius:false, impact:4, title:'Legacy relic origin marks',
+   desc:'Each relic glows with the color of the season it was earned in. A player with three relics from three different seasons visually reads as a veteran. Origin season is permanently encoded.',
+   drill:'Design the legacy relic visual system and what each season\'s color should be'},
+  {cat:'narrative', genius:false, impact:3, title:'The Last Sunkeeper title',
+   desc:'Whoever performs the final Solar Rite before the sun hits 0% is crowned Last Sunkeeper. Their name appears on every player\'s world map permanently. One name. One season. Forever.',
+   drill:'Design the Last Sunkeeper system — announcement, permanent display, next-season treatment'},
+
+  {cat:'mono', genius:false, impact:4, title:'Grave cosmetics',
+   desc:'The one thing players pay for: how their permanent grave looks. Stone type, glow color, epitaph font, animated offerings orbiting it. Visible to every future player who visits. Permanent.',
+   drill:'Design the full grave cosmetics catalog and pricing'},
+  {cat:'mono', genius:false, impact:4, title:'The Sunkeeper Pact ($5/season)',
+   desc:'Season pass: full Solar Codex unlocked immediately, unique legacy relic, custom grave flag, ability to leave solar messages (not just epitaphs) at any location on the map.',
+   drill:'Design the Sunkeeper Pact season pass in full — what\'s included, what\'s excluded, why it\'s ethical'},
+  {cat:'mono', genius:false, impact:3, title:'The Memorial Stone ($15 one-time)',
+   desc:'A permanent named stone placed anywhere on the world map. Not a death grave — a monument you place intentionally. "The Kira Stone — placed Day 1." Extremely limited supply per season.',
+   drill:'Design the Memorial Stone system and how to limit supply without creating FOMO'},
+];
+
+const catEl = document.getElementById('cats');
+const gridEl = document.getElementById('grid');
+const showingEl = document.getElementById('showing-row');
+let activecat = 'all';
+
+const catColors = {
+  core:'var(--color-background-warning)',
+  season:'var(--color-background-info)',
+  viral:'var(--color-background-success)',
+  social:'var(--color-background-info)',
+  narrative:'var(--color-background-secondary)',
+  mono:'var(--color-background-secondary)',
+};
+const catTextColors = {
+  core:'var(--color-text-warning)',
+  season:'var(--color-text-info)',
+  viral:'var(--color-text-success)',
+  social:'var(--color-text-info)',
+  narrative:'var(--color-text-secondary)',
+  mono:'var(--color-text-secondary)',
+};
+const catLabels = {
+  core:'Core mechanic',
+  season:'Seasonal catastrophe',
+  viral:'Viral engine',
+  social:'Social depth',
+  narrative:'Narrative & lore',
+  mono:'Monetization',
+};
+
+cats.forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'cat-btn' + (c.id==='all' ? ' active' : '');
+  const count = c.id === 'all' ? ideas.length : ideas.filter(i=>i.cat===c.id).length;
+  b.textContent = c.label + ' (' + count + ')';
+  b.onclick = () => {
+    activecat = c.id;
+    document.querySelectorAll('.cat-btn').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active');
+    render();
+  };
+  catEl.appendChild(b);
+});
+
+function render() {
+  gridEl.innerHTML = '';
+  const visible = activecat === 'all' ? ideas : ideas.filter(i => i.cat === activecat);
+  showingEl.textContent = 'Showing ' + visible.length + ' of ' + ideas.length + ' innovations' + (activecat !== 'all' ? ' in this category' : '');
+  visible.forEach(idea => {
+    const card = document.createElement('div');
+    card.className = 'inn-card';
+    if (idea.genius) card.dataset.genius = 'true';
+    const bg = catColors[idea.cat];
+    const tc = catTextColors[idea.cat];
+    const label = catLabels[idea.cat];
+    const dots = Array.from({length:5}, (_,i) => `<div class="dot ${i<idea.impact?'dot-on':'dot-off'}"></div>`).join('');
+    card.innerHTML = `
+      <div class="card-top">
+        <div class="card-title">${idea.genius ? '✦ ' : ''}${idea.title}</div>
+        <span class="tbadge" style="background:${bg};color:${tc}">${label}</span>
+      </div>
+      <div class="card-desc">${idea.desc}</div>
+      <div class="impact-row">${dots}<span style="font-size:11px;color:var(--color-text-tertiary);margin-left:3px">impact</span></div>
+      <button class="card-btn" onclick="sendPrompt('${idea.drill.replace(/'/g,"\\'")}') ">Explore this idea ↗</button>
+    `;
+    gridEl.appendChild(card);
+  });
+}
+
+render();
+</script>

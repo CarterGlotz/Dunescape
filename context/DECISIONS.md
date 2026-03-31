@@ -78,3 +78,25 @@ Append new entries. Do not erase historical reasoning unless it is wrong.
 - Alternatives considered: Add a full browser runner immediately; rely on build-only CI; leave smoke checks manual.
 - Why this was chosen: It catches the exact class of regressions that just broke boot, adds minimal maintenance cost, and fits the repo’s current tooling.
 - Follow-up: Extend smoke coverage with save-state validation and additional boot-critical guardrails rather than jumping straight to a heavy test stack.
+
+---
+
+### 2026-03-31 - Prioritize viewport-scale gameplay over always-open utility chrome
+
+- Status: Accepted
+- Context: The game was technically running, but the main canvas remained stuck at native size while the side panel permanently consumed screen space. Players reported that the map did not feel like it followed them and did not know how to play.
+- Decision: Make the gameplay canvas scale to the full available viewport, add a collapsible utility panel, and add a quickstart overlay with explicit controls and first actions.
+- Alternatives considered: Leave the small fixed canvas and only tweak copy; perform a larger architectural split of the UI shell before addressing usability.
+- Why this was chosen: It fixes the actual player-facing usability failure with a contained change inside the existing monolithic `App.jsx`, and it immediately improves perceived playability without destabilizing the game loop.
+- Follow-up: Add starter-loadout onboarding and an objective tracker so the first 2 minutes are guided, not just explained.
+
+---
+
+### 2026-03-31 - Commit to async shared-world multiplayer framing
+
+- Status: Accepted
+- Context: The project’s premise was drifting between “real-time multiplayer game” expectations and its actual codebase, which is a single-player local sim with shared-state hooks.
+- Decision: Treat Solara’s multiplayer promise as async shared-world presence first: front door, identity, leaderboards, graves, shared sun, and player echoes before any real-time netcode.
+- Alternatives considered: Pivot immediately toward real-time co-op/PvP; keep the async concept implicit instead of productized.
+- Why this was chosen: It matches the original idea, fits the current architecture, and creates a shippable social layer without a server-authoritative rewrite.
+- Follow-up: Activate Supabase tables and deepen the async layer with objective guidance and richer echoes/ghosts.

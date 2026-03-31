@@ -2,6 +2,7 @@
 
 ## Now — Agent can do immediately
 
+- [SIL] Objective tracker — persistent on-screen pointer for current quest target / dungeon entrance / next meaningful step
 - [SIL] "First run today" tab pulse — gold glow on ☀️ Daily tab when daily not yet played
 - [SIL] Roguelite share card — generate share text on roguelite death
 - [SIL] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup
@@ -12,6 +13,7 @@
 - [ ] **Run SQL Block 1 (`daily_scores`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 1 leaderboard storage
 - [ ] **Run SQL Block 2 (`graves`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 2 grave storage and map persistence
 - [ ] **Run SQL Block 3 (`sun_state`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 3 shared sun tracking and death counter RPC
+- [ ] **Run SQL Block 4 (`player_echoes`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate cross-player async echoes
 - [ ] **Add Supabase env vars** — set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env.local` and GitHub Secrets so local and CI builds can talk to Supabase
 - [ ] **Post the itch.io listing** — publish the game and devlog entry at itch.io/vaultsparkstudios to open the first real distribution channel
 - [ ] **Deploy the Discord bot** — create the Discord app/token and host `discord-bot/` so the social distribution layer can run
@@ -23,6 +25,7 @@
 - [Manual] Run SQL Block 1 — `daily_scores` table (Phase 1) — full SQL in LATEST_HANDOFF.md
 - [Manual] Run SQL Block 2 — `graves` table (Phase 2) — full SQL in LATEST_HANDOFF.md
 - [Manual] Run SQL Block 3 — `sun_state` table + `increment_death_counter()` (Phase 3) — full SQL in LATEST_HANDOFF.md
+- [Manual] Run SQL Block 4 — `player_echoes` table (async shared-world echoes)
 - [Manual] Add `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` to `.env.local` (local) and GitHub Secrets (CI)
 - ✅ [Manual] Rename GitHub repo: dunescape → solara — done 2026-03-27 via `gh repo rename`
 - [Manual] Post to itch.io — list game at itch.io/vaultsparkstudios with devlog entry (Innovation #18)
@@ -65,6 +68,13 @@
 - ✅ [Phase 3] Sun brightness fetch on mount + every 5 minutes, graceful offline
 - ✅ [Phase 3] increment_death_counter() wired to every player death (submitGrave)
 - ✅ [Phase 3] HUD sun indicator: ☀N% with colour shift (gold→orange→red)
+- ✅ [Runtime Rehab] Gameplay canvas now scales to the full gameplay viewport instead of staying fixed at native size
+- ✅ [Runtime Rehab] Utility side panel can be collapsed with `Tab` / `☰` to prioritize gameplay space
+- ✅ [Runtime Rehab] Quickstart overlay now explains controls, interaction model, and immediate next steps for new/returning players
+- ✅ [Async World] Full-screen main menu / front door with Play, How To Play, Knowledge Base, Features, Update Log, and Settings
+- ✅ [Async World] Persistent traveler identity layer — player name + sigil carried across menu and runtime
+- ✅ [Async World] Starter loadout onboarding — fresh entries auto-equip the opening weapon/shield
+- ✅ [Async World] Player echoes — local-first async shared-world stories with Supabase-ready `player_echoes` hook
 - ✅ [Phase 4] Roguelite run mode — infinite waves, 17 rooms + boss, difficulty scaling, relic system
 - ✅ [Phase 4] ROGUE_ROOMS pool (4 tiers × 4+ rooms + Shadow Drake boss every 10 waves)
 - ✅ [Phase 4] scaleRogueMon — monster stats scale +6% per wave

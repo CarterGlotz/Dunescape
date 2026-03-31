@@ -364,3 +364,65 @@ Rate 0–10 per category at each closeout:
 **Committed to TASK_BOARD this session**
 
 - [SIL] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup
+
+---
+
+### 2026-03-31 — Runtime playability rehab
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 9 | → | Build and smoke both still passing after layout/runtime-shell changes |
+| Creative Alignment | 10 | → | The quickstart now points players toward the actual Solara loops instead of leaving the world opaque |
+| Momentum | 9 | ↑ | This session materially improved playability instead of only stabilizing infrastructure |
+| Engagement | 2 | → | Still pre-launch; no live player signal yet |
+| Process Quality | 10 | → | Full Studio OS closeout maintained and CDR updated |
+| **Total** | **44 / 50** | ↑ | |
+
+**Top win:** The game now actually uses the screen: the playfield scales to the viewport, the utility panel can get out of the way, and a new player gets an immediate explanation of controls and next steps.
+
+**Top gap:** The opening minutes are still too inventory-driven. A fresh save can still hesitate on gear setup and on where exactly to go after reading the guide.
+
+**Innovative Solutions Brainstorm**
+
+1. **Starter loadout prompt** — On fresh saves, explicitly offer “Equip starter kit now” so the sword and shield become active without forcing inventory literacy first
+2. **Objective tracker / waypoint** — Pin the current quest target or dungeon entrance on-screen so movement has a clear destination
+3. **Smart first NPC callout** — Give Mara or Alder a subtle screen-edge callout when the player has zero completed quests
+4. **Context-sensitive chat coach** — Replace generic opening chat lines with one live instruction based on current state (fresh save, daily active, roguelite active, low HP)
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] Starter loadout onboarding — auto-equip or explicitly prompt the fresh-save weapon/shield flow so a new player is combat-ready in seconds
+- [SIL] Objective tracker — persistent on-screen pointer for current quest target / dungeon entrance / next meaningful step
+
+---
+
+### 2026-03-31 — Async shared-world front door
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 9 | → | Big monolithic UI expansion still left build and smoke green |
+| Creative Alignment | 10 | → | The product now presents itself explicitly as shared-world async multiplayer, which matches the project soul |
+| Momentum | 10 | ↑ | Completed the 1–5 async roadmap pass in one session |
+| Engagement | 2 | → | Still pre-launch; no live players yet |
+| Process Quality | 10 | → | Studio OS write-back and CDR/decisions updated after major scope change |
+| **Total** | **41 / 50** | ↑ | |
+
+**Top win:** The game finally has a product wrapper that explains itself: title/menu flow, codex, features, update log, persistent identity, and async echoes all now support the original shared-world premise.
+
+**Top gap:** The backend is still not live, so the new async systems are currently proving themselves locally rather than across actual players.
+
+**Innovative Solutions Brainstorm**
+
+1. **Objective waypoint beam** — show a clear in-world pointer to the current quest target or dungeon entrance so menu clarity turns into gameplay clarity
+2. **Ghost assist encounters** — render recent echoes as spectral traces or message markers in-world rather than only menu/settings cards
+3. **Season chronicle page** — a public ledger page combining top runs, recent graves, echoes, and sun milestones for the current season
+4. **Echo rating loop** — let players commend / heed / mourn an echo so the strongest shared stories rise to the top asynchronously
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] Objective tracker — persistent on-screen pointer for current quest target / dungeon entrance / next meaningful step
+- [SIL] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup
