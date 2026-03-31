@@ -4,6 +4,18 @@
 
 - [SIL] "First run today" tab pulse — gold glow on ☀️ Daily tab when daily not yet played
 - [SIL] Roguelite share card — generate share text on roguelite death
+- [SIL] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup
+
+## Human Action Required
+
+- [ ] **Create Supabase project** — create the Supabase project at supabase.com so Solara’s social systems can connect to a live backend
+- [ ] **Run SQL Block 1 (`daily_scores`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 1 leaderboard storage
+- [ ] **Run SQL Block 2 (`graves`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 2 grave storage and map persistence
+- [ ] **Run SQL Block 3 (`sun_state`)** — execute the SQL in `context/LATEST_HANDOFF.md` to activate Phase 3 shared sun tracking and death counter RPC
+- [ ] **Add Supabase env vars** — set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env.local` and GitHub Secrets so local and CI builds can talk to Supabase
+- [ ] **Post the itch.io listing** — publish the game and devlog entry at itch.io/vaultsparkstudios to open the first real distribution channel
+- [ ] **Deploy the Discord bot** — create the Discord app/token and host `discord-bot/` so the social distribution layer can run
+- [ ] **Submit the Twitch extension** — submit `twitch-extension/` through the Twitch Developer Console to activate the stream-side surface
 
 ## Now — Waiting on Carter (manual actions, flagged for delay)
 
@@ -84,4 +96,6 @@
 - ✅ [Innovation #13] Ambient audio system — phase-adaptive Web Audio API, tied to sunBrightness
 - ✅ [Innovation #14] Sunfall Event Boss HP Tracker — section in Daily tab when sun < 10%
 - ✅ [Innovation #15] Public Sun API — archive.html + widget both expose /sun state via Supabase public query
+- ✅ [Maintenance] Fix startup TDZ crash in `src/App.jsx` by moving Supabase polling effects below `fetchGraves` / `fetchSunState` callback initialization
+- ✅ [SIL] Add a lightweight boot smoke test for app mount + daily/roguelite startup flows
 - ✅ Build passing ✅ (348 KB JS, 106 KB gzipped)

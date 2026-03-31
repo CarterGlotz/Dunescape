@@ -3,6 +3,16 @@
 This file is the living audit and improvement engine for the project.
 Append a new entry every closeout. Never delete prior entries.
 
+<!-- rolling-status-start -->
+## Rolling Status (auto-updated each closeout)
+Sparkline (last 5 totals): ▅▅▆▇▇
+Avgs — 3: 42.0 | 5: 41.2 | 10: — | 25: — | all: 36.6
+  └ 3-session: Dev 9.0 | Align 10.0 | Momentum 9.3 | Engage 2.0 | Process 10.0
+Velocity trend: →  |  Protocol velocity: →  |  Debt: →
+Last session: 2026-03-30 | Session 10 | Total: 43/50 | Velocity: 0 | protocolVelocity: 0
+─────────────────────────────────────────────────────────────────────
+<!-- rolling-status-end -->
+
 ---
 
 ## Scoring rubric
@@ -294,3 +304,63 @@ Rate 0–10 per category at each closeout:
 
 - [SIL] "First run today" tab pulse — gold glow on ☀️ Daily tab when daily not yet played
 - [SIL] Roguelite share card — generate share text on roguelite death
+
+---
+
+### 2026-03-30 — Runtime diagnosis + boot fix
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 9 | → | Build still passed before and after the fix; boot regression isolated to initialization order in `App.jsx` |
+| Creative Alignment | 10 | → | Fix preserves the existing Solara loop rather than reshaping it under pressure |
+| Momentum | 9 | ↓ | This was a stabilization session, not a new feature sprint, but it unblocked all further work |
+| Engagement | 2 | → | Still pre-launch and still gated on external setup for live social signals |
+| Process Quality | 10 | → | Startup protocol followed, root cause documented, context files refreshed, CDR recorded |
+| **Total** | **42 / 50** | ↑ | | 
+
+**Top win:** Found the actual blank-screen boot bug instead of guessing: startup effects were referencing uninitialized callbacks, and the app now mounts again.
+
+**Top gap:** There is still no lightweight runtime smoke coverage, so a build can stay green while the browser boot path is broken.
+
+**Innovative Solutions Brainstorm**
+
+1. **Boot smoke test** — Add a minimal browser/runtime validation that confirms the app mounts and the Daily / Roguelite panels render without crashing
+2. **State-shape guardrail** — Add a small runtime validator for save data and critical refs so stale saves cannot silently poison startup paths
+3. **Mount diagnostics mode** — Add a dev-only startup diagnostics banner that reports which optional systems were disabled (Supabase offline, audio suspended, etc.)
+4. **Regression checklist** — Add a tiny release checklist for `App.jsx` edits that specifically calls out hook order, dependency arrays, and mount effects
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] Add a lightweight boot smoke test for app mount + daily/roguelite startup flows
+
+---
+
+### 2026-03-30 — Boot smoke harness
+
+**Scores**
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 9 | → | `npm run smoke` now protects mount/startup flow in addition to `npm run build` |
+| Creative Alignment | 10 | → | Verification work protected the existing Solara experience instead of diluting it |
+| Momentum | 8 | ↓ | Another stabilization pass, but it materially reduced regression risk |
+| Engagement | 2 | → | Still pre-launch; no new external player signals yet |
+| Process Quality | 10 | → | CI guardrail added, context refreshed, closeout protocol maintained |
+| **Total** | **43 / 50** | ↑ | |
+
+**Top win:** The repo now has an executable smoke check for the exact mount/startup path that failed earlier, so the same class of regression should be caught before merge.
+
+**Top gap:** Save loading is still permissive; a malformed or stale save could still poison boot-critical state even with smoke coverage in place.
+
+**Innovative Solutions Brainstorm**
+
+1. **Save-state validator** — Validate boot-critical save fields and coerce/fallback bad shapes before they reach refs and game state
+2. **Boot diagnostics overlay** — Add a dev-only overlay showing which optional systems were disabled during startup
+3. **Smoke marker helper** — Centralize the smoke harness cutoff markers so the rewritten test copy is less coupled to `App.jsx` structure
+4. **Scenario expansion** — Extend smoke coverage to a death → epitaph queue path, since that now spans multiple runtime systems
+
+**Committed to TASK_BOARD this session**
+
+- [SIL] Save-state validation — guard boot-critical refs/fields during load so stale saves cannot poison startup

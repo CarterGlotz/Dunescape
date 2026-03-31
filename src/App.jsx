@@ -735,20 +735,6 @@ export default function DS(){
     return()=>window.removeEventListener("keydown",onKey);
   },[]);
 
-  // Phase 2: fetch graves on mount + every 5 min
-  useEffect(()=>{
-    fetchGraves();
-    const iv=setInterval(()=>fetchGraves(),300000);
-    return()=>clearInterval(iv);
-  },[fetchGraves]);
-
-  // Phase 3: fetch sun state on mount + every 5 min
-  useEffect(()=>{
-    fetchSunState();
-    const iv=setInterval(()=>fetchSunState(),300000);
-    return()=>clearInterval(iv);
-  },[fetchSunState]);
-
   // Phase 3: apply canvas desaturation filter when sun brightness changes
   useEffect(()=>{
     sunBrightnessRef.current=sunBrightness;
@@ -931,6 +917,20 @@ export default function DS(){
       }
     }catch(e){console.warn('[Solara] Sun state fetch failed:',e);}
   },[addC]);
+
+  // Phase 2: fetch graves on mount + every 5 min
+  useEffect(()=>{
+    fetchGraves();
+    const iv=setInterval(()=>fetchGraves(),300000);
+    return()=>clearInterval(iv);
+  },[fetchGraves]);
+
+  // Phase 3: fetch sun state on mount + every 5 min
+  useEffect(()=>{
+    fetchSunState();
+    const iv=setInterval(()=>fetchSunState(),300000);
+    return()=>clearInterval(iv);
+  },[fetchSunState]);
 
   useEffect(()=>{
     const map=genMap(),objects=genObjs(map),npcs=genNPCs(),mons=genMons();

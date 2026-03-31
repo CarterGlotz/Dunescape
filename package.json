@@ -9,6 +9,7 @@
     "dev": "vite",
     "build": "vite build",
     "build:pages": "vite build && node scripts/postbuild-pages.mjs",
+    "smoke": "node scripts/smoke-runtime.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

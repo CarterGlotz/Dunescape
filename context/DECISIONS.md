@@ -56,3 +56,25 @@ Append new entries. Do not erase historical reasoning unless it is wrong.
 - Alternatives considered: Incremental 1–2 items per session; prioritised subset only
 - Why this was chosen: Items are complementary — distribution infrastructure (archive, widget, Discord bot, Twitch ext) + virality mechanics (faction cards, prophecies, landmark naming) + engagement layer (ambient audio, faction dashboard, Oracle subscription) all reinforce each other at once; shipping together maximises launch readiness
 - Follow-up: Carter must complete Supabase setup + itch.io listing to activate all social features; Phase 4 roguelite engine is the next agent build task
+
+---
+
+### 2026-03-30 - Declare runtime callbacks before dependent effects
+
+- Status: Accepted
+- Context: The app stopped booting even though `vite build` still passed. The cause was `useEffect` dependency arrays reading `fetchGraves` / `fetchSunState` before those `const` callbacks were initialized.
+- Decision: Keep callback declarations above any effects or dependency arrays that reference them in `src/App.jsx`.
+- Alternatives considered: Leave order as-is and rely on manual browser testing to catch regressions; refactor the whole file immediately.
+- Why this was chosen: It fixes the actual bug with the smallest safe change and establishes a clear rule for future edits in the monolithic component.
+- Follow-up: Add a lightweight boot smoke test for mount + daily/roguelite startup flows.
+
+---
+
+### 2026-03-30 - Use a repo-native Node smoke harness for boot regressions
+
+- Status: Accepted
+- Context: This repo has no browser-test stack, but the runtime bug showed that `vite build` alone is not sufficient protection.
+- Decision: Add `npm run smoke`, a lightweight Node harness that mounts a Node-safe copy of `App.jsx`, flushes mount effects, and verifies Daily / Roguelite startup handlers initialize.
+- Alternatives considered: Add a full browser runner immediately; rely on build-only CI; leave smoke checks manual.
+- Why this was chosen: It catches the exact class of regressions that just broke boot, adds minimal maintenance cost, and fits the repo’s current tooling.
+- Follow-up: Extend smoke coverage with save-state validation and additional boot-critical guardrails rather than jumping straight to a heavy test stack.
