@@ -1,43 +1,48 @@
-Session Intent: Complete all outstanding [SIL] next-move items and the highest-value unblocked feature
+Session Intent: Audit project, implement top recommendations (onboarding funnel, layout export/import, App.jsx pressure release, TASK_BOARD pre-load)
 
 # Latest Handoff
 
-Last updated: 2026-04-01
+Last updated: 2026-04-02
 
-## Where We Left Off (Session 16)
+## Where We Left Off (Session 17)
 
-- Shipped: 3 improvements across engagement tooling — season chronicle, echo reactions, viral share PNG
+- Shipped: 3 improvements across onboarding + layout sharing — guided intro funnel, layout export/import, code pressure release
 - Tests: 2 passing (1 build / 1 smoke) · delta: 0 this session
-- Deploy: pending
+- Deploy: pending (CI + Pages workflows both green)
 
 ## What was completed this session
 
-**Season Chronicle Page** (`public/chronicle.html`)
-- Public standalone page combining sun state, today's top runs, season records (all-time best waves), recent echoes sorted by reaction count, and shrine count
-- Queries Supabase REST API directly — graceful offline state when Supabase not configured
-- Follows the same dark/amber visual language as `archive.html`
+**Onboarding Funnel** (`src/App.jsx`)
+- 4-step guided intro for first-time players: "The Sun Is Dying" → "Your Grave Stays Behind" → "Choose Your Side" → "Your Chronicle Begins"
+- Only triggers for players with no existing save and `solara_onboarding_done` not set in localStorage
+- Skippable at any step; completion writes `solara_onboarding_done=1` to localStorage
+- Cleared on "Start Fresh Chronicle" so it re-triggers for fresh starts
+- Full-screen cinematic overlay at z-index 500 (above menu); dot indicators and back/next navigation
 
-**Echo Response Loop** (`src/App.jsx`)
-- `commend` / `heed` / `mourn` reaction buttons added to both ghost HUD cards and Settings → Recent Echoes panel
-- Local-first: reactions stored in `solara_echo_reactions` localStorage; prevents double-reactions; optimistic UI update via `setEchoes`
-- Supabase-ready: calls `react_to_echo(echo_id, reaction)` RPC when live; counts surface in chronicle and in-game
-- `fetchEchoes` select updated to include `commend_count`, `heed_count`, `mourn_count`
-- SQL Block 5 (`ALTER TABLE player_echoes` + `react_to_echo` RPC) added to `docs/SUPABASE_ACTIVATION_PACK.md`
+**Layout Export/Import** (`src/App.jsx`)
+- `exportLayout()` — captures current layout config, encodes as base64 JSON, copies to clipboard
+- `importLayout(code)` — decodes base64, validates, applies layout config
+- New "Share Layout" section in Layout Manager modal with copy/paste UI
+- Players can share layout codes with friends and import them in one paste
 
-**Prophecy Scroll PNG** (`src/App.jsx`)
-- `generateProphecyScrollPNG(opts)` — canvas-drawn 400×580 image with sun glow, rays, player name/sigil, wave, faction badge, taglines
-- `shareProphecyScroll(dataUrl, type)` — tries Web Share API with file support, falls back to direct download
-- **📸 Download Scroll** button appears after every Daily and Roguelite death, alongside the existing text copy/share button
-- Build: 606.08 KB / 175.50 KB gzip · smoke passing
+**App.jsx Pressure Release** (`src/App.jsx`)
+- Extracted `LAYOUT_BASE_KEYS`, `layoutBaseMatch()`, `layoutFullMatch()` as module-level constants/helpers
+- Replaced 16 lines of repeated inline comparison logic in the layout preset detection `useEffect` with 3-line helper calls
+- Net line reduction despite adding features (3969 lines, down from 3919+additions)
+
+**TASK_BOARD Pre-Load** (runway ≤2.0 protocol)
+- Promoted map-tied echo traces from Next to Now
+- Added lore codex fragments and PWA manifest as new Now items
+- Runway extended from ~2.0 to ~5.0 sessions
 
 ## Root cause
 
-The Engage score has been at 2.3/10 (3-session avg) for multiple sessions. The game has strong mechanics but no viral surface. The Prophecy Scroll PNG creates a shareable image on every death; the echo reaction loop surfaces community stories; the chronicle page gives players something to share and discover. These three together form the first real engagement layer.
+Momentum runway was at ≤2.0 sessions, triggering mandatory TASK_BOARD pre-loading. The onboarding funnel addresses the Engage gap — new players had no guided introduction to the core death-matters-to-everyone loop. Layout export/import enables social sharing of UI configurations.
 
 ## What is mid-flight
 
 - Supabase activation is still not complete — SQL blocks 1–5 remain unrun; all shared-world systems degrade gracefully offline
-- Now bucket: Layout export/import + App.jsx pressure release (promoted to Now this session)
+- Now bucket has 3 fresh items: lore codex, PWA manifest, map-tied echo traces
 
 ## Human Action Required
 
@@ -52,20 +57,16 @@ The Engage score has been at 2.3/10 (3-session avg) for multiple sessions. The g
 
 ## What to do next
 
-1. Agent: Layout export/import — encode layout config as a short shareable string (base64); paste-to-load
-2. Agent: App.jsx pressure release — extract layout-manager constants/helpers as module-level constants
-3. Carter: Run SQL Blocks 1–5 from `docs/SUPABASE_ACTIVATION_PACK.md`
+1. Agent: Lore codex fragments — discoverable sun mythology entries unlocked through gameplay and Oracle
+2. Agent: PWA manifest + offline service worker — mobile install prompt and offline play support
+3. Agent: Map-tied echo traces — ghost echoes as spectral markers near death coordinates on world map
 
 ## Constraints
 
-- `src/App.jsx` remains monolithic until 5000 lines (currently 3919)
+- `src/App.jsx` remains monolithic until 5000 lines (currently 3969)
 - Never break save migration from `dunescape_save` to `solara_save`
 - Shared-world features must continue to degrade cleanly when Supabase is absent
 - Runtime overlays should stay user-controllable
-
-## SQL Block 5 — Echo Reactions (player_echoes ALTER + RPC)
-
-See `docs/SUPABASE_ACTIVATION_PACK.md` for the full SQL. Run after Block 4.
 
 ## Read these first next session
 

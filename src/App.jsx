@@ -606,6 +606,12 @@ const HOW_TO_PLAY_STEPS=[
   "Use the Daily tab for the async communal challenge and the Quest tab for local progression.",
   "Deaths, graves, offerings, and the sun are meant to be shared-world systems once Supabase is live.",
 ];
+const ONBOARDING_SLIDES=[
+  {icon:"☀️",accent:"#f0c060",title:"The Sun Is Dying",body:"Every player death dims a shared sun that all players see. When it fades, the world changes for everyone — not just you.",hint:"This isn't a solo game. Your death has weight."},
+  {icon:"✝",accent:"#c68856",title:"Your Grave Stays Behind",body:"When you fall, your grave appears on the world map for every other player. Leave an epitaph. Receive offerings. Become a shrine.",hint:"Deaths are permanent marks on a living world."},
+  {icon:"⚔️",accent:"#e06040",title:"Choose Your Side",body:"Sunkeepers fight to preserve the light. Eclipsers welcome the dark. Your faction shapes leaderboards, share cards, and how your echoes read.",hint:"Faction identity drives the community meta."},
+  {icon:"🌅",accent:"#d8a86a",title:"Your Chronicle Begins",body:"Run the Daily Rite — same dungeon for everyone today. Push through the Roguelite gauntlet. Share your Prophecy Scroll. The world remembers.",hint:"Press Play. Your first death matters."},
+];
 const DEFAULT_UI_SCALE=1;
 const defaultPanelOpen=()=>typeof window==="undefined"?true:window.innerWidth>=1180;
 const loadPreferences=()=>{
@@ -690,6 +696,9 @@ const loadCustomLayouts=()=>{
   }
 };
 const getDefaultCustomLayoutLabel=slot=>`Custom ${slot.replace("slot","")}`;
+const LAYOUT_BASE_KEYS=["showGuide","showObjectiveTracker","showGhostHud","tooltipsOn","compactHud","panelOpen","showMenuReference"];
+const layoutBaseMatch=(cfg,state)=>LAYOUT_BASE_KEYS.every(k=>cfg[k]===state[k]);
+const layoutFullMatch=(cfg,state)=>layoutBaseMatch(cfg,state)&&JSON.stringify(cfg.objectivePosition||null)===JSON.stringify(state.objectivePosition||null)&&JSON.stringify(cfg.ghostPosition||null)===JSON.stringify(state.ghostPosition||null);
 
 function makeTravelerSigil(){
   const parts=["ASH","SUN","RITE","ECHO","EMBER","VEIL","DUSK","AURIC"];
@@ -992,6 +1001,7 @@ export default function DS(){
   const [tab,setTab]=useState("inv");
   const [mapOpen,setMapOpen]=useState(false);
   const [menuOpen,setMenuOpen]=useState(true);
+  const [onboardingStep,setOnboardingStep]=useState(null);
   const [menuSection,setMenuSection]=useState("play");
   const [panelOpen,setPanelOpen]=useState(initialPrefs.panelOpen);
   const [showGuide,setShowGuide]=useState(initialPrefs.showGuide);
@@ -1020,6 +1030,7 @@ export default function DS(){
   const [customLayouts,setCustomLayouts]=useState(()=>loadCustomLayouts());
   const [customLayoutDrafts,setCustomLayoutDrafts]=useState(()=>Object.fromEntries(CUSTOM_LAYOUT_SLOTS.map(slot=>[slot,loadCustomLayouts()[slot]?.label||getDefaultCustomLayoutLabel(slot)])));
   const [showLayoutManager,setShowLayoutManager]=useState(false);
+  const [layoutImportDraft,setLayoutImportDraft]=useState("");
   const [tooltipsOn,setTooltipsOn]=useState(initialPrefs.tooltipsOn);
   const [compactHud,setCompactHud]=useState(initialPrefs.compactHud);
   const [showMenuReference,setShowMenuReference]=useState(initialPrefs.showMenuReference);
@@ -2683,30 +2694,10 @@ export default function DS(){
   },[hudHeight,recentEchoGhosts.length]);
 
   useEffect(()=>{
-    const match=LAYOUT_PRESETS.find(preset=>{
-      const cfg=preset.config;
-      return cfg.showGuide===showGuide
-        && cfg.showObjectiveTracker===showObjectiveTracker
-        && cfg.showGhostHud===showGhostHud
-        && cfg.tooltipsOn===tooltipsOn
-        && cfg.compactHud===compactHud
-        && cfg.panelOpen===panelOpen
-        && cfg.showMenuReference===showMenuReference;
-    });
+    const state={showGuide,showObjectiveTracker,showGhostHud,tooltipsOn,compactHud,panelOpen,showMenuReference,objectivePosition,ghostPosition};
+    const match=LAYOUT_PRESETS.find(preset=>layoutBaseMatch(preset.config,state));
     if(match){setLayoutPreset(match.id);return;}
-    const customMatch=Object.entries(customLayouts).find(([,entry])=>{
-      const cfg=entry?.config;
-      if(!cfg)return false;
-      return cfg.showGuide===showGuide
-        && cfg.showObjectiveTracker===showObjectiveTracker
-        && cfg.showGhostHud===showGhostHud
-        && cfg.tooltipsOn===tooltipsOn
-        && cfg.compactHud===compactHud
-        && cfg.panelOpen===panelOpen
-        && cfg.showMenuReference===showMenuReference
-        && JSON.stringify(cfg.objectivePosition||null)===JSON.stringify(objectivePosition||null)
-        && JSON.stringify(cfg.ghostPosition||null)===JSON.stringify(ghostPosition||null);
-    });
+    const customMatch=Object.entries(customLayouts).find(([,entry])=>entry?.config&&layoutFullMatch(entry.config,state));
     setLayoutPreset(customMatch?customMatch[0]:"custom");
   },[compactHud,customLayouts,ghostPosition,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,tooltipsOn]);
 
@@ -2857,7 +2848,20 @@ export default function DS(){
       if(gR.current)gR.current.cam=getCenteredCam(p.x,p.y,cvR.current);
       saveGame();
     }
+    // Show onboarding funnel for first-time players
+    const onboardingDone=(()=>{try{return localStorage.getItem("solara_onboarding_done")==="1";}catch(e){return false;}})();
+    if(!hasExistingSave&&!onboardingDone&&!openTab){
+      setOnboardingStep(0);
+      setMenuOpen(false);
+      return;
+    }
     setMenuOpen(false);
+    setShowGuide(true);
+    fr(n=>n+1);
+  }
+  function finishOnboarding(){
+    try{localStorage.setItem("solara_onboarding_done","1");}catch(e){}
+    setOnboardingStep(null);
     setShowGuide(true);
     fr(n=>n+1);
   }
@@ -2867,6 +2871,7 @@ export default function DS(){
       localStorage.removeItem("solara_save");
       localStorage.removeItem("solara_offline");
       localStorage.removeItem("solara_daily");
+      localStorage.removeItem("solara_onboarding_done");
     }catch(e){}
     window.location.reload();
   }
@@ -2959,6 +2964,24 @@ export default function DS(){
     if(cfg.resetObjective)setObjectivePosition(null);
     if(cfg.resetGhost)setGhostPosition(null);
   },[applyLayoutConfig]);
+  const exportLayout=useCallback(()=>{
+    try{
+      const cfg=captureLayoutConfig();
+      const json=JSON.stringify({v:1,...cfg});
+      const code=btoa(json);
+      if(navigator.clipboard?.writeText)navigator.clipboard.writeText(code);
+      addC("Layout code copied to clipboard. Share it with other players!","important");
+    }catch(e){addC("Could not export layout.","error");}
+  },[captureLayoutConfig,addC]);
+  const importLayout=useCallback((code)=>{
+    try{
+      const json=atob(code.trim());
+      const cfg=JSON.parse(json);
+      if(!cfg||typeof cfg!=="object")throw new Error("bad");
+      applyLayoutConfig(cfg,"imported");
+      addC("Layout imported successfully!","important");
+    }catch(e){addC("Invalid layout code.","error");}
+  },[applyLayoutConfig,addC]);
   const startObjectiveDrag=e=>{
     if(e.target.closest("button"))return;
     const base=objectivePosition||defaultObjectivePosition;
@@ -3567,6 +3590,15 @@ export default function DS(){
                 })}
               </div>
             </div>
+            <div style={{background:"rgba(20,10,5,0.6)",padding:"8px",borderRadius:6,border:"1px solid rgba(200,168,78,0.08)"}}>
+              <div style={{fontSize:10,color:"#c8a84e",fontWeight:700,marginBottom:6}}>Share Layout</div>
+              <div style={{display:"grid",gap:8}}>
+                <button onClick={exportLayout} style={{background:"#241208",border:"1px solid #5a2010",color:"#ddd",fontSize:9,padding:"8px 9px",cursor:"pointer",borderRadius:5,fontWeight:700}}>📋 Copy Layout Code</button>
+                <div style={{fontSize:8,color:"#6f6256"}}>Copies your current layout as a shareable code string.</div>
+                <input type="text" placeholder="Paste a layout code here…" value={layoutImportDraft} onChange={e=>setLayoutImportDraft(e.target.value)} style={{width:"100%",boxSizing:"border-box",background:"#120604",color:"#d8c2a8",border:"1px solid #5a2010",fontSize:9,padding:"6px 8px",borderRadius:4}}/>
+                <button onClick={()=>{if(layoutImportDraft.trim()){importLayout(layoutImportDraft);setLayoutImportDraft("");}}} disabled={!layoutImportDraft.trim()} style={{background:layoutImportDraft.trim()?"#161d12":"#151110",border:"1px solid #3a5020",color:layoutImportDraft.trim()?"#bfe0a8":"#6d655d",fontSize:9,padding:"8px 9px",cursor:layoutImportDraft.trim()?"pointer":"default",borderRadius:5,fontWeight:700}}>📥 Import Layout</button>
+              </div>
+            </div>
           </div>
         </div>
       </div>}
@@ -3779,6 +3811,24 @@ export default function DS(){
             <button onClick={()=>submitGrave(epitaphDraft)} style={{background:"#5a2080",border:"none",color:"#fff",borderRadius:4,padding:"6px 16px",fontSize:11,cursor:"pointer",fontWeight:700}}>Leave Epitaph</button>
             <button onClick={()=>submitGrave("")} style={{background:"transparent",border:"1px solid #444",color:"#666",borderRadius:4,padding:"6px 12px",fontSize:11,cursor:"pointer"}}>Skip</button>
           </div>
+        </div>
+      </div>}
+      {onboardingStep!==null&&<div style={{position:"fixed",inset:0,zIndex:500,background:"radial-gradient(circle at top, rgba(180,110,40,0.12), transparent 40%), linear-gradient(180deg, rgba(4,2,2,0.97), rgba(8,4,3,0.99))",display:"flex",alignItems:"center",justifyContent:"center",padding:24,boxSizing:"border-box"}}>
+        <div style={{width:"min(520px,100%)",textAlign:"center"}}>
+          <div style={{fontSize:56,marginBottom:12,filter:`drop-shadow(0 0 18px ${ONBOARDING_SLIDES[onboardingStep].accent}66)`}}>{ONBOARDING_SLIDES[onboardingStep].icon}</div>
+          <div style={{color:ONBOARDING_SLIDES[onboardingStep].accent,fontSize:11,letterSpacing:3,fontWeight:800,marginBottom:8}}>STEP {onboardingStep+1} OF {ONBOARDING_SLIDES.length}</div>
+          <div style={{color:"#fff",fontSize:28,fontWeight:900,lineHeight:1.15,marginBottom:14}}>{ONBOARDING_SLIDES[onboardingStep].title}</div>
+          <div style={{color:"#c8b9a6",fontSize:14,lineHeight:1.7,marginBottom:10,maxWidth:420,margin:"0 auto 10px"}}>{ONBOARDING_SLIDES[onboardingStep].body}</div>
+          <div style={{color:"#8f7d68",fontSize:11,fontStyle:"italic",marginBottom:28}}>{ONBOARDING_SLIDES[onboardingStep].hint}</div>
+          <div style={{display:"flex",gap:8,justifyContent:"center",marginBottom:18}}>
+            {ONBOARDING_SLIDES.map((_,i)=><div key={i} style={{width:10,height:10,borderRadius:"50%",background:i===onboardingStep?ONBOARDING_SLIDES[onboardingStep].accent:"rgba(200,168,78,0.2)",transition:"background 0.3s"}}/>)}
+          </div>
+          <div style={{display:"flex",gap:12,justifyContent:"center"}}>
+            {onboardingStep>0&&<button onClick={()=>setOnboardingStep(s=>s-1)} style={{background:"rgba(0,0,0,0.3)",border:"1px solid rgba(200,168,78,0.2)",color:"#b7a387",padding:"10px 22px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:700}}>Back</button>}
+            {onboardingStep<ONBOARDING_SLIDES.length-1&&<button onClick={()=>setOnboardingStep(s=>s+1)} style={{background:"linear-gradient(180deg,#4a220c,#2a1006)",border:"1px solid #c8a84e",color:"#f0c060",padding:"10px 28px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:800}}>Next</button>}
+            {onboardingStep===ONBOARDING_SLIDES.length-1&&<button onClick={finishOnboarding} style={{background:"linear-gradient(180deg,#4a220c,#2a1006)",border:"1px solid #c8a84e",color:"#f0c060",padding:"10px 28px",borderRadius:10,cursor:"pointer",fontSize:13,fontWeight:800}}>Enter the World</button>}
+          </div>
+          <button onClick={finishOnboarding} style={{background:"transparent",border:"none",color:"#6f5f4d",cursor:"pointer",fontSize:10,marginTop:16,padding:4}}>Skip intro</button>
         </div>
       </div>}
       {menuOpen&&<div style={{position:"fixed",inset:0,zIndex:400,background:"radial-gradient(circle at top, rgba(180,110,40,0.18), transparent 32%), linear-gradient(180deg, rgba(8,4,3,0.96), rgba(4,2,2,0.98))",display:"flex",alignItems:"stretch",justifyContent:"center",padding:24,boxSizing:"border-box"}}>

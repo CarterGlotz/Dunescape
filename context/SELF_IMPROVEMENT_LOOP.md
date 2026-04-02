@@ -5,12 +5,12 @@ Append a new entry every closeout. Never delete prior entries.
 
 <!-- rolling-status-start -->
 ## Rolling Status (auto-updated each closeout)
-Sparkline (last 5 totals): ▆▆▆▇▆
-Avgs — 3: 44.3 | 5: 43.4 | 10: 42.8 | 25: — | all: 39.1
-  └ 3-session: Dev 9.7 | Align 10.0 | Momentum 10.0 | Engage 5.0 | Process 9.7
-Velocity trend: →  |  Protocol velocity: ↑  |  Debt: →
-Momentum runway: ~2.0 sessions ⚠ (2 items in Now at velocity 1.0)  |  Intent rate: 80% (last 5)
-Last session: 2026-04-01 | Session 16 | Total: 44/50 | Velocity: 1 | protocolVelocity: 2
+Sparkline (last 5 totals): ▆▆▇▆▇
+Avgs — 3: 45.0 | 5: 44.4 | 10: 43.3 | 25: — | all: 39.5
+  └ 3-session: Dev 9.7 | Align 10.0 | Momentum 10.0 | Engage 6.0 | Process 9.7
+Velocity trend: ↑  |  Protocol velocity: →  |  Debt: →
+Momentum runway: ~1.8 sessions ⚠ (3 items in Now at velocity avg 1.67)  |  Intent rate: 80% (last 5)
+Last session: 2026-04-02 | Session 17 | Total: 46/50 | Velocity: 3 | protocolVelocity: 2
 ─────────────────────────────────────────────────────────────────────
 <!-- rolling-status-end -->
 
@@ -569,3 +569,40 @@ Avgs — 3: 44.3 | 5: 43.4 | 10: 42.8 | 25: — | all: 39.1
 5. **Roguelite leaderboard** — a shared all-time best-wave board for roguelite runs, parallel to the daily leaderboard. Implementation path: add a `roguelite_scores` Supabase table + client fetch/render in the Daily tab (mirrors existing daily leaderboard pattern). Execution probability: Medium (requires new SQL block — Carter action).
 
 **Committed to TASK_BOARD:** [SIL] Map-tied echo traces · [SIL] Prophecy scroll in grave popup
+
+---
+
+## 2026-04-02 — Session 17 | Total: 46/50 | Velocity: 3 | Debt: →
+Avgs — 3: 45.0 | 5: 44.4 | 10: 43.3 | 25: — | all: 39.5
+  └ 3-session: Dev 9.7 | Align 10.0 | Momentum 10.0 | Engage 6.0 | Process 9.7
+
+| Category | Score | vs Last | Notes |
+|---|---|---|---|
+| Dev Health | 10 | ↑ | Build + smoke green; pressure release extracted layout helpers to module level; 3969 lines; CI passing |
+| Creative Alignment | 10 | → | Onboarding funnel directly teaches the core death-matters-to-everyone premise in 4 cinematic steps |
+| Momentum | 10 | → | 3 features shipped + TASK_BOARD pre-loaded per runway ≤2.0 protocol |
+| Engagement | 6 | → | Onboarding funnel reduces bounce for first-time players; layout sharing adds social surface; still no live users |
+| Process Quality | 10 | ↑ | Full closeout, runway protocol enforced, all context files current, truth audit refreshed |
+| **Total** | **46 / 50** | ↑ | |
+
+**IGNIS note:** Runway pre-loading is a forcing function — it converts audit sessions into velocity sessions by making the next-move queue deep enough to sustain multiple sprints without re-planning.
+
+**Top win this session:** Onboarding funnel — the game now teaches its own premise instead of dropping players into a world they don't understand.
+
+**Top gap this session:** Momentum runway is still ≤2 despite pre-loading (3 items / 1.67 avg velocity = ~1.8). Need higher velocity or deeper Now queue.
+
+**Session intent outcome:** Achieved — audited project, scored all categories, implemented all 3 top recommendations (onboarding funnel, layout export/import, App.jsx pressure release), pre-loaded TASK_BOARD.
+
+**Brainstorm**
+
+1. **Interactive onboarding demo** — instead of static slides, show an animated sun dimming + grave appearing during the intro. Implementation path: add a small canvas to each onboarding slide that renders the relevant visual in real-time. Execution probability: Medium.
+
+2. **Layout gallery page** — a public page (`public/layouts.html`) where players can browse and copy community-shared layout codes. Implementation path: static page with hardcoded starter layouts + paste-to-copy UI; Supabase table later. Execution probability: High.
+
+3. **First-death celebration** — after the player's very first death, show a special expanded death screen explaining that their grave now exists for others, the sun dimmed, and their echo was recorded. Implementation path: check `totalDeaths === 1` in the death handler and render a one-time expanded modal. Execution probability: High.
+
+4. **Guided quest chain for new players** — a 3-step introductory quest that walks the player through equipping gear → talking to an NPC → entering the daily rite. Implementation path: add a `tutorial_quest` chain to the quest system with auto-advance triggers. Execution probability: Medium.
+
+5. **Session replay highlights** — log key moments (first kill, best wave, shrine discovery) and show a summary card at session end. Implementation path: push events to an in-memory array during play, render a summary overlay on menu return. Execution probability: Low.
+
+**Committed to TASK_BOARD:** [SIL] First-death celebration · [SIL] Layout gallery page

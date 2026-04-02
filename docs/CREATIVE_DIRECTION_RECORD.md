@@ -222,3 +222,15 @@ Agents MUST NOT modify or remove existing entries.
 - New required direction: Keep extending the overlay/layout control system through presets, named custom slots, and a cleaner management surface, then complete commit/push and Studio OS closeout in the same session
 - Why it matters: The user wanted the UI-control work finished end-to-end, not left half-wired or uncommitted
 - Supersedes prior entry: —
+
+---
+
+### 2026-04-02 — Full project audit + implement top recommendations (Session 17)
+
+- Category: Assignment
+- Human input: "start - Audit project and provide score/rating, analysis/recommendations (short descriptions). Provide short innovative solutions brainstorm list with each items having a score/rating attached to it and how it would improve/impact the project's overall score, potential, momentum (etc.). Recommend the top items to implement by highest impact/potential. (do all of this with minimal token waste)" and "Complete all recommendations"
+- Area affected: Onboarding UX, layout sharing, code health, task board depth
+- Previous state: Game had no guided intro for first-time players; layouts could not be shared between players; layout comparison logic was inline/repeated
+- New required direction: Audit the project concisely with scored brainstorm, then implement the top 3 recommendations: onboarding funnel, layout export/import, App.jsx pressure release
+- Why it matters: The project needed a reality-checked priority stack with immediate execution; the Engage gap specifically needed a first-contact solution
+- Supersedes prior entry: —

@@ -1,7 +1,7 @@
 <!-- truth-audit-version: 1.0 -->
 # Truth Audit
 
-Last reviewed: 2026-04-01
+Last reviewed: 2026-04-02
 Overall status: yellow
 Next action: Run SQL Blocks 1–5 (activation pack) to close the gap between repo truth and live public behavior.
 
@@ -49,10 +49,10 @@ Next action: Run SQL Blocks 1–5 (activation pack) to close the gap between rep
 
 ## Freshness
 
-- `context/PROJECT_STATUS.json`: 2026-04-01
-- `context/LATEST_HANDOFF.md`: 2026-04-01
-- `context/CURRENT_STATE.md`: 2026-04-01
-- Derived founder-facing views: 2026-04-01
+- `context/PROJECT_STATUS.json`: 2026-04-02
+- `context/LATEST_HANDOFF.md`: 2026-04-02
+- `context/CURRENT_STATE.md`: 2026-04-02
+- Derived founder-facing views: 2026-04-02
 
 ---
 

@@ -2,8 +2,13 @@
 
 ## Now — Agent can do immediately
 
-- [SIL] Layout export/import — encode current layout config as a shareable string; paste to load a friend's layout
-- [SIL] App.jsx pressure release — extract layout-manager constants/helpers as module-level constants without breaking the single-file rule
+- ✅ [SIL] Layout export/import — base64 encode/decode of layout config; copy/paste in Layout Manager modal
+- ✅ [SIL] App.jsx pressure release — extracted layoutBaseMatch/layoutFullMatch + LAYOUT_BASE_KEYS as module-level helpers
+- [SIL] Lore codex fragments — discoverable sun mythology entries unlocked through gameplay and Oracle
+- [SIL] PWA manifest + offline service worker — mobile install prompt and offline play support
+- [SIL] Map-tied echo traces — render ghost echoes as faint spectral markers on the world map near death coordinates (promoted from Next)
+- [SIL] First-death celebration — expanded death screen on first-ever death explaining grave, sun dim, and echo; one-time modal
+- [SIL] Layout gallery page — public page with community layout codes to browse and copy
 
 ## Human Action Required
 
@@ -25,7 +30,7 @@
 - ✅ [SIL] Season chronicle page — public current-season ledger combining top runs, recent graves, echoes, and sun milestones
 - ✅ [SIL] Echo response loop — commend / heed / mourn reactions on echoes; local-first, Supabase-ready; SQL Block 5 in activation pack
 - ✅ [Phase 5b] Prophecy Scroll PNG — canvas-drawn 400×600 image card generated on every death/roguelite run with download/share
-- [SIL] Map-tied echo traces — render ghost echoes as faint spectral markers on the world map near death coordinates
+- ✅ [SIL] Map-tied echo traces — promoted to Now
 - [SIL] Prophecy scroll in grave popup — mini scroll thumbnail alongside epitaph when clicking a grave on the world map
 - [Phase 5] Season 1: The Wandering Comet config + launch prep
 - [Phase 5b] Roguelite leaderboard — shared best-wave board parallel to the daily leaderboard
@@ -39,6 +44,7 @@
 
 ## Done
 
+- ✅ [SIL] Onboarding funnel — 4-step guided intro for first-time players: dying sun, graves, factions, call to action; skippable, localStorage-gated
 - ✅ [Completion Pass] Objective tracker — persistent on-screen pointer for current quest target / dungeon entrance / next meaningful step
 - ✅ [UI Comfort] Objective tracker controls — tracker can now be hidden or moved to different screen corners instead of blocking gameplay
 - ✅ [UI Comfort] Runtime settings expansion — persistent controls for music, tooltips, ghost cards, HUD density, and front-door reference shortcuts

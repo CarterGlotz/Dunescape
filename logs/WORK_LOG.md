@@ -297,3 +297,21 @@ Append chronological entries.
   - Removed: no community story surfacing via echo reactions
   - Preserved: build (606 KB / 175.5 KB gzip) and smoke remain green; App.jsx at 3919 lines (well under 5000)
 - Recommended next move: Layout export/import + App.jsx pressure release (both promoted to Now)
+
+---
+
+### 2026-04-02 — Onboarding + layout sharing pass (Session 17)
+
+- Goal: Audit project, implement top 3 recommendations (onboarding funnel, layout export/import, App.jsx pressure release), pre-load TASK_BOARD per runway ≤2.0 protocol
+- What changed:
+  - `src/App.jsx`: 4-step onboarding funnel for first-time players (ONBOARDING_SLIDES constant, onboardingStep state, finishOnboarding handler, full-screen cinematic overlay with dot nav, skippable, localStorage-gated)
+  - `src/App.jsx`: layout export/import (exportLayout/importLayout callbacks, base64 encode/decode, clipboard copy, "Share Layout" section in Layout Manager modal with paste-to-import UI)
+  - `src/App.jsx`: pressure release — LAYOUT_BASE_KEYS, layoutBaseMatch(), layoutFullMatch() extracted as module-level helpers; replaced 16 inline comparison lines with 3-line helper calls in useEffect
+  - `src/App.jsx`: startFreshChronicle now clears solara_onboarding_done so onboarding re-triggers on fresh starts
+  - `context/*`: all context files updated for closeout; TASK_BOARD pre-loaded with 5 new Now items
+- Files or systems touched: `src/App.jsx`, `context/*`, `logs/WORK_LOG.md`, `docs/CREATIVE_DIRECTION_RECORD.md`
+- Risks created or removed:
+  - Removed: first-time player bounce — game now teaches its own premise before entry
+  - Removed: no layout sharing surface — players can now copy/paste layout codes
+  - Preserved: build (611.42 KB / 176.90 KB gzip) and smoke remain green; App.jsx at 3969 lines
+- Recommended next move: Lore codex fragments, PWA manifest, map-tied echo traces
