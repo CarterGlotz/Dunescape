@@ -43,7 +43,7 @@ Next action: Run SQL Blocks 1–5 (activation pack) to close the gap between rep
 
 ## Contradictions
 
-- Resolved this session: `README.md` no longer describes the project as Dunescape.
+- None recorded.
 
 ---
 
