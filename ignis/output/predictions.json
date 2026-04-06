@@ -1,0 +1,13 @@
+{
+  "version": "1.0",
+  "entries": [],
+  "stats": {
+    "totalPredictions": 0,
+    "validated": 0,
+    "accurateCount": 0,
+    "intervalHitCount": 0,
+    "meanAbsoluteError": 0,
+    "accuracy": 0,
+    "intervalHitRate": 0
+  }
+}

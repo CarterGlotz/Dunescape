@@ -1,0 +1,31 @@
+[
+  {
+    "timestamp": "2026-03-31T21:20:27.266Z",
+    "session": 1,
+    "iqScore": 36833,
+    "tier": "FORGE",
+    "pillarScores": {
+      "perception": 4709.68,
+      "trajectory": 2314.93,
+      "execution": 4289.1,
+      "vitality": 5441.91,
+      "synthesis": 2728.63,
+      "cognition": 3232.96,
+      "foresight": 2711.68,
+      "creativity": 1936.38,
+      "expression": 3580.65,
+      "potential": 4265.6
+    },
+    "emotionalState": {
+      "burnout": 0,
+      "excitement": 0,
+      "frustration": 0,
+      "stagnation": 0,
+      "momentum": 0,
+      "anxiety": 0,
+      "confidence": 0.5,
+      "curiosity": 0.5,
+      "satisfaction": 0.5
+    }
+  }
+]
