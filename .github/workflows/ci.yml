@@ -24,5 +24,8 @@ jobs:
       - name: Build
         run: npm run build
 
+      - name: Unit Tests
+        run: npm test
+
       - name: Smoke Test
         run: npm run smoke

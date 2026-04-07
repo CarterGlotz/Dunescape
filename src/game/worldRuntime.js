@@ -1,7 +1,8 @@
 export function getMerchantPriceScale(snapshot, merchantRep = 0) {
   const base = snapshot?.event?.merchantScale || 1;
   const repDiscount = merchantRep >= 25 ? 0.85 : merchantRep >= 10 ? 0.9 : 1;
-  return base * repDiscount;
+  const ritualDiscount = snapshot?.ritual?.completed ? 0.95 : 1;
+  return base * repDiscount * ritualDiscount;
 }
 
 export function getCombatBonuses(player = {}) {
@@ -36,7 +37,10 @@ export function applyMonsterWorldState(monster, snapshot, context = "world") {
       : snapshot?.faction?.leader === "sunkeeper" && !snapshot?.faction?.contested && context === "world"
         ? 0.98
         : 1;
-  const scale = enemyScale * dungeonScale * factionScale;
+  const crisisScale = 1 + (snapshot?.crisis?.priority >= 9 ? 0.03 : 0);
+  const ritualScale = snapshot?.ritual?.completed ? 0.98 : 1;
+  const rivalScale = monster?.isEchoRival ? snapshot?.rival?.bonusScale || 1.12 : 1;
+  const scale = enemyScale * dungeonScale * factionScale * crisisScale * ritualScale * rivalScale;
   monster.worldScale = Number(scale.toFixed(3));
   monster.hp = Math.max(1, Math.round(monster.hp * scale));
   monster.mhp = Math.max(1, Math.round(monster.mhp * scale));
@@ -45,6 +49,11 @@ export function applyMonsterWorldState(monster, snapshot, context = "world") {
   monster.str = Math.max(1, Math.round(monster.str * Math.max(1, scale * 0.92)));
   monster.xp = Math.max(1, Math.round(monster.xp * Math.max(1, scale * 0.9)));
   monster.worldStateTag = snapshot?.event?.id || "steady_flame";
+  if (monster?.isEchoRival && snapshot?.rival) {
+    monster.nm = `${snapshot.rival.playerName}'s ${snapshot.rival.title}`;
+    monster.echoSigil = snapshot.rival.sigil;
+    monster.examine = `${snapshot.rival.headline} Sigil: ${snapshot.rival.sigil}.`;
+  }
   return monster;
 }
 
@@ -84,6 +93,15 @@ export function getDynamicWorldEvent(snapshot) {
       duration: 120000,
       monsterName: "Bandit",
       count: 5,
+    };
+  }
+  if (snapshot?.rival) {
+    return {
+      type: "echo_rival",
+      msg: `⚔️ ${snapshot.rival.playerName}'s echo is hunting the frontier.`,
+      duration: 120000,
+      monsterName: snapshot.rival.monsterName,
+      count: 1,
     };
   }
   return {

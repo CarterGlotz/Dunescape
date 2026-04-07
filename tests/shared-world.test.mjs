@@ -6,6 +6,12 @@ import {
   getSharedWorldSnapshot,
   getSunPhase,
 } from "../src/game/sharedWorld.js";
+import {
+  buildCommunityRitual,
+  buildGraveConstellations,
+  buildProphecyDeck,
+  createDeathMemoryCard,
+} from "../src/game/innovationSystems.js";
 import { createSaveSanitizer } from "../src/game/save.js";
 import {
   applyMonsterWorldState,
@@ -107,4 +113,41 @@ test("dynamic world event responds to snapshot pressure", () => {
     getSharedWorldSnapshot({ sunBrightness: 5, totalDeaths: 2000, leaderboard: [], echoes: [] }),
   );
   assert.equal(eclipse.type, "umbra_surge");
+});
+
+test("grave constellations and rituals summarize grave pressure", () => {
+  const graves = Array.from({ length: 8 }, (_, index) => ({
+    x: 10 + (index % 3),
+    y: 20 + (index % 2),
+    sunstone_offerings: 10,
+    epitaph: `grave-${index}`,
+  }));
+  const constellations = buildGraveConstellations(graves);
+  const ritual = buildCommunityRitual(graves, { severity: 3 });
+  assert.equal(constellations[0].tier, "major");
+  assert.equal(ritual.totalOfferings, 80);
+});
+
+test("shared world snapshot surfaces prophecy, ritual, rival, and constellations", () => {
+  const snapshot = getSharedWorldSnapshot({
+    sunBrightness: 18,
+    totalDeaths: 3200,
+    leaderboard: [{ faction: "eclipser" }],
+    echoes: [{ id: "echo-1", player_name: "Other", traveler_sigil: "SIG", kind: "roguelite", wave_reached: 14, commend_count: 2 }],
+    graves: Array.from({ length: 5 }, (_, index) => ({ x: 8 + index, y: 12, sunstone_offerings: 20, epitaph: "ash" })),
+    playerName: "Self",
+    dayNumber: 9,
+  });
+  assert.equal(snapshot.crisis.title, "Eclipse Protocol");
+  assert.equal(snapshot.rival.playerName, "Other");
+  assert.equal(snapshot.prophecy.options.length, 3);
+  assert.ok(snapshot.constellations.length >= 1);
+});
+
+test("prophecy deck and death memory card are deterministic and shareable", () => {
+  const prophecy = buildProphecyDeck({ dayNumber: 4, playerName: "Sol", faction: "sunkeeper", phaseId: "twilight" });
+  const memory = createDeathMemoryCard({ playerName: "Sol", sigil: "SOL-1", waveReached: 12, faction: "sunkeeper", sunBrightness: 42, eventLabel: "Gravewind", constellationName: "The Field of the Fallen" });
+  assert.equal(prophecy.active.id, prophecy.options[0].id);
+  assert.match(memory, /SOLARA: DEATH MEMORY/);
+  assert.match(memory, /The Field of the Fallen/);
 });
