@@ -3,12 +3,15 @@
   "name": "Solara",
   "status": "active",
   "health": "green",
-  "currentFocus": "Keep the public repository deployable and public-safe.",
-  "nextMilestone": "Complete public-repo sanitization follow-through.",
+  "currentFocus": "Ship and stabilize the shared-world innovation pass while keeping the public repository deployable and public-safe.",
+  "nextMilestone": "Continue modular extraction from App.jsx and align backend schemas with the new shared-world surfaces.",
   "blockers": [],
-  "lastUpdated": "2026-04-03",
+  "lastUpdated": "2026-04-07",
   "lifecycle": "building",
   "audience": "internal",
   "truthAuditStatus": "green",
-  "truthAuditLastRun": "2026-04-03"
+  "truthAuditLastRun": "2026-04-03",
+  "silLastSession": "2026-04-07",
+  "silVelocity": 4,
+  "silDebt": "->"
 }

@@ -1,3 +1,5 @@
+import { buildSharedWorldSystems } from "./innovationSystems.js";
+
 export function getSunPhase(sunBrightness) {
   const value = Math.max(0, Math.min(100, Number(sunBrightness) || 0));
   if (value > 80) {
@@ -67,7 +69,16 @@ export function getEchoBlessing(echoes = []) {
   return map[type];
 }
 
-export function getSharedWorldSnapshot({ sunBrightness, totalDeaths, leaderboard = [], echoes = [], now = new Date() }) {
+export function getSharedWorldSnapshot({
+  sunBrightness,
+  totalDeaths,
+  leaderboard = [],
+  echoes = [],
+  graves = [],
+  playerName = "Adventurer",
+  dayNumber = 1,
+  now = new Date(),
+}) {
   const phase = getSunPhase(sunBrightness);
   const faction = getFactionBalance(leaderboard);
   const blessing = getEchoBlessing(echoes);
@@ -129,12 +140,53 @@ export function getSharedWorldSnapshot({ sunBrightness, totalDeaths, leaderboard
     };
   }
 
+  const baseSnapshot = {
+    phase,
+    faction,
+    blessing,
+    event,
+  };
+  const systems = buildSharedWorldSystems({
+    graves,
+    echoes,
+    playerName,
+    dayNumber,
+    snapshot: baseSnapshot,
+  });
+
+  if (systems.ritual.completed) {
+    event = {
+      ...event,
+      id: `${event.id}_ritualized`,
+      description: `${event.description} A completed communal ritual softens the world and strengthens blessings.`,
+      enemyScale: Number((event.enemyScale * 0.97).toFixed(3)),
+      merchantScale: Number((event.merchantScale * 0.94).toFixed(3)),
+    };
+  }
+
+  const summaryParts = [
+    `${event.icon} ${event.label}`,
+    phase.label,
+    `${Number(totalDeaths || 0).toLocaleString()} fallen`,
+  ];
+  if (systems.rival) {
+    summaryParts.push(`${systems.rival.icon} Rival: ${systems.rival.playerName}`);
+  }
+  if (systems.constellations[0]?.name) {
+    summaryParts.push(`✝ ${systems.constellations[0].name}`);
+  }
+
   return {
     phase,
     faction,
     blessing,
     event,
-    summary: `${event.icon} ${event.label} · ${phase.label} · ${Number(totalDeaths || 0).toLocaleString()} fallen`,
+    crisis: systems.crisis,
+    ritual: systems.ritual,
+    rival: systems.rival,
+    prophecy: systems.prophecy,
+    constellations: systems.constellations,
+    summary: summaryParts.join(" · "),
   };
 }
 

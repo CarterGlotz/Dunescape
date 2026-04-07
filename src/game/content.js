@@ -43,9 +43,22 @@ export const FEATURE_PILLARS = [
     title: "Ghost Echoes",
     body: "Runs and deaths can leave behind readable traces for the next players, building communal memory rather than isolated sessions.",
   },
+  {
+    title: "Sun Crisis Director",
+    body: "The world now surfaces an explicit crisis directive, ritual status, grave constellations, rival echoes, and prophecy cards so the async meta has visible goals.",
+  },
 ];
 
 export const UPDATE_LOG_ITEMS = [
+  {
+    date: "2026-04-07",
+    title: "Shared-World Innovation Pass",
+    notes: [
+      "Added ritual progress, grave constellation summaries, prophecy deck surfacing, and crisis directives.",
+      "Added echo rival encounters and death-memory chronicle cards tied to grave outcomes.",
+      "Extended shared-world logic into tested modules instead of leaving all feature glue inside the main app file.",
+    ],
+  },
   {
     date: "2026-03-31",
     title: "Studio Front Door + Shared World Pass",
