@@ -83,6 +83,12 @@ export function createElement(type, props, ...children) {
 }
 
 export const Fragment = Symbol.for("solara.smoke.fragment");
+export function lazy(loader) {
+  return { __lazy: true, loader };
+}
+export function Suspense(props) {
+  return props?.children ?? null;
+}
 
 export default {
   useState,
@@ -91,4 +97,6 @@ export default {
   useCallback,
   createElement,
   Fragment,
+  lazy,
+  Suspense,
 };

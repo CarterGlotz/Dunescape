@@ -1,5 +1,17 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from './supabase.js';
+import { MENU_SECTIONS as MENU_SECTION_ITEMS } from "./game/content.js";
+import { createSaveSanitizer } from "./game/save.js";
+import { applyRunBlessing, getSharedWorldSnapshot } from "./game/sharedWorld.js";
+import {
+  applyMonsterWorldState,
+  getCombatBonuses,
+  getDynamicWorldEvent,
+  getMerchantPriceScale,
+  resetRunScopedBonuses,
+} from "./game/worldRuntime.js";
+
+const MenuLorePanels = React.lazy(() => import("./components/MenuLorePanels.jsx"));
 
 const TILE=32,MW=100,MH=100,BASE_VTX=17,BASE_VTY=14,CW=BASE_VTX*TILE,CH=BASE_VTY*TILE;
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
@@ -574,38 +586,6 @@ const getRogueRelicReward=(wave)=>{if(wave<10)return null;return RELICS[Math.flo
 // === PHASE 1: SEASON CONFIG ===
 const CURRENT_SEASON=Number(import.meta.env.VITE_SEASON_NUMBER)||1;
 const CURRENT_SEASON_NAME=import.meta.env.VITE_SEASON_NAME||'The Wandering Comet';
-const MENU_SECTIONS=[
-  {id:"play",label:"Play"},
-  {id:"how",label:"How To Play"},
-  {id:"knowledge",label:"Knowledge Base"},
-  {id:"features",label:"Features"},
-  {id:"updates",label:"Update Log"},
-  {id:"settings",label:"Settings"},
-];
-const KNOWLEDGE_BASE=[
-  {title:"The Shared Sun",body:"Every recorded death dims the communal sun. The world state is supposed to feel heavier as the season accumulates losses."},
-  {title:"Daily Rites",body:"One seeded dungeon per day for everyone. The same date produces the same challenge, which is why the leaderboard and comparisons matter."},
-  {title:"Living Graves",body:"When a player falls, their grave is meant to persist on the world map. Offerings can turn those graves into shrines."},
-  {title:"Roguelite Legacy",body:"Roguelite runs are personal, but their best stories should still echo back into the shared world through records, relics, and eventually ghosts."},
-];
-const FEATURE_PILLARS=[
-  {title:"Front Door",body:"A real title/menu flow with play, onboarding, settings, codex, and patch notes instead of throwing the player straight into the runtime."},
-  {title:"Identity",body:"A persistent traveler name and sigil so asynchronous world events feel like they came from real people rather than anonymous save files."},
-  {title:"Shared World",body:"Daily scores, graves, shrines, sun-state, and echoes create multiplayer feeling without requiring synchronous combat netcode."},
-  {title:"Ghost Echoes",body:"Runs and deaths can leave behind readable traces for the next players, building communal memory rather than isolated sessions."},
-];
-const UPDATE_LOG_ITEMS=[
-  {date:"2026-03-31",title:"Studio Front Door + Shared World Pass",notes:["Added a full title/menu layer with play, codex, features, update log, and settings views.","Added persistent traveler identity and starter-loadout assist.","Added async player echoes with offline fallback and Supabase-ready hooks."]},
-  {date:"2026-03-31",title:"Runtime Playability Rehab",notes:["Gameplay canvas now uses the full viewport.","Utility panel can be collapsed with Tab / ☰.","Quickstart overlay now explains controls and first actions."]},
-  {date:"2026-03-30",title:"Boot Reliability",notes:["Fixed startup-order crash.","Added repo-native smoke coverage for mount/startup flow."]},
-];
-const HOW_TO_PLAY_STEPS=[
-  "Move with WASD / arrows or by left-clicking a destination.",
-  "Left-click NPCs, monsters, trees, rocks, and doors to interact.",
-  "Right-click for context actions and extra info.",
-  "Use the Daily tab for the async communal challenge and the Quest tab for local progression.",
-  "Deaths, graves, offerings, and the sun are meant to be shared-world systems once Supabase is live.",
-];
 const ONBOARDING_SLIDES=[
   {icon:"☀️",accent:"#f0c060",title:"The Sun Is Dying",body:"Every player death dims a shared sun that all players see. When it fades, the world changes for everyone — not just you.",hint:"This isn't a solo game. Your death has weight."},
   {icon:"✝",accent:"#c68856",title:"Your Grave Stays Behind",body:"When you fall, your grave appears on the world map for every other player. Leave an epitaph. Receive offerings. Become a shrine.",hint:"Deaths are permanent marks on a living world."},
@@ -778,72 +758,7 @@ const shareProphecyScroll=async(dataUrl,type='daily')=>{
   }
   const link=document.createElement('a');link.download=fname;link.href=dataUrl;link.click();
 };
-const safeNum=(value,fallback,min=-Infinity,max=Infinity)=>{const n=Number(value);if(!Number.isFinite(n))return fallback;return Math.min(max,Math.max(min,n));};
-const sanitizeText=(value,maxLen,fallback)=>{if(typeof value!=="string")return fallback;const clean=value.replace(/\s+/g," ").trim().slice(0,maxLen);return clean||fallback;};
-const sanitizeItemStack=stack=>{if(!stack||typeof stack!=="object"||typeof stack.i!=="string"||!ITEMS[stack.i])return null;return{i:stack.i,c:Math.max(1,Math.floor(safeNum(stack.c,1,1,999999)))};};
-const sanitizeSaveData=(raw,fallbackName,fallbackSigil)=>{
-  const issues=[];
-  if(!raw||typeof raw!=="object"||Array.isArray(raw))return{data:null,issues:["Save payload was not a valid object."]};
-  const inv=(Array.isArray(raw.inv)?raw.inv:[]).map(sanitizeItemStack).filter(Boolean).slice(0,64);
-  const bank=(Array.isArray(raw.bank)?raw.bank:[]).map(sanitizeItemStack).filter(Boolean).slice(0,512);
-  const gear=raw.eq&&typeof raw.eq==="object"&&!Array.isArray(raw.eq)?raw.eq:{};
-  const rep=raw.rep&&typeof raw.rep==="object"&&!Array.isArray(raw.rep)?raw.rep:{};
-  const rogueliteStats=raw.rogueliteStats&&typeof raw.rogueliteStats==="object"&&!Array.isArray(raw.rogueliteStats)?raw.rogueliteStats:{};
-  const sanitized={
-    ...raw,
-    sk:Object.fromEntries(SKILLS.map(skill=>[skill,Math.max(0,Math.floor(safeNum(raw.sk?.[skill],0,0,1e12)))])),
-    inv,
-    bank,
-    eq:{
-      weapon:ITEMS[gear.weapon]?gear.weapon:null,
-      shield:ITEMS[gear.shield]?gear.shield:null,
-      helm:ITEMS[gear.helm]?gear.helm:null,
-      body:ITEMS[gear.body]?gear.body:null,
-      legs:ITEMS[gear.legs]?gear.legs:null,
-      cape:ITEMS[gear.cape]?gear.cape:null,
-      amulet:ITEMS[gear.amulet]?gear.amulet:null,
-      ring:ITEMS[gear.ring]?gear.ring:null,
-      ammo:ITEMS[gear.ammo]?gear.ammo:null,
-    },
-    quests:raw.quests&&typeof raw.quests==="object"&&!Array.isArray(raw.quests)?raw.quests:{},
-    monsterKills:raw.monsterKills&&typeof raw.monsterKills==="object"&&!Array.isArray(raw.monsterKills)?raw.monsterKills:{},
-    activePrayers:Array.isArray(raw.activePrayers)?raw.activePrayers.filter(Boolean).slice(0,16):[],
-    visitedRegions:Array.isArray(raw.visitedRegions)?raw.visitedRegions.filter(v=>typeof v==="string").slice(0,128):[],
-    playerName:sanitizeText(raw.playerName,16,fallbackName||"Adventurer"),
-    travelerSigil:sanitizeText(raw.travelerSigil,24,fallbackSigil||makeTravelerSigil()).toUpperCase(),
-    codex:Array.isArray(raw.codex)?raw.codex.filter(v=>typeof v==="string").slice(0,128):[],
-    sideQuests:Array.isArray(raw.sideQuests)?raw.sideQuests.slice(0,32):[],
-    campBank:Array.isArray(raw.campBank)?raw.campBank.map(sanitizeItemStack).filter(Boolean).slice(0,128):[],
-    unlocks:Array.isArray(raw.unlocks)?raw.unlocks.filter(v=>typeof v==="string").slice(0,32):[],
-    appearance:{
-      skin:typeof raw.appearance?.skin==="string"?raw.appearance.skin:"#f0d8a0",
-      hair:typeof raw.appearance?.hair==="string"?raw.appearance.hair:"#333",
-      outfit:typeof raw.appearance?.outfit==="string"?raw.appearance.outfit:"#2266cc",
-    },
-    rep:{
-      guard:Math.floor(safeNum(rep.guard,0,-999999,999999)),
-      merchant:Math.floor(safeNum(rep.merchant,0,-999999,999999)),
-      bandit:Math.floor(safeNum(rep.bandit,0,-999999,999999)),
-    },
-    rogueliteStats:{
-      bestWave:Math.max(0,Math.floor(safeNum(rogueliteStats.bestWave,0,0,999999))),
-      totalRuns:Math.max(0,Math.floor(safeNum(rogueliteStats.totalRuns,0,0,999999))),
-      relics:Array.isArray(rogueliteStats.relics)?rogueliteStats.relics.filter(id=>RELICS.some(r=>r.id===id)).slice(0,RELICS.length):[],
-    },
-    hp:Math.floor(safeNum(raw.hp,10,0,999999)),
-    mhp:Math.max(1,Math.floor(safeNum(raw.mhp,10,1,999999))),
-    prayer:Math.floor(safeNum(raw.prayer,10,0,999999)),
-    maxPrayer:Math.max(1,Math.floor(safeNum(raw.maxPrayer,10,1,999999))),
-    totalXp:Math.max(0,Math.floor(safeNum(raw.totalXp,0,0,1e12))),
-    x:Math.floor(safeNum(raw.x,20,0,MW-1)),
-    y:Math.floor(safeNum(raw.y,28,0,MH-1)),
-    runE:safeNum(raw.runE,100,0,100),
-  };
-  if(inv.length!==(Array.isArray(raw.inv)?raw.inv.length:0))issues.push("Removed invalid inventory entries.");
-  if(bank.length!==(Array.isArray(raw.bank)?raw.bank.length:0))issues.push("Removed invalid bank entries.");
-  if(sanitized.playerName!==(raw.playerName||sanitized.playerName)||sanitized.travelerSigil!==(raw.travelerSigil||sanitized.travelerSigil))issues.push("Normalized traveler identity fields.");
-  return{data:sanitized,issues};
-};
+const sanitizeSaveData=createSaveSanitizer({items:ITEMS,saveVersion:SAVE_VERSION});
 
 // Innovation #12: Faction Recruitment Share Card
 const generateFactionShareCard=(faction,sunBrightness)=>{const sun=Math.round(sunBrightness);const phase=sun>80?'Full Dawn':sun>60?'Amber Warning':sun>40?'The Twilight':sun>20?'The Dimming':'The Eclipse';const calls={sunkeeper:['Join the Sunkeepers. Every death counts. Every Rite helps.','The sun needs defenders. We fight so it burns.','I chose the light. The sun is at '+sun+'%. Will you help?'],eclipser:['I chose the Eclipse. Darkness is transformation.','The Eclipsers embrace the end. The sun dimming is destiny.','I walk in shadow. The sun burns at '+sun+'%. Come join the end.'],neutral:['I play Solara: Sunfall. '+sun+'% sun remains this season.','Solara: Sunfall — where every death dims a shared sun. Now at '+sun+'%.','The '+phase+'. '+sun+'% sun. Your death shapes the world.']};const lines=calls[faction]||calls.neutral;const msg=lines[getDayNumber()%lines.length];return`${faction==='sunkeeper'?'☀️':faction==='eclipser'?'🌑':'🌅'} ${msg}\n\nSeason ${CURRENT_SEASON}: ${CURRENT_SEASON_NAME} · ${phase}\n\nPlay → vaultsparkstudios.github.io/solara/\n#SolaraSunfall #${faction==='sunkeeper'?'Sunkeeper':faction==='eclipser'?'Eclipser':'Solara'}`;};
@@ -1155,6 +1070,30 @@ export default function DS(){
   },[ambientMotion,audioEnabled,musicOn,sunBrightness]);
 
   const getPlayerFaction=useCallback((p)=>{if(!p?.rep)return'neutral';const {guard=0,merchant=0,bandit=0}=p.rep;const max=Math.max(guard,merchant,bandit);if(max<=0)return'neutral';if(guard===max)return'guard';if(merchant===max)return'merchant';return'bandit';},[]);
+  const grantEchoSupply=useCallback((p2,blessing)=>{
+    if(!p2||!blessing)return;
+    const itemMap={emberspur:"strength_potion",graveward:"bread",oracle_hum:"prayer_potion",fortune_ash:"coins"};
+    const itemId=itemMap[blessing.id];
+    if(!itemId)return;
+    const stackable=!!ITEMS[itemId]?.s;
+    const amount=itemId==="coins"?25:itemId==="bread"?2:1;
+    if(stackable){
+      const existing=p2.inv.find(x=>x.i===itemId);
+      if(existing)existing.c+=amount;
+      else if(p2.inv.length<28)p2.inv.push({i:itemId,c:amount});
+      else return;
+    }else{
+      for(let i=0;i<amount;i++){
+        if(p2.inv.length>=28)return;
+        p2.inv.push({i:itemId,c:1});
+      }
+    }
+    addC(`🕯️ Echo supply received: ${ITEMS[itemId].n}${amount>1?` x${amount}`:""}.`);
+  },[addC]);
+  const applySpawnState=useCallback((monster,context="world")=>{
+    const snapshot=getSharedWorldSnapshot({sunBrightness:sunBrightnessRef.current,totalDeaths:prevTotalDeathsRef.current||totalDeaths,leaderboard:dailyLbRef.current,echoes});
+    return applyMonsterWorldState(monster,snapshot,context);
+  },[echoes,totalDeaths]);
   const fetchEchoes=useCallback(async()=>{
     try{
       const localEchoes=JSON.parse(localStorage.getItem("solara_local_echoes")||"[]");
@@ -1238,10 +1177,18 @@ export default function DS(){
     g2.mons=g2.mons.filter(m=>!m.dungeon);
     g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
     g2.p.x=9;g2.p.y=55;g2.p.path=[];g2.p.act=null;g2.p.cmb=null;g2.p.actTgt=null;
+    resetRunScopedBonuses(g2.p);
+    const worldState=getSharedWorldSnapshot({sunBrightness:sunBrightnessRef.current,totalDeaths,leaderboard:dailyLbRef.current,echoes});
+    if(worldState.blessing){
+      applyRunBlessing(g2.p,worldState.blessing);
+      grantEchoSupply(g2.p,worldState.blessing);
+      addC(`👻 Echo blessing: ${worldState.blessing.label} — ${worldState.blessing.description}`);
+    }
+    addC(`${worldState.event.icon} ${worldState.event.label}: ${worldState.event.description}`);
     updateStreak();
     markDailyPlayedToday();
     setDailyTick(n=>n+1);setTab("inv");
-  },[]);
+  },[addC,echoes,grantEchoSupply,totalDeaths]);
 
   // Phase 4: Start roguelite run
   const startRogueRun=useCallback(()=>{
@@ -1257,14 +1204,22 @@ export default function DS(){
       bonusHp,bonusStr,bonusDef,bonusAtk,bonusPray,preRunHp:p.hp,preRunMhp:p.mhp,preRunPrayer:p.maxPrayer};
     rogueRunRef.current=run;
     // Apply relic bonuses to player
+    resetRunScopedBonuses(p);
     p.mhp+=bonusHp;p.hp=p.mhp;p.maxPrayer+=bonusPray;p.prayer=p.maxPrayer;
+    const worldState=getSharedWorldSnapshot({sunBrightness:sunBrightnessRef.current,totalDeaths,leaderboard:dailyLbRef.current,echoes});
+    if(worldState.blessing){
+      applyRunBlessing(p,worldState.blessing);
+      grantEchoSupply(p,worldState.blessing);
+      addC(`👻 Echo blessing: ${worldState.blessing.label} — ${worldState.blessing.description}`);
+    }
+    addC(`${worldState.event.icon} ${worldState.event.label}: ${worldState.event.description}`);
     g2.mons=g2.mons.filter(m=>!m.rogueRun);
     g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
     p.x=9;p.y=55;p.path=[];p.act=null;p.cmb=null;p.actTgt=null;
     addC("⚔️ Roguelite Run begins! Survive as long as you can.");
     addC("🏛️ Relics active: "+relics.length+" (+"+(bonusHp?"HP:"+bonusHp+" ":"")+(bonusStr?"STR:"+bonusStr+" ":"")+(bonusDef?"DEF:"+bonusDef+" ":"")+(bonusAtk?"ATK:"+bonusAtk+" ":"")+")");
     setRogueTick(n=>n+1);setTab("inv");
-  },[addC]);
+  },[addC,echoes,grantEchoSupply,totalDeaths]);
 
   // Phase 4: End roguelite run
   const endRogueRun=useCallback((wave)=>{
@@ -1777,12 +1732,20 @@ export default function DS(){
       }
       // World events
       if(Date.now()>=g.nextEventTime&&!g.worldEvent){
-        const events=[
-          {type:"goblin_raid",msg:"⚠️ A goblin raid is attacking The Outlander Camp!",duration:120000,action:()=>{for(let i=0;i<5;i++){g.mons.push({x:40+Math.floor(Math.random()*6),y:24+Math.floor(Math.random()*6),ox:40,oy:26,t:"mon",nm:"Goblin",c:"#5a8a30",hp:13,mhp:13,atk:2,def:2,str:2,xp:5,drops:[{i:"bones",c:1},{i:"coins",c:0.8,a:[3,25]}],rsp:8000,id:Math.random(),at:0,dead:false,agro:true,lvl:2,temp:true});}}},
-          {type:"merchant",msg:"⚠️ A Desert Merchant has appeared near The Amber District for 2 minutes!",duration:120000,action:()=>{g.tempMerchant={x:68,y:43,items:[{i:"rune_arrow",cost:15},{i:"emerald",cost:300},{i:"steel_sword",cost:200}]};}},
-          {type:"sandstorm",msg:"⚠️ A sandstorm sweeps through the desert!",duration:90000,action:()=>{g.sandstorm=true;}},
-        ];
-        const ev=events[Math.floor(Math.random()*events.length)];ev.action();addC(ev.msg);
+        const snapshot=getSharedWorldSnapshot({sunBrightness:sunBrightnessRef.current,totalDeaths:prevTotalDeathsRef.current||totalDeaths,leaderboard:dailyLbRef.current,echoes});
+        const ev=getDynamicWorldEvent(snapshot);
+        if(ev.monsterName){
+          const base=g.mons.find(m=>m.nm===ev.monsterName&&!m.dead)||g.mons.find(m=>m.nm===ev.monsterName)||g.mons.find(m=>m.nm==="Goblin");
+          for(let i=0;i<(ev.count||4);i++){
+            const spawned=applySpawnState({...base,x:40+Math.floor(Math.random()*28),y:20+Math.floor(Math.random()*24),ox:40,oy:26,id:Math.random(),at:0,dead:false,agro:true,temp:true},"world");
+            g.mons.push(spawned);
+          }
+        }else if(ev.merchant){
+          g.tempMerchant={x:68,y:43,items:[{i:"rune_arrow",cost:15},{i:"emerald",cost:300},{i:"steel_sword",cost:200}]};
+        }else if(ev.type==="sandstorm"){
+          g.sandstorm=true;
+        }
+        addC(ev.msg);
         g.worldEvent={type:ev.type,endTime:Date.now()+ev.duration};
         g.nextEventTime=Date.now()+ev.duration+(480000+Math.random()*240000);dirtyR.current=true;
       }
@@ -1977,6 +1940,7 @@ export default function DS(){
               room.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dead&&!m.dungeon);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:md.c||"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true};
               if(isRogueRun){const scaled=scaleRogueMon(dm,waveNum);Object.assign(dm,scaled);dm.rogueRun=true;}
               if(isDailyRun){dm.dailyRun=true;if(dailyRunRef.current.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();}
+              dm=applySpawnState(dm,"dungeon");
               g.mons.push(dm);dungMons.push(dm);}});g.dungeon.monsters=dungMons;dirtyR.current=true;p.actTgt=null;
             }
             // Arena (Task 12)
@@ -1985,7 +1949,7 @@ export default function DS(){
               g.arena={active:true,wave:1,kills:0,maxWave:10,waveMonsters:[]};
               addC("⚔️ The Arena begins! Wave 1/10 - Goblins!");
               const waveBase=g.mons.find(m=>m.nm==="Goblin");const waveArr=[];
-              for(let wi=0;wi<5;wi++){const wm={...(waveBase||{nm:"Goblin",c:"#5a8a30",hp:13,mhp:13,atk:2,def:2,str:2,xp:5,drops:[{i:"coins",c:0.8,a:[3,25]}],rsp:0,lvl:2}),x:38+wi*2,y:27,ox:40,oy:27,id:Math.random(),at:0,dead:false,agro:true,temp:true};g.mons.push(wm);waveArr.push(wm);}
+              for(let wi=0;wi<5;wi++){const wm=applySpawnState({...(waveBase||{nm:"Goblin",c:"#5a8a30",hp:13,mhp:13,atk:2,def:2,str:2,xp:5,drops:[{i:"coins",c:0.8,a:[3,25]}],rsp:0,lvl:2}),x:38+wi*2,y:27,ox:40,oy:27,id:Math.random(),at:0,dead:false,agro:true,temp:true},"world");g.mons.push(wm);waveArr.push(wm);}
               g.arena.waveMonsters=waveArr;dirtyR.current=true;p.actTgt=null;
             }
             // Camp bank (Task 24)
@@ -2075,6 +2039,7 @@ export default function DS(){
       // Combat
       if(p.act==="combat"&&p.cmb){
         const mon=p.cmb;if(mon.dead){p.act=null;p.cmb=null;p.actTgt=null;return;}
+        const combatBonus=getCombatBonuses(p);
         if(mon.x>p.x)p.face="e";else if(mon.x<p.x)p.face="w";else if(mon.y>p.y)p.face="s";else p.face="n";
         const cw=p.eq.weapon?ITEMS[p.eq.weapon]:null;
         const attackRange=cw?.rng||(cw?.mgc?9:1);
@@ -2152,13 +2117,13 @@ export default function DS(){
             const rl=lvl(p.sk.Ranged);
             const prayRng=(p.activePrayers||[]).reduce((a,id)=>{const pr=PRAYERS.find(x=>x.id===id);return a+(pr?.rngBonus||0);},0);
             const rngBuff=p.buffs?.Ranged&&Date.now()<p.buffs.Ranged.ends?p.buffs.Ranged.amt:0;
-            const hitC=p.eagleEye>0?1:Math.max(0.05,(0.32+(rl+rngBuff)*0.016-mon.def*0.006))*(1+prayRng);
+            const hitC=p.eagleEye>0?1:Math.max(0.05,(0.32+(rl+rngBuff+combatBonus.attack)*0.016-mon.def*0.006+combatBonus.luck*0.01))*(1+prayRng);
             if(p.eagleEye>0)p.eagleEye--;
             // Weakness bonus (Task 15)
             const rngWeak=mon.weak==="ranged"?1.2:1;
             g.fx.push({type:"arrow",sx:p.x,sy:p.y,tx:mon.x,ty:mon.y,color:"#c8a860",life:400,age:0});
             if(Math.random()<hitC){
-              let maxH=Math.max(1,Math.floor((rl+rngBuff)*(0.55+prayRng*0.5)))+1;let hit=Math.floor(Math.random()*maxH*rngWeak)+1;
+              let maxH=Math.max(1,Math.floor((rl+rngBuff+combatBonus.attack)*(0.55+prayRng*0.5)))+1;let hit=Math.floor(Math.random()*maxH*rngWeak)+1;
               // Combo strike (Task 25)
               if(p.comboMeter>=3){hit=Math.floor(hit*1.8);p.comboMeter=0;addC("💥 COMBO STRIKE! "+hit+" damage!");g.fx.push({type:"xp",x:mon.x,y:mon.y,text:"COMBO!",color:"#ff8000",life:1500,age:0,big:true});}
               mon.hp-=hit;addHitSplat(mon.x,mon.y,hit,false);playSound("hit");
@@ -2171,7 +2136,7 @@ export default function DS(){
             if(!hasRunes){addC("You have no runes for this spell!");p.act=null;p.cmb=null;return;}
             if(isFireStaff){remI("fire_rune",3);remI("air_rune",1);}else remI("air_rune",1);
             const ml=lvl(p.sk.Magic);const spMax=isFireStaff?20:10;
-            const hitC=Math.max(0.05,0.38+ml*0.013-mon.def*0.004);
+            const hitC=Math.max(0.05,0.38+(ml+combatBonus.attack)*0.013-mon.def*0.004+combatBonus.luck*0.01);
             const mgcWeak=mon.weak==="magic"?1.2:1;
             g.fx.push({type:"magic",sx:p.x,sy:p.y,tx:mon.x,ty:mon.y,color:isFireStaff?"#f86020":"#80a0ff",life:500,age:0});
             if(Math.random()<hitC){
@@ -2179,7 +2144,7 @@ export default function DS(){
                 p.manaBurst=false;
                 g.mons.filter(m=>!m.dead&&Math.abs(m.x-mon.x)<=3&&Math.abs(m.y-mon.y)<=3).forEach(m2=>{const h2=Math.max(1,Math.floor(Math.random()*spMax/2)+1);m2.hp-=h2;addHitSplat(m2.x,m2.y,h2,false);playSound("hit");if(m2.hp<=0)doKill(m2);});
               }else{
-                let hit=Math.floor(Math.random()*spMax*mgcWeak)+1;
+                let hit=Math.floor(Math.random()*(spMax+combatBonus.attack)*mgcWeak)+1;
                 // Combo strike (Task 25)
                 if(p.comboMeter>=3){hit=Math.floor(hit*1.8);p.comboMeter=0;addC("💥 COMBO STRIKE! "+hit+" damage!");g.fx.push({type:"xp",x:mon.x,y:mon.y,text:"COMBO!",color:"#ff8000",life:1500,age:0,big:true});}
                 mon.hp-=hit;addHitSplat(mon.x,mon.y,hit,false);playSound("hit");
@@ -2192,10 +2157,10 @@ export default function DS(){
             const prayStr=(p.activePrayers||[]).reduce((a,id)=>{const pr=PRAYERS.find(x=>x.id===id);return a+(pr?.strBonus||0);},0);
             const buffAmt=p.buffs?.Attack&&Date.now()<p.buffs.Attack.ends?p.buffs.Attack.amt:0;
             const strBuff=p.buffs?.Strength&&Date.now()<p.buffs.Strength.ends?p.buffs.Strength.amt:0;
-            const al=Math.floor(lvl(p.sk.Attack)*(1+prayAtk))+buffAmt,sl=Math.floor(lvl(p.sk.Strength)*(1+prayStr))+strBuff;
+            const al=Math.floor(lvl(p.sk.Attack)*(1+prayAtk))+buffAmt+combatBonus.attack,sl=Math.floor(lvl(p.sk.Strength)*(1+prayStr))+strBuff+combatBonus.strength;
             const wb=cw?{a:cw.atk||0,s:cw.str||0}:{a:0,s:0};
             const rb=p.eq.ring&&ITEMS[p.eq.ring]?.str?ITEMS[p.eq.ring].str:0;
-            const hitC=Math.max(0.05,0.35+al*0.018+wb.a*0.013-mon.def*0.007);
+            const hitC=Math.max(0.05,0.35+al*0.018+wb.a*0.013-mon.def*0.007+combatBonus.luck*0.01);
             const meleeWeak=mon.weak==="melee"?1.2:1;
             if(Math.random()<hitC){
               const maxH=Math.max(1,Math.floor(sl*0.55+wb.s*0.88+rb*0.75))+1;let hit=Math.floor(Math.random()*maxH*meleeWeak)+1;
@@ -2210,7 +2175,7 @@ export default function DS(){
         if(!mon.dead){mon.at+=dt;if(mon.at>=2400){mon.at=0;
           const dl=lvl(p.sk.Defence);const db=(()=>{let d=0;["shield","head","body","legs"].forEach(s=>{if(p.eq[s])d+=(ITEMS[p.eq[s]].def||0);});return d;})();
           const prayDef=(p.activePrayers||[]).reduce((a,id)=>{const pr=PRAYERS.find(x=>x.id===id);return a+(pr?.defBonus||0);},0);
-          const block=0.15+dl*(0.018+prayDef*0.002)+db*0.01+prayDef*0.12;
+          const block=0.15+(dl+combatBonus.defence)*(0.018+prayDef*0.002)+db*0.01+prayDef*0.12;
           // Protect prayers (50% damage reduction on matching attack type)
           const monAtkType=mon.atkType||"melee";
           const protApplies=(monAtkType==="melee"&&(p.activePrayers||[]).some(id=>id==="prot_melee"))||(monAtkType==="ranged"&&(p.activePrayers||[]).some(id=>id==="prot_missiles"))||(monAtkType==="magic"&&(p.activePrayers||[]).some(id=>id==="prot_magic"));
@@ -2290,7 +2255,7 @@ export default function DS(){
             addC("✅ Wave "+run.wave+" cleared! Entering Wave "+(run.wave+1)+"/30...");
             addC(nextRoom.msg);
             const dungMons=[];
-            nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){const dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,dailyRun:true};if(run.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();g.mons.push(dm);dungMons.push(dm);}});
+            nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,dailyRun:true};if(run.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();dm=applySpawnState(dm,"dungeon");g.mons.push(dm);dungMons.push(dm);}});
             g.dungeon.monsters=dungMons;
           }
           dirtyR.current=true;setDailyTick(n=>n+1);
@@ -2309,7 +2274,7 @@ export default function DS(){
           const nextRoom=getRogueRoom(run.wave,run.rng);
           addC(nextRoom.msg);
           const dungMons=[];
-          nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:md.c||"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,rogueRun:true};const scaled=scaleRogueMon(dm,run.wave);Object.assign(dm,scaled);g.mons.push(dm);dungMons.push(dm);}});
+          nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:md.c||"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,rogueRun:true};const scaled=scaleRogueMon(dm,run.wave);Object.assign(dm,scaled);dm=applySpawnState(dm,"dungeon");g.mons.push(dm);dungMons.push(dm);}});
           g.dungeon.monsters=dungMons;
           dirtyR.current=true;setRogueTick(n=>n+1);
         }
@@ -2642,6 +2607,8 @@ export default function DS(){
   const isFreshAdventurer=!!p&&(p.totalXp||0)<=0&&Object.values(p.quests||{}).every(v=>!v);
   const playedDailyToday=hasPlayedDailyToday();
   const echoReactLocal=(()=>{try{return JSON.parse(localStorage.getItem("solara_echo_reactions")||"{}");}catch(e){return {};}})();
+  const sharedWorld=getSharedWorldSnapshot({sunBrightness,totalDeaths,leaderboard:dailyLbRef.current,echoes});
+  const merchantPriceScale=getMerchantPriceScale(sharedWorld,p?.rep?.merchant||0);
   const recentEchoGhosts=echoes.slice(0,3).map((echo,i)=>({id:echo.id||`ghost-${i}`,headline:echo.headline,player:echo.player_name||"Unknown",sigil:echo.traveler_sigil||"??",kind:echo.kind||"echo",offset:i,commend:echo.commend_count||0,heed:echo.heed_count||0,mourn:echo.mourn_count||0,reacted:echoReactLocal[echo.id]||null}));
   const objectiveState=(()=>{
     if(!p)return null;
@@ -2768,8 +2735,9 @@ export default function DS(){
   function doCraft(rec,qty){if(!p)return;craftQueueR.current={rec,qty:qty||1};setCraftOpen(false);}
   function buyItem(si){if(!p)return;
     if(p.ironman){addC("Ironman mode: you cannot buy from shops.");return;}
-    const coins=p.inv.find(x=>x.i==="coins");const have=coins?coins.c:0;if(have<si.cost){addC("Need "+si.cost+" coins.");return;}
-    if(coins.c>si.cost)coins.c-=si.cost;else p.inv.splice(p.inv.indexOf(coins),1);
+    const liveCost=Math.max(1,Math.round(si.cost*merchantPriceScale));
+    const coins=p.inv.find(x=>x.i==="coins");const have=coins?coins.c:0;if(have<liveCost){addC("Need "+liveCost+" coins.");return;}
+    if(coins.c>liveCost)coins.c-=liveCost;else p.inv.splice(p.inv.indexOf(coins),1);
     if(ITEMS[si.i].s){const e=p.inv.find(x=>x.i===si.i);if(e){e.c++;fr(n=>n+1);return;}};if(p.inv.length>=28){addC("Inventory full.");return;}p.inv.push({i:si.i,c:1});addC("Bought: "+ITEMS[si.i].n);fr(n=>n+1);}
   function sellItem(itemId){if(!p)return;const price=SELL_PRICES[itemId]||5;const coins=p.inv.find(x=>x.i==="coins");if(coins)coins.c+=price;else{if(p.inv.length<28)p.inv.push({i:"coins",c:price});}const idx=p.inv.findIndex(x=>x.i===itemId);if(idx>=0){const s2=p.inv[idx];if(ITEMS[itemId].s&&s2.c>1)s2.c--;else p.inv.splice(idx,1);}addC("Sold "+ITEMS[itemId].n+" for "+price+" gp.");fr(n=>n+1);}
   function useHerblore(idx){if(!p||!gR.current)return;const g2=gR.current;const s=p.inv[idx];if(!s)return;
@@ -3637,7 +3605,7 @@ export default function DS(){
               onMouseEnter={e=>e.currentTarget.style.background="rgba(200,168,78,0.12)"} onMouseLeave={e=>e.currentTarget.style.background="rgba(80,20,5,0.35)"}>
               <div style={{fontSize:16}}>{ITEMS[si.i].i}</div>
               <div style={{fontSize:7,color:"#c8a84e",fontWeight:600}}>{ITEMS[si.i].n}</div>
-              <div style={{fontSize:8,color:"#da0"}}>{si.cost}gp</div>
+              <div style={{fontSize:8,color:"#da0"}}>{Math.max(1,Math.round(si.cost*merchantPriceScale))}gp</div>
             </div>)}
           </div>}
           {sellOpen&&<div><div style={{fontSize:9,color:"#888",marginBottom:6}}>Click items to sell. Selling at 40% of buy price (min 5gp).</div>
@@ -3840,11 +3808,14 @@ export default function DS(){
               <div style={{color:"#8f7d68",fontSize:11,lineHeight:1.55,marginTop:8}}>Every death should matter to everyone. This front door frames the async communal version of that idea.</div>
             </div>
             <div style={{display:"grid",gap:6}}>
-              {MENU_SECTIONS.map(sec=><button key={sec.id} onClick={()=>setMenuSection(sec.id)} style={{textAlign:"left",background:menuSection===sec.id?"linear-gradient(90deg,#3a1808,#231006)":"rgba(0,0,0,0.16)",border:"1px solid "+(menuSection===sec.id?"#c8a84e":"rgba(200,168,78,0.08)"),color:menuSection===sec.id?"#f0c060":"#b7a387",padding:"10px 12px",cursor:"pointer",borderRadius:10,fontSize:12,fontWeight:700}}>{sec.label}</button>)}
+              {MENU_SECTION_ITEMS.map(sec=><button key={sec.id} onClick={()=>setMenuSection(sec.id)} style={{textAlign:"left",background:menuSection===sec.id?"linear-gradient(90deg,#3a1808,#231006)":"rgba(0,0,0,0.16)",border:"1px solid "+(menuSection===sec.id?"#c8a84e":"rgba(200,168,78,0.08)"),color:menuSection===sec.id?"#f0c060":"#b7a387",padding:"10px 12px",cursor:"pointer",borderRadius:10,fontSize:12,fontWeight:700}}>{sec.label}</button>)}
             </div>
             <div style={{marginTop:"auto",background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:12,padding:12}}>
               <div style={{fontSize:10,color:"#f0c060",fontWeight:700,marginBottom:6}}>Shared World Status</div>
               <div style={{fontSize:10,color:backendConnected?"#7fd37f":"#c68856",lineHeight:1.5}}>{backendConnected?"Supabase connected: live async world hooks are available.":"Supabase not connected: game falls back to local-only echoes and disabled shared systems."}</div>
+              <div style={{fontSize:10,color:sharedWorld.phase.accent,marginTop:7,fontWeight:700}}>{sharedWorld.summary}</div>
+              <div style={{fontSize:9,color:"#96826d",lineHeight:1.5,marginTop:4}}>{sharedWorld.event.description}</div>
+              {sharedWorld.blessing&&<div style={{fontSize:9,color:"#c8a0ff",lineHeight:1.5,marginTop:4}}>Next run boon: {sharedWorld.blessing.label}</div>}
             </div>
           </div>
           <div style={{background:"rgba(10,4,3,0.9)",border:"1px solid rgba(200,168,78,0.18)",borderRadius:18,padding:22,overflow:"auto",boxShadow:"0 24px 60px rgba(0,0,0,0.35)"}}>
@@ -3896,49 +3867,7 @@ export default function DS(){
                 </div>
               </div>
             </div>}
-            {menuSection==="how"&&<div>
-              <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>HOW TO PLAY</div>
-              <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>First five minutes</div>
-              <div style={{display:"grid",gap:10,marginTop:16}}>
-                {HOW_TO_PLAY_STEPS.map((step,i)=><div key={step} style={{background:"rgba(0,0,0,0.2)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:12,padding:"12px 14px",display:"flex",gap:12}}>
-                  <div style={{color:"#f0c060",fontSize:18,fontWeight:900,minWidth:18}}>{i+1}</div>
-                  <div style={{color:"#c8b9a6",fontSize:12,lineHeight:1.6}}>{step}</div>
-                </div>)}
-              </div>
-            </div>}
-            {menuSection==="knowledge"&&<div>
-              <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>KNOWLEDGE BASE</div>
-              <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>Why the world matters</div>
-              <div style={{display:"grid",gap:12,marginTop:16}}>
-                {KNOWLEDGE_BASE.map(item=><div key={item.title} style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
-                  <div style={{fontSize:13,color:"#f0c060",fontWeight:800,marginBottom:6}}>{item.title}</div>
-                  <div style={{fontSize:11,color:"#b9ab98",lineHeight:1.65}}>{item.body}</div>
-                </div>)}
-              </div>
-            </div>}
-            {menuSection==="features"&&<div>
-              <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>FEATURES</div>
-              <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>Async multiplayer pillars</div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:12,marginTop:16}}>
-                {FEATURE_PILLARS.map(item=><div key={item.title} style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
-                  <div style={{fontSize:13,color:"#f0c060",fontWeight:800,marginBottom:6}}>{item.title}</div>
-                  <div style={{fontSize:11,color:"#b9ab98",lineHeight:1.65}}>{item.body}</div>
-                </div>)}
-              </div>
-            </div>}
-            {menuSection==="updates"&&<div>
-              <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>UPDATE LOG</div>
-              <div style={{color:"#ddd",fontSize:26,fontWeight:900,marginTop:6}}>Recent build history</div>
-              <div style={{display:"grid",gap:12,marginTop:16}}>
-                {UPDATE_LOG_ITEMS.map(item=><div key={item.date+item.title} style={{background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:14,padding:14}}>
-                  <div style={{fontSize:10,color:"#8f7d68",marginBottom:4}}>{item.date}</div>
-                  <div style={{fontSize:13,color:"#f0c060",fontWeight:800,marginBottom:8}}>{item.title}</div>
-                  <div style={{display:"grid",gap:6}}>
-                    {item.notes.map(note=><div key={note} style={{fontSize:11,color:"#b9ab98",lineHeight:1.6}}>{note}</div>)}
-                  </div>
-                </div>)}
-              </div>
-            </div>}
+            {(menuSection==="how"||menuSection==="knowledge"||menuSection==="features"||menuSection==="updates")&&<React.Suspense fallback={<div style={{fontSize:11,color:"#8f7d68"}}>Loading chronicle records...</div>}><MenuLorePanels menuSection={menuSection}/></React.Suspense>}
             {menuSection==="settings"&&<div style={{display:"grid",gap:14,maxWidth:560}}>
               <div>
                 <div style={{color:"#f0c060",fontSize:11,letterSpacing:2,fontWeight:800}}>SETTINGS</div>

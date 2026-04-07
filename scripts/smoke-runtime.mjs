@@ -260,12 +260,12 @@ async function loadComponent() {
 
   let patchedSource = source
     .replace(
-      'import { useState, useEffect, useRef, useCallback } from "react";',
-      'import { useState, useEffect, useRef, useCallback } from "./smoke/react-stub.mjs";',
+      'import React, { useState, useEffect, useRef, useCallback } from "react";',
+      'import React, { useState, useEffect, useRef, useCallback } from "../scripts/smoke/react-stub.mjs";',
     )
     .replace(
       "import { supabase } from './supabase.js';",
-      'import { supabase } from "./smoke/supabase-stub.mjs";',
+      'import { supabase } from "../scripts/smoke/supabase-stub.mjs";',
     )
     .replaceAll("import.meta.env.VITE_SEASON_NUMBER", "1")
     .replaceAll('import.meta.env.VITE_SEASON_NAME', '"The Wandering Comet"');
@@ -296,7 +296,7 @@ return null;
   if (!patchedSource.includes("__SOLARA_SMOKE_EXPORTS")) {
     throw new Error("Smoke rewrite did not inject handler exports.");
   }
-  const tempPath = path.resolve(projectRoot, "scripts/.tmp-smoke-runtime.mjs");
+  const tempPath = path.resolve(projectRoot, "src/.tmp-smoke-runtime.mjs");
   await fs.writeFile(tempPath, patchedSource, "utf8");
   return {
     module: await import(`${pathToFileURL(tempPath).href}?t=${Date.now()}`),

@@ -9,7 +9,21 @@ export default defineConfig({
     minify: "esbuild",
     rollupOptions: {
       output: {
-        manualChunks: undefined,
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+            if (id.includes("@supabase")) {
+              return "supabase";
+            }
+            return "vendor";
+          }
+          if (id.includes("src/components/MenuLorePanels")) {
+            return "menu-lore";
+          }
+          if (id.includes("src/game/content")) {
+            return "menu-lore";
+          }
+          return undefined;
+        },
       },
     },
   },
