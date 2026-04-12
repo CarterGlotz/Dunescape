@@ -23,3 +23,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - Prophecy Deck
 - Death Memory Cards
 - CI now expected to run tests as well as build/smoke
+
+## Deferred to Project Agents
+
+- cross-repo item owned by another repo agent:
