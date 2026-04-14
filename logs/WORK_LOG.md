@@ -15,3 +15,6 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - added Sun Director 2.0 pressure/modifier outputs and surfaced them in the Daily Rite panel
 - improved first-session route guidance around Mara's Hearth and the Daily Rite
 - verified 13 unit tests, production build, and smoke runtime locally
+- extracted shared-world briefing/debrief synthesis into repo-native modules and components
+- upgraded Daily Rite and front-door status surfaces so they explain communal impact and the next best move more clearly
+- verified 19 unit tests and production build locally after the feedback/debrief extraction pass

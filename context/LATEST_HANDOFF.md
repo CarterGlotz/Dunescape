@@ -4,7 +4,7 @@ This repo now keeps only a public-safe handoff summary. Detailed handoff history
 
 ## Where We Left Off (2026-04-14)
 - Shipped: identity-safe canon pass, shared-world trust helpers, First Five Minutes route guidance, Sun Director 2.0 foundation, repo context updates, and the first modular extraction slice for storage/objective logic
-- Tests: 13 passing (unit + smoke/build validation) · delta: +2
+- Tests: 19 passing (unit + smoke/build validation) · delta: +6
 - Deploy: pending
 
 ## Session Intent
@@ -22,6 +22,10 @@ Audit the project, capture the full public-safe roadmap in project memory, imple
 - added objective-system tests so ritual/rival prioritization stays stable under future refactors
 - switched Supabase loading to an async on-demand path so offline-first boot does not require the client in the initial runtime path
 - expanded service-level test coverage around shrine offerings and echo reaction validation
+- converted shared-world status synthesis into a dedicated feedback module so the same logic can drive menu status, Daily Rite briefing, and future session delta surfaces
+- added reusable `SharedWorldStatus` and `RunDebriefCard` components to continue pulling status/debrief UI out of `src/App.jsx`
+- Daily Rite completion/failure and Roguelite failure surfaces now explain communal impact and the next best move instead of only dumping share cards
+- task memory now captures the full audit-derived execution order: backend trust enforcement, monolith extraction, stronger onboarding/debrief loops, world-impact surfacing, Daily Rite depth, accessibility, performance, telemetry, and wider tests
 - closeout status: repo memory updated, local validation passing, ready for git commit/push on `main`
 
 ## Human Action Required

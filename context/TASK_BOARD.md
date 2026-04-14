@@ -11,10 +11,12 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - harden the user feedback loop so the game always states the best next action
 - turn shared-world pressure, ritual state, rivals, and prophecy into clearer player-facing guidance
 - keep client-side trust rules mirrored in eventual Supabase server enforcement
+- ship the audit-derived UX/system tranche in executable slices instead of one-off patches
+- convert shared-world summaries and run debrief logic into reusable modules/components
 
 ## Next
 
-- extract storage, shared-world service, and runtime panel logic out of `src/App.jsx`
+- extract storage, shared-world service, runtime panel logic, and end-of-run presentation out of `src/App.jsx`
 - extend browser-level smoke coverage beyond startup into movement/combat/save/import-export flows
 - connect ritual, rival, prophecy, and death-memory fields to Supabase schemas where available
 - add server-side Supabase enforcement for public writes: RLS, RPC validation, constraints, rate limits, and moderation-safe flows
@@ -24,6 +26,10 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - improve first-load speed with more aggressive code splitting and deferred shared-world loading
 - improve accessibility and readability with larger default text, cleaner HUD hierarchy, and stronger mobile/touch affordances
 - add telemetry-lite balancing hooks for onboarding drop-off, ignored systems, and dead-content zones
+- add a player-facing session delta layer so the world explains what changed since the last login
+- replace browser-native alert/confirm UX with in-world modal flows for import/reset/high-risk actions
+- expand debrief surfaces into full daily/roguelite post-run intelligence screens
+- add more chunking around menu/status/debrief surfaces to keep startup lean
 
 ## Combined Top Recommendations
 
@@ -37,6 +43,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - add stronger save resilience, migration visibility, and import/export recovery UX
 - improve accessibility, control clarity, and device adaptability
 - add broader tests around save migration, deterministic daily generation, ritual/rival logic, and shared-world boundaries
+- introduce a persistent world briefing and debrief layer so major actions explain impact, consequence, and next move
+- add observability hooks for suspicious public-write patterns and progression anomalies
 
 ## Implemented Ideas
 
@@ -58,6 +66,10 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - objective guidance now has direct test coverage for ritual/rival priority selection
 - Supabase now lazy-loads instead of being eagerly imported on startup
 - shared-world service tests now cover shrine-threshold updates and echo reaction acceptance rules
+- shared-world briefing synthesis extracted into `src/game/feedback.js`
+- reusable `SharedWorldStatus` and `RunDebriefCard` components started to pull status/debrief UI out of `src/App.jsx`
+- Daily Rite and front-door status surfaces now share the same world-briefing logic
+- run-end cards now explain impact and the next best action instead of only showing a score card
 
 ## Deferred to Project Agents
 

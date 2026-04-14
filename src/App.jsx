@@ -27,6 +27,7 @@ import {
   submitRemoteEcho,
 } from "./game/sharedWorldService.js";
 import { createSaveSanitizer } from "./game/save.js";
+import { getRunDebrief, getSharedWorldBriefing } from "./game/feedback.js";
 import { applyRunBlessing, getSharedWorldSnapshot } from "./game/sharedWorld.js";
 import { createDeathMemoryCard, getLandmarkName } from "./game/innovationSystems.js";
 import {
@@ -40,6 +41,8 @@ import {
   getMerchantPriceScale,
   resetRunScopedBonuses,
 } from "./game/worldRuntime.js";
+import SharedWorldStatus from "./components/SharedWorldStatus.jsx";
+import RunDebriefCard from "./components/RunDebriefCard.jsx";
 
 const MenuLorePanels = React.lazy(() => import("./components/MenuLorePanels.jsx"));
 
@@ -2692,6 +2695,27 @@ export default function DS(){
     sharedWorld,
     hasSunstoneShard,
   });
+  const sharedWorldBriefing=getSharedWorldBriefing({
+    sharedWorld,
+    hasSunstoneShard,
+    backendConnected,
+    playedDailyToday,
+    objectiveState,
+  });
+  const dailyDebrief=getRunDebrief({
+    mode:"daily",
+    run:dailyRunRef.current,
+    sharedWorld,
+    objectiveState,
+    hasSunstoneShard,
+  });
+  const rogueDebrief=getRunDebrief({
+    mode:"roguelite",
+    run:rogueRunRef.current,
+    sharedWorld,
+    objectiveState,
+    hasSunstoneShard,
+  });
 
   useEffect(()=>{
     if(!p)return;
@@ -3348,22 +3372,17 @@ export default function DS(){
                 <div style={{color:"#555",fontSize:7}}>Season {CURRENT_SEASON}: {CURRENT_SEASON_NAME}</div>
                 {getDailyStreak(getDailySeed())>0&&<div style={{color:"#c8a84e",fontSize:8,marginTop:2,fontWeight:600}}>🔥 {getDailyStreak(getDailySeed())}-day streak</div>}
               </div>
-              <div style={{background:"rgba(20,10,5,0.55)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,padding:6}}>
-                <div style={{color:sharedWorld.phase.accent,fontSize:9,fontWeight:700}}>{sharedWorld.crisis.title}</div>
-                <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.45,marginTop:2}}>{sharedWorld.crisis.detail}</div>
-                <div style={{fontSize:7,color:sharedWorld.phase.accent,marginTop:4}}>Sun Director: {sharedWorld.director.pressure} pressure · {sharedWorld.director.dailyModifier.label}</div>
-                <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.4,marginTop:2}}>{sharedWorld.director.dailyModifier.effect}</div>
-                <div style={{fontSize:7,color:"#9f907d",lineHeight:1.4,marginTop:2}}>{sharedWorld.director.factionObjective}</div>
-                <div style={{fontSize:7,color:"#c8a84e",marginTop:4}}>Ritual: {sharedWorld.ritual.title} · {Math.round(sharedWorld.ritual.progress*100)}% · {sharedWorld.ritual.totalOfferings}/{sharedWorld.ritual.target} offerings</div>
-                {sharedWorld.constellations[0]?.name&&<div style={{fontSize:7,color:"#b090e0",marginTop:2}}>Constellation: {sharedWorld.constellations[0].name} · {sharedWorld.constellations[0].size} graves</div>}
-                {sharedWorld.rival&&<div style={{fontSize:7,color:"#f0a060",marginTop:2}}>{sharedWorld.rival.icon} Rival marked: {sharedWorld.rival.playerName} · {sharedWorld.rival.rewardText}</div>}
-                {sharedWorld.prophecy?.options?.length>0&&<div style={{marginTop:4,display:"grid",gap:3}}>
+              <SharedWorldStatus title="WORLD BRIEFING" briefing={sharedWorldBriefing} />
+              {sharedWorld.prophecy?.options?.length>0&&<div style={{background:"rgba(20,10,5,0.55)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,padding:6,marginTop:-2,display:"grid",gap:3}}>
+                <div style={{fontSize:8,color:"#c8a84e",fontWeight:700,letterSpacing:1}}>PROPHECY DECK</div>
+                <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.4}}>Active and alternate omens for today's world pressure.</div>
+                <div style={{display:"grid",gap:3}}>
                   {sharedWorld.prophecy.options.map((card,i)=><div key={card.id} style={{background:i===0?"rgba(50,24,6,0.8)":"rgba(0,0,0,0.16)",border:"1px solid "+(i===0?card.accent:"rgba(200,168,78,0.08)"),borderRadius:4,padding:"4px 5px"}}>
                     <div style={{fontSize:7,color:card.accent,fontWeight:700}}>{i===0?"Active Prophecy":"Prophecy Option"}: {card.title}</div>
                     <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.4,marginTop:1}}>{card.text}</div>
                   </div>)}
-                </div>}
-              </div>
+                </div>
+              </div>}
               <div style={{background:"rgba(12,6,5,0.55)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:4,padding:6,display:"grid",gap:4}}>
                 <div style={{color:"#f0c060",fontSize:8,fontWeight:700,letterSpacing:1}}>BEST NEXT ACTIONS</div>
                 {worldActionItems.map(item=><div key={item.title} style={{background:"rgba(0,0,0,0.16)",border:"1px solid rgba(200,168,78,0.06)",borderRadius:4,padding:"4px 5px"}}>
@@ -3382,6 +3401,7 @@ export default function DS(){
                 <div style={{height:4,background:"#120604",borderRadius:2,marginTop:4}}><div style={{height:"100%",background:"#c8a84e",borderRadius:2,width:((dailyRunRef.current.wave/30)*100)+"%"}}/></div>
               </div>}
               {dailyRunRef.current&&dailyRunRef.current.done&&<div style={{background:"rgba(40,20,5,0.6)",border:"1px solid rgba(200,168,78,0.2)",borderRadius:4,padding:6}}>
+                <RunDebriefCard debrief={dailyDebrief} />
                 <div style={{color:dailyRunRef.current.deathWave>=30?"#da0":"#f44",fontSize:11,fontWeight:700,textAlign:"center",marginBottom:4}}>
                   {dailyRunRef.current.deathWave>=30?"🏆 COMPLETED!":"💀 Wave "+dailyRunRef.current.deathWave+"/30"}
                 </div>
@@ -3403,6 +3423,7 @@ export default function DS(){
                     {(p.rogueliteStats?.relics||[]).length===0&&<div style={{fontSize:7,color:"#444",marginTop:2}}>No relics yet. Reach wave 10 to earn your first!</div>}
                   </div>}
                   {rogueRunRef.current&&rogueRunRef.current.done&&<div style={{background:"rgba(40,10,30,0.5)",border:"1px solid rgba(128,96,192,0.2)",borderRadius:4,padding:4,marginTop:3}}>
+                    <RunDebriefCard debrief={rogueDebrief} />
                     <div style={{color:"#f44",fontSize:10,fontWeight:700,textAlign:"center"}}>💀 Fell at Wave {rogueRunRef.current.deathWave}</div>
                     {rogueRunRef.current.shareCard&&<>
                       <pre style={{fontSize:7,color:"#a996c8",background:"rgba(0,0,0,0.28)",padding:4,borderRadius:3,marginTop:4,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"'Courier New',monospace"}}>{rogueRunRef.current.shareCard}</pre>
@@ -3914,17 +3935,7 @@ export default function DS(){
             <div style={{display:"grid",gap:6}}>
               {MENU_SECTION_ITEMS.map(sec=><button key={sec.id} onClick={()=>setMenuSection(sec.id)} style={{textAlign:"left",background:menuSection===sec.id?"linear-gradient(90deg,#3a1808,#231006)":"rgba(0,0,0,0.16)",border:"1px solid "+(menuSection===sec.id?"#c8a84e":"rgba(200,168,78,0.08)"),color:menuSection===sec.id?"#f0c060":"#b7a387",padding:"10px 12px",cursor:"pointer",borderRadius:10,fontSize:12,fontWeight:700}}>{sec.label}</button>)}
             </div>
-            <div style={{marginTop:"auto",background:"rgba(0,0,0,0.22)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:12,padding:12}}>
-              <div style={{fontSize:10,color:"#f0c060",fontWeight:700,marginBottom:6}}>Shared World Status</div>
-              <div style={{fontSize:10,color:backendConnected?"#7fd37f":"#c68856",lineHeight:1.5}}>{backendConnected?"Supabase connected: live async world hooks are available.":"Supabase not connected: game falls back to local-only echoes and disabled shared systems."}</div>
-              <div style={{fontSize:10,color:sharedWorld.phase.accent,marginTop:7,fontWeight:700}}>{sharedWorld.summary}</div>
-              <div style={{fontSize:9,color:"#96826d",lineHeight:1.5,marginTop:4}}>{sharedWorld.event.description}</div>
-              {sharedWorld.blessing&&<div style={{fontSize:9,color:"#c8a0ff",lineHeight:1.5,marginTop:4}}>Next run boon: {sharedWorld.blessing.label}</div>}
-              <div style={{fontSize:9,color:"#c8a84e",lineHeight:1.5,marginTop:4}}>Ritual: {sharedWorld.ritual.title} · {Math.round(sharedWorld.ritual.progress*100)}%</div>
-              <div style={{fontSize:9,color:"#b7a387",lineHeight:1.5,marginTop:4}}>Directive: {sharedWorld.crisis.title}</div>
-              {sharedWorld.rival&&<div style={{fontSize:9,color:"#f0a060",lineHeight:1.5,marginTop:4}}>{sharedWorld.rival.icon} Echo rival: {sharedWorld.rival.playerName}</div>}
-              {sharedWorld.constellations[0]?.name&&<div style={{fontSize:9,color:"#b090e0",lineHeight:1.5,marginTop:4}}>✝ {sharedWorld.constellations[0].name}</div>}
-            </div>
+            <SharedWorldStatus title="Shared World Status" briefing={sharedWorldBriefing} compact />
           </div>
           <div style={{background:"rgba(10,4,3,0.9)",border:"1px solid rgba(200,168,78,0.18)",borderRadius:18,padding:22,overflow:"auto",boxShadow:"0 24px 60px rgba(0,0,0,0.35)"}}>
             {menuSection==="play"&&<div style={{display:"grid",gap:18}}>
