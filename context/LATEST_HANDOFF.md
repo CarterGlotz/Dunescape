@@ -3,9 +3,9 @@
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
 ## Where We Left Off (2026-04-14)
-- Shipped: identity-safe canon pass, shared-world trust helpers, First Five Minutes route guidance, Sun Director 2.0 foundation, repo context updates, and the first modular extraction slice for storage/objective logic
+- Shipped: identity-safe canon pass, shared-world trust helpers, First Five Minutes route guidance, Sun Director 2.0 foundation, repo context updates, modular extraction slices for storage/objective/service logic, and the world briefing / run debrief feedback pass
 - Tests: 19 passing (unit + smoke/build validation) · delta: +6
-- Deploy: pending
+- Deploy: pushed to `origin/main` at `96cd50a`
 
 ## Session Intent
 
@@ -26,7 +26,7 @@ Audit the project, capture the full public-safe roadmap in project memory, imple
 - added reusable `SharedWorldStatus` and `RunDebriefCard` components to continue pulling status/debrief UI out of `src/App.jsx`
 - Daily Rite completion/failure and Roguelite failure surfaces now explain communal impact and the next best move instead of only dumping share cards
 - task memory now captures the full audit-derived execution order: backend trust enforcement, monolith extraction, stronger onboarding/debrief loops, world-impact surfacing, Daily Rite depth, accessibility, performance, telemetry, and wider tests
-- closeout status: repo memory updated, local validation passing, ready for git commit/push on `main`
+- closeout status: repo memory updated, local validation passing, and changes pushed on `main`
 
 ## Human Action Required
 
