@@ -69,6 +69,54 @@ export function getEchoBlessing(echoes = []) {
   return map[type];
 }
 
+export function getSunDirectorPlan(phase, faction, event) {
+  const severity = phase?.severity || 0;
+  const factionLeader = faction?.contested ? "contested" : faction?.leader || "neutral";
+  const pressure =
+    severity >= 4
+      ? "Emergency"
+      : severity >= 3
+        ? "High"
+        : severity >= 2
+          ? "Rising"
+          : "Stable";
+  const dailyModifiers = {
+    full_dawn: { id: "clear_routes", label: "Clear Routes", effect: "Daily Rite rooms favor recovery, scouting, and predictable enemy packs." },
+    amber_warning: { id: "amber_tax", label: "Amber Tax", effect: "Merchants tighten prices and late waves add extra coin rewards." },
+    twilight: { id: "mirror_graves", label: "Mirror Graves", effect: "Grave clusters are more likely to seed warnings, rivals, and shrine routes." },
+    dimming: { id: "ash_pressure", label: "Ash Pressure", effect: "Enemies hit harder, but ritual offerings push back more world pressure." },
+    eclipse: { id: "sunless_edict", label: "Sunless Edict", effect: "Rivals and crisis encounters intensify. Surviving deep waves pays out better." },
+  };
+  const factionObjective =
+    factionLeader === "sunkeeper"
+      ? "Sunkeepers are stabilizing supply routes. Keep the lead by completing runs and funding shrines."
+      : factionLeader === "eclipser"
+        ? "Eclipsers are darkening the roads. Push deeper waves to claim the season's harder rewards."
+        : factionLeader === "contested"
+          ? "Faction pressure is tied. One strong Daily Rite can swing today's world tone."
+          : "No faction controls the day. Any run can define the next pulse.";
+  return {
+    pressure,
+    dailyModifier: dailyModifiers[phase?.id] || dailyModifiers.full_dawn,
+    ambience:
+      severity >= 4
+        ? "The sky should feel wrong: darker roads, sharper warnings, and urgent shrine calls."
+        : severity >= 3
+          ? "Ash and gravewind should color the map, with stronger calls toward offerings."
+          : severity >= 2
+            ? "The world should hint at instability without blocking normal play."
+            : "The world should feel open, readable, and generous to new routes.",
+    npcTone:
+      severity >= 3
+        ? "NPCs warn about falling light, grave clusters, and the cost of reckless deaths."
+        : "NPCs point players toward useful work, daily runs, and shrine offerings.",
+    musicCue:
+      severity >= 4 ? "eclipse_alarm" : severity >= 3 ? "gravewind_low" : severity >= 2 ? "twilight_pulse" : "dawn_route",
+    factionObjective,
+    eventLabel: event?.label || "Steady Flame",
+  };
+}
+
 export function getSharedWorldSnapshot({
   sunBrightness,
   totalDeaths,
@@ -164,6 +212,14 @@ export function getSharedWorldSnapshot({
     };
   }
 
+  const director = getSunDirectorPlan(phase, faction, event);
+  event = {
+    ...event,
+    director,
+    dailyModifier: director.dailyModifier,
+    pressure: director.pressure,
+  };
+
   const summaryParts = [
     `${event.icon} ${event.label}`,
     phase.label,
@@ -186,6 +242,7 @@ export function getSharedWorldSnapshot({
     rival: systems.rival,
     prophecy: systems.prophecy,
     constellations: systems.constellations,
+    director,
     summary: summaryParts.join(" · "),
   };
 }

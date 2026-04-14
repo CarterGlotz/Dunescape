@@ -2,21 +2,22 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
-## Where We Left Off (2026-04-07)
-- Shipped: shared-world systems, runtime/UI surfacing, repo context updates, CI coverage
-- Tests: 11 passing (unit + smoke/build validation) · delta: +3
+## Where We Left Off (2026-04-14)
+- Shipped: identity-safe canon pass, shared-world trust helpers, First Five Minutes route guidance, Sun Director 2.0 foundation, repo context updates
+- Tests: 13 passing (unit + smoke/build validation) · delta: +2
 - Deploy: pending
 
 ## Session Intent
 
-Audit the project, record the resulting ideas in repo context, and implement the highest-impact shared-world feature set without breaking deployability.
+Audit the project, implement the highest-impact refinements from the audit, update public-safe project memory, and keep the repo deployable.
 
 ## Public-Safe Summary
 
-- implemented: Sun Crisis Director, Echo Rival System, Grave Constellations, Community Rituals, Prophecy Deck, Death Memory Cards
-- added tested shared-world feature logic in repo-native modules
-- updated public-safe roadmap files so the innovation pass is discoverable from the repository itself
+- implemented: identity-safe Solara canon cleanup, shared-world public-write sanitizers, Sun Director 2.0 pressure/modifier outputs, and clearer first-session route guidance
+- added tested trust logic in `src/game/trust.js`
+- updated Supabase activation guidance with reaction validation and public-write trust rules
+- verified unit tests, production build, and smoke runtime locally
 
 ## Human Action Required
 
-No human action required this session.
+Before activating public traffic at scale, mirror the client-side trust rules in Supabase RLS / RPC / moderation controls.

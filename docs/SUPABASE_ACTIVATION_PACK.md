@@ -32,6 +32,10 @@ alter table player_echoes
 create or replace function react_to_echo(p_echo_id bigint, p_reaction text)
 returns void language plpgsql security definer as $$
 begin
+  if p_reaction not in ('commend', 'heed', 'mourn') then
+    raise exception 'Invalid echo reaction';
+  end if;
+
   if p_reaction = 'commend' then
     update player_echoes set commend_count = commend_count + 1 where id = p_echo_id;
   elsif p_reaction = 'heed' then
@@ -42,6 +46,18 @@ begin
 end;
 $$;
 ```
+
+## Public write trust rules
+
+The client now sanitizes public shared-world writes before sending them, but Supabase must still enforce the same posture server-side:
+
+- clamp `daily_scores.wave_reached` to the valid Daily Rite range
+- clamp grave `x` / `y` to the map bounds and `wave_reached` to a non-negative range
+- allow only `sunkeeper`, `eclipser`, or `neutral` faction values
+- allow only `commend`, `heed`, or `mourn` reactions
+- truncate public text fields and reject links / HTML-like payloads in names, epitaphs, headlines, and summaries
+- add per-IP or per-session rate limits before public traffic grows
+- keep moderation scripts for leaderboard rows, graves, and echoes
 
 ## Surfaces that activate immediately after setup
 

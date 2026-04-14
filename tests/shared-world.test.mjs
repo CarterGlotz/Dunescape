@@ -4,6 +4,7 @@ import {
   applyRunBlessing,
   getEchoBlessing,
   getSharedWorldSnapshot,
+  getSunDirectorPlan,
   getSunPhase,
 } from "../src/game/sharedWorld.js";
 import {
@@ -20,6 +21,12 @@ import {
   getMerchantPriceScale,
   resetRunScopedBonuses,
 } from "../src/game/worldRuntime.js";
+import {
+  sanitizeDailyScorePayload,
+  sanitizeEchoPayload,
+  sanitizeGravePayload,
+  sanitizeReaction,
+} from "../src/game/trust.js";
 
 test("getSunPhase classifies eclipse thresholds", () => {
   assert.equal(getSunPhase(10).id, "eclipse");
@@ -42,6 +49,18 @@ test("getSharedWorldSnapshot responds to leader control and low sun", () => {
     echoes: [],
   });
   assert.equal(convoy.event.id, "sunkeeper_convoy");
+  assert.equal(convoy.director.dailyModifier.id, "clear_routes");
+});
+
+test("sun director turns phase and faction state into actionable pressure", () => {
+  const plan = getSunDirectorPlan(
+    getSunPhase(12),
+    { leader: "eclipser", contested: false },
+    { label: "Umbra Surge" },
+  );
+  assert.equal(plan.pressure, "Emergency");
+  assert.equal(plan.dailyModifier.id, "sunless_edict");
+  assert.match(plan.factionObjective, /Eclipsers/);
 });
 
 test("echo blessing prefers the dominant recent signal", () => {
@@ -86,6 +105,35 @@ test("save sanitizer removes invalid item entries and clamps values", () => {
   assert.deepEqual(result.data.inv, [{ i: "bread", c: 2 }]);
   assert.equal(result.data.playerName, "Test User");
   assert.ok(result.issues.length >= 2);
+});
+
+test("shared-world trust helpers clamp public write payloads", () => {
+  const echo = sanitizeEchoPayload({
+    player_name: "  Bad <b>Name</b>  ",
+    traveler_sigil: " sig ",
+    kind: "script",
+    headline: "visit https://bad.example",
+    summary: "ok",
+    wave_reached: 99999,
+    faction: "void",
+  });
+  assert.equal(echo.player_name, "Adventurer");
+  assert.equal(echo.kind, "oracle");
+  assert.equal(echo.headline, "An echo stirred in Solara.");
+  assert.equal(echo.wave_reached, 999);
+  assert.equal(echo.faction, "neutral");
+  assert.equal(sanitizeReaction("commend"), "commend");
+  assert.equal(sanitizeReaction("spam"), null);
+
+  const score = sanitizeDailyScorePayload({ player_name: "", wave_reached: 80, faction: "eclipser" });
+  assert.equal(score.player_name, "Adventurer");
+  assert.equal(score.wave_reached, 30);
+
+  const grave = sanitizeGravePayload({ player_name: "Sol", epitaph: "<img>", x: -50, y: 120, wave_reached: -1 });
+  assert.equal(grave.epitaph, "They fell without words.");
+  assert.equal(grave.x, 0);
+  assert.equal(grave.y, 99);
+  assert.equal(grave.wave_reached, 0);
 });
 
 test("world runtime scales monsters and merchant prices from snapshot", () => {

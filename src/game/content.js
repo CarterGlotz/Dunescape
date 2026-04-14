@@ -10,7 +10,7 @@ export const MENU_SECTIONS = [
 export const KNOWLEDGE_BASE = [
   {
     title: "The Shared Sun",
-    body: "Every recorded death dims the communal sun. The world state is supposed to feel heavier as the season accumulates losses.",
+    body: "Every recorded death dims the communal sun. The Sun Director turns that pressure into enemy behavior, merchant pressure, rituals, and daily modifiers.",
   },
   {
     title: "Daily Rites",
@@ -45,7 +45,11 @@ export const FEATURE_PILLARS = [
   },
   {
     title: "Sun Crisis Director",
-    body: "The world now surfaces an explicit crisis directive, ritual status, grave constellations, rival echoes, and prophecy cards so the async meta has visible goals.",
+    body: "The world now surfaces pressure state, daily modifiers, faction objectives, ritual status, grave constellations, rival echoes, and prophecy cards.",
+  },
+  {
+    title: "First Route",
+    body: "The opening path now points new travelers from gear to Mara's Hearth to the Daily Rite so the first session reaches a real shared-world payoff.",
   },
 ];
 

@@ -5,6 +5,13 @@ import { createSaveSanitizer } from "./game/save.js";
 import { applyRunBlessing, getSharedWorldSnapshot } from "./game/sharedWorld.js";
 import { createDeathMemoryCard, getLandmarkName } from "./game/innovationSystems.js";
 import {
+  sanitizeDailyScorePayload,
+  sanitizeEchoPayload,
+  sanitizeGravePayload,
+  sanitizeOfferingCount,
+  sanitizeReaction,
+} from "./game/trust.js";
+import {
   applyMonsterWorldState,
   getCombatBonuses,
   getDynamicWorldEvent,
@@ -126,7 +133,7 @@ const ITEMS={
   grimy_kwuarm:{n:"Grimy kwuarm",i:"🌿",s:false,examine:"A foul-smelling grimy herb."},
   kwuarm:{n:"Kwuarm",i:"🌿",s:false,examine:"A potent clean herb used in prayer potions."},
   ranging_potion:{n:"Ranging potion",i:"🧪",s:false,heal:0,buff:{skill:"Ranged",amt:4,dur:240000}},
-  jad_pet:{n:"Jad pet",i:"🔥",s:false,pet:true,bonus:{skill:"Hitpoints",pct:0.05},examine:"A miniature TzTok-Jad. It still looks terrifying."},
+  jad_pet:{n:"Cinderwake emberling",i:"🔥",s:false,pet:true,bonus:{skill:"Hitpoints",pct:0.05},examine:"A miniature emberling shed from the Cinderwake Colossus. It still looks terrifying."},
   moss_pet:{n:"Moss pet",i:"🌿",s:false,pet:true,bonus:{skill:"Woodcutting",pct:0.05},examine:"A tiny moss creature that follows you loyally."},
   demon_pet:{n:"Demon pet",i:"👹",s:false,pet:true,bonus:{skill:"Attack",pct:0.05},examine:"A tiny demon bound to serve you. Mostly."},
   spider_pet:{n:"Spider pet",i:"🕷️",s:false,pet:true,bonus:{skill:"Agility",pct:0.05},examine:"Eight legs, one loyal companion."},
@@ -143,7 +150,7 @@ const ITEMS={
   sand_golem_mask:{n:"Sand Golem Mask",i:"💀",s:false,slot:"head",def:8,examine:"A mask shaped after the fearsome sand golems."},
   lore_1:{n:"Torn Parchment I",i:"📜",s:false,lore:"lore_1",examine:"A weathered piece of parchment with faded writing."},
   lore_2:{n:"Torn Parchment II",i:"📜",s:false,lore:"lore_2",examine:"An old scroll fragment from the Order of the Bone Moon."},
-  lore_3:{n:"Torn Parchment III",i:"📜",s:false,lore:"lore_3",examine:"Ancient records about TzTok-Jad."},
+  lore_3:{n:"Torn Parchment III",i:"📜",s:false,lore:"lore_3",examine:"Ancient records about the Cinderwake Colossus."},
   lore_4:{n:"Torn Parchment IV",i:"📜",s:false,lore:"lore_4",examine:"A fragment of the Rune Accord."},
   lore_5:{n:"Torn Parchment V",i:"📜",s:false,lore:"lore_5",examine:"A record about the first people of this land."},
   lore_6:{n:"Torn Parchment VI",i:"📜",s:false,lore:"lore_6",examine:"Notes about the frozen kingdom."},
@@ -203,19 +210,19 @@ function genMap(){
   for(let y=0;y<MH;y++){const rx=50+Math.floor(Math.sin(y*0.1)*5+Math.cos(y*0.05)*3);for(let d=-2;d<=2;d++)if(rx+d>=0&&rx+d<MW)m[y][rx+d]=T.W;}
   // Bridges
   [[25,0],[50,0],[70,0]].forEach(([y])=>{const rx=50+Math.floor(Math.sin(y*0.1)*5+Math.cos(y*0.05)*3);for(let d=-2;d<=2;d++){m[y][rx+d]=T.BR;if(m[y+1])m[y+1][rx+d]=T.BR;}});
-  // Lumbridge
+  // Solara's Rest
   for(let y=22;y<38;y++)for(let x=12;x<32;x++)m[y][x]=T.D;
   // Paths network
   const drawPath=(x1,y1,x2,y2)=>{for(let x=Math.min(x1,x2);x<=Math.max(x1,x2);x++){m[y1][x]=T.PA;if(y1+1<MH)m[y1+1][x]=T.PA;}for(let y=Math.min(y1,y2);y<=Math.max(y1,y2);y++){m[y][x2]=T.PA;if(x2+1<MW)m[y][x2+1]=T.PA;}};
   drawPath(10,27,60,27);drawPath(20,10,20,80);drawPath(10,27,10,60);drawPath(20,15,40,15);drawPath(35,27,35,50);
-  // Varrock
+  // The Sanctum
   for(let y=7;y<20;y++)for(let x=12;x<35;x++)m[y][x]=T.D;
   for(let y=8;y<19;y++)for(let x=14;x<33;x++)m[y][x]=T.S;
   // Bld helper
   const bld=(x,y,w,h)=>{for(let dy=0;dy<h;dy++)for(let dx=0;dx<w;dx++){if(dy===0||dy===h-1||dx===0||dx===w-1)m[y+dy][x+dx]=T.WA;else m[y+dy][x+dx]=T.WF;}m[y+h-1][x+Math.floor(w/2)]=T.WF;};
-  // Lumbridge buildings
+  // Solara's Rest buildings
   bld(13,23,6,5);bld(23,23,6,5);bld(13,30,5,4);bld(23,30,5,4);bld(18,23,4,4);
-  // Varrock buildings
+  // The Sanctum buildings
   bld(15,9,5,4);bld(22,9,6,4);bld(15,14,5,4);bld(22,14,6,4);bld(28,9,4,4);
   // Barbarian Village
   for(let y=22;y<30;y++)for(let x=36;x<46;x++)m[y][x]=T.D;
@@ -235,11 +242,11 @@ function genMap(){
   for(let y=0;y<3;y++)for(let x=40;x<60;x++)m[y][x]=T.LAVA;
   // Agility course area
   for(let y=70;y<80;y++)for(let x=30;x<45;x++)m[y][x]=T.D;
-  // Draynor Village (south of Lumbridge)
+  // Willowmere Village (south of Solara's Rest)
   for(let y=55;y<65;y++)for(let x=26;x<40;x++)m[y][x]=T.D;
   bld(28,56,5,4);bld(34,56,5,4);bld(28,61,5,4);bld(34,62,5,4);
   [[37,57],[38,57]].forEach(([x,y])=>{m[y][x]=T.WF;});
-  // Draynor bank counter
+  // Willowmere bank counter
   for(let y=38;y<55;y++){m[y][27]=T.PA;if(28<MW)m[y][28]=T.PA;}
   // Falador (SW of Barbarian Village)
   for(let y=35;y<50;y++)for(let x=22;x<38;x++)m[y][x]=T.S;
@@ -247,7 +254,7 @@ function genMap(){
   bld(24,37,5,4);bld(30,37,5,4);bld(24,43,5,4);bld(30,43,5,4);
   // Falador-Barbarian path
   for(let y=30;y<36;y++){m[y][32]=T.PA;if(33<MW)m[y][33]=T.PA;}
-  // Falador-Draynor path
+  // White Fort-Willowmere path
   for(let y=50;y<56;y++){m[y][30]=T.PA;if(31<MW)m[y][31]=T.PA;}
   // Mining Guild (south Falador)
   for(let y=47;y<55;y++)for(let x=23;x<32;x++)m[y][x]=T.S;
@@ -304,11 +311,11 @@ function genObjs(map){
   // Cacti (decorative — desert & sandy areas)
   [[70,37],[75,40],[78,44],[72,48],[76,52],[57,50],[60,53],[65,52],[73,51],[77,38]].forEach(([x,y])=>o.push({t:"cactus",x,y,hp:1,mhp:1,id:nid()}));
   [[56,20],[65,19],[67,25],[66,30],[64,33]].forEach(([x,y])=>o.push({t:"cactus",x,y,hp:1,mhp:1,id:nid()}));
-  // Draynor willows
+  // Willowmere willows
   [[25,56],[25,58],[24,60],[25,62],[24,64],[41,57],[41,60],[42,63]].forEach(([x,y])=>o.push({t:"tree",x,y,res:"willow_logs",sk:"Woodcutting",xp:67,tm:2200,hp:1,mhp:1,rsp:12000,id:nid(),sub:"willow",lvl:30}));
-  // Draynor bank
+  // Willowmere bank
   [[37,57],[38,57]].forEach(([x,y])=>o.push({t:"bank",x,y,id:nid(),hp:1,mhp:1}));
-  // Draynor shop
+  // Willowmere shop
   o.push({t:"shop",x:35,y:62,id:nid(),hp:1,mhp:1});
   // Falador furnace + anvil
   o.push({t:"furnace",x:25,y:44,id:nid(),hp:1,mhp:1});
@@ -330,7 +337,7 @@ function genObjs(map){
   // Karamja bank + range
   o.push({t:"bank",x:51,y:85,id:nid(),hp:1,mhp:1});
   o.push({t:"range",x:58,y:85,id:nid(),hp:1,mhp:1});
-  // Crafting table (Lumbridge)
+  // Crafting table (Solara's Rest)
   o.push({t:"crafting_table",x:22,y:26,id:nid(),hp:1,mhp:1});
   // Farm patches (Task 22)
   [[18,30],[63,45],[32,62],[58,88]].forEach(([x,y])=>o.push({t:"farm_patch",x,y,id:nid(),hp:1,mhp:1,seed:null,readyAt:0,plantedAt:0}));
@@ -362,7 +369,7 @@ function genNPCs(){
     {t:"npc",x:56,y:83,nm:"Isle Archivist",c:"#888",dlg:["Welcome to the Isle Archives."],id:17,bank:true},
     {t:"npc",x:4,y:48,nm:"Old Hermit",c:"#8a7a5a",dlg:["The forest is haunted...","Necromancers lurk among the dark trees.","Please, drive them away!"],id:18,quest:"haunted",ambient:["The forest weeps...","Darkness grows...","Beware the shadows."]},
     {t:"npc",x:22,y:12,nm:"Archaeologist",c:"#a89060",dlg:["I've been searching for a lost relic.","It was broken into 3 parts, scattered across the land.","Check stalls and chests — they may be hidden there."],id:19,quest:"relic",ambient:["Fascinating history here.","Ancient secrets abound.","The past speaks to me."]},
-    {t:"npc",x:17,y:14,nm:"Seer",c:"#9060c0",dlg:["I have foreseen a great darkness...","Only one who has faced TzTok-Jad three times can stop it.","Are you that warrior?"],id:20,quest:"awakening",ambient:["The future is unclear...","I see great power in you.","Destiny calls..."]},
+    {t:"npc",x:17,y:14,nm:"Seer",c:"#9060c0",dlg:["I have foreseen a great darkness...","Only one who has faced the Cinderwake Colossus three times can stop it.","Are you that warrior?"],id:20,quest:"awakening",ambient:["The future is unclear...","I see great power in you.","Destiny calls..."]},
     {t:"npc",x:21,y:11,nm:"Mazchna",c:"#8a2020",dlg:["I am the Slayer Master.","I assign tasks to prove your worth.","Right-click me for a slayer assignment!"],id:21,slayer:true,ambient:["Slay with purpose.","The hunt never ends.","Prove your worth!"]},
     {t:"npc",x:35,y:60,nm:"Dock Master",c:"#5a8a60",dlg:["The supply ship is overdue!","Bring me 10 lobsters and 5 swordfish","and I'll reward you handsomely."],id:22,quest:"shipment",ambient:["The sea looks rough...","Any fresh catches today?","Supplies are running low."]},
     {t:"npc",x:31,y:38,nm:"Forgemaster",c:"#a86040",dlg:["The White Fort garrison needs new armour.","Craft me a mithril platebody","and I'll reward you well."],id:23,quest:"forge",ambient:["Hear that ring of steel?","Mithril is hard to work...","Finest smiths work here."]},
@@ -386,7 +393,7 @@ function genMons(){
     ...[[27,57],[29,60],[31,57],[33,62]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Zombie",c:"#607850",hp:55,mhp:55,atk:6,def:4,str:5,xp:22,weak:"melee",examine:"Once a soldier, now a shambling horror.",drops:[{i:"bones",c:1},{i:"coins",c:0.6,a:[5,30]},{i:"iron_sword",c:0.05},{i:"nature_rune",c:0.1,a:[1,3]},{i:"grimy_tarromin",c:0.08}],rsp:12000,id:Math.random(),at:0,dead:false,agro:true,lvl:5})),
     ...[[25,40],[27,42],[30,44],[33,40],[35,45]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"White Knight",c:"#d8d8d0",hp:100,mhp:100,atk:10,def:8,str:9,xp:40,weak:"magic",examine:"A proud guardian of The White Fort's walls.",drops:[{i:"bones",c:1},{i:"coins",c:0.9,a:[20,100]},{i:"iron_sword",c:0.08},{i:"steel_shield",c:0.02},{i:"bronze_arrow",c:0.3,a:[5,20]}],rsp:18000,id:Math.random(),at:0,dead:false,agro:false,lvl:9})),
     ...[[53,86],[56,88],[59,86],[62,88],[60,84]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Jogre",c:"#5a7a3a",hp:138,mhp:138,atk:12,def:7,str:11,xp:58,weak:"ranged",examine:"A brutish jungle creature with enormous fists.",drops:[{i:"jogre_bone",c:1},{i:"coins",c:0.8,a:[10,60]},{i:"herb",c:0.15},{i:"steel_arrow",c:0.25,a:[5,15]}],rsp:20000,id:Math.random(),at:0,dead:false,agro:true,lvl:11})),
-    ...[[64,90],[67,87],[65,93]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"TzTok-Jad",c:"#c04010",hp:500,mhp:500,atk:20,def:15,str:18,xp:150,weak:"ranged",examine:"Ancient records speak of a Fire God sleeping beneath The Southern Isle. TzTok-Jad is its dreaming eye.",drops:[{i:"coins",c:1,a:[100,300]},{i:"rune_arrow",c:0.5,a:[10,30]},{i:"fire_staff",c:0.02},{i:"ruby",c:0.15},{i:"jad_pet",c:0.003},{i:"lore_3",c:0.05}],rsp:60000,id:Math.random(),at:0,dead:false,agro:true,lvl:20,phase:0,phaseTimer:0,phaseDur:8000,atkType:"magic"})),
+    ...[[64,90],[67,87],[65,93]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Cinderwake Colossus",c:"#c04010",hp:500,mhp:500,atk:20,def:15,str:18,xp:150,weak:"ranged",examine:"Ancient records speak of a fire god sleeping beneath The Southern Isle. The Cinderwake Colossus is its dreaming eye.",drops:[{i:"coins",c:1,a:[100,300]},{i:"rune_arrow",c:0.5,a:[10,30]},{i:"fire_staff",c:0.02},{i:"ruby",c:0.15},{i:"jad_pet",c:0.003},{i:"lore_3",c:0.05}],rsp:60000,id:Math.random(),at:0,dead:false,agro:true,lvl:20,phase:0,phaseTimer:0,phaseDur:8000,atkType:"magic"})),
     ...[[40,32],[42,34],[44,32],[46,34]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Hobgoblin",c:"#6a4a20",hp:75,mhp:75,atk:8,def:5,str:7,xp:28,weak:"ranged",examine:"A larger, meaner cousin of the goblin.",drops:[{i:"bones",c:1},{i:"coins",c:0.8,a:[8,40]},{i:"iron_helm",c:0.04},{i:"bronze_arrow",c:0.3,a:[5,15]},{i:"grimy_harralander",c:0.06}],rsp:10000,id:Math.random(),at:0,dead:false,agro:true,lvl:10})),
     ...[[4,46],[8,48],[5,52],[10,50]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Flesh Crawler",c:"#8a6040",hp:70,mhp:70,atk:9,def:4,str:8,xp:25,weak:"magic",examine:"A grotesque creature that lurks in dark places.",drops:[{i:"coins",c:0.6,a:[5,25]},{i:"herb",c:0.12},{i:"nature_rune",c:0.08,a:[1,3]}],rsp:10000,id:Math.random(),at:0,dead:false,agro:true,lvl:10})),
     ...[[62,32],[64,28],[63,34]].map(([x,y])=>({x,y,ox:x,oy:y,t:"mon",nm:"Rock Crab",c:"#9a8060",hp:138,mhp:138,atk:7,def:12,str:6,xp:32,weak:"magic",examine:"Its hard shell is impervious to blades.",drops:[{i:"coins",c:0.5,a:[3,18]}],rsp:12000,id:Math.random(),at:0,dead:false,agro:false,lvl:13})),
@@ -468,7 +475,7 @@ const SLAYER_TASKS=[
   {monster:"Bandit",count:8,xp:400},{monster:"White Knight",count:8,xp:480},
   {monster:"Moss Giant",count:5,xp:600},{monster:"Flesh Crawler",count:12,xp:320},
   {monster:"Lesser Demon",count:5,xp:750},{monster:"Jogre",count:6,xp:700},
-  {monster:"TzTok-Jad",count:2,xp:2000},
+  {monster:"Cinderwake Colossus",count:2,xp:2000},
 ];
 const ACHIEVEMENTS=[
   {id:"first_blood",name:"First Blood",desc:"Kill your first monster",icon:"⚔️"},
@@ -487,7 +494,7 @@ const ACHIEVEMENTS=[
   {id:"explorer",name:"Explorer",desc:"Visit all 12 regions",icon:"🗺️"},
   {id:"survivor",name:"Survivor",desc:"Survive with 1 HP",icon:"❤️"},
   {id:"dragon_bone",name:"Dragon Slayer",desc:"Obtain dragon bones",icon:"🐉"},
-  {id:"jad_killer",name:"TzTok Slayer",desc:"Kill TzTok-Jad",icon:"🌋"},
+  {id:"jad_killer",name:"Cinderwake Slayer",desc:"Kill the Cinderwake Colossus",icon:"🌋"},
   {id:"crafter",name:"Artisan",desc:"Craft your first item",icon:"🔨"},
   {id:"slayer_first",name:"Slayer",desc:"Complete your first slayer task",icon:"🗡️"},
   {id:"night_owl",name:"Night Owl",desc:"Kill a monster at night",icon:"🌙"},
@@ -588,10 +595,11 @@ const getRogueRelicReward=(wave)=>{if(wave<10)return null;return RELICS[Math.flo
 const CURRENT_SEASON=Number(import.meta.env.VITE_SEASON_NUMBER)||1;
 const CURRENT_SEASON_NAME=import.meta.env.VITE_SEASON_NAME||'The Wandering Comet';
 const ONBOARDING_SLIDES=[
-  {icon:"☀️",accent:"#f0c060",title:"The Sun Is Dying",body:"Every player death dims a shared sun that all players see. When it fades, the world changes for everyone — not just you.",hint:"This isn't a solo game. Your death has weight."},
-  {icon:"✝",accent:"#c68856",title:"Your Grave Stays Behind",body:"When you fall, your grave appears on the world map for every other player. Leave an epitaph. Receive offerings. Become a shrine.",hint:"Deaths are permanent marks on a living world."},
-  {icon:"⚔️",accent:"#e06040",title:"Choose Your Side",body:"Sunkeepers fight to preserve the light. Eclipsers welcome the dark. Your faction shapes leaderboards, share cards, and how your echoes read.",hint:"Faction identity drives the community meta."},
-  {icon:"🌅",accent:"#d8a86a",title:"Your Chronicle Begins",body:"Run the Daily Rite — same dungeon for everyone today. Push through the Roguelite gauntlet. Share your Prophecy Scroll. The world remembers.",hint:"Press Play. Your first death matters."},
+  {icon:"☀️",accent:"#f0c060",title:"The Sun Is Dying",body:"Every recorded death dims a shared sun. As it falls, merchants, monsters, rituals, and daily pressure change for everyone.",hint:"Watch the sun meter. It is the season's heartbeat."},
+  {icon:"🔥",accent:"#d8a86a",title:"Your First Route",body:"Equip your sword, talk to Mara in Solara's Rest, gather her hearth ingredients, then spend the reward on today's Daily Rite.",hint:"The tracker will keep pointing at the next useful action."},
+  {icon:"✝",accent:"#c68856",title:"Your Grave Stays Behind",body:"When you fall, your grave appears on the world map. Leave an epitaph, receive offerings, and help form named grave constellations.",hint:"Deaths become landmarks, warnings, and shrines."},
+  {icon:"⚔️",accent:"#e06040",title:"Choose Your Side",body:"Sunkeepers preserve the light. Eclipsers welcome the dark. Your faction shapes leaderboards, echo rivals, and world pressure.",hint:"Faction identity drives the community meta."},
+  {icon:"🌅",accent:"#d8a86a",title:"Your Chronicle Begins",body:"Run the Daily Rite, push the Roguelite gauntlet, react to echoes, and share your Prophecy Scroll. The world remembers.",hint:"Press Play. Your first death matters."},
 ];
 const DEFAULT_UI_SCALE=1;
 const defaultPanelOpen=()=>typeof window==="undefined"?true:window.innerWidth>=1180;
@@ -782,7 +790,7 @@ const CARAVAN_ITEMS=[[{i:"rune_arrow",cost:20},{i:"emerald",cost:280},{i:"ruby",
 const LORE_ENTRIES=[
   {id:"lore_1",monster:"Skeleton",text:"'Here lies a warrior of the Dune Wars, cursed to wander until the desert reclaims all.'"},
   {id:"lore_2",monster:"Necromancer",text:"'The Order of the Bone Moon once ruled these sands. Their rituals corrupted the oases.'"},
-  {id:"lore_3",monster:"TzTok-Jad",text:"'Ancient records speak of a Fire God sleeping beneath The Southern Isle. TzTok-Jad is its dreaming eye.'"},
+  {id:"lore_3",monster:"Cinderwake Colossus",text:"'Ancient records speak of a fire god sleeping beneath The Southern Isle. The Cinderwake Colossus is its dreaming eye.'"},
   {id:"lore_4",monster:"Dark Wizard",text:"'Fragments of the Rune Accord. Page 7: The air runes were never meant to be free.'"},
   {id:"lore_5",monster:"Hill Giant",text:"'Giants were the first people of this land. They do not forgive what was taken from them.'"},
   {id:"lore_6",monster:"Ice Warrior",text:"'The Ashlands were once a kingdom. The Ice Warriors are its last frozen soldiers.'"},
@@ -1125,7 +1133,7 @@ export default function DS(){
   const submitEcho=useCallback(async(kind,headline,summary,waveReached=0)=>{
     const g2=gR.current;if(!g2?.p)return;
     const p2=g2.p;
-    const echo={
+    const echo=sanitizeEchoPayload({
       id:`echo-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
       player_name:p2.playerName||travelerNameDraft||"Adventurer",
       traveler_sigil:p2.travelerSigil||travelerSigilDraft,
@@ -1135,7 +1143,9 @@ export default function DS(){
       wave_reached:waveReached||0,
       faction:getPlayerFaction(p2),
       created_at:new Date().toISOString(),
-    };
+    });
+    echo.id=`echo-${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    echo.created_at=new Date().toISOString();
     try{
       const localEchoes=JSON.parse(localStorage.getItem("solara_local_echoes")||"[]");
       localStorage.setItem("solara_local_echoes",JSON.stringify([echo,...localEchoes].slice(0,24)));
@@ -1159,10 +1169,12 @@ export default function DS(){
   },[fetchEchoes,getPlayerFaction,travelerNameDraft,travelerSigilDraft]);
 
   const reactToEcho=useCallback(async(echoId,reaction)=>{
-    try{const local=JSON.parse(localStorage.getItem("solara_echo_reactions")||"{}");if(local[echoId])return;local[echoId]=reaction;localStorage.setItem("solara_echo_reactions",JSON.stringify(local));}catch(e){}
-    setEchoes(prev=>prev.map(e=>e.id===echoId?{...e,[`${reaction}_count`]:(e[`${reaction}_count`]||0)+1}:e));
-    if(!supabase)return;
-    try{await supabase.rpc('react_to_echo',{p_echo_id:echoId,p_reaction:reaction});}catch(e){}
+    const safeReaction=sanitizeReaction(reaction);
+    if(!safeReaction||!echoId)return;
+    try{const local=JSON.parse(localStorage.getItem("solara_echo_reactions")||"{}");if(local[echoId])return;local[echoId]=safeReaction;localStorage.setItem("solara_echo_reactions",JSON.stringify(local));}catch(e){}
+    setEchoes(prev=>prev.map(e=>e.id===echoId?{...e,[`${safeReaction}_count`]:(e[`${safeReaction}_count`]||0)+1}:e));
+    if(!supabase||String(echoId).startsWith("echo-"))return;
+    try{await supabase.rpc('react_to_echo',{p_echo_id:echoId,p_reaction:safeReaction});}catch(e){}
   },[]);
 
   const fetchDailyLeaderboard=useCallback(async()=>{
@@ -1175,8 +1187,9 @@ export default function DS(){
 
   const submitDailyScore=useCallback(async(playerName,waveReached,faction)=>{
     if(!supabase)return;
+    const score=sanitizeDailyScorePayload({player_name:playerName,wave_reached:waveReached,faction});
     try{
-      await supabase.from('daily_scores').insert({player_name:playerName,wave_reached:waveReached,faction:faction||'neutral',date_seed:getDailySeed(),season:CURRENT_SEASON});
+      await supabase.from('daily_scores').insert({...score,date_seed:getDailySeed(),season:CURRENT_SEASON});
       setTimeout(()=>fetchDailyLeaderboard(),1000);
     }catch(e){console.warn('[Solara] Score submit failed:',e);}
   },[fetchDailyLeaderboard]);
@@ -1330,18 +1343,19 @@ export default function DS(){
     if(!pendingGrave){return;}
     const {x,y,wave,faction,playerName}=pendingGrave;
     setPendingGrave(null);
+    const grave=sanitizeGravePayload({player_name:playerName,epitaph,x,y,faction,wave_reached:wave});
     const worldState=getWorldSnapshot({playerName});
     const constellationName=worldState.constellations?.[0]?.name||"";
-    const memoryCard=createDeathMemoryCard({playerName,sigil:travelerSigilDraft,waveReached:wave||0,faction:faction||"neutral",sunBrightness:sunBrightnessRef.current,epitaph:epitaph||'They fell without words.',eventLabel:worldState.event?.label||"Steady Flame",constellationName});
+    const memoryCard=createDeathMemoryCard({playerName:grave.player_name,sigil:travelerSigilDraft,waveReached:grave.wave_reached,faction:grave.faction,sunBrightness:sunBrightnessRef.current,epitaph:grave.epitaph,eventLabel:worldState.event?.label||"Steady Flame",constellationName});
     if(!supabase){
-      submitEcho("death_memory",`Death memory — Wave ${wave||0}`,memoryCard,wave||0);
+      submitEcho("death_memory",`Death memory - Wave ${grave.wave_reached}`,memoryCard,grave.wave_reached);
       return;
     }
     try{
-      await supabase.from('graves').insert({player_name:playerName,epitaph:epitaph||'They fell without words.',x,y,faction:faction||'neutral',wave_reached:wave||0,season:CURRENT_SEASON,date_seed:getDailySeed()});
+      await supabase.from('graves').insert({...grave,season:CURRENT_SEASON,date_seed:getDailySeed()});
       // Phase 3: increment global death counter → dims the sun
       supabase.rpc('increment_death_counter').catch(e=>console.warn('[Solara] Death counter failed:',e));
-      submitEcho("death_memory",`Death memory — Wave ${wave||0}`,memoryCard,wave||0);
+      submitEcho("death_memory",`Death memory - Wave ${grave.wave_reached}`,memoryCard,grave.wave_reached);
       setTimeout(()=>fetchGraves(),1000);
       setTimeout(()=>fetchSunState(),2000);
     }catch(e){console.warn('[Solara] Grave submit failed:',e);}
@@ -1357,7 +1371,7 @@ export default function DS(){
     fr(n=>n+1);
     setGravePopup(prev=>prev?{...prev,sunstone_offerings:(prev.sunstone_offerings||0)+1}:prev);
     if(supabase){
-      try{const newOff=(grave.sunstone_offerings||0)+1;const upd={sunstone_offerings:newOff};if(newOff>=200&&!grave.is_major_shrine){upd.is_major_shrine=true;upd.is_shrine=true;addC("✦ This grave has become a Major Shrine!");}else if(newOff>=50&&!grave.is_shrine){upd.is_shrine=true;addC("✦ This grave has become a Shrine!");}await supabase.from('graves').update(upd).eq('id',grave.id);}
+      try{const newOff=sanitizeOfferingCount((grave.sunstone_offerings||0)+1);const upd={sunstone_offerings:newOff};if(newOff>=200&&!grave.is_major_shrine){upd.is_major_shrine=true;upd.is_shrine=true;addC("✦ This grave has become a Major Shrine!");}else if(newOff>=50&&!grave.is_shrine){upd.is_shrine=true;addC("✦ This grave has become a Shrine!");}await supabase.from('graves').update(upd).eq('id',grave.id);}
       catch(e){console.warn('[Solara] Sunstone offer failed:',e);}
     }
     // Update local graves cache
@@ -1451,7 +1465,7 @@ export default function DS(){
     gR.current=g;
 
     // === SOLARA SAVE MIGRATION SHIM ===
-    // Migrates from Dunescape (legacy) to Solara save format
+    // Migrates from the legacy save key to Solara save format.
     const migrateLegacySave = () => {
       const legacyKey = 'dunescape_save';
       const newKey = 'solara_save';
@@ -1461,11 +1475,11 @@ export default function DS(){
         try {
           const save = JSON.parse(oldData);
           save.saveVersion = 5;
-          save.migratedFrom = 'dunescape';
+          save.migratedFrom = 'legacy';
           save.migratedAt = Date.now();
           localStorage.setItem(newKey, JSON.stringify(save));
           localStorage.removeItem(legacyKey);
-          console.log('[Solara] Legacy Dunescape save migrated successfully.');
+          console.log('[Solara] Legacy save migrated successfully.');
         } catch (err) {
           console.warn('[Solara] Legacy save migration failed. Starting fresh.', err);
         }
@@ -1759,12 +1773,12 @@ export default function DS(){
       g.isNight=g.dayTime>0.7||g.dayTime<0.1;
       // Special cooldown
       if(p.specialCd>0)p.specialCd=Math.max(0,p.specialCd-dt);
-      // TzTok-Jad phase switching (Task 7)
-      g.mons.forEach(m=>{if(m.nm==="TzTok-Jad"&&!m.dead){m.phaseTimer=(m.phaseTimer||0)+dt;const dur=m.hp<m.mhp*0.5?4000:(m.phaseDur||8000);if(m.phaseTimer>=dur){m.phaseTimer=0;const phases=["magic","ranged","melee"];m.phase=((m.phase||0)+1)%3;m.atkType=phases[m.phase];const warn={magic:"⚠️ Jad prepares magic! Pray Magic!",ranged:"⚠️ Jad rears back! Pray Missiles!",melee:"⚠️ Jad charges! Pray Melee!"};addC(warn[m.atkType]);dirtyR.current=true;}}});
+      // Cinderwake phase switching
+      g.mons.forEach(m=>{if(m.nm==="Cinderwake Colossus"&&!m.dead){m.phaseTimer=(m.phaseTimer||0)+dt;const dur=m.hp<m.mhp*0.5?4000:(m.phaseDur||8000);if(m.phaseTimer>=dur){m.phaseTimer=0;const phases=["magic","ranged","melee"];m.phase=((m.phase||0)+1)%3;m.atkType=phases[m.phase];const warn={magic:"⚠️ Cinderwake channels sunfire! Pray Magic!",ranged:"⚠️ Cinderwake hurls molten spines! Pray Missiles!",melee:"⚠️ Cinderwake charges! Pray Melee!"};addC(warn[m.atkType]);dirtyR.current=true;}}});
       // Caravan movement (Task 19)
       g.caravanTimer+=dt;if(g.caravanTimer>=300000){g.caravanTimer=0;g.caravanPos=(g.caravanPos+1)%3;const pos=[[65,43],[22,12],[20,28]][g.caravanPos];const names=["The Amber District","The Sanctum","Solara's Rest"];const cn=g.npcs.find(n=>n.caravan);if(cn){cn.x=pos[0];cn.y=pos[1];}addC("🐪 The desert caravan has moved to "+names[g.caravanPos]+"!");dirtyR.current=true;}
       // Arena wave check (Task 12)
-      if(g.arena.active){const alive=g.arena.waveMonsters.filter(m=>!m.dead);if(alive.length===0){if(g.arena.wave>=g.arena.maxWave){g.arena.active=false;addI("arena_trophy",1);giveXp("Attack",5000);giveXp("Strength",5000);addC("🏆 Arena complete! You defeated all 10 waves! Trophy awarded.");dirtyR.current=true;}else{g.arena.wave++;addC("⚔️ Wave "+g.arena.wave+"/"+g.arena.maxWave+" begins!");const waveMons=g.arena.wave<=3?["Goblin"]:g.arena.wave<=5?["Hobgoblin"]:g.arena.wave<=7?["Bandit"]:g.arena.wave<=9?["Moss Giant"]:["TzTok-Jad"];const waveCount=g.arena.wave<=9?5:1;const baseMon=g.mons.find(m=>m.nm===waveMons[0]);const newWave=[];for(let wi=0;wi<waveCount;wi++){const wm={...(baseMon||{nm:waveMons[0],c:"#f00",hp:30,mhp:30,atk:5,def:3,str:4,xp:10,drops:[],rsp:0,lvl:5}),x:38+wi*2,y:27,ox:40,oy:27,id:Math.random(),at:0,dead:false,agro:true,temp:true};g.mons.push(wm);newWave.push(wm);}g.arena.waveMonsters=newWave;dirtyR.current=true;}}}
+      if(g.arena.active){const alive=g.arena.waveMonsters.filter(m=>!m.dead);if(alive.length===0){if(g.arena.wave>=g.arena.maxWave){g.arena.active=false;addI("arena_trophy",1);giveXp("Attack",5000);giveXp("Strength",5000);addC("🏆 Arena complete! You defeated all 10 waves! Trophy awarded.");dirtyR.current=true;}else{g.arena.wave++;addC("⚔️ Wave "+g.arena.wave+"/"+g.arena.maxWave+" begins!");const waveMons=g.arena.wave<=3?["Goblin"]:g.arena.wave<=5?["Hobgoblin"]:g.arena.wave<=7?["Bandit"]:g.arena.wave<=9?["Moss Giant"]:["Cinderwake Colossus"];const waveCount=g.arena.wave<=9?5:1;const baseMon=g.mons.find(m=>m.nm===waveMons[0]);const newWave=[];for(let wi=0;wi<waveCount;wi++){const wm={...(baseMon||{nm:waveMons[0],c:"#f00",hp:30,mhp:30,atk:5,def:3,str:4,xp:10,drops:[],rsp:0,lvl:5}),x:38+wi*2,y:27,ox:40,oy:27,id:Math.random(),at:0,dead:false,agro:true,temp:true};g.mons.push(wm);newWave.push(wm);}g.arena.waveMonsters=newWave;dirtyR.current=true;}}}
       // Camp bank interest (Task 11 / Task 24)
       if(p.rep?.merchant>=25&&Math.floor(g.tk/3600000)!==Math.floor((g.tk-dt)/3600000)){const coins=p.inv.find(x=>x.i==="coins");if(coins)coins.c=Math.floor(coins.c*1.01);}
       // Faction rep: guard from White Knight kills tracked in doKill
@@ -1835,10 +1849,10 @@ export default function DS(){
               }else{g.dlg=at.npc;}
               g.dlgL=0;p.actTgt=null;
               if(at.npc.quest==="cook"){
-                if(p.quests.cook===0){p.quests.cook=1;addC("📜 Quest started: Cook's Assistant!");}
+                if(p.quests.cook===0){p.quests.cook=1;addC("📜 Quest started: Mara's Hearth!");}
                 else if(p.quests.cook===1&&hasI("egg")&&hasI("milk")&&hasI("flour")){
                   remI("egg");remI("milk");remI("flour");p.quests.cook=2;giveXp("Cooking",300);addI("coins",500);
-                  addC("✅ Quest complete: Cook's Assistant!");addC("Reward: 300 Cooking XP, 500 coins.");
+                  addC("✅ Quest complete: Mara's Hearth!");addC("Reward: 300 Cooking XP, 500 coins.");
                 }
               }
             if(at.npc.quest==="desert"){
@@ -1879,8 +1893,8 @@ export default function DS(){
               else if(p.quests.relic===1){addC("Relic parts found: "+p.relicParts+"/3. Search chests and stalls.");}
             }
             if(at.npc.quest==="awakening"){
-              if(!p.quests.awakening){p.quests.awakening=1;addC("📜 Quest: The Final Awakening! Defeat TzTok-Jad 3 times.");}
-              else if(p.quests.awakening===1){const kc=p.jadKills||0;if(kc>=3){p.quests.awakening=2;giveXp("Attack",5000);giveXp("Strength",5000);giveXp("Defence",5000);addI("dragon_bones",10);addI("coins",2000);addC("✅ The Final Awakening complete! +5000 Combat XP, dragon bones, 2000gp.");completeQuest();}else addC("TzTok-Jad defeated: "+kc+"/3.");}
+              if(!p.quests.awakening){p.quests.awakening=1;addC("📜 Quest: The Final Awakening! Defeat the Cinderwake Colossus 3 times.");}
+              else if(p.quests.awakening===1){const kc=p.jadKills||0;if(kc>=3){p.quests.awakening=2;giveXp("Attack",5000);giveXp("Strength",5000);giveXp("Defence",5000);addI("dragon_bones",10);addI("coins",2000);addC("✅ The Final Awakening complete! +5000 Combat XP, dragon bones, 2000gp.");completeQuest();}else addC("Cinderwake Colossus defeated: "+kc+"/3.");}
             }
             if(at.npc.quest==="cook"&&p.quests.cook===2){checkAchievement("first_quest");}
             if(at.npc.quest==="desert"&&p.quests.desert===2){checkAchievement("first_quest");}
@@ -2125,7 +2139,7 @@ export default function DS(){
             if(km.nm==="Necromancer"&&p.quests.haunted===1){p.haunted=(p.haunted||0)+1;}
             if(km.nm==="Jogre"&&p.quests.karamja===1){p.jogreKills=(p.jogreKills||0)+1;}
             if(km.nm==="Lesser Demon"&&p.quests.knight===1){p.demonKills=(p.demonKills||0)+1;}
-            if(km.nm==="TzTok-Jad"){p.jadKills=(p.jadKills||0)+1;if(p.quests.awakening===1)addC("TzTok-Jad defeated: "+p.jadKills+"/3.");checkAchievement("jad_killer");}
+            if(km.nm==="Cinderwake Colossus"){p.jadKills=(p.jadKills||0)+1;if(p.quests.awakening===1)addC("Cinderwake Colossus defeated: "+p.jadKills+"/3.");checkAchievement("jad_killer");}
             if(km.nm==="Ice Warrior"&&p.quests.wildernessHunt===1){p.iceWarriorKills=(p.iceWarriorKills||0)+1;addC("Ice Warriors: "+p.iceWarriorKills+"/5.");}
             // Slayer task tracking
             if(p.slayerTask&&km.nm===p.slayerTask.monster){
@@ -2365,7 +2379,7 @@ export default function DS(){
       else if(p.y>=22&&p.y<30&&p.x>=36&&p.x<46)curReg="Barbarian";
       else if(p.y>=55&&p.x>=8&&p.x<24)curReg="Mine";
       else if(p.y>=18&&p.y<35&&p.x>=55)curReg="Fishing";
-      else if(p.y>=55&&p.y<65&&p.x>=26&&p.x<40)curReg="Draynor";
+      else if(p.y>=55&&p.y<65&&p.x>=26&&p.x<40)curReg="Willowmere";
       else if(p.y>=35&&p.y<50&&p.x>=22&&p.x<38)curReg="Falador";
       else if(p.y>=47&&p.y<55&&p.x>=23&&p.x<32)curReg="MiningGuild";
       else if(p.y>=80&&p.x>=44&&p.x<72)curReg="Karamja";
@@ -2683,11 +2697,11 @@ export default function DS(){
     let target={title:"Open Daily Rites",detail:"The shared-world loop is strongest when you start the daily dungeon.",x:8,y:55,tab:"daily",accent:"#f0c060"};
     if(dailyRunRef.current&&!dailyRunRef.current.done)target={title:`Daily Rite · Wave ${dailyRunRef.current.wave+1}`,detail:"Reach the dungeon entrance south of The Mine and clear the next wave.",x:8,y:55,tab:"daily",accent:"#f0c060"};
     else if(rogueRunRef.current&&!rogueRunRef.current.done)target={title:`Roguelite Push · Wave ${rogueRunRef.current.wave+1}`,detail:"Return to the dungeon entrance to continue your run and secure another relic chance.",x:8,y:55,tab:"daily",accent:"#c8a0ff"};
-    else if(isFreshAdventurer)target={title:"Talk to Mara",detail:"Start Cook's Assistant in Solara's Rest for the cleanest first objective.",x:24,y:28,tab:"quest",accent:"#d8a86a"};
-    else if((p.quests?.cook||0)===1)target={title:"Cook's Assistant",detail:"Bring Mara an egg, bucket of milk, and flour to finish your first town quest.",x:24,y:28,tab:"quest",accent:"#d8a86a"};
+    else if(isFreshAdventurer)target={title:"Talk to Mara",detail:"Start Mara's Hearth in Solara's Rest, then cook your first meal and enter the Daily Rite.",x:24,y:28,tab:"quest",accent:"#d8a86a",steps:["Open Gear and equip your sword.","Talk to Mara in Solara's Rest.","Gather egg, milk, and flour.","Finish the quest, then open Daily Rites."]};
+    else if((p.quests?.cook||0)===1)target={title:"Mara's Hearth",detail:"Bring Mara an egg, bucket of milk, and flour to finish your first town quest.",x:24,y:28,tab:"quest",accent:"#d8a86a",steps:["Find the ingredients around Solara's Rest.","Return to Mara for Cooking XP and coins.","Use the reward to start today's shared run."]};
     else if((p.quests?.rune||0)===1)target={title:"Rune Mystery",detail:"Dark Wizards in the Ashlands hold the air runes Sedridor wants.",x:35,y:3,tab:"quest",accent:"#8aa8ff"};
     else if((p.quests?.relic||0)===1)target={title:"Lost Relic",detail:`Collect relic parts (${p.relicParts||0}/3) and return to the Archaeologist in The Sanctum.`,x:22,y:12,tab:"quest",accent:"#c8a84e"};
-    else if((p.quests?.awakening||0)===1)target={title:"Final Awakening",detail:`Defeat TzTok-Jad three times (${p.jadKills||0}/3) before the season goes dark.`,x:64,y:90,tab:"quest",accent:"#ff7440"};
+    else if((p.quests?.awakening||0)===1)target={title:"Final Awakening",detail:`Defeat the Cinderwake Colossus three times (${p.jadKills||0}/3) before the season goes dark.`,x:64,y:90,tab:"quest",accent:"#ff7440"};
     const dx=target.x-p.x,dy=target.y-p.y;
     const dir=`${dy<0?"N":dy>0?"S":""}${dx>0?"E":dx<0?"W":""}`||"HERE";
     return{...target,distance:Math.abs(dx)+Math.abs(dy),dir};
@@ -2926,7 +2940,7 @@ export default function DS(){
       {s&&<span style={{position:"absolute",bottom:0,right:1,fontSize:6,color:"#aa9",maxWidth:34,overflow:"hidden",whiteSpace:"nowrap"}}>{d.n}</span>}
     </div>);}
 
-  const guideStepLabel=!p?"Booting world...":dailyRunRef.current&&!dailyRunRef.current.done?"Daily Rite active: head to the dungeon entrance and clear the next wave.":rogueRunRef.current&&!rogueRunRef.current.done?"Roguelite active: reach the dungeon entrance and push as far as you can.":isFreshAdventurer?"Suggested start: equip your sword in the gear tab, then talk to Mara or start the Daily Rite.":"Suggested start: open the Daily tab for guided runs, or talk to NPCs in town for quests.";
+  const guideStepLabel=!p?"Booting world...":dailyRunRef.current&&!dailyRunRef.current.done?`Daily Rite active: ${sharedWorld.director.dailyModifier.label} is shaping today's rooms. Head to the dungeon entrance.`:rogueRunRef.current&&!rogueRunRef.current.done?`Roguelite active: ${sharedWorld.director.pressure} sun pressure is changing enemy behavior.`:isFreshAdventurer?"Suggested start: equip your sword, talk to Mara, finish Mara's Hearth, then start the Daily Rite.":`Suggested start: open Daily Rites. Sun Director: ${sharedWorld.director.dailyModifier.label}.`;
   const sidePanelWidth=panelOpen?210:0;
   const defaultObjectivePosition=typeof window==="undefined"?{x:12,y:96}:{x:window.innerWidth>900?window.innerWidth-372:12,y:window.innerHeight>760?window.innerHeight-176:96};
   const objectiveStyle=objectivePosition?{left:objectivePosition.x,top:objectivePosition.y}:{left:defaultObjectivePosition.x,top:defaultObjectivePosition.y};
@@ -3125,6 +3139,9 @@ export default function DS(){
             </div>
             <div style={{fontSize:11,color:"#ddd",fontWeight:700,marginBottom:3}}>{objectiveState.title}</div>
             <div style={{fontSize:8,color:"#b8a994",lineHeight:1.5,marginBottom:8}}>{objectiveState.detail}</div>
+            {objectiveState.steps&&<div style={{display:"grid",gap:3,marginBottom:8}}>
+              {objectiveState.steps.map((step,i)=><div key={step} style={{fontSize:7,color:"#8f7d68",lineHeight:1.35}}>{i+1}. {step}</div>)}
+            </div>}
             <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
               <button onClick={()=>{setTab(objectiveState.tab);setPanelOpen(true);}} style={{background:"#1c120a",border:`1px solid ${objectiveState.accent}66`,color:objectiveState.accent,fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:700}}>Open {objectiveState.tab}</button>
               <button onClick={()=>setMapOpen(true)} style={{background:"#120d18",border:"1px solid #5a4a7a",color:"#c8a0ff",fontSize:8,padding:"4px 8px",cursor:"pointer",borderRadius:4,fontWeight:600}}>Open Map</button>
@@ -3231,7 +3248,7 @@ export default function DS(){
             {tab==="quest"&&p&&<div style={{padding:4}}>
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1,marginBottom:6}}>QUESTS ({Object.values(p.quests).filter(v=>v===2).length}/{Object.keys(p.quests).length})</div>
               {[
-                {key:"cook",name:"Cook's Assistant",desc:p.quests.cook===0?"Talk to Mara in Solara's Rest.":p.quests.cook===1?"Find: egg, milk, flour.":"Complete!"},
+                {key:"cook",name:"Mara's Hearth",desc:p.quests.cook===0?"Talk to Mara in Solara's Rest.":p.quests.cook===1?"Find: egg, milk, flour.":"Complete!"},
                 {key:"desert",name:"Desert Vow",desc:p.quests.desert===0?"Talk to Farris in The Amber District.":p.quests.desert===1?"Scorpions: "+(p.desertKills||0)+"/3":"Complete!"},
                 {key:"goblin",name:"Goblin Trouble",desc:!p.quests.goblin?"Talk to Outlander Chief.":p.quests.goblin===1?"Goblins: "+(p.goblinKills||0)+"/5":"Complete!"},
                 {key:"rune",name:"The Rune Mystery",desc:!p.quests.rune?"Talk to Sedridor in The Sanctum.":p.quests.rune===1?"Collect 10 air runes.":"Complete!"},
@@ -3240,7 +3257,7 @@ export default function DS(){
                 {key:"karamja",name:"Southern Isle Expedition",desc:!p.quests.karamja?"Talk to Luthas in The Southern Isle.":p.quests.karamja===1?"Jogres: "+(p.jogreKills||0)+"/3":"Complete!"},
                 {key:"knight",name:"Knight's Honor",desc:!p.quests.knight?"Talk to Sir Amik in The White Fort.":p.quests.knight===1?"Lesser Demons: "+(p.demonKills||0)+"/3":"Complete!"},
                 {key:"relic",name:"Lost Relic",desc:!p.quests.relic?"Talk to Archaeologist in The Sanctum.":p.quests.relic===1?"Relic parts: "+(p.relicParts||0)+"/3":"Complete!"},
-                {key:"awakening",name:"The Final Awakening",desc:!p.quests.awakening?"Talk to the Seer in The Sanctum.":p.quests.awakening===1?"TzTok-Jad: "+(p.jadKills||0)+"/3":"Complete!"},
+                {key:"awakening",name:"The Final Awakening",desc:!p.quests.awakening?"Talk to the Seer in The Sanctum.":p.quests.awakening===1?"Cinderwake Colossus: "+(p.jadKills||0)+"/3":"Complete!"},
                 {key:"shipment",name:"The Lost Shipment",desc:!p.quests.shipment?"Talk to Dock Master in Ashfen.":p.quests.shipment===1?"Need 10 lobsters + 5 swordfish.":"Complete!"},
                 {key:"forge",name:"The White Fort's Forge",desc:!p.quests.forge?"Talk to Forgemaster in The White Fort.":p.quests.forge===1?"Smith a mithril platebody.":"Complete!"},
                 {key:"wildernessHunt",name:"Ashlands Hunter",desc:!p.quests.wildernessHunt?"Talk to Ashlands Scout (north).":p.quests.wildernessHunt===1?"Ice Warriors: "+(p.iceWarriorKills||0)+"/5":"Complete!"},
@@ -3341,6 +3358,9 @@ export default function DS(){
               <div style={{background:"rgba(20,10,5,0.55)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,padding:6}}>
                 <div style={{color:sharedWorld.phase.accent,fontSize:9,fontWeight:700}}>{sharedWorld.crisis.title}</div>
                 <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.45,marginTop:2}}>{sharedWorld.crisis.detail}</div>
+                <div style={{fontSize:7,color:sharedWorld.phase.accent,marginTop:4}}>Sun Director: {sharedWorld.director.pressure} pressure · {sharedWorld.director.dailyModifier.label}</div>
+                <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.4,marginTop:2}}>{sharedWorld.director.dailyModifier.effect}</div>
+                <div style={{fontSize:7,color:"#9f907d",lineHeight:1.4,marginTop:2}}>{sharedWorld.director.factionObjective}</div>
                 <div style={{fontSize:7,color:"#c8a84e",marginTop:4}}>Ritual: {sharedWorld.ritual.title} · {Math.round(sharedWorld.ritual.progress*100)}% · {sharedWorld.ritual.totalOfferings}/{sharedWorld.ritual.target} offerings</div>
                 {sharedWorld.constellations[0]?.name&&<div style={{fontSize:7,color:"#b090e0",marginTop:2}}>Constellation: {sharedWorld.constellations[0].name} · {sharedWorld.constellations[0].size} graves</div>}
                 {sharedWorld.rival&&<div style={{fontSize:7,color:"#f0a060",marginTop:2}}>{sharedWorld.rival.icon} Rival marked: {sharedWorld.rival.playerName} · {sharedWorld.rival.rewardText}</div>}

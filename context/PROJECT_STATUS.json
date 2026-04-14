@@ -3,15 +3,20 @@
   "name": "Solara",
   "status": "active",
   "health": "green",
-  "currentFocus": "Ship and stabilize the shared-world innovation pass while keeping the public repository deployable and public-safe.",
-  "nextMilestone": "Continue modular extraction from App.jsx and align backend schemas with the new shared-world surfaces.",
-  "blockers": [],
-  "lastUpdated": "2026-04-07",
+  "currentFocus": "Stabilize the identity-safe canon, shared-world trust layer, first-session route, and Sun Director foundation while keeping the public repository deployable and public-safe.",
+  "nextMilestone": "Mirror public write trust rules in Supabase, deepen seeded Daily Rite modifiers, and continue modular extraction from App.jsx.",
+  "blockers": [
+    "Supabase production policies must enforce the same trust rules before public traffic scales."
+  ],
+  "lastUpdated": "2026-04-14",
   "lifecycle": "building",
   "audience": "internal",
   "truthAuditStatus": "green",
-  "truthAuditLastRun": "2026-04-03",
-  "silLastSession": "2026-04-07",
-  "silVelocity": 4,
-  "silDebt": "->"
+  "truthAuditLastRun": "2026-04-14",
+  "silLastSession": "2026-04-14",
+  "silVelocity": 5,
+  "silDebt": "->",
+  "ignisScore": 39873,
+  "ignisGrade": "FORGE",
+  "ignisLastComputed": "2026-04-13"
 }

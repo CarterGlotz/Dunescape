@@ -7,3 +7,11 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - implemented the shared-world innovation pass in repo-safe code
 - updated public-safe project memory and task surfaces
 - verified unit tests, production build, and smoke flow locally
+
+## 2026-04-14
+
+- implemented identity-safe canon cleanup for audited runtime targets
+- added shared-world public-write trust helpers and wired them into client persistence paths
+- added Sun Director 2.0 pressure/modifier outputs and surfaced them in the Daily Rite panel
+- improved first-session route guidance around Mara's Hearth and the Daily Rite
+- verified 13 unit tests, production build, and smoke runtime locally
