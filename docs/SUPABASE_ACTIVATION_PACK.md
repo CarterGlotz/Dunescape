@@ -118,6 +118,18 @@ Current deployment note:
 - `npm run verify:supabase` is non-mutating. It probes table reads and checks RPC existence with invalid/no-row inputs.
 - If it reports `PGRST202`, the SQL in [docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql](/C:/Users/p4cka/documents/development/solara/docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql) has not yet been applied to the live Supabase project.
 
+## GitHub Actions deployment path
+
+A manual workflow exists at `.github/workflows/supabase-hardening.yml`.
+
+Required repository secrets before running it:
+
+- `SUPABASE_DB_URL` — direct PostgreSQL connection string with permission to create functions, policies, constraints, and indexes
+- `VITE_SUPABASE_URL` — project ref or full Supabase URL
+- `VITE_SUPABASE_ANON_KEY` — anon key used by the public app verifier
+
+Run it from GitHub Actions → **Supabase Hardening** → **Run workflow**. The workflow applies `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` with `psql` and then runs `npm run verify:supabase`.
+
 ## Notes
 
 - The repo already degrades gracefully when Supabase is absent; activation should not require additional feature flags.
