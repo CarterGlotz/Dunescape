@@ -8,10 +8,28 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
     steps:
       - uses: actions/checkout@v4
+
+      - name: Validate required secrets
+        run: |
+          missing=0
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error title=Missing GitHub secret::SUPABASE_DB_URL is required to apply docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql."
+            missing=1
+          fi
+          if [ -z "$VITE_SUPABASE_URL" ]; then
+            echo "::error title=Missing GitHub secret::VITE_SUPABASE_URL is required for post-deploy verification."
+            missing=1
+          fi
+          if [ -z "$VITE_SUPABASE_ANON_KEY" ]; then
+            echo "::error title=Missing GitHub secret::VITE_SUPABASE_ANON_KEY is required for post-deploy verification."
+            missing=1
+          fi
+          exit "$missing"
 
       - uses: actions/setup-node@v4
         with:
@@ -25,11 +43,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Apply Supabase public write hardening
-        env:
-          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
-        run: |
-          test -n "$SUPABASE_DB_URL"
-          psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --file docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql
+        run: psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --file docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql
 
       - name: Verify Supabase public hardening
         run: npm run verify:supabase
