@@ -130,6 +130,8 @@ Required repository secrets before running it:
 
 Run it from GitHub Actions → **Supabase Hardening** → **Run workflow**. The workflow applies `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` with `psql` and then runs `npm run verify:supabase`.
 
+The workflow starts with a preflight that reports any missing required secret by name. If `SUPABASE_DB_URL` is missing, no SQL is attempted.
+
 ## Notes
 
 - The repo already degrades gracefully when Supabase is absent; activation should not require additional feature flags.

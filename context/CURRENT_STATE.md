@@ -37,3 +37,4 @@ Public-safe summary:
 - live Supabase anon probe can read expected public tables, but hardened RPCs are not yet deployed; `npm run verify:supabase` now captures this check without mutating public data
 - manual Supabase Hardening GitHub Actions workflow now exists, but repo secrets for deploy-capable database access are not configured yet
 - Supabase Hardening workflow run `24576797263` failed at SQL apply because `SUPABASE_DB_URL`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY` GitHub secrets are currently unset/blank
+- Supabase Hardening workflow now has an explicit required-secret preflight so missing `SUPABASE_DB_URL` is reported before dependency install or SQL apply

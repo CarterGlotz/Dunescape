@@ -120,6 +120,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - smoke harness now exports and validates first-session plan, objective state, and actionable world-feed entries
 - Supabase hardening verification script added as `npm run verify:supabase`; current live probe confirms public reads but reports missing hardened RPCs until SQL is applied
 - manual Supabase Hardening GitHub Actions workflow added; it applies the hardening SQL and verifies it once deploy-capable secrets exist
+- Supabase Hardening workflow now preflights required secrets and reports missing secret names before attempting SQL
 
 ## Deferred to Project Agents
 
