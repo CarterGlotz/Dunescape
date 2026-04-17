@@ -1,0 +1,35 @@
+name: Supabase Hardening
+
+on:
+  workflow_dispatch:
+
+jobs:
+  apply-hardening:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+      VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Install PostgreSQL client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Apply Supabase public write hardening
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          test -n "$SUPABASE_DB_URL"
+          psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --file docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql
+
+      - name: Verify Supabase public hardening
+        run: npm run verify:supabase

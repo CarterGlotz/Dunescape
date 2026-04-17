@@ -43,6 +43,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - add browser-level gameplay smoke coverage for first route, combat/death, grave, offering, and save import/export
 - continue converting smoke coverage into browser-level validation when a browser runner is added; current smoke now verifies first-session, objective, and world-feed data contracts
 - deploy `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` to the live Supabase project with owner/service credentials, then rerun `npm run verify:supabase`
+- add GitHub repo secrets `SUPABASE_DB_URL`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY`, then run the manual Supabase Hardening workflow
 
 ## Combined Top Recommendations
 
@@ -117,6 +118,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - first-session "First Myth" planner added for equip, Mara, hearth, and Daily Rite activation flow
 - smoke harness now exports and validates first-session plan, objective state, and actionable world-feed entries
 - Supabase hardening verification script added as `npm run verify:supabase`; current live probe confirms public reads but reports missing hardened RPCs until SQL is applied
+- manual Supabase Hardening GitHub Actions workflow added; it applies the hardening SQL and verifies it once deploy-capable secrets exist
 
 ## Deferred to Project Agents
 
