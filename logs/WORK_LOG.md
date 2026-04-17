@@ -31,3 +31,6 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - added Director-derived Daily Rite route planning
 - added constellation map objectives and First Myth first-session planning
 - expanded smoke validation and unit coverage; verified 30 unit tests, smoke runtime, and production build locally
+- added Supabase hardening verifier and manual GitHub Actions workflow
+- set available browser Supabase GitHub Actions secrets and verified the workflow now fails clearly at missing `SUPABASE_DB_URL`
+- checked private ops secrets inventory for a reusable Supabase DB URL; none was available without a database password/full Postgres connection string

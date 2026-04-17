@@ -43,8 +43,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - add browser-level gameplay smoke coverage for first route, combat/death, grave, offering, and save import/export
 - continue converting smoke coverage into browser-level validation when a browser runner is added; current smoke now verifies first-session, objective, and world-feed data contracts
 - deploy `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` to the live Supabase project with owner/service credentials, then rerun `npm run verify:supabase`
-- add GitHub repo secrets `SUPABASE_DB_URL`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY`, then run the manual Supabase Hardening workflow
-- rerun Supabase Hardening workflow after secrets are present; run `24576797263` confirmed the workflow path but failed because secrets were blank
+- add GitHub repo secret `SUPABASE_DB_URL`, then run the manual Supabase Hardening workflow
+- rerun Supabase Hardening workflow after `SUPABASE_DB_URL` is present; run `24579847516` confirmed the required-secret preflight works and now fails clearly on the missing DB URL
 
 ## Combined Top Recommendations
 
@@ -121,6 +121,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - Supabase hardening verification script added as `npm run verify:supabase`; current live probe confirms public reads but reports missing hardened RPCs until SQL is applied
 - manual Supabase Hardening GitHub Actions workflow added; it applies the hardening SQL and verifies it once deploy-capable secrets exist
 - Supabase Hardening workflow now preflights required secrets and reports missing secret names before attempting SQL
+- private ops secrets were checked for a reusable Supabase DB URL; none was found without constructing one from a missing database password
 
 ## Deferred to Project Agents
 

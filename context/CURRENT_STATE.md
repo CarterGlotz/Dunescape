@@ -38,3 +38,6 @@ Public-safe summary:
 - manual Supabase Hardening GitHub Actions workflow now exists, but repo secrets for deploy-capable database access are not configured yet
 - Supabase Hardening workflow run `24576797263` failed at SQL apply because `SUPABASE_DB_URL`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY` GitHub secrets are currently unset/blank
 - Supabase Hardening workflow now has an explicit required-secret preflight so missing `SUPABASE_DB_URL` is reported before dependency install or SQL apply
+- GitHub now has `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` Actions secrets set from local browser config
+- checked the private ops secrets inventory for a Supabase database connection source; it contains Supabase URL/anon/service/PAT material but no full `SUPABASE_DB_URL` / `DATABASE_URL` / Postgres password suitable for `psql`
+- Supabase Hardening workflow run `24579847516` now fails early at the required-secret preflight with a clear missing `SUPABASE_DB_URL` error

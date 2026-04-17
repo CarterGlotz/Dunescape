@@ -38,7 +38,9 @@ Audit the project, capture the full public-safe roadmap in project memory, imple
 - closeout status: repo memory updated, 30 unit tests passing, smoke runtime passing, production build passing, and changes pushed on `main`
 - Supabase deployment status: live anon probe can read the expected public tables, but hardened RPCs are not yet deployed (`PGRST202`); `npm run verify:supabase` now captures this non-mutating verification
 - Supabase workflow attempt: run `24576797263` reached the SQL apply step and failed because required GitHub secrets were blank
+- Supabase workflow preflight: run `24579847516` confirms the workflow now fails early with a clear missing `SUPABASE_DB_URL` error
+- Secret inventory check: private ops secrets contain Supabase browser/service/PAT material, but no full Postgres connection string or DB password suitable for the hardening workflow
 
 ## Human Action Required
 
-Before activating public traffic at scale, add GitHub repo secrets `SUPABASE_DB_URL`, `VITE_SUPABASE_URL`, and `VITE_SUPABASE_ANON_KEY`, then rerun the manual **Supabase Hardening** workflow. Alternatively, deploy `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` through Supabase SQL Editor with owner credentials and rerun `npm run verify:supabase`.
+Before activating public traffic at scale, add GitHub repo secret `SUPABASE_DB_URL`, then rerun the manual **Supabase Hardening** workflow. `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are already present. Alternatively, deploy `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` through Supabase SQL Editor with owner credentials and rerun `npm run verify:supabase`.
