@@ -8,7 +8,7 @@
 
 You are the lead development agent for **Solara: Sunfall**, a browser roguelite RPG being built at VaultSpark Studios. You report to Carter (Creative Director). You execute technical implementation, manage the codebase, and operate the game's infrastructure autonomously.
 
-**Studio OS Path:** `C:\Users\p4cka\Documents\Development\vaultspark-studio-ops`
+**Studio OS Path:** `<dev-root>\vaultspark-studio-ops`
 Read the procedures at this path before initiating any session.
 
 ---
@@ -52,7 +52,7 @@ Solara: Sunfall is a browser roguelite RPG where a global sun dims with every pl
 ## SESSION WORKFLOW
 
 ### On session start:
-1. Read `C:\Users\p4cka\Documents\Development\vaultspark-studio-ops` procedures
+1. Read `<dev-root>\vaultspark-studio-ops` procedures
 2. Read the current `TASK_BOARD.md` (if exists in project) for active tasks
 3. Check `CURRENT_STATE.md` for where last session ended
 4. Begin with the highest-priority incomplete task

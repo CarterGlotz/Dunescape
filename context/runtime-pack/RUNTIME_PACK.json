@@ -5,7 +5,7 @@
     "slug": "solara",
     "name": "Solara",
     "repo": "VaultSparkStudios/solara",
-    "localPath": "C:\\Users\\p4cka\\documents\\development\\Solara"
+    "localPath": "<dev-root>\\Solara"
   },
   "sourceTemplates": {
     "agents": "docs/templates/project-system/AGENTS_PROJECT.template.md",
@@ -161,7 +161,7 @@
       "local": [
         {
           "label": "workspace",
-          "path": "C:\\Users\\p4cka\\documents\\development\\Solara"
+          "path": "<dev-root>\\Solara"
         }
       ],
       "staging": [],

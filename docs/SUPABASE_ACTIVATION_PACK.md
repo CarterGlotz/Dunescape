@@ -11,7 +11,7 @@ Set them in local `.env.local` and in GitHub Actions secrets before expecting li
 
 ## Required tables / RPC
 
-Run the SQL blocks in [context/LATEST_HANDOFF.md](/C:/Users/p4cka/documents/development/solara/context/LATEST_HANDOFF.md):
+Run the SQL blocks in [context/LATEST_HANDOFF.md](/<dev-root>/solara/context/LATEST_HANDOFF.md):
 
 1. `daily_scores`
 2. `graves`
@@ -59,7 +59,7 @@ The client now sanitizes public shared-world writes before sending them, but Sup
 - add per-IP or per-session rate limits before public traffic grows
 - keep moderation scripts for leaderboard rows, graves, and echoes
 
-Concrete SQL starter: [docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql](/C:/Users/p4cka/documents/development/solara/docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql)
+Concrete SQL starter: [docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql](/<dev-root>/solara/docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql)
 
 ## Recommended RPC hardening sequence
 
@@ -116,7 +116,7 @@ These files deliberately report `browser_token_cost: 0`; paid AI generation shou
 Current deployment note:
 
 - `npm run verify:supabase` is non-mutating. It probes table reads and checks RPC existence with invalid/no-row inputs.
-- If it reports `PGRST202`, the SQL in [docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql](/C:/Users/p4cka/documents/development/solara/docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql) has not yet been applied to the live Supabase project.
+- If it reports `PGRST202`, the SQL in [docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql](/<dev-root>/solara/docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql) has not yet been applied to the live Supabase project.
 
 ## GitHub Actions deployment path
 

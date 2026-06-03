@@ -17,7 +17,7 @@
 
 **Local Studio Ops Path:**
 ```
-C:\Users\p4cka\Documents\Development\vaultspark-studio-ops
+<dev-root>\vaultspark-studio-ops
 ```
 
 All agents working on this project must:
@@ -148,7 +148,7 @@ All documents are located relative to this ticket file:
 
 **Creative Director:** Carter (VaultSparkStudios)
 **IP/Legal:** File USPTO intent-to-use for "Solara" before marketing spend. "Solara: Sunfall" as combined mark is clean.
-**Studio Ops Path:** `C:\Users\p4cka\Documents\Development\vaultspark-studio-ops`
+**Studio Ops Path:** `<dev-root>\vaultspark-studio-ops`
 
 ---
 

@@ -23,9 +23,9 @@ Supabase is optional. When not configured, the game stays playable locally and s
 
 ## Backend activation
 
-- Runtime client: [src/supabase.js](/C:/Users/p4cka/documents/development/solara/src/supabase.js)
-- Activation checklist: [docs/SUPABASE_ACTIVATION_PACK.md](/C:/Users/p4cka/documents/development/solara/docs/SUPABASE_ACTIVATION_PACK.md)
-- Latest handoff SQL blocks: [context/LATEST_HANDOFF.md](/C:/Users/p4cka/documents/development/solara/context/LATEST_HANDOFF.md)
+- Runtime client: [src/supabase.js](/<dev-root>/solara/src/supabase.js)
+- Activation checklist: [docs/SUPABASE_ACTIVATION_PACK.md](/<dev-root>/solara/docs/SUPABASE_ACTIVATION_PACK.md)
+- Latest handoff SQL blocks: [context/LATEST_HANDOFF.md](/<dev-root>/solara/context/LATEST_HANDOFF.md)
 
 ## Public surfaces
 

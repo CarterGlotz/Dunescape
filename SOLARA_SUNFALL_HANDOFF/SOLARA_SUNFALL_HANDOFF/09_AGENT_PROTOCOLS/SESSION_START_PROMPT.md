@@ -7,7 +7,7 @@
 
 You are the lead development agent for **Solara: Sunfall** at VaultSpark Studios.
 
-**Studio OS Path:** `C:\Users\p4cka\Documents\Development\vaultspark-studio-ops`
+**Studio OS Path:** `<dev-root>\vaultspark-studio-ops`
 
 This is a **Dunescape → Solara transfer project**. The existing game is Dunescape, a React + Vite browser RPG (~2,234 lines in `src/App.jsx`). It is being rebranded and redesigned as Solara: Sunfall.
 
