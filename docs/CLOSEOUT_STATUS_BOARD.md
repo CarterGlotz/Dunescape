@@ -11,7 +11,7 @@
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
 ║  ✓ Shipped: fresh audit artifacts, deterministic Director route  ║
 ║  ✓ Tests: 31 passing (unit) plus smoke runtime, production buil  ║
-║  ✓ Deploy: pending closeout commit/push                          ║
+║  ✓ Deploy: pushed to `origin/main` at `1974008`                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ SCORES · SIL 769/1000 ═══════════════════════════════════════╗
 ║    Dev Health         70   ███████░░░                            ║
@@ -26,18 +26,18 @@
 ║    Automation         75   ████████░░                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
-║  ✓ context/CURRENT_STATE.md                                      ║
-║  ✓ context/TASK_BOARD.md                                         ║
+║  · context/CURRENT_STATE.md                                      ║
+║  · context/TASK_BOARD.md                                         ║
 ║  ✓ context/LATEST_HANDOFF.md                                     ║
-║  ✓ logs/WORK_LOG.md                                              ║
+║  · logs/WORK_LOG.md                                              ║
 ║  · context/DECISIONS.md                                          ║
-║  ✓ context/SELF_IMPROVEMENT_LOOP.md                              ║
+║  · context/SELF_IMPROVEMENT_LOOP.md                              ║
 ║  · docs/CREATIVE_DIRECTION_RECORD.md                             ║
-║  ✓ context/TRUTH_AUDIT.md                                        ║
-║  ✓ context/PROJECT_STATUS.json                                   ║
+║  · context/TRUTH_AUDIT.md                                        ║
+║  · context/PROJECT_STATUS.json                                   ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 28 files  ·  M:20 A:0 D:0 ?:8                          ║
+║  Changes: 1 files  ·  M:1 A:0 D:0 ?:0                            ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝

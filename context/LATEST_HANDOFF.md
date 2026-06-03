@@ -5,7 +5,7 @@ This repo now keeps only a public-safe handoff summary. Detailed handoff history
 ## Where We Left Off (2026-06-03)
 - Shipped: fresh audit artifacts, deterministic Director route briefs, structured world-feed action results, public-safe outcome receipts, backend readiness digest, zero-token runtime cost guardrail, repaired blocker-preflight helpers, and dependency audit cleanup
 - Tests: 31 passing (unit) plus smoke runtime, production build, and npm audit passing
-- Deploy: pending closeout commit/push
+- Deploy: pushed to `origin/main` at `1974008`
 
 ## Session Intent
 
