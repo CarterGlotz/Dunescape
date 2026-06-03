@@ -5,3 +5,4 @@ dist
 .env.*.local
 .claude/
 logs/*.log
+context/.session-lock
