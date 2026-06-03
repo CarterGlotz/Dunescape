@@ -4,6 +4,8 @@ import { buildAiPolicy, buildIntelligenceDigest } from "./intelligencePolicy.js"
 import { getDailyRitePlan } from "./directorMechanics.js";
 import { getSharedWorldSnapshot } from "./sharedWorld.js";
 import { buildStudioIntegrationContract } from "./telemetry.js";
+import { buildBackendReadiness } from "./backendReadiness.js";
+import { buildOutcomeReceiptSet } from "./outcomeReceipts.js";
 import { buildWorldFeed } from "./worldFeed.js";
 
 function sortByWave(entries = []) {
@@ -111,6 +113,18 @@ export function buildPublicChronicle({
   });
   const dailyRitePlan = getDailyRitePlan({ sharedWorld, dayNumber });
   const constellationObjectives = buildConstellationObjectives({ sharedWorld, hasSunstoneShard: false });
+  const backendReadiness = buildBackendReadiness({
+    backendConnected: true,
+    hardenedRpcDeployed: false,
+    requiredSecretsPresent: false,
+    missingSecrets: ["SUPABASE_DB_URL"],
+  });
+  const outcomeReceipts = buildOutcomeReceiptSet({
+    sharedWorld,
+    objectiveState: { title: sharedWorld.crisis.title },
+    worldFeed,
+    aiPolicy,
+  });
 
   return {
     schema_version: 1,
@@ -143,6 +157,8 @@ export function buildPublicChronicle({
       intelligence,
       daily_rite_plan: dailyRitePlan,
       constellation_objectives: constellationObjectives.slice(0, 5),
+      backend_readiness: backendReadiness,
+      outcome_receipts: outcomeReceipts,
     },
     top_runs: topRuns,
     graves: publicGraves,
@@ -177,6 +193,12 @@ export function buildPublicChronicle({
         audience_state: integrationContract.sparkfunnel.audience_state,
       },
       telemetry: integrationContract.telemetry,
+      outcome_receipts: {
+        schema_version: outcomeReceipts.version,
+        count: outcomeReceipts.count,
+        latest: outcomeReceipts.receipts[0],
+      },
+      backend_readiness: backendReadiness,
     },
     ai_policy: aiPolicy,
   };

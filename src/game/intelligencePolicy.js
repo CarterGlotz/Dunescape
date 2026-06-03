@@ -35,6 +35,12 @@ export function buildAiPolicy({
     browser_token_cost: 0,
     generation_mode: AI_GENERATION_MODE,
     paid_generation_allowed: paidAllowed,
+    runtime_cost_guardrail: {
+      free_tier_status: "cost-neutral",
+      browser_token_cost: 0,
+      studio_paid_generation: paidAllowed ? "server-cached-budgeted-only" : "disabled",
+      measurement: "Assert browser_token_cost === 0 in unit tests and public status exports.",
+    },
     server_generation: {
       allowed: paidAllowed,
       max_tokens_per_day: dailyBudget,
@@ -53,6 +59,7 @@ export function buildIntelligenceDigest({ sharedWorld, objectiveState = null, ai
   const crisis = sharedWorld?.crisis;
   const rival = sharedWorld?.rival;
 
+  const policy = aiPolicy || buildAiPolicy();
   return {
     headline: sharedWorld?.summary || "Solara awaits a signal.",
     read: [
@@ -70,6 +77,7 @@ export function buildIntelligenceDigest({ sharedWorld, objectiveState = null, ai
           tags: mechanics.telemetryTags,
         }
       : null,
-    token_policy: aiPolicy || buildAiPolicy(),
+    token_policy: policy,
+    runtime_cost_guardrail: policy.runtime_cost_guardrail,
   };
 }

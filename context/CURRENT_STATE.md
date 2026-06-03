@@ -41,3 +41,7 @@ Public-safe summary:
 - GitHub now has `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` Actions secrets set from local browser config
 - checked the private ops secrets inventory for a Supabase database connection source; it contains Supabase URL/anon/service/PAT material but no full `SUPABASE_DB_URL` / `DATABASE_URL` / Postgres password suitable for `psql`
 - Supabase Hardening workflow run `24579847516` now fails early at the required-secret preflight with a clear missing `SUPABASE_DB_URL` error
+- 2026-06-03 audit/implement pass added deterministic Director route briefs, world-feed action resolution, public-safe outcome receipts, backend readiness digest, and a runtime cost guardrail while keeping browser token cost at zero
+- blocker preflight now has the missing task-board and blocker-rule helpers; the preflight runs and isolates the remaining Supabase DB URL blocker instead of failing at import time
+- dependency audit is clean after updating Vite within the existing 6.x line and applying transitive audit fixes through trusted package metadata
+- latest local validation: 31 unit tests passing, production build passing, smoke flow passing, and `npm audit --json` reporting 0 vulnerabilities

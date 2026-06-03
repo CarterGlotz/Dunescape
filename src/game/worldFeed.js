@@ -100,3 +100,32 @@ export function buildWorldFeed({
 
   return feed.sort((a, b) => b.priority - a.priority).slice(0, 6);
 }
+
+export function resolveWorldFeedAction(item) {
+  if (!item?.action) {
+    return {
+      accepted: false,
+      tab: null,
+      mapOpen: false,
+      target: null,
+      message: "World feed item has no action.",
+    };
+  }
+
+  const action = item.action;
+  const target = action.target && Number.isFinite(Number(action.target.x)) && Number.isFinite(Number(action.target.y))
+    ? { x: Number(action.target.x), y: Number(action.target.y) }
+    : null;
+
+  return {
+    accepted: true,
+    type: action.type || "note",
+    tab: action.tab || null,
+    mapOpen: !!target || action.type === "map",
+    target,
+    label: action.label || item.title,
+    message: target
+      ? `World feed marked a route near (${target.x}, ${target.y}).`
+      : `World feed: ${action.label || item.title}.`,
+  };
+}

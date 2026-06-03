@@ -32,6 +32,11 @@ const status = {
     crisis: chronicle.shared_world.crisis,
     ritual: chronicle.shared_world.ritual,
     director: chronicle.shared_world.director,
+    backend_readiness: chronicle.shared_world.backend_readiness,
+    outcome_receipts: {
+      version: chronicle.shared_world.outcome_receipts.version,
+      count: chronicle.shared_world.outcome_receipts.count,
+    },
   },
   ai_policy: chronicle.ai_policy,
 };

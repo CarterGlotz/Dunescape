@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-17T16:54:07.106Z",
+  "generated_at": "2026-06-03T21:43:24.324Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -48,6 +48,7 @@
         "id": "clear_routes",
         "label": "Clear Routes",
         "objective": "Use the safer route to bank a clean Daily Rite result.",
+        "tactic": "Scout, bank food, and avoid taking early unnecessary trades.",
         "encounterBias": [
           "recovery_room",
           "scout_pack",
@@ -93,8 +94,8 @@
         {
           "id": "prophecy",
           "accent": "#f0c060",
-          "title": "Prophecy: Sun Oath",
-          "detail": "While the sun dims, press deeper. Harsh phases pay out more when endured."
+          "title": "Prophecy: Grave Omen",
+          "detail": "Fight where the graves cluster. The dead will warn or test you."
         },
         {
           "id": "best-move",
@@ -206,6 +207,12 @@
         "browser_token_cost": 0,
         "generation_mode": "deterministic",
         "paid_generation_allowed": false,
+        "runtime_cost_guardrail": {
+          "free_tier_status": "cost-neutral",
+          "browser_token_cost": 0,
+          "studio_paid_generation": "disabled",
+          "measurement": "Assert browser_token_cost === 0 in unit tests and public status exports."
+        },
         "server_generation": {
           "allowed": false,
           "max_tokens_per_day": 0,
@@ -213,13 +220,20 @@
           "fallback": "deterministic_chronicle",
           "input_policy": "structured_public_state_only"
         },
-        "cache_key": "season:1:day:20560:sun:100:deaths:0:runs:0:graves:0:echoes:0"
+        "cache_key": "season:1:day:20607:sun:100:deaths:0:runs:0:graves:0:echoes:0"
+      },
+      "runtime_cost_guardrail": {
+        "free_tier_status": "cost-neutral",
+        "browser_token_cost": 0,
+        "studio_paid_generation": "disabled",
+        "measurement": "Assert browser_token_cost === 0 in unit tests and public status exports."
       }
     },
     "daily_rite_plan": {
-      "id": "clear_routes:day:20560",
+      "id": "clear_routes:day:20607",
       "label": "Clear Routes",
       "objective": "Use the safer route to bank a clean Daily Rite result.",
+      "tactic": "Scout, bank food, and avoid taking early unnecessary trades.",
       "rewardMultiplier": 1,
       "enemyScale": 0.97,
       "route": [
@@ -228,77 +242,205 @@
           "label": "Waves 1-5",
           "waveStart": 1,
           "waveEnd": 5,
-          "encounter": "scout_pack",
-          "reward": "coins",
+          "encounter": "recovery_room",
+          "reward": "food",
           "pressure": 0.977,
           "shrineChance": 0.12,
-          "rivalChance": 0.04
+          "rivalChance": 0.04,
+          "danger": "low",
+          "encounterLabel": "Recovery room",
+          "rewardTell": "food",
+          "goal": "Use Recovery room pacing to secure food."
         },
         {
           "id": "segment_2",
           "label": "Waves 6-10",
           "waveStart": 6,
           "waveEnd": 10,
-          "encounter": "low_ambush",
-          "reward": "food",
+          "encounter": "scout_pack",
+          "reward": "starter_relic",
           "pressure": 0.992,
           "shrineChance": 0.12,
-          "rivalChance": 0.09
+          "rivalChance": 0.09,
+          "danger": "moderate",
+          "encounterLabel": "Scout pack",
+          "rewardTell": "starter relic",
+          "goal": "Use Scout pack pacing to secure starter relic."
         },
         {
           "id": "segment_3",
           "label": "Waves 11-15",
           "waveStart": 11,
           "waveEnd": 15,
-          "encounter": "recovery_room",
-          "reward": "starter_relic",
+          "encounter": "low_ambush",
+          "reward": "coins",
           "pressure": 1.008,
           "shrineChance": 0.12,
-          "rivalChance": 0.14
+          "rivalChance": 0.14,
+          "danger": "moderate",
+          "encounterLabel": "Low ambush",
+          "rewardTell": "coins",
+          "goal": "Use Low ambush pacing to secure coins."
         },
         {
           "id": "segment_4",
           "label": "Waves 16-20",
           "waveStart": 16,
           "waveEnd": 20,
-          "encounter": "scout_pack",
-          "reward": "coins",
+          "encounter": "recovery_room",
+          "reward": "food",
           "pressure": 1.022,
           "shrineChance": 0.12,
-          "rivalChance": 0.18
+          "rivalChance": 0.18,
+          "danger": "moderate",
+          "encounterLabel": "Recovery room",
+          "rewardTell": "food",
+          "goal": "Use Recovery room pacing to secure food."
         },
         {
           "id": "segment_5",
           "label": "Waves 21-25",
           "waveStart": 21,
           "waveEnd": 25,
-          "encounter": "low_ambush",
-          "reward": "food",
+          "encounter": "scout_pack",
+          "reward": "starter_relic",
           "pressure": 1.038,
           "shrineChance": 0.12,
-          "rivalChance": 0.22
+          "rivalChance": 0.22,
+          "danger": "moderate",
+          "encounterLabel": "Scout pack",
+          "rewardTell": "starter relic",
+          "goal": "Use Scout pack pacing to secure starter relic."
         },
         {
           "id": "segment_6",
           "label": "Waves 26-30",
           "waveStart": 26,
           "waveEnd": 30,
-          "encounter": "recovery_room",
-          "reward": "starter_relic",
+          "encounter": "low_ambush",
+          "reward": "coins",
           "pressure": 1.052,
           "shrineChance": 0.12,
-          "rivalChance": 0.27
+          "rivalChance": 0.27,
+          "danger": "moderate",
+          "encounterLabel": "Low ambush",
+          "rewardTell": "coins",
+          "goal": "Use Low ambush pacing to secure coins."
         }
       ],
       "boss": {
         "wave": 30,
         "pressure": 1,
-        "reward": "coins",
-        "rivalIntrusion": false
+        "reward": "food",
+        "rivalIntrusion": false,
+        "brief": "The boss wave is the cleanest place to bank the route's main reward."
       },
-      "shareLine": "Clear Routes: Use the safer route to bank a clean Daily Rite result."
+      "shareLine": "Clear Routes: Use the safer route to bank a clean Daily Rite result.",
+      "routeSummary": "Clear Routes: Scout, bank food, and avoid taking early unnecessary trades. Use Recovery room pacing to secure food."
     },
-    "constellation_objectives": []
+    "constellation_objectives": [],
+    "backend_readiness": {
+      "version": 1,
+      "mode": "live-read-table-fallback",
+      "public_writes": "client-sanitized-with-table-fallback",
+      "player_copy": "Live reads are available; public writes still rely on staged fallback until hardening is deployed.",
+      "safe_to_scale_public_traffic": false,
+      "required_next_action": "Add SUPABASE_DB_URL, then run the Supabase Hardening workflow.",
+      "missing_secret_labels": [
+        "SUPABASE_DB_URL"
+      ]
+    },
+    "outcome_receipts": {
+      "version": 1,
+      "count": 5,
+      "receipts": [
+        {
+          "version": 1,
+          "type": "daily_directive",
+          "label": "Build The Chronicle",
+          "detail": "Record runs, deaths, and offerings so the async world has something tangible to react to.",
+          "world_state": {
+            "phase": "Full Dawn",
+            "pressure": "Stable",
+            "ritual_progress": 0,
+            "next_action": "Build The Chronicle"
+          },
+          "action": null,
+          "token_cost": 0
+        },
+        {
+          "version": 1,
+          "type": "ritual_progress",
+          "label": "Lantern Tithe",
+          "detail": "Complete the rite for global relief and stronger blessings.",
+          "world_state": {
+            "phase": "Full Dawn",
+            "pressure": "Stable",
+            "ritual_progress": 0,
+            "next_action": "Build The Chronicle"
+          },
+          "action": null,
+          "token_cost": 0
+        },
+        {
+          "version": 1,
+          "type": "feed_ritual",
+          "label": "Lantern Tithe · 0%",
+          "detail": "Complete the rite for global relief and stronger blessings.",
+          "world_state": {
+            "phase": "Full Dawn",
+            "pressure": "Stable",
+            "ritual_progress": 0,
+            "next_action": "Build The Chronicle"
+          },
+          "action": {
+            "type": "map",
+            "tab": "daily",
+            "label": "Find Offering Target",
+            "target": null
+          },
+          "token_cost": 0
+        },
+        {
+          "version": 1,
+          "type": "feed_directive",
+          "label": "Build The Chronicle",
+          "detail": "Record runs, deaths, and offerings so the async world has something tangible to react to.",
+          "world_state": {
+            "phase": "Full Dawn",
+            "pressure": "Stable",
+            "ritual_progress": 0,
+            "next_action": "Build The Chronicle"
+          },
+          "action": {
+            "type": "tab",
+            "tab": "daily",
+            "label": "Open Daily Rite",
+            "target": null
+          },
+          "token_cost": 0
+        },
+        {
+          "version": 1,
+          "type": "feed_live_link",
+          "label": "Live World Link",
+          "detail": "0 graves and 0 echoes are available to public surfaces.",
+          "world_state": {
+            "phase": "Full Dawn",
+            "pressure": "Stable",
+            "ritual_progress": 0,
+            "next_action": "Build The Chronicle"
+          },
+          "action": {
+            "type": "tab",
+            "tab": "settings",
+            "label": "View Link",
+            "target": null
+          },
+          "token_cost": 0
+        }
+      ]
+    }
   },
   "top_runs": [],
   "graves": [],
@@ -379,6 +521,35 @@
         ]
       },
       "risk_score": 2
+    },
+    "outcome_receipts": {
+      "schema_version": 1,
+      "count": 5,
+      "latest": {
+        "version": 1,
+        "type": "daily_directive",
+        "label": "Build The Chronicle",
+        "detail": "Record runs, deaths, and offerings so the async world has something tangible to react to.",
+        "world_state": {
+          "phase": "Full Dawn",
+          "pressure": "Stable",
+          "ritual_progress": 0,
+          "next_action": "Build The Chronicle"
+        },
+        "action": null,
+        "token_cost": 0
+      }
+    },
+    "backend_readiness": {
+      "version": 1,
+      "mode": "live-read-table-fallback",
+      "public_writes": "client-sanitized-with-table-fallback",
+      "player_copy": "Live reads are available; public writes still rely on staged fallback until hardening is deployed.",
+      "safe_to_scale_public_traffic": false,
+      "required_next_action": "Add SUPABASE_DB_URL, then run the Supabase Hardening workflow.",
+      "missing_secret_labels": [
+        "SUPABASE_DB_URL"
+      ]
     }
   },
   "ai_policy": {
@@ -386,6 +557,12 @@
     "browser_token_cost": 0,
     "generation_mode": "deterministic",
     "paid_generation_allowed": false,
+    "runtime_cost_guardrail": {
+      "free_tier_status": "cost-neutral",
+      "browser_token_cost": 0,
+      "studio_paid_generation": "disabled",
+      "measurement": "Assert browser_token_cost === 0 in unit tests and public status exports."
+    },
     "server_generation": {
       "allowed": false,
       "max_tokens_per_day": 0,
@@ -393,6 +570,6 @@
       "fallback": "deterministic_chronicle",
       "input_policy": "structured_public_state_only"
     },
-    "cache_key": "season:1:day:20560:sun:100:deaths:0:runs:0:graves:0:echoes:0"
+    "cache_key": "season:1:day:20607:sun:100:deaths:0:runs:0:graves:0:echoes:0"
   }
 }

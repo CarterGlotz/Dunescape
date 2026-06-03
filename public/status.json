@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-17T16:54:07.106Z",
+  "generated_at": "2026-06-03T21:43:24.324Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -48,6 +48,7 @@
         "id": "clear_routes",
         "label": "Clear Routes",
         "objective": "Use the safer route to bank a clean Daily Rite result.",
+        "tactic": "Scout, bank food, and avoid taking early unnecessary trades.",
         "encounterBias": [
           "recovery_room",
           "scout_pack",
@@ -72,6 +73,21 @@
           "graves:sparse"
         ]
       }
+    },
+    "backend_readiness": {
+      "version": 1,
+      "mode": "live-read-table-fallback",
+      "public_writes": "client-sanitized-with-table-fallback",
+      "player_copy": "Live reads are available; public writes still rely on staged fallback until hardening is deployed.",
+      "safe_to_scale_public_traffic": false,
+      "required_next_action": "Add SUPABASE_DB_URL, then run the Supabase Hardening workflow.",
+      "missing_secret_labels": [
+        "SUPABASE_DB_URL"
+      ]
+    },
+    "outcome_receipts": {
+      "version": 1,
+      "count": 5
     }
   },
   "ai_policy": {
@@ -79,6 +95,12 @@
     "browser_token_cost": 0,
     "generation_mode": "deterministic",
     "paid_generation_allowed": false,
+    "runtime_cost_guardrail": {
+      "free_tier_status": "cost-neutral",
+      "browser_token_cost": 0,
+      "studio_paid_generation": "disabled",
+      "measurement": "Assert browser_token_cost === 0 in unit tests and public status exports."
+    },
     "server_generation": {
       "allowed": false,
       "max_tokens_per_day": 0,
@@ -86,6 +108,6 @@
       "fallback": "deterministic_chronicle",
       "input_policy": "structured_public_state_only"
     },
-    "cache_key": "season:1:day:20560:sun:100:deaths:0:runs:0:graves:0:echoes:0"
+    "cache_key": "season:1:day:20607:sun:100:deaths:0:runs:0:graves:0:echoes:0"
   }
 }

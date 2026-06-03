@@ -42,7 +42,7 @@ import {
   getMerchantPriceScale,
   resetRunScopedBonuses,
 } from "./game/worldRuntime.js";
-import { buildWorldFeed } from "./game/worldFeed.js";
+import { buildWorldFeed, resolveWorldFeedAction } from "./game/worldFeed.js";
 import SharedWorldStatus from "./components/SharedWorldStatus.jsx";
 import RunDebriefCard from "./components/RunDebriefCard.jsx";
 import SessionDeltaCard from "./components/SessionDeltaCard.jsx";
@@ -2756,15 +2756,14 @@ export default function DS(){
     graveCount:gravesRef.current.length,
   });
   const handleWorldFeedAction=useCallback((item)=>{
-    if(!item?.action)return;
-    if(item.action.tab)setTab(item.action.tab);
-    if(item.action.target){
+    const result=resolveWorldFeedAction(item);
+    if(!result.accepted)return;
+    if(result.tab)setTab(result.tab);
+    if(result.mapOpen){
       setMapOpen(true);
       setObjectivePosition(null);
-      addC(`World feed marked a route near (${item.action.target.x}, ${item.action.target.y}).`);
-    }else if(item.action.label){
-      addC(`World feed: ${item.action.label}.`);
     }
+    addC(result.message);
   },[addC]);
 
   useEffect(()=>{

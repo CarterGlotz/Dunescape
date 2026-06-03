@@ -4,22 +4,22 @@
   "name": "Solara",
   "status": "active",
   "health": "green",
-  "currentFocus": "Stabilize the shared-world meta-loop, RPC-first public write path, deterministic chronicle exports, interactive world feedback, First Myth onboarding, and Director-driven Daily Rite planning while keeping the public repository deployable and public-safe.",
+  "currentFocus": "Stabilize the shared-world meta-loop with deterministic Director route briefs, outcome receipts, backend readiness, structured world-feed action routing, RPC-first public write posture, and zero-token public chronicle/status contracts.",
   "nextMilestone": "Deploy and verify Supabase RPC/RLS hardening in the live backend, then continue modular extraction from App.jsx and add browser-level gameplay validation.",
   "blockers": [
     "Supabase production policies must enforce the same trust rules before public traffic scales."
   ],
-  "lastUpdated": "2026-04-17",
+  "lastUpdated": "2026-06-03",
   "lifecycle": "building",
   "audience": "internal",
   "truthAuditStatus": "green",
   "truthAuditLastRun": "2026-04-17",
-  "silLastSession": "2026-04-17",
+  "silLastSession": "2026-06-03",
   "silVelocity": 10,
   "silDebt": "->",
-  "ignisScore": 46338,
+  "ignisScore": 45982,
   "ignisGrade": "FORGE",
-  "ignisLastComputed": "2026-05-21",
+  "ignisLastComputed": "2026-06-03",
   "silRubricVersion": "3.0",
   "silMax": 1000,
   "silScoreLegacy500": null,
@@ -41,5 +41,7 @@
   "modelTierDefault": "opus",
   "modelTierCtxLimit": 200000,
   "modelPlanMode": true,
-  "modelPlanModeSlash": "/model opusplan"
+  "modelPlanModeSlash": "/model opusplan",
+  "planModeDetected": "missing",
+  "planModeCheckedAt": "2026-06-03T21:31:30.040Z"
 }

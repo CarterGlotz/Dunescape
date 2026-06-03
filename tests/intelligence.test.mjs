@@ -5,8 +5,10 @@ import { getFirstSessionPlan } from "../src/game/firstSession.js";
 import { buildAiPolicy, buildIntelligenceDigest } from "../src/game/intelligencePolicy.js";
 import { getDailyRitePlan } from "../src/game/directorMechanics.js";
 import { getSharedWorldSnapshot } from "../src/game/sharedWorld.js";
+import { buildBackendReadiness } from "../src/game/backendReadiness.js";
+import { buildOutcomeReceiptSet } from "../src/game/outcomeReceipts.js";
 import { buildStudioIntegrationContract } from "../src/game/telemetry.js";
-import { buildWorldFeed } from "../src/game/worldFeed.js";
+import { buildWorldFeed, resolveWorldFeedAction } from "../src/game/worldFeed.js";
 
 test("AI policy stays deterministic and zero-cost in browser by default", () => {
   const policy = buildAiPolicy({
@@ -20,6 +22,7 @@ test("AI policy stays deterministic and zero-cost in browser by default", () => 
   });
 
   assert.equal(policy.browser_token_cost, 0);
+  assert.equal(policy.runtime_cost_guardrail.studio_paid_generation, "disabled");
   assert.equal(policy.paid_generation_allowed, false);
   assert.equal(policy.server_generation.fallback, "deterministic_chronicle");
   assert.match(policy.cache_key, /season:2:day:9:sun:22:deaths:88:runs:3:graves:12:echoes:5/);
@@ -50,11 +53,16 @@ test("world feed and Studio integration contract summarize public-safe state", (
   assert.equal(feed[0].priority >= feed.at(-1).priority, true);
   assert.ok(feed.some((item) => item.kind === "rival"));
   assert.ok(feed.every((item) => item.action?.type));
+  const routed = resolveWorldFeedAction(feed.find((item) => item.action?.target));
+  assert.equal(routed.accepted, true);
+  assert.equal(routed.mapOpen, true);
+  assert.match(routed.message, /route near/);
   assert.equal(contract.schema_version, 2);
   assert.equal(contract.sparkfunnel.conversion_event, "daily_rite_start");
   assert.equal(contract.telemetry.dimensions.next_best_action, "Answer Other");
   assert.equal(digest.next_best_action, "Answer Other");
   assert.equal(digest.token_policy.browser_token_cost, 0);
+  assert.equal(digest.runtime_cost_guardrail.free_tier_status, "cost-neutral");
 });
 
 test("Daily Rite plan turns Director mechanics into deterministic route segments", () => {
@@ -73,9 +81,42 @@ test("Daily Rite plan turns Director mechanics into deterministic route segments
   assert.match(plan.id, /day:9/);
   assert.equal(plan.route.length, 6);
   assert.equal(plan.route[0].waveStart, 1);
+  assert.ok(plan.route[0].danger);
+  assert.ok(plan.route[0].rewardTell);
+  assert.match(plan.route[0].goal, /secure|Route|Prepare/);
   assert.equal(plan.route.at(-1).waveEnd, 30);
   assert.ok(plan.boss.pressure >= plan.enemyScale);
+  assert.match(plan.boss.brief, /boss wave/i);
   assert.match(plan.shareLine, new RegExp(plan.label));
+});
+
+test("backend readiness and outcome receipts stay public-safe and deterministic", () => {
+  const sharedWorld = getSharedWorldSnapshot({
+    sunBrightness: 18,
+    totalDeaths: 3200,
+    leaderboard: [{ faction: "eclipser", wave_reached: 12 }],
+    echoes: [{ id: "echo-1", player_name: "Other", traveler_sigil: "SIG", kind: "roguelite", wave_reached: 14, commend_count: 2 }],
+    graves: Array.from({ length: 6 }, (_, index) => ({ x: 8 + index, y: 12, sunstone_offerings: 20, epitaph: "ash" })),
+    playerName: "Self",
+  });
+  const feed = buildWorldFeed({ sharedWorld, backendConnected: true, graveCount: 6, echoCount: 1 });
+  const readiness = buildBackendReadiness({
+    backendConnected: true,
+    hardenedRpcDeployed: false,
+    missingSecrets: ["SUPABASE_DB_URL"],
+  });
+  const receipts = buildOutcomeReceiptSet({
+    sharedWorld,
+    objectiveState: { title: "Answer Other" },
+    worldFeed: feed,
+    aiPolicy: buildAiPolicy(),
+  });
+
+  assert.equal(readiness.mode, "live-read-table-fallback");
+  assert.match(readiness.required_next_action, /SUPABASE_DB_URL/);
+  assert.equal(receipts.receipts[0].world_state.next_action, "Answer Other");
+  assert.equal(receipts.receipts.every((receipt) => receipt.token_cost === 0), true);
+  assert.doesNotMatch(JSON.stringify(receipts), new RegExp("<script>|SUPABASE_DB_URL" + "="));
 });
 
 test("constellation objectives expose playable map routing and offering value", () => {

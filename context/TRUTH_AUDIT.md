@@ -18,3 +18,10 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - shared-world client writes now prefer RPCs with legacy table fallback for staged rollout
 - Studio Hub / Social Dashboard / Sparkfunnel exports remain public-safe and derived from public shared-world state
 - local validation passed: 30 unit tests, production build, and smoke runtime
+
+## 2026-06-03 Public-Safe Check
+
+- public chronicle/status generation now includes backend readiness, outcome receipt summaries, and explicit zero-token runtime cost guardrails
+- Director route brief fields are deterministic and derived from public shared-world state; no paid generation or private Studio context is required
+- blocker preflight now runs locally and reports the remaining Supabase DB URL blocker with evidence-oriented attempt order
+- local validation passed: 31 unit tests, production build, smoke runtime, and `npm audit --json` with 0 vulnerabilities

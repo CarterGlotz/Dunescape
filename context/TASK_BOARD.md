@@ -16,6 +16,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - convert shared-world summaries and run debrief logic into reusable modules/components
 - keep the public repo free of private Studio OS operating procedures while exposing public-safe integration schemas
 - turn world-feed items into action targets so feedback can route players to the right tab, map objective, or run loop
+- keep outcome receipts, backend readiness, and runtime cost guardrails visible in public status/chronicle contracts
 
 ## Next
 
@@ -45,6 +46,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - deploy `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` to the live Supabase project with owner/service credentials, then rerun `npm run verify:supabase`
 - add GitHub repo secret `SUPABASE_DB_URL`, then run the manual Supabase Hardening workflow
 - rerun Supabase Hardening workflow after `SUPABASE_DB_URL` is present; run `24579847516` confirmed the required-secret preflight works and now fails clearly on the missing DB URL
+- extend the new deterministic outcome receipts into visible post-action UI surfaces for offerings, echo reactions, and run-end share flows
+- use the new Director route brief fields to tune actual Daily Rite room selection and reward pacing beyond public JSON/contracts
 
 ## Combined Top Recommendations
 
@@ -122,6 +125,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - manual Supabase Hardening GitHub Actions workflow added; it applies the hardening SQL and verifies it once deploy-capable secrets exist
 - Supabase Hardening workflow now preflights required secrets and reports missing secret names before attempting SQL
 - private ops secrets were checked for a reusable Supabase DB URL; none was found without constructing one from a missing database password
+- 2026-06-03 audit-derived pass shipped Director route briefs, outcome receipts, backend readiness digest, structured world-feed action results, zero-token runtime cost guardrail, repaired blocker preflight helpers, and clean dependency audit
 
 ## Deferred to Project Agents
 

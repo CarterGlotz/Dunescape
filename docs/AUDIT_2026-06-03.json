@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-03",
+  "project": {
+    "slug": "solara",
+    "name": "Solara",
+    "type": "game"
+  },
+  "topLine": {
+    "totalItems": 6,
+    "combinedPriority": 66.6,
+    "top3": [
+      "director-route-briefs",
+      "outcome-receipts",
+      "blocker-preflight-repair"
+    ],
+    "signals": [
+      "Startup brief score regressed to 54.0% with creativity, proposals, and SIL gaps.",
+      "Task board points to interactive world-feed routing, Director-driven Daily Rite planning, Supabase hardening, and App.jsx extraction.",
+      "Current live backend gate is blocked on SUPABASE_DB_URL, while browser runtime must remain deterministic and zero-token by default."
+    ]
+  },
+  "items": [
+    {
+      "slug": "director-route-briefs",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "2h",
+      "impact": 10,
+      "innovation": 9,
+      "priority": 28.4,
+      "title": "Turn Director route segments into playable briefings",
+      "why": "The Director already computes route segments, shrine chance, rival chance, and pressure, but the player-facing layer mostly shows raw pressure. Converting those mechanics into compact tactical route briefs makes the daily dungeon feel authored without paid generation.",
+      "recipe": "Extend `src/game/directorMechanics.js` with deterministic segment goals, danger labels, reward tells, and route summary text; surface the summary through chronicle/feed data and tests."
+    },
+    {
+      "slug": "outcome-receipts",
+      "tier": "fire",
+      "axis": "user-feedback-loop",
+      "effort": "2h",
+      "impact": 9,
+      "innovation": 8,
+      "priority": 22.7,
+      "title": "Add deterministic outcome receipts for player/world actions",
+      "why": "The startup brief reports 0/15 receipts/outcomes, and the current UI explains actions but does not produce a reusable receipt contract. A public-safe receipt layer lets Solara close the loop after runs, offerings, reactions, and world-feed clicks while feeding Studio integrations without new token cost.",
+      "recipe": "Add a `src/game/outcomeReceipts.js` module, include receipt summaries in public chronicle integration data, and cover it with unit tests."
+    },
+    {
+      "slug": "blocker-preflight-repair",
+      "tier": "high",
+      "axis": "security",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 4,
+      "priority": 16,
+      "title": "Repair blocker-preflight so human-blocker discipline works",
+      "why": "`node scripts/blocker-preflight.mjs` currently fails because `scripts/lib/blocker-rules.mjs` is missing. That breaks CANON-019 evidence gathering and makes the Supabase DB URL blocker harder to classify cleanly.",
+      "recipe": "Create the missing blocker rules helper with conservative classification for signup-only, credential, deploy, migration, and agent-attemptable tasks; rerun the preflight."
+    },
+    {
+      "slug": "backend-readiness-digest",
+      "tier": "high",
+      "axis": "security",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 5,
+      "priority": 12.4,
+      "title": "Expose backend readiness without leaking secrets",
+      "why": "Solara has a clear live backend gap: read probes work, hardened RPCs are not deployed, and `SUPABASE_DB_URL` is missing. A deterministic readiness digest lets UI, public JSON, and handoff docs say exactly what is safe now without exposing or depending on secrets.",
+      "recipe": "Add a public-safe backend readiness module that summarizes local/live/hardened modes, required non-secret next action labels, and player-facing copy; wire it into chronicle exports and tests."
+    },
+    {
+      "slug": "world-feed-action-results",
+      "tier": "high",
+      "axis": "ui-ux",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 6,
+      "priority": 14.8,
+      "title": "Make world-feed clicks return structured action results",
+      "why": "World feed items are clickable, but action handling is inline in `App.jsx` and only logs a terse console line. A structured action-result module makes every feed click produce a consistent route, tab, target, and receipt-ready summary.",
+      "recipe": "Add an exported world-feed action resolver, use it in App.jsx, and test tab/map/setting outcomes."
+    },
+    {
+      "slug": "token-cost-guardrail",
+      "tier": "high",
+      "axis": "token-api-consumption",
+      "effort": "30m",
+      "impact": 7,
+      "innovation": 5,
+      "priority": 13.2,
+      "title": "Publish a zero-token runtime cost guardrail in public status",
+      "why": "Solara already has a strong deterministic policy, but the status/chronicle contract should make the cost boundary impossible to miss. This protects the pre-revenue free-tier posture while allowing future server-side cached summaries to be gated deliberately.",
+      "recipe": "Extend intelligence policy/status output with a runtime cost guardrail object and assertions that browser token cost remains 0."
+    }
+  ],
+  "innovationReserve": [
+    "director-route-briefs",
+    "outcome-receipts"
+  ],
+  "skipped": [
+    {
+      "slug": "full-browser-playwright-runner",
+      "reason": "High value but requires adding or activating browser automation infrastructure; defer until this pass closes deterministic module gaps."
+    },
+    {
+      "slug": "deploy-supabase-hardening",
+      "reason": "Still depends on a deploy-capable SUPABASE_DB_URL that current evidence says is missing; keep as blocker with preflight evidence."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "blocker-preflight-repair",
+      "status": "shipped",
+      "evidence": "Added scripts/lib/blocker-rules.mjs and scripts/lib/task-board.mjs; node scripts/blocker-preflight.mjs --json now exits 0 and reports only the Supabase DB URL blocker."
+    },
+    {
+      "slug": "director-route-briefs",
+      "status": "shipped",
+      "evidence": "Daily Rite route segments now include tactic, danger, encounter labels, reward tells, route goals, boss brief, and routeSummary; covered by tests/intelligence.test.mjs and tests/chronicle.test.mjs."
+    },
+    {
+      "slug": "world-feed-action-results",
+      "status": "shipped",
+      "evidence": "Added resolveWorldFeedAction() and wired App.jsx to use structured feed action results for tab/map/message handling."
+    },
+    {
+      "slug": "outcome-receipts",
+      "status": "shipped",
+      "evidence": "Added deterministic outcome receipt module and exposed receipt summaries through chronicle integrations with zero browser token cost."
+    },
+    {
+      "slug": "backend-readiness-digest",
+      "status": "shipped",
+      "evidence": "Added public-safe backend readiness digest and surfaced staged live-read/table-fallback mode in status/chronicle contracts."
+    },
+    {
+      "slug": "token-cost-guardrail",
+      "status": "shipped",
+      "evidence": "AI policy and intelligence digest now expose runtime_cost_guardrail; tests assert browser_token_cost remains 0."
+    },
+    {
+      "slug": "dependency-audit-cleanup",
+      "status": "shipped",
+      "evidence": "Package-trust checked Vite 6.4.3 and patched transitive audit fixes; npm audit --json reports 0 vulnerabilities."
+    }
+  ]
+}

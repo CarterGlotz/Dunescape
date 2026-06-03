@@ -34,3 +34,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - added Supabase hardening verifier and manual GitHub Actions workflow
 - set available browser Supabase GitHub Actions secrets and verified the workflow now fails clearly at missing `SUPABASE_DB_URL`
 - checked private ops secrets inventory for a reusable Supabase DB URL; none was available without a database password/full Postgres connection string
+
+## 2026-06-03
+
+- ran the Studio `/start` gates, validated the startup brief, and recorded the blocker-preflight import gap
+- wrote `docs/AUDIT_2026-06-03.md` / `.json` with six Solara-specific implementation items
+- implemented deterministic Director route briefs, structured world-feed action results, outcome receipts, backend readiness digest, and runtime cost guardrails
+- repaired blocker-preflight helper imports and narrowed task-board blocker parsing to the actual Supabase DB URL blocker
+- updated Vite within the existing 6.x line after package-trust approval and applied transitive audit fixes
+- verified `node scripts/blocker-preflight.mjs --json`, 31 unit tests, production build, smoke runtime, and `npm audit --json` with 0 vulnerabilities
