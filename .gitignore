@@ -6,3 +6,7 @@ dist
 .claude/
 logs/*.log
 context/.session-lock
+
+# Private surfaces — never commit (sanitization 2026-06-03)
+ignis/output/
+docs/CREATIVE_DIRECTION_RECORD.md
