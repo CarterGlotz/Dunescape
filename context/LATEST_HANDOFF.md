@@ -5,7 +5,7 @@ This repo now keeps only a public-safe handoff summary. Detailed handoff history
 ## Where We Left Off (2026-06-03)
 - Shipped: fresh audit artifacts, deterministic Director route briefs, structured world-feed action results, public-safe outcome receipts, backend readiness digest, zero-token runtime cost guardrail, repaired blocker-preflight helpers, and dependency audit cleanup
 - Tests: 31 passing (unit) plus smoke runtime, production build, and npm audit passing
-- Deploy: pushed to `origin/main` at `1974008`
+- Deploy: pushed to `origin/main` through the final closeout commit
 
 ## Session Intent
 
@@ -41,6 +41,7 @@ Audit the project, capture the full public-safe roadmap in project memory, imple
 - Supabase workflow preflight: run `24579847516` confirms the workflow now fails early with a clear missing `SUPABASE_DB_URL` error
 - Secret inventory check: private ops secrets contain Supabase browser/service/PAT material, but no full Postgres connection string or DB password suitable for the hardening workflow
 - 2026-06-03 pass: public chronicle/status now publish backend readiness and outcome receipt summaries; Daily Rite plans include route goals, danger labels, reward tells, boss brief, and route summary; world-feed clicks resolve through a reusable action-result helper; package audit is clean
+- closeout repair: propagated Studio protocol scripts were made internally complete by adding the missing turn classifier and visual block helpers before final push
 
 ## Human Action Required
 

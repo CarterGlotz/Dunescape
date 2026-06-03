@@ -11,7 +11,7 @@
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
 ║  ✓ Shipped: fresh audit artifacts, deterministic Director route  ║
 ║  ✓ Tests: 31 passing (unit) plus smoke runtime, production buil  ║
-║  ✓ Deploy: pushed to `origin/main` at `1974008`                  ║
+║  ✓ Deploy: pushed to `origin/main` through the final closeout c  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ SCORES · SIL 769/1000 ═══════════════════════════════════════╗
 ║    Dev Health         70   ███████░░░                            ║
@@ -35,10 +35,11 @@
 ║  · docs/CREATIVE_DIRECTION_RECORD.md                             ║
 ║  · context/TRUTH_AUDIT.md                                        ║
 ║  · context/PROJECT_STATUS.json                                   ║
+║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
 ║  Changes: 1 files  ·  M:1 A:0 D:0 ?:0                            ║
-║  Ahead: 0  ·  Behind: 0                                          ║
+║  Ahead: 1  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
