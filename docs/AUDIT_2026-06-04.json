@@ -1,0 +1,220 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-04",
+  "project": {
+    "slug": "solara",
+    "name": "Solara",
+    "type": "game"
+  },
+  "topLine": {
+    "totalItems": 10,
+    "combinedPriority": 277.7,
+    "top3": [
+      "sun-almanac",
+      "sundial-queue",
+      "legacy-vows"
+    ],
+    "signals": [
+      "The 2026-06-03 audit shipped 7/7 items; this audit must be net-new, not a re-list of TASK_BOARD.",
+      "SUPABASE_DB_URL remains the only human blocker; the highest-leverage response is to make offline-first a feature, not a gap.",
+      "App.jsx is 4,016 lines — under the 5,000-line split threshold, so this pass adds modules and wires thin UI, no risky split.",
+      "Every Director mechanic is deterministic and zero-token; new intelligence must stay inside that boundary per the 2026-04-17 decision."
+    ]
+  },
+  "items": [
+    {
+      "slug": "sun-almanac",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "2h",
+      "impact": 10,
+      "innovation": 9,
+      "priority": 45.0,
+      "title": "Sun Almanac — deterministic 7-day Director forecast for appointment gameplay",
+      "why": "The Director already derives today's pressure, modifiers, and route bias from a date seed — which means tomorrow's are already computable. Publishing a 7-day forecast (shrine-heavy days, rival surges, boss-pressure peaks) turns the Daily Rite into appointment gameplay: players plan offerings around known good days and return on the days that favor their build. No live-service game in this category gives players a deterministic weather report for the dungeon itself.",
+      "recipe": "Add src/game/almanac.js that maps date+worldState through the existing Director seed path for the next 7 days; export forecast through chronicle/status contracts; surface a compact Almanac strip on the Daily Rite tab; tests assert determinism and zero token cost."
+    },
+    {
+      "slug": "sundial-queue",
+      "tier": "fire",
+      "axis": "feature-depth",
+      "effort": "2h",
+      "impact": 9,
+      "innovation": 9,
+      "priority": 40.5,
+      "title": "Sundial Queue — offline outbox that converts the Supabase blocker into a feature",
+      "why": "The SUPABASE_DB_URL blocker means hardened RPCs may stay undeployed for a while; today, disconnected shared-world writes are simply local. A trust-sanitized outbox that queues graves, offerings, echoes, and reactions with receipts — and flushes through the RPC-first path the moment the backend link goes live — means the day Carter adds the secret, every player's accumulated light syncs into the chronicle at once. The blocker becomes a launch moment instead of dead time.",
+      "recipe": "Add src/game/sundialQueue.js (enqueue via trust sanitizers, capped, deduped, receipt-emitting); wire sharedWorldService to enqueue on disconnected writes and flush on backend connect; tests cover queue caps, sanitization, flush ordering, and receipt emission."
+    },
+    {
+      "slug": "legacy-vows",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "2h",
+      "impact": 9,
+      "innovation": 9,
+      "priority": 40.5,
+      "title": "Legacy Vows — pre-run pledges that amplify or dim your grave's legacy",
+      "why": "Deaths already leave graves that form constellations, but every death is narratively identical. A deterministic vow chosen before a run (reach the boss unaided, spend nothing at shrines, finish under the bell) gives each death an authored epitaph: kept vows amplify the grave's constellation offering value, broken vows dim it. This deepens the death-as-content loop that is Solara's core identity and feeds existing systems (constellations, receipts, share lines) without new backend needs.",
+      "recipe": "Add src/game/vows.js with seeded vow offers per rite, keep/break evaluation from run stats, and legacy multipliers; wire vow selection into Daily Rite start and evaluation into debrief + grave payload; tests cover vow determinism, evaluation, and legacy math."
+    },
+    {
+      "slug": "director-memory",
+      "tier": "high",
+      "axis": "ai-intelligence",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 35.3,
+      "title": "Director Memory — 'the Sun remembers you': personal adaptive pressure",
+      "why": "The Director reacts to the community but is amnesiac about the individual. A rolling local record of recent runs (deaths, clears, pace) deterministically biasing personal route danger and reward tells makes difficulty self-tuning with zero server or token cost — and the copy 'the Sun remembers your last three falls' is pure Solara mythology doing mechanical work.",
+      "recipe": "Add src/game/directorMemory.js with a clientStore-backed rolling window and a deterministic bias function consumed by directorMechanics route tuning; surface one remembrance line in the route brief; tests cover window math and bias bounds."
+    },
+    {
+      "slug": "chronicle-scenes",
+      "tier": "high",
+      "axis": "ai-intelligence",
+      "effort": "2h",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 32.0,
+      "title": "Chronicle Scenes — 'The Myth So Far' deterministic vignette composer",
+      "why": "Chronicle data is rich (crises, rituals, rivals, constellations, receipts) but reads as feeds and stats. A seeded template-grammar composer that renders the same events as short mythic vignettes gives new players a one-screen 'story so far' and gives returning players their session delta as narrative — deterministic AI as authorship, no tokens, fully within the 2026-04-17 policy.",
+      "recipe": "Add src/game/chronicleScenes.js with a seeded grammar over chronicle/world-feed entries producing 3-5 vignette lines with identity-safe naming; surface as a Myth So Far panel on the front door and in chronicle exports; tests assert determinism and naming safety."
+    },
+    {
+      "slug": "challenge-links",
+      "tier": "high",
+      "axis": "user-feedback-loop",
+      "effort": "2h",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 32.0,
+      "title": "Last Light challenge links — shareable deterministic route challenges",
+      "why": "Share lines exist but are one-way text. Encoding today's rite seed plus your result into a compact URL token lets a friend open the same deterministic route with a 'beat their light' banner — an organic acquisition loop that costs nothing, needs no backend, and makes every debrief card a recruitment surface.",
+      "recipe": "Add src/game/challengeLinks.js to encode/decode {date, seed, score, vow} URL tokens with validation; read the param at boot to arm a challenge banner and stamp the debrief comparison; tests cover round-trip encoding, tamper rejection, and date expiry."
+    },
+    {
+      "slug": "save-fuzz-tests",
+      "tier": "high",
+      "axis": "security",
+      "effort": "1h",
+      "impact": 6,
+      "innovation": 5,
+      "priority": 18.9,
+      "title": "Deterministic fuzz harness for save import sanitization",
+      "why": "Import/export is the highest-risk untrusted input path after public writes, and current tests cover happy paths. A seeded fuzz harness throwing structured garbage (wrong types, hostile strings, huge arrays, prototype pollution shapes) at the save migration/sanitization pipeline locks in resilience before the next round of save-touching features.",
+      "recipe": "Add tests/save-fuzz.test.mjs with a seeded generator over malformed payloads asserting sanitize/migrate never throws, never emits oversized fields, and always lands on the current save version."
+    },
+    {
+      "slug": "hud-text-scale",
+      "tier": "high",
+      "axis": "ui-ux",
+      "effort": "2h",
+      "impact": 8,
+      "innovation": 4,
+      "priority": 16.0,
+      "title": "Text-scale setting plus HUD hierarchy pass",
+      "why": "The board has flagged readability and mobile affordances for three sessions running. A persisted text-scale setting (clientStore) applied via a root CSS variable plus a contrast/size pass on the densest HUD strips is the cheapest accessibility win that touches every minute of play.",
+      "recipe": "Add a text-scale option in settings persisted through clientStore, applied as a root font-size variable; bump the lowest-contrast HUD labels found in the pass."
+    },
+    {
+      "slug": "menu-chunk-split",
+      "tier": "nice",
+      "axis": "speed",
+      "effort": "1h",
+      "impact": 6,
+      "innovation": 3,
+      "priority": 11.4,
+      "title": "Manual chunk split for lore/menu panels",
+      "why": "Supabase is already lazy, but display-only panels (MenuLorePanels and peers) still ride the main bundle. A manualChunks hint plus React.lazy on the heaviest display-only components trims first-load cost on the path new players actually hit.",
+      "recipe": "Add rollup manualChunks for menu/lore components and lazy-load MenuLorePanels; verify with build output size comparison before/after."
+    },
+    {
+      "slug": "board-hygiene-worktree",
+      "tier": "nice",
+      "axis": "organization",
+      "effort": "30m",
+      "impact": 4,
+      "innovation": 2,
+      "priority": 6.1,
+      "title": "Close the resolved worktree-baseline board item and sync stale signals",
+      "why": "git status is clean, so the standing 'resolve dirty/untracked worktree' Next item is already satisfied but still listed — stale items erode trust in the board. Also fold the five lib modules propagated from studio-ops this session into the record.",
+      "recipe": "Move the worktree item to Implemented Ideas with evidence, note the propagated scripts/lib repairs, and keep Now/Next consistent with shipped reality."
+    }
+  ],
+  "innovationReserve": [
+    "sun-almanac",
+    "sundial-queue",
+    "legacy-vows",
+    "chronicle-scenes",
+    "challenge-links"
+  ],
+  "skipped": [
+    {
+      "slug": "deploy-supabase-hardening",
+      "reason": "Still gated on the SUPABASE_DB_URL GitHub secret (Carter-only action); preflight evidence already proves the workflow fails clearly without it. Flagged, not blocking."
+    },
+    {
+      "slug": "full-browser-playwright-runner",
+      "reason": "Real browser automation infra remains out of scope for a single pass; the deterministic smoke harness plus new fuzz tests carry validation this session."
+    },
+    {
+      "slug": "app-jsx-full-split",
+      "reason": "App.jsx is 4,016 lines — under the 5,000-line split threshold the project convention sets; this pass adds modules and thin wiring only."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "director-memory",
+      "status": "shipped",
+      "evidence": "src/game/directorMemory.js: clientStore-backed 5-run window, bounded bias (merciful/testing/watchful/patient/steady), applied in startDailyRun via applyDirectorMemoryToMechanics; remembrance line surfaces in run chat; run ends (daily death, daily clear, roguelite end) record memory. Tests cover bias bounds, mechanics adjustment, and capped persistence."
+    },
+    {
+      "slug": "sun-almanac",
+      "status": "shipped",
+      "evidence": "src/game/almanac.js: deterministic 7-day forecast over the Director's dayNumber seed path plus phase-drift watch (distance-to-band lines). Surfaced as SUN ALMANAC strip on the Daily Rite tab and exported as shared_world.almanac in chronicle.json. Tests assert determinism and zero-generation policy text."
+    },
+    {
+      "slug": "legacy-vows",
+      "status": "shipped",
+      "evidence": "src/game/vows.js: 4-vow seeded catalog with keep/break evaluation (wave, completion, duration) and legacy multipliers; pledge picker on the Daily Rite tab; vow attaches to the run, evaluates on death/clear, stamps the grave epitaph via applyVowToEpitaph, and shows in the debrief card. Tests cover offer determinism, evaluation, legacy math, and epitaph bounds."
+    },
+    {
+      "slug": "sundial-queue",
+      "status": "shipped",
+      "evidence": "src/game/sundialQueue.js: trust-sanitized capped (50) deduped offline outbox for graves/scores/echoes/reactions/offerings; sharedWorldService enqueues on disconnected writes and flushSharedWorldQueue() flushes through the RPC-first service path on backend connect (wired into the Supabase loader effect). Queue summary card shows on the Daily Rite tab while offline. Tests cover sanitization, dedupe, flush ordering, and failed-write retention."
+    },
+    {
+      "slug": "chronicle-scenes",
+      "status": "shipped",
+      "evidence": "src/game/chronicleScenes.js: seeded grammar composing 3-5 mythic vignettes from phase/crisis/ritual/rival/constellation/grave/echo state; THE MYTH SO FAR panel on the Daily Rite tab and shared_world.myth_scenes in chronicle exports. Fixed ordinal rendering (21st/22nd/23rd) and aligned generate-public-status dayNumber to season-day. Tests assert determinism and identity-safe output."
+    },
+    {
+      "slug": "challenge-links",
+      "status": "shipped",
+      "evidence": "src/game/challengeLinks.js: base64url token with FNV checksum encoding {dateSeed, wave, name, vow}; boot-time ?challenge= decode arms a banner, run end stamps a comparison into chat and the debrief card, and a Copy Challenge Link button ships on the daily done card. Tests cover round-trip, sanitization, tamper rejection, and date expiry."
+    },
+    {
+      "slug": "save-fuzz-tests",
+      "status": "shipped",
+      "evidence": "tests/save-fuzz.test.mjs: 250 seeded hostile payloads plus prototype-pollution, non-object roots, version normalization, and sanitize round-trip. Fuzzer found a real crash (Number([Symbol()]) in safeNum/migrateSaveData) — hardened with toNumberOrNaN in src/game/save.js."
+    },
+    {
+      "slug": "hud-text-scale",
+      "status": "shipped",
+      "evidence": "Added XL (1.3) UI scale to both settings rows in App.jsx and clientStore preference validation. Persisted via existing solara_preferences path."
+    },
+    {
+      "slug": "menu-chunk-split",
+      "status": "verified-preexisting",
+      "evidence": "React.lazy(MenuLorePanels) and vite manualChunks (menu-lore/vendor/supabase) were already in place; verified via build output: menu-lore 6.35 kB, supabase 186 kB split from index 348 kB."
+    },
+    {
+      "slug": "board-hygiene-worktree",
+      "status": "shipped",
+      "evidence": "Worktree-baseline Next item closed in TASK_BOARD (git clean at session start); five studio-ops lib modules propagated into scripts/lib recorded in context docs."
+    }
+  ]
+}

@@ -23,10 +23,28 @@ import {
   offerSunstoneRecord,
   persistLocalEcho,
   reactToEchoRecord,
+  flushSharedWorldQueue,
   submitDailyScoreRecord,
   submitGraveRecord,
   submitRemoteEcho,
 } from "./game/sharedWorldService.js";
+import { getSunAlmanac } from "./game/almanac.js";
+import { buildChronicleScenes } from "./game/chronicleScenes.js";
+import { applyVowToEpitaph, evaluateVow, getVowById, getVowOffers } from "./game/vows.js";
+import {
+  applyDirectorMemoryToMechanics,
+  getDirectorMemoryBias,
+  loadDirectorMemoryRuns,
+  recordDirectorRunMemory,
+} from "./game/directorMemory.js";
+import {
+  buildChallengeUrl,
+  compareChallengeResult,
+  decodeChallengeToken,
+  encodeChallengeToken,
+  getChallengeBanner,
+} from "./game/challengeLinks.js";
+import { getSundialQueueSummary } from "./game/sundialQueue.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
 import { applyRunBlessing, getSharedWorldSnapshot } from "./game/sharedWorld.js";
@@ -948,6 +966,20 @@ export default function DS(){
   const [oracleSubbed,setOracleSubbed]=useState(()=>{try{return!!localStorage.getItem('solara_oracle_sub');}catch(e){return false;}});
   const supabaseRef=useRef(null);
   const [backendConnected,setBackendConnected]=useState(false);
+  const [pendingVowId,setPendingVowId]=useState(null);
+  const challengeRef=useRef(undefined);
+  if(challengeRef.current===undefined){
+    challengeRef.current=(()=>{
+      try{
+        const token=new URLSearchParams(window.location.search).get("challenge");
+        if(!token)return null;
+        const decoded=decodeChallengeToken(token,{todaySeed:getDailySeed()});
+        if(decoded.valid)return decoded.challenge;
+        if(decoded.reason==="expired"&&decoded.challenge)return {...decoded.challenge,expired:true};
+        return null;
+      }catch(e){return null;}
+    })();
+  }
   const [systemModal,setSystemModal]=useState(null);
   // Innovation #13: Ambient audio ref
   const ambientAudioR=useRef({ctx:null,osc:null,gainNode:null,active:false});
@@ -1006,6 +1038,11 @@ export default function DS(){
         if(cancelled)return;
         supabaseRef.current=client;
         setBackendConnected(!!client);
+        if(client){
+          flushSharedWorldQueue({supabase:client})
+            .then(result=>{if(!cancelled&&result.flushed>0&&result.line)addC(`🕰️ Sundial Queue: ${result.line}`);})
+            .catch(()=>{});
+        }
       })
       .catch(()=>{
         if(cancelled)return;
@@ -1195,8 +1232,10 @@ export default function DS(){
     const g2=gR.current;if(!g2)return;
     const rooms=generateDailyRooms();
     const worldState=getWorldSnapshot();
-    const mechanics=worldState.director?.mechanics;
-    const run={wave:0,startTime:Date.now(),rooms,done:false,deathWave:null,shareCard:null,mechanics};
+    const memoryBias=getDirectorMemoryBias(loadDirectorMemoryRuns());
+    const mechanics=applyDirectorMemoryToMechanics(worldState.director?.mechanics,memoryBias);
+    const vow=pendingVowId?getVowById(pendingVowId):null;
+    const run={wave:0,startTime:Date.now(),rooms,done:false,deathWave:null,shareCard:null,mechanics,vow,vowResult:null,challengeResult:null};
     dailyRunRef.current=run;
     g2.mons=g2.mons.filter(m=>!m.dungeon);
     g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
@@ -1210,7 +1249,10 @@ export default function DS(){
     if(mechanics){
       addC(`🧭 Director route: ${mechanics.label} — ${mechanics.objective}`);
       addC(`⚖️ Run tuning: enemies x${mechanics.enemyScale}, rewards x${mechanics.rewardMultiplier}, rival pressure x${mechanics.rivalWeight}.`);
+      if(mechanics.remembrance)addC(`🌞 ${mechanics.remembrance}`);
     }
+    if(vow)addC(`⚜️ Vow pledged — ${vow.title}: "${vow.pledge}"`);
+    if(challengeRef.current&&!challengeRef.current.expired)addC(`🔥 Challenge active: beat ${challengeRef.current.playerName}'s Wave ${challengeRef.current.wave}.`);
     run.prophecy=worldState.prophecy?.active||null;
     run.rival=worldState.rival||null;
     run.rivalSpawned=false;
@@ -1230,7 +1272,7 @@ export default function DS(){
     updateDailyStreak(getDailySeed());
     markDailyPlayedToday(getDailySeed());
     setDailyTick(n=>n+1);setTab("inv");
-  },[addC,getWorldSnapshot,grantEchoSupply]);
+  },[addC,getWorldSnapshot,grantEchoSupply,pendingVowId]);
 
   // Phase 4: Start roguelite run
   const startRogueRun=useCallback(()=>{
@@ -1304,6 +1346,7 @@ export default function DS(){
       addC("🏆 Relic earned: "+relic.i+" "+relic.n+" — "+relic.desc);
     }
     run.shareCard=generateRogueShareCard(p.playerName||"Adventurer",wave,p.rogueliteStats.bestWave,p.rogueliteStats.relics.length,sunBrightnessRef.current);
+    recordDirectorRunMemory({mode:"roguelite",wave,completed:false,dateSeed:getDailySeed()});
     addC("💀 Roguelite run ended at Wave "+wave+". Best: "+p.rogueliteStats.bestWave);
     submitEcho("roguelite","Roguelite echo — Wave "+wave,`${p.playerName||"Adventurer"} fell on a roguelite push at Wave ${wave}.`,wave);
     // Submit grave for roguelite deaths too
@@ -1352,7 +1395,8 @@ export default function DS(){
     if(!pendingGrave){return;}
     const {x,y,wave,faction,playerName}=pendingGrave;
     setPendingGrave(null);
-    const grave=sanitizeGravePayload({player_name:playerName,epitaph,x,y,faction,wave_reached:wave});
+    const vowResult=dailyRunRef.current?.vowResult&&dailyRunRef.current.deathWave===wave?dailyRunRef.current.vowResult:null;
+    const grave=sanitizeGravePayload({player_name:playerName,epitaph:applyVowToEpitaph(epitaph,vowResult),x,y,faction,wave_reached:wave});
     const worldState=getWorldSnapshot({playerName});
     const constellationName=worldState.constellations?.[0]?.name||"";
     const memoryCard=createDeathMemoryCard({playerName:grave.player_name,sigil:travelerSigilDraft,waveReached:grave.wave_reached,faction:grave.faction,sunBrightness:sunBrightnessRef.current,epitaph:grave.epitaph,eventLabel:worldState.event?.label||"Steady Flame",constellationName});
@@ -2304,6 +2348,11 @@ export default function DS(){
                 const run=dailyRunRef.current;
                 run.done=true;run.deathWave=run.wave;
                 run.shareCard=generateShareCard(p.playerName||"Adventurer",run.wave,getPlayerFaction(p));
+                run.vowResult=run.vow?evaluateVow(run.vow,{wave:run.wave,completed:false,durationMs:Date.now()-run.startTime}):null;
+                if(run.vowResult)addC((run.vowResult.kept?"⚜️ ":"🕯️ ")+run.vowResult.debriefLine);
+                run.challengeResult=challengeRef.current&&!challengeRef.current.expired?compareChallengeResult(challengeRef.current,{wave:run.wave}):null;
+                if(run.challengeResult)addC("🔥 "+run.challengeResult.line);
+                recordDirectorRunMemory({mode:"daily",wave:run.wave,completed:false,dateSeed:getDailySeed()});
                 addC("💀 Daily Rite ended at Wave "+run.wave+". Score recorded.");
                 submitEcho("daily","Daily Rite failed at Wave "+run.wave,`${p.playerName||"Adventurer"} reached Wave ${run.wave} in today's communal dungeon.`,run.wave);
                 submitDailyScore(p.playerName||"Adventurer",run.wave,getPlayerFaction(p));
@@ -2342,6 +2391,11 @@ export default function DS(){
           if(run.wave>=30){
             run.done=true;run.deathWave=30;
             run.shareCard=generateShareCard(p.playerName||"Adventurer",30,getPlayerFaction(p));
+            run.vowResult=run.vow?evaluateVow(run.vow,{wave:30,completed:true,durationMs:Date.now()-run.startTime}):null;
+            if(run.vowResult)addC((run.vowResult.kept?"⚜️ ":"🕯️ ")+run.vowResult.debriefLine);
+            run.challengeResult=challengeRef.current&&!challengeRef.current.expired?compareChallengeResult(challengeRef.current,{wave:30}):null;
+            if(run.challengeResult)addC("🔥 "+run.challengeResult.line);
+            recordDirectorRunMemory({mode:"daily",wave:30,completed:true,dateSeed:getDailySeed()});
             addC("🏆 Daily Rite complete! Wave 30 cleared! The sun brightens.");
             submitEcho("daily","Daily Rite completed",`${p.playerName||"Adventurer"} cleared all 30 waves of the Daily Rite.`,30);
             g.dungeon={active:false,room:0,cleared:true,monsters:[]};
@@ -2755,6 +2809,11 @@ export default function DS(){
     echoCount:echoes.length,
     graveCount:gravesRef.current.length,
   });
+  const sunAlmanac=getSunAlmanac({sharedWorld,dayNumber:getDayNumber(),sunBrightness});
+  const mythScenes=buildChronicleScenes({sharedWorld,dayNumber:getDayNumber(),graveCount:gravesRef.current.length,echoCount:echoes.length});
+  const vowOffers=getVowOffers({dateSeed:getDailySeed(),dayNumber:getDayNumber()});
+  const sundialSummary=backendConnected?null:getSundialQueueSummary();
+  const activeChallengeBanner=challengeRef.current&&!challengeRef.current.expired?getChallengeBanner(challengeRef.current):null;
   const handleWorldFeedAction=useCallback((item)=>{
     const result=resolveWorldFeedAction(item);
     if(!result.accepted)return;
@@ -3437,6 +3496,40 @@ export default function DS(){
               <SharedWorldStatus title="WORLD BRIEFING" briefing={sharedWorldBriefing} />
               <SessionDeltaCard delta={sessionDelta} />
               <WorldFeedCard feed={worldFeed} onAction={handleWorldFeedAction} />
+              {activeChallengeBanner&&<div style={{background:"rgba(50,18,4,0.7)",border:"1px solid #c8642e",borderRadius:4,padding:6}}>
+                <div style={{fontSize:8,color:"#f0884e",fontWeight:700,letterSpacing:1}}>🔥 {activeChallengeBanner.title.toUpperCase()}</div>
+                <div style={{fontSize:7,color:"#c8a06a",lineHeight:1.4,marginTop:1}}>{activeChallengeBanner.detail}</div>
+              </div>}
+              {sundialSummary&&sundialSummary.size>0&&<div style={{background:"rgba(16,14,28,0.6)",border:"1px solid rgba(110,110,200,0.25)",borderRadius:4,padding:"5px 6px"}}>
+                <div style={{fontSize:8,color:"#9090e0",fontWeight:700,letterSpacing:1}}>🕰️ SUNDIAL QUEUE</div>
+                <div style={{fontSize:7,color:"#8a86a8",lineHeight:1.4,marginTop:1}}>{sundialSummary.line} They sync automatically when the live link returns.</div>
+              </div>}
+              <div style={{background:"rgba(18,10,4,0.55)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,padding:6,display:"grid",gap:3}}>
+                <div style={{fontSize:8,color:"#c8a84e",fontWeight:700,letterSpacing:1}}>📅 SUN ALMANAC — 7-DAY FORECAST</div>
+                <div style={{display:"flex",gap:3,overflowX:"auto",paddingBottom:2}}>
+                  {sunAlmanac.forecast.map(day=><div key={day.dayNumber} style={{minWidth:74,background:day.offset===0?"rgba(60,32,8,0.8)":"rgba(0,0,0,0.18)",border:"1px solid "+(day.offset===0?"#c8a84e":"rgba(200,168,78,0.08)"),borderRadius:4,padding:"4px 5px"}}>
+                    <div style={{fontSize:7,color:day.offset===0?"#f0c060":"#a89060",fontWeight:700}}>{day.label}</div>
+                    <div style={{fontSize:7,color:"#8f7d68",marginTop:1}}>{day.opening?.encounter||"—"}</div>
+                    <div style={{fontSize:7,color:"#8f7d68"}}>{day.opening?.reward||""}</div>
+                    <div style={{fontSize:7,color:"#c8a84e",marginTop:1,fontStyle:"italic"}}>{day.bestFor}</div>
+                  </div>)}
+                </div>
+                {sunAlmanac.driftWatch&&<div style={{fontSize:7,color:"#b08a5a",lineHeight:1.4}}>{sunAlmanac.driftWatch.watchLine}</div>}
+                <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.4}}>{sunAlmanac.planningLine}</div>
+              </div>
+              <div style={{background:"rgba(10,8,16,0.55)",border:"1px solid rgba(140,110,200,0.14)",borderRadius:4,padding:6,display:"grid",gap:3}}>
+                <div style={{fontSize:8,color:"#b09ae0",fontWeight:700,letterSpacing:1}}>📜 THE MYTH SO FAR</div>
+                {mythScenes.scenes.map((line,i)=><div key={i} style={{fontSize:7,color:"#9a8ab0",lineHeight:1.45,fontStyle:"italic"}}>{line}</div>)}
+              </div>
+              {(!dailyRunRef.current||dailyRunRef.current.done)&&!playedDailyToday&&<div style={{background:"rgba(24,14,4,0.6)",border:"1px solid rgba(220,170,60,0.2)",borderRadius:4,padding:6,display:"grid",gap:3}}>
+                <div style={{fontSize:8,color:"#e0b050",fontWeight:700,letterSpacing:1}}>⚜️ LEGACY VOWS — PLEDGE BEFORE THE RITE</div>
+                <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.4}}>A kept vow amplifies your grave's legacy in the constellations. A broken vow dims it.</div>
+                {vowOffers.map(vow=><button key={vow.id} onClick={()=>setPendingVowId(prev=>prev===vow.id?null:vow.id)} style={{textAlign:"left",background:pendingVowId===vow.id?"rgba(90,48,8,0.85)":"rgba(0,0,0,0.2)",border:"1px solid "+(pendingVowId===vow.id?"#e0b050":"rgba(200,168,78,0.1)"),borderRadius:4,padding:"4px 5px",cursor:"pointer"}}>
+                  <div style={{fontSize:7,color:pendingVowId===vow.id?"#f0c878":"#c8a84e",fontWeight:700}}>{pendingVowId===vow.id?"✓ ":""}{vow.title} · kept {vow.keptMultiplier}x / broken {vow.brokenMultiplier}x</div>
+                  <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.4,marginTop:1,fontStyle:"italic"}}>"{vow.pledge}"</div>
+                </button>)}
+                {!pendingVowId&&<div style={{fontSize:7,color:"#665846"}}>No vow pledged — the rite runs unsworn.</div>}
+              </div>}
               {sharedWorld.prophecy?.options?.length>0&&<div style={{background:"rgba(20,10,5,0.55)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,padding:6,marginTop:-2,display:"grid",gap:3}}>
                 <div style={{fontSize:8,color:"#c8a84e",fontWeight:700,letterSpacing:1}}>PROPHECY DECK</div>
                 <div style={{fontSize:7,color:"#8f7d68",lineHeight:1.4}}>Active and alternate omens for today's world pressure.</div>
@@ -3469,10 +3562,13 @@ export default function DS(){
                 <div style={{color:dailyRunRef.current.deathWave>=30?"#da0":"#f44",fontSize:11,fontWeight:700,textAlign:"center",marginBottom:4}}>
                   {dailyRunRef.current.deathWave>=30?"🏆 COMPLETED!":"💀 Wave "+dailyRunRef.current.deathWave+"/30"}
                 </div>
+                {dailyRunRef.current.vowResult&&<div style={{fontSize:7,color:dailyRunRef.current.vowResult.kept?"#e0b050":"#a06050",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{dailyRunRef.current.vowResult.kept?"⚜️":"🕯️"} {dailyRunRef.current.vowResult.debriefLine}</div>}
+                {dailyRunRef.current.challengeResult&&<div style={{fontSize:7,color:dailyRunRef.current.challengeResult.beaten?"#6c4":"#c86",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🔥 {dailyRunRef.current.challengeResult.line}</div>}
                 {dailyRunRef.current.shareCard&&<>
                   <pre style={{fontSize:7,color:"#8a7a5a",background:"rgba(0,0,0,0.4)",padding:4,borderRadius:3,marginBottom:4,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"'Courier New',monospace"}}>{dailyRunRef.current.shareCard}</pre>
                   <button onClick={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});}catch(e){}}else{try{await navigator.clipboard.writeText(t);addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}} style={{width:"100%",background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>📋 Copy &amp; Share</button>
                   <button onClick={()=>{const p2=gR.current?.p;const run=dailyRunRef.current;const url=generateProphecyScrollPNG({playerName:p2?.playerName||travelerNameDraft,sigil:p2?.travelerSigil||travelerSigilDraft,waveReached:run.deathWave||0,faction:getPlayerFaction(p2),sunBrightness:sunBrightnessRef.current,type:'daily',dayNumber:getDayNumber()});if(url)shareProphecyScroll(url,'daily');}} style={{width:"100%",background:"#101a20",border:"1px solid #206080",color:"#60c0f0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:3}}>📸 Download Scroll</button>
+                  <button onClick={async()=>{const run=dailyRunRef.current;const p2=gR.current?.p;const token=encodeChallengeToken({dateSeed:getDailySeed(),wave:run.deathWave||0,playerName:p2?.playerName||travelerNameDraft||"Adventurer",vowId:run.vow?.id||null});const url=buildChallengeUrl({baseUrl:window.location.href,token});if(!url){addC("Challenge link could not be created.");return;}try{await navigator.clipboard.writeText(url);addC("🔗 Challenge link copied — dare a rival to beat your light on today's route.");}catch(e){addC("Copy failed — challenge link: "+url);}}} style={{width:"100%",background:"#1c1208",border:"1px solid #c8642e",color:"#f0884e",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:3}}>🔗 Copy Challenge Link</button>
                 </>}
               </div>}
               {/* Phase 4: Roguelite Run */}
@@ -3656,7 +3752,7 @@ export default function DS(){
                 Menu Reference Shortcuts
               </label>
               <div style={{fontSize:9,color:"#ddd"}}>UI Scale:
-                {["S","M","L"].map((sz,i)=><button key={sz} onClick={()=>{setUiScale(i===0?0.85:i===1?1:1.15);}} style={{marginLeft:4,background:uiScale===(i===0?0.85:i===1?1:1.15)?"#5a1808":"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:8,padding:"1px 4px",cursor:"pointer",borderRadius:2}}>{sz}</button>)}
+                {["S","M","L","XL"].map((sz,i)=><button key={sz} onClick={()=>{setUiScale([0.85,1,1.15,1.3][i]);}} style={{marginLeft:4,background:uiScale===[0.85,1,1.15,1.3][i]?"#5a1808":"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:8,padding:"1px 4px",cursor:"pointer",borderRadius:2}}>{sz}</button>)}
               </div>
               {showMenuReference&&<div style={{background:"rgba(20,10,5,0.6)",padding:"6px 7px",borderRadius:4,border:"1px solid rgba(200,168,78,0.08)"}}>
                 <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginBottom:4}}>MAIN MENU REFERENCE</div>
@@ -4077,7 +4173,7 @@ export default function DS(){
                 Open utility panel by default
               </label>
               <div style={{fontSize:12,color:"#ddd"}}>UI Scale:
-                {["S","M","L"].map((sz,i)=><button key={sz} onClick={()=>{setUiScale(i===0?0.85:i===1?1:1.15);}} style={{marginLeft:6,background:uiScale===(i===0?0.85:i===1?1:1.15)?"#5a1808":"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:10,padding:"2px 6px",cursor:"pointer",borderRadius:6}}>{sz}</button>)}
+                {["S","M","L","XL"].map((sz,i)=><button key={sz} onClick={()=>{setUiScale([0.85,1,1.15,1.3][i]);}} style={{marginLeft:6,background:uiScale===[0.85,1,1.15,1.3][i]?"#5a1808":"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:10,padding:"2px 6px",cursor:"pointer",borderRadius:6}}>{sz}</button>)}
               </div>
               <div style={{fontSize:10,color:"#8f7d68",lineHeight:1.6}}>In-world settings remain available after you enter. This screen exists so the game finally has a proper front door before runtime begins.</div>
             </div>}

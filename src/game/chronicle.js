@@ -7,6 +7,8 @@ import { buildStudioIntegrationContract } from "./telemetry.js";
 import { buildBackendReadiness } from "./backendReadiness.js";
 import { buildOutcomeReceiptSet } from "./outcomeReceipts.js";
 import { buildWorldFeed } from "./worldFeed.js";
+import { getSunAlmanac } from "./almanac.js";
+import { buildChronicleScenes } from "./chronicleScenes.js";
 
 function sortByWave(entries = []) {
   return [...entries].sort((a, b) => Number(b?.wave_reached || 0) - Number(a?.wave_reached || 0));
@@ -125,6 +127,13 @@ export function buildPublicChronicle({
     worldFeed,
     aiPolicy,
   });
+  const almanac = getSunAlmanac({ sharedWorld, dayNumber, sunBrightness: brightness });
+  const mythScenes = buildChronicleScenes({
+    sharedWorld,
+    dayNumber,
+    graveCount: publicGraves.length,
+    echoCount: publicEchoes.length,
+  });
 
   return {
     schema_version: 1,
@@ -159,6 +168,8 @@ export function buildPublicChronicle({
       constellation_objectives: constellationObjectives.slice(0, 5),
       backend_readiness: backendReadiness,
       outcome_receipts: outcomeReceipts,
+      almanac,
+      myth_scenes: mythScenes,
     },
     top_runs: topRuns,
     graves: publicGraves,

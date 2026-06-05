@@ -10,6 +10,7 @@ import {
   sanitizeOfferingCount,
   sanitizeReaction,
 } from "./trust.js";
+import { enqueueSundialWrite, flushSundialQueue } from "./sundialQueue.js";
 
 async function rpcWithTableFallback({ supabase, rpcName, rpcArgs, fallback, onError }) {
   if (!supabase) {
@@ -61,6 +62,7 @@ export function persistLocalEcho(echo, limit = 24) {
 
 export async function submitRemoteEcho({ supabase, echo, season, dateSeed }) {
   if (!supabase) {
+    enqueueSundialWrite({ kind: "echo", payload: echo, dateSeed, season, id: echo?.id });
     return false;
   }
   const safeEcho = sanitizeEchoPayload(echo);
@@ -87,6 +89,9 @@ export async function reactToEchoRecord({ supabase, echoId, reaction }) {
   }
   if (!recordEchoReactionLocal(echoId, safeReaction)) {
     return { accepted: false, reaction: safeReaction };
+  }
+  if (!supabase && !String(echoId).startsWith("echo-")) {
+    enqueueSundialWrite({ kind: "reaction", payload: { echoId, reaction: safeReaction } });
   }
   if (supabase && !String(echoId).startsWith("echo-")) {
     await rpcWithTableFallback({
@@ -128,14 +133,15 @@ export async function fetchDailyLeaderboardRecords({ supabase, dateSeed, limit =
 }
 
 export async function submitDailyScoreRecord({ supabase, playerName, waveReached, faction, dateSeed, season }) {
-  if (!supabase) {
-    return false;
-  }
   const score = sanitizeDailyScorePayload({
     player_name: playerName,
     wave_reached: waveReached,
     faction,
   });
+  if (!supabase) {
+    enqueueSundialWrite({ kind: "daily_score", payload: score, dateSeed, season });
+    return false;
+  }
   const result = await rpcWithTableFallback({
     supabase,
     rpcName: "submit_daily_score",
@@ -171,6 +177,7 @@ export async function fetchGraveRecords({ supabase, season, limit = 200 }) {
 
 export async function submitGraveRecord({ supabase, grave, season, dateSeed }) {
   if (!supabase) {
+    enqueueSundialWrite({ kind: "grave", payload: grave, dateSeed, season });
     return false;
   }
   const safeGrave = sanitizeGravePayload(grave);
@@ -214,6 +221,12 @@ export async function offerSunstoneRecord({ supabase, grave }) {
     becameShrine = true;
   }
 
+  if (!supabase && grave?.id != null) {
+    enqueueSundialWrite({
+      kind: "offering",
+      payload: { graveId: String(grave.id), traveler_sigil: grave.traveler_sigil || "NO-SIGIL" },
+    });
+  }
   if (supabase && grave?.id != null) {
     await rpcWithTableFallback({
       supabase,
@@ -232,4 +245,17 @@ export async function offerSunstoneRecord({ supabase, grave }) {
     becameShrine,
     becameMajorShrine,
   };
+}
+
+export async function flushSharedWorldQueue({ supabase }) {
+  return flushSundialQueue({
+    supabase,
+    services: {
+      submitGraveRecord,
+      submitDailyScoreRecord,
+      submitRemoteEcho,
+      reactToEchoRecord,
+      offerSunstoneRecord,
+    },
+  });
 }

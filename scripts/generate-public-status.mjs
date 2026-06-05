@@ -18,7 +18,8 @@ const chronicle = buildPublicChronicle({
   leaderboard: [],
   graves: [],
   echoes: [],
-  dayNumber: Math.max(1, Math.floor(Date.now() / 86400000)),
+  // Season-day aligned with the runtime's getDayNumber (season start 2026-03-27).
+  dayNumber: Math.max(1, Math.floor((Date.now() - new Date("2026-03-27").getTime()) / 86400000) + 1),
 });
 
 const status = {

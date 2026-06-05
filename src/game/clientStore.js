@@ -38,7 +38,7 @@ export function loadPreferences(defaultPanelOpen) {
   return {
     ...fallback,
     ...raw,
-    uiScale: [0.85, 1, 1.15].includes(raw.uiScale) ? raw.uiScale : fallback.uiScale,
+    uiScale: [0.85, 1, 1.15, 1.3].includes(raw.uiScale) ? raw.uiScale : fallback.uiScale,
     panelOpen: typeof raw.panelOpen === "boolean" ? raw.panelOpen : fallback.panelOpen,
     ghostPosition:
       raw.ghostPosition && Number.isFinite(raw.ghostPosition.x) && Number.isFinite(raw.ghostPosition.y)

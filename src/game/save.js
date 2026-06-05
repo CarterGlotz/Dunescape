@@ -1,5 +1,13 @@
+function toNumberOrNaN(value) {
+  try {
+    return typeof value === "symbol" || typeof value === "function" ? NaN : Number(value);
+  } catch {
+    return NaN;
+  }
+}
+
 export function safeNum(value, fallback, min = -Infinity, max = Infinity) {
-  const n = Number(value);
+  const n = toNumberOrNaN(value);
   if (!Number.isFinite(n)) {
     return fallback;
   }
@@ -20,7 +28,8 @@ export function migrateSaveData(raw, saveVersion) {
     return { data: raw, issues };
   }
 
-  const fromVersion = Number.isFinite(Number(raw.ver)) ? Number(raw.ver) : 0;
+  const rawVer = toNumberOrNaN(raw.ver);
+  const fromVersion = Number.isFinite(rawVer) ? rawVer : 0;
   const migrated = { ...raw };
 
   if (fromVersion < saveVersion) {
