@@ -43,3 +43,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - repaired blocker-preflight helper imports and narrowed task-board blocker parsing to the actual Supabase DB URL blocker
 - updated Vite within the existing 6.x line after package-trust approval and applied transitive audit fixes
 - verified `node scripts/blocker-preflight.mjs --json`, 31 unit tests, production build, smoke runtime, and `npm audit --json` with 0 vulnerabilities
+
+## 2026-06-04
+
+- ran /start gates; repaired startup-brief renderer by propagating six studio-ops lib modules into scripts/lib
+- wrote docs/AUDIT_2026-06-04.md / .json — ten net-new items ranked across nine axes, personalized to the task board and the SUPABASE_DB_URL blocker
+- implemented the full plan: Sun Almanac (7-day deterministic Director forecast), Sundial Queue (offline outbox with flush-on-connect), Legacy Vows (pledge → epitaph stamping), Director Memory (bounded personal adaptive pressure), Myth So Far chronicle scenes, Last Light challenge links, save-import fuzz harness, and XL text scale
+- the fuzz harness exposed a real Number([Symbol()]) crash in the save sanitizer; hardened with toNumberOrNaN
+- aligned generate-public-status dayNumber to the runtime season-day; fixed ordinal rendering in chronicle scenes
+- verified 45 unit tests (up from 31), production build, smoke runtime, and chronicle export contracts

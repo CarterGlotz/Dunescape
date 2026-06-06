@@ -25,3 +25,11 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - Director route brief fields are deterministic and derived from public shared-world state; no paid generation or private Studio context is required
 - blocker preflight now runs locally and reports the remaining Supabase DB URL blocker with evidence-oriented attempt order
 - local validation passed: 31 unit tests, production build, smoke runtime, and `npm audit --json` with 0 vulnerabilities
+
+## 2026-06-04 Public-Safe Check
+
+- public chronicle gained `shared_world.almanac` and `shared_world.myth_scenes`; both are deterministic functions of public state and the date seed
+- `generate-public-status.mjs` dayNumber now matches the runtime season-day (was days-since-epoch), so exported day references read correctly
+- offline write queue (Sundial Queue) stores only trust-sanitized payloads already accepted by the client trust layer; flush reuses the RPC-first service path
+- save sanitizer hardened against symbol/function coercion crashes found by the new fuzz harness
+- local validation passed: 45 unit tests, production build, and smoke runtime

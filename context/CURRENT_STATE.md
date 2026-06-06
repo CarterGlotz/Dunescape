@@ -44,4 +44,13 @@ Public-safe summary:
 - 2026-06-03 audit/implement pass added deterministic Director route briefs, world-feed action resolution, public-safe outcome receipts, backend readiness digest, and a runtime cost guardrail while keeping browser token cost at zero
 - blocker preflight now has the missing task-board and blocker-rule helpers; the preflight runs and isolates the remaining Supabase DB URL blocker instead of failing at import time
 - dependency audit is clean after updating Vite within the existing 6.x line and applying transitive audit fixes through trusted package metadata
-- latest local validation: 31 unit tests passing, production build passing, smoke flow passing, and `npm audit --json` reporting 0 vulnerabilities
+- the Daily Rite tab now shows a deterministic 7-day Sun Almanac (route rotation forecast + phase-drift watch) derived entirely from the date seed and current world phase
+- offline shared-world writes now queue in the Sundial Queue (trust-sanitized, capped, deduped) and flush automatically through the RPC-first path when the Supabase link connects
+- players can pledge a Legacy Vow before each Daily Rite; keep/break evaluation stamps the grave epitaph, adjusts legacy multipliers, and surfaces in the debrief
+- the Director keeps a local five-run memory per player and applies bounded mercy/challenge bias with a remembrance line at run start
+- public chronicle now exports `shared_world.almanac` and `shared_world.myth_scenes` (seeded deterministic vignettes); the runtime shows the same Myth So Far panel
+- daily runs can emit shareable Last Light challenge links (checksummed, same-day expiry); opening one arms a beat-their-wave banner and run-end comparison
+- save import sanitization is fuzz-tested with 250 seeded hostile payloads; a real symbol-coercion crash in `safeNum`/`migrateSaveData` was found and fixed
+- UI scale now includes an XL (1.3) accessibility option persisted with existing preferences
+- `scripts/lib/` carries the six studio-ops modules the startup-brief renderer needs; public status `dayNumber` is aligned to the runtime season-day
+- latest local validation: 45 unit tests passing, production build passing, smoke flow passing

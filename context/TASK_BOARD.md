@@ -39,7 +39,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - add first-session "first myth" onboarding that reaches a shared-world consequence within five minutes
 - version Studio Hub / Social Dashboard / Sparkfunnel JSON contracts and include conversion / retention event hints
 - add deterministic content-intelligence fallbacks before any paid server-side AI summary work
-- resolve the current dirty/untracked worktree into an intentional baseline before the next large refactor
+- mirror vow legacy multipliers and Sundial Queue flush validation in Supabase RPC enforcement once `SUPABASE_DB_URL` lands
+- surface the Sun Almanac and Myth So Far panels on the front-door menu in addition to the Daily Rite tab
 - make Daily Rite generation consume Director encounter/reward/shrine/rival plans directly
 - add browser-level gameplay smoke coverage for first route, combat/death, grave, offering, and save import/export
 - continue converting smoke coverage into browser-level validation when a browser runner is added; current smoke now verifies first-session, objective, and world-feed data contracts
@@ -126,6 +127,9 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - Supabase Hardening workflow now preflights required secrets and reports missing secret names before attempting SQL
 - private ops secrets were checked for a reusable Supabase DB URL; none was found without constructing one from a missing database password
 - 2026-06-03 audit-derived pass shipped Director route briefs, outcome receipts, backend readiness digest, structured world-feed action results, zero-token runtime cost guardrail, repaired blocker preflight helpers, and clean dependency audit
+- dirty/untracked worktree resolved into a clean committed baseline (git status clean at 2026-06-04 session start)
+- 2026-06-04 audit-derived pass shipped the Sun Almanac 7-day forecast, Sundial Queue offline outbox with flush-on-connect, Legacy Vows with grave epitaph stamping, Director Memory personal adaptive pressure, Myth So Far chronicle scenes, Last Light challenge links, a 250-seed save-import fuzz harness (which found and fixed a real sanitizer crash), and an XL accessibility text scale
+- five studio-ops lib modules (cross-repo-tasks, ignis-insight, sil-forecaster, human-action-ages, task-board, skill-cost-ledger) propagated into scripts/lib so the startup brief renders again
 
 ## Deferred to Project Agents
 

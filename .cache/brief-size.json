@@ -1,0 +1,34 @@
+{
+  "generatedAt": "2026-06-05T01:39:03.567Z",
+  "sizeBytes": 8545,
+  "budgetWarn": 18432,
+  "budgetFail": 24576,
+  "status": "pass",
+  "topBlocks": [
+    {
+      "title": "SCORE",
+      "bytes": 2217,
+      "lines": 21
+    },
+    {
+      "title": "SIGNALS",
+      "bytes": 1515,
+      "lines": 17
+    },
+    {
+      "title": "ORCHESTRATOR",
+      "bytes": 740,
+      "lines": 7
+    },
+    {
+      "title": "CONTEXT METER",
+      "bytes": 713,
+      "lines": 6
+    },
+    {
+      "title": "UNTITLED",
+      "bytes": 695,
+      "lines": 6
+    }
+  ]
+}

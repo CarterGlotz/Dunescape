@@ -2,14 +2,18 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
-## Where We Left Off (2026-06-03)
-- Shipped: fresh audit artifacts, deterministic Director route briefs, structured world-feed action results, public-safe outcome receipts, backend readiness digest, zero-token runtime cost guardrail, repaired blocker-preflight helpers, and dependency audit cleanup
-- Tests: 31 passing (unit) plus smoke runtime, production build, and npm audit passing
-- Deploy: pushed to `origin/main` through the final closeout commit
+## Where We Left Off (2026-06-04)
+- Shipped: Sun Almanac 7-day deterministic forecast, Sundial Queue offline outbox with flush-on-connect, Legacy Vows with grave epitaph stamping, Director Memory adaptive personal pressure, Myth So Far chronicle scenes, Last Light challenge links, a 250-seed save-import fuzz harness (found and fixed a real sanitizer crash), XL accessibility text scale, and repaired startup-brief renderer libs
+- Tests: 45 passing (unit, up from 31) plus smoke runtime and production build passing
+- Deploy: committed on `main` (`a597486`) and pushed through the closeout commit
 
 ## Session Intent
 
-Audit the project, capture the full public-safe roadmap in project memory, implement the highest-impact local subset, complete the remaining repo-feasible items, and keep the repo deployable.
+Run the full /start → /audit → /implement → /closeout cycle with a net-new audit personalized to this project's lists, flags, and blockers, implement all repo-feasible items at quality, and keep the repo deployable.
+
+## Previous Session (2026-06-03)
+- Shipped: fresh audit artifacts, deterministic Director route briefs, structured world-feed action results, public-safe outcome receipts, backend readiness digest, zero-token runtime cost guardrail, repaired blocker-preflight helpers, and dependency audit cleanup
+- Tests: 31 passing (unit) plus smoke runtime, production build, and npm audit passing
 
 ## Public-Safe Summary
 
@@ -42,6 +46,11 @@ Audit the project, capture the full public-safe roadmap in project memory, imple
 - Secret inventory check: private ops secrets contain Supabase browser/service/PAT material, but no full Postgres connection string or DB password suitable for the hardening workflow
 - 2026-06-03 pass: public chronicle/status now publish backend readiness and outcome receipt summaries; Daily Rite plans include route goals, danger labels, reward tells, boss brief, and route summary; world-feed clicks resolve through a reusable action-result helper; package audit is clean
 - closeout repair: propagated Studio protocol scripts were made internally complete by adding the missing turn classifier and visual block helpers before final push
+- 2026-06-04 pass: the Daily Rite tab now carries a deterministic 7-day Sun Almanac with phase-drift watch, a Legacy Vow pledge picker, a Myth So Far vignette panel, a Sundial Queue status card while offline, and challenge banners from shareable Last Light links
+- offline shared-world writes (graves, scores, echoes, reactions, offerings) now queue in a trust-sanitized capped outbox and flush automatically through the RPC-first service path when the backend link returns
+- the Director now remembers each player's last five runs locally and applies bounded mercy/challenge bias with an in-world remembrance line
+- save import gained a 250-seed hostile fuzz harness which exposed and fixed a real `Number([Symbol()])` crash path in the sanitizer
+- startup brief rendering was repaired by propagating six studio-ops lib modules into `scripts/lib/`; public status `dayNumber` now matches the runtime season-day
 
 ## Human Action Required
 

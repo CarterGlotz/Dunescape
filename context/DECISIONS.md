@@ -53,3 +53,22 @@ Public-safe decisions only. Detailed internal decision history is maintained pri
 **Rationale:** Public graves, scores, echoes, reactions, and offerings are core to Solara's identity and need server-enforced validation, moderation posture, and rate-limit protection before scaled traffic.
 
 ---
+## 2026-06-04 — Offline shared-world writes queue locally and flush RPC-first
+
+**Decision:** When the Supabase client is unavailable, public shared-world writes (graves, daily scores, echoes, reactions, offerings) are sealed into a trust-sanitized, capped, deduplicated local outbox (the Sundial Queue) and flushed automatically through the existing RPC-first service path the moment the backend link connects.
+
+**Applies to this project:** Yes — `src/game/sundialQueue.js` implements the queue and `src/game/sharedWorldService.js` enqueues on disconnect and exposes `flushSharedWorldQueue`.
+
+**Rationale:** The live backend gate (`SUPABASE_DB_URL`) is a human action outside agent control. Queuing instead of dropping converts that blocker into a launch moment: the day hardened RPCs deploy, accumulated player records join the chronicle through the same validated write path, preserving the trust-boundary decision of 2026-04-14.
+
+---
+
+## 2026-06-04 — Player-facing intelligence stays seeded and forecast-honest
+
+**Decision:** New player-facing intelligence surfaces (Sun Almanac forecast, Myth So Far scenes, Director Memory remembrance) must derive only from the date seed, public world state, and local play history — and may only forecast what is genuinely deterministic (route rotation by day seed; phase drift expressed as distance-to-band, never as a predicted flip).
+
+**Applies to this project:** Yes — `src/game/almanac.js`, `src/game/chronicleScenes.js`, and `src/game/directorMemory.js` encode this posture.
+
+**Rationale:** Extends the 2026-04-17 deterministic-first decision from cost policy into honesty policy: the game should never imply knowledge of future communal outcomes it cannot have.
+
+---

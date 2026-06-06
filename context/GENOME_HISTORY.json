@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "1.0",
+  "project": "solara",
+  "snapshots": [
+    {
+      "date": "2026-06-05",
+      "session": null,
+      "total": 0,
+      "maxTotal": 25,
+      "overallStatus": "green",
+      "lastReviewed": "2026-04-17",
+      "dimensions": {
+        "schema_alignment": 0,
+        "prompt_template_alignment": 0,
+        "derived_view_freshness": 0,
+        "handoff_continuity": 0,
+        "contradiction_density": 0
+      },
+      "delta": null,
+      "cause": "Deepen the daily appointment loop with the deterministic Sun Almanac, Legacy Vows, Director Memory, Myth So Far scenes, "
+    }
+  ]
+}
