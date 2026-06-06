@@ -10,3 +10,9 @@ context/.session-lock
 # Private surfaces — never commit (sanitization 2026-06-03)
 ignis/output/
 docs/CREATIVE_DIRECTION_RECORD.md
+
+# Local operational surfaces — never commit (S63 hygiene)
+secrets/
+.cache/
+.ops-cache/
+docs/cache-ledger.ndjson
