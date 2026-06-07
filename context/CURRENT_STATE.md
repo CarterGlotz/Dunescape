@@ -57,3 +57,6 @@ Public-safe summary:
 - 2026-06-07 audit-derived pass shipped a shared backend RPC contract manifest, richer Sundial Queue briefing, zero-token queue outcome receipts, Rite Pacing Coach guidance, Last Light result cards, and a Daily Rite smoke contract that verifies Almanac/Myth/Vow/Queue/route-plan surface markers
 - public chronicle/status exports now include `backend_contract`, `shared_world.sundial_queue`, and `shared_world.result_card_shape` so Studio integrations can distinguish missing backend credentials from missing runtime behavior
 - latest local validation: 50 unit tests passing, production build passing, smoke flow passing
+- Solara's browser Supabase bootstrap now accepts either a full Supabase URL or the stored project ref `fjnpzjjyhnpmunfoycrp`, normalizing the ref into `https://fjnpzjjyhnpmunfoycrp.supabase.co` before `createClient`
+- long-term backend posture is project-specific: keep Solara on the `fjnpzjjyhnpmunfoycrp` cloud Supabase project and require `PG_CONNECTION_SOLARA` for schema/RLS/RPC hardening, rather than reusing the Hetzner/Vorn self-hosted Postgres password
+- latest local validation: 51 unit tests passing, production build passing, smoke flow passing

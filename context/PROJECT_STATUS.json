@@ -4,10 +4,10 @@
   "name": "Solara",
   "status": "active",
   "health": "green",
-  "currentFocus": "Make the shared-world loop legible and verifiable: backend contract manifest, Sundial Queue briefing, zero-token queue receipts, Rite Pacing Coach guidance, and Last Light result cards now clarify what each Daily Rite changes.",
-  "nextMilestone": "Deploy and verify Supabase RPC/RLS hardening in the live backend using the shared RPC contract manifest, then continue modular extraction from App.jsx with the Daily Rite smoke contract guarding the Almanac, Myth, Vow, Queue, Coach, and Result Card surfaces.",
+  "currentFocus": "Make the shared-world loop legible and verifiable: backend contract manifest, Sundial Queue briefing, zero-token queue receipts, Rite Pacing Coach guidance, Last Light result cards, and Supabase project-ref normalization now clarify what each Daily Rite changes.",
+  "nextMilestone": "Add project-scoped PG_CONNECTION_SOLARA for cloud project fjnpzjjyhnpmunfoycrp, deploy and verify Supabase RPC/RLS hardening from the shared contract manifest, then continue modular extraction from App.jsx with the Daily Rite smoke contract guarding the Almanac, Myth, Vow, Queue, Coach, and Result Card surfaces.",
   "blockers": [
-    "Supabase production policies must enforce the same trust rules before public traffic scales."
+    "Supabase production policies must enforce the same trust rules before public traffic scales; project-scoped PG_CONNECTION_SOLARA is still missing."
   ],
   "lastUpdated": "2026-06-07",
   "lifecycle": "building",

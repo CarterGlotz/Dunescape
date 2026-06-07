@@ -39,4 +39,6 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - public chronicle/status exports now include `backend_contract`, `shared_world.sundial_queue`, and `shared_world.result_card_shape`; all are deterministic and contain no secrets
 - Supabase hardening verification now reads required tables/RPCs from `src/game/backendContract.js`, keeping runtime queue kinds and backend deployment checks aligned
 - Sundial Queue briefings and queue_pending receipts summarize only sanitized counts/kinds and preserve zero browser token cost
-- local validation passed: 50 unit tests, production build, and smoke runtime
+- Solara's runtime Supabase client now normalizes the stored project ref `fjnpzjjyhnpmunfoycrp` to a full cloud Supabase URL before client creation
+- the remaining hardening credential is project-scoped `PG_CONNECTION_SOLARA`; using the Hetzner/Vorn shared database would be a cross-project migration and is not the current safe path
+- local validation passed: 51 unit tests, production build, and smoke runtime

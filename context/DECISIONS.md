@@ -82,3 +82,13 @@ Public-safe decisions only. Detailed internal decision history is maintained pri
 **Rationale:** The Supabase hardening gate should fail because a live backend is missing a contract, not because a verifier checklist drifted away from runtime behavior. One manifest keeps deploy verification, queue semantics, and Studio integration status aligned.
 
 ---
+
+## 2026-06-07 — Solara stays on its cloud Supabase project
+
+**Decision:** Solara remains pointed at cloud Supabase project `fjnpzjjyhnpmunfoycrp`; production hardening should use a project-specific `PG_CONNECTION_SOLARA` secret rather than a generic `SUPABASE_DB_URL` or the Hetzner/Vorn self-hosted database password.
+
+**Applies to this project:** Yes — `src/supabase.js` now normalizes the stored project ref into a full Supabase URL, and `tests/supabase-url.test.mjs` guards that behavior.
+
+**Rationale:** The Hetzner/Vorn database is a different shared backend. Repointing Solara there would risk cross-project drift; a Solara-scoped Postgres connection keeps hardening precise without disturbing other projects that share Studio infrastructure.
+
+---

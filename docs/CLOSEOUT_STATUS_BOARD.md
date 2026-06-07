@@ -9,9 +9,9 @@
 ║  Mode: FOUNDER  ·  Agent: claude-code                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: backend RPC contract manifest, Supabase hardening v  ║
-║  ✓ Tests: 50 passing unit tests plus production build and smoke  ║
-║  ✓ Remaining gate: Supabase production hardening still needs de  ║
+║  ✓ Shipped: backend RPC contract manifest, queue/coach/result ca  ║
+║  ✓ Tests: 51 passing unit tests plus production build and smoke  ║
+║  ✓ Remaining gate: project-scoped PG_CONNECTION_SOLARA           ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ SCORES · SIL 852/1000 ═══════════════════════════════════════╗
 ║    Dev Health         84   ████████░░                            ║

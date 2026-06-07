@@ -61,3 +61,5 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - added deterministic Rite Pacing Coach guidance and Last Light result cards to the Daily Rite run/debrief loop
 - expanded smoke validation so the app surface must expose World Feed, Almanac, Myth So Far, Legacy Vows, queue briefing, Daily Rite plan, save, and import surfaces
 - verified 50 unit tests, production build, and smoke runtime
+- resolved the Supabase credential-path question by keeping Solara on cloud project `fjnpzjjyhnpmunfoycrp`, avoiding the Hetzner/Vorn shared database, normalizing project-ref URLs at runtime, and adding a focused regression test
+- verified 51 unit tests, production build, and smoke runtime after the Supabase URL normalization pass
