@@ -2,7 +2,7 @@
 # Truth Audit
 
 Overall status: green
-Last reviewed: 2026-04-17
+Last reviewed: 2026-06-07
 Public-safe summary only. Sensitive verification notes are maintained privately.
 
 ## 2026-04-14 Public-Safe Check
@@ -33,3 +33,10 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - offline write queue (Sundial Queue) stores only trust-sanitized payloads already accepted by the client trust layer; flush reuses the RPC-first service path
 - save sanitizer hardened against symbol/function coercion crashes found by the new fuzz harness
 - local validation passed: 45 unit tests, production build, and smoke runtime
+
+## 2026-06-07 Public-Safe Check
+
+- public chronicle/status exports now include `backend_contract`, `shared_world.sundial_queue`, and `shared_world.result_card_shape`; all are deterministic and contain no secrets
+- Supabase hardening verification now reads required tables/RPCs from `src/game/backendContract.js`, keeping runtime queue kinds and backend deployment checks aligned
+- Sundial Queue briefings and queue_pending receipts summarize only sanitized counts/kinds and preserve zero browser token cost
+- local validation passed: 50 unit tests, production build, and smoke runtime

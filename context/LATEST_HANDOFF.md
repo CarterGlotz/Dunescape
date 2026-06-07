@@ -2,7 +2,12 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
-## Where We Left Off (2026-06-04)
+## Where We Left Off (2026-06-07)
+- Shipped: backend RPC contract manifest, Supabase hardening verifier manifest wiring, grouped Sundial Queue briefing, zero-token queue_pending outcome receipts, Rite Pacing Coach, sanitized Last Light result cards, public chronicle/status contract exports, and Daily Rite app-surface smoke coverage
+- Tests: 50 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs deploy-capable `SUPABASE_DB_URL` or owner SQL-editor action before public traffic scales
+
+## Previous Session (2026-06-04)
 - Shipped: Sun Almanac 7-day deterministic forecast, Sundial Queue offline outbox with flush-on-connect, Legacy Vows with grave epitaph stamping, Director Memory adaptive personal pressure, Myth So Far chronicle scenes, Last Light challenge links, a 250-seed save-import fuzz harness (found and fixed a real sanitizer crash), XL accessibility text scale, and repaired startup-brief renderer libs
 - Tests: 45 passing (unit, up from 31) plus smoke runtime and production build passing
 - Deploy: committed on `main` (`a597486`) and pushed through the closeout commit

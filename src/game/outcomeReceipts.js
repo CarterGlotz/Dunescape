@@ -45,6 +45,7 @@ export function buildOutcomeReceiptSet({
   objectiveState = null,
   worldFeed = [],
   aiPolicy = null,
+  queueBriefing = null,
 } = {}) {
   const browserTokenCost = Number(aiPolicy?.browser_token_cost || 0);
   const receipts = [
@@ -74,6 +75,18 @@ export function buildOutcomeReceiptSet({
       sharedWorld,
       objectiveState,
       action: item.action,
+      tokenCost: browserTokenCost,
+    }));
+  }
+
+  if (queueBriefing?.size > 0) {
+    receipts.push(buildOutcomeReceipt({
+      type: "queue_pending",
+      label: "Sundial Queue pending",
+      detail: queueBriefing.line,
+      sharedWorld,
+      objectiveState,
+      action: { type: "sync", tab: "daily", label: "Review sealed records" },
       tokenCost: browserTokenCost,
     }));
   }

@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 import { existsSync, readFileSync } from "node:fs";
+import { SHARED_WORLD_RPC_CONTRACTS, SHARED_WORLD_TABLES } from "../src/game/backendContract.js";
 
 function readDotEnv(path = ".env.local") {
   if (!existsSync(path)) {
@@ -60,22 +61,10 @@ if (!url || !anonKey) {
 
 const supabase = createClient(url, anonKey);
 const checks = [
-  await tableReadCheck(supabase, "daily_scores"),
-  await tableReadCheck(supabase, "graves"),
-  await tableReadCheck(supabase, "sun_state"),
-  await tableReadCheck(supabase, "player_echoes"),
-  await rpcExistsCheck(
-    supabase,
-    "react_to_echo",
-    { p_echo_id: "__verify_no_row__", p_reaction: "__invalid__" },
-    /Invalid echo reaction/i,
-  ),
-  await rpcExistsCheck(
-    supabase,
-    "offer_sunstone",
-    { p_grave_id: "__verify_no_row__", p_traveler_sigil: "VERIFY" },
-    /Grave not found|invalid input/i,
-  ),
+  ...(await Promise.all(SHARED_WORLD_TABLES.map((table) => tableReadCheck(supabase, table)))),
+  ...(await Promise.all(SHARED_WORLD_RPC_CONTRACTS.map((contract) =>
+    rpcExistsCheck(supabase, contract.name, contract.args, contract.expectedExistingMessage),
+  ))),
 ];
 
 const deployed = checks.every((check) => check.ok);

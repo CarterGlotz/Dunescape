@@ -311,6 +311,12 @@ async function loadComponent() {
   firstSessionPlan,
   objectiveState,
   worldFeed,
+  sunAlmanac,
+  mythScenes,
+  vowOffers,
+  sundialBriefing,
+  dailyRitePlan,
+  riteCoach,
   gR,
   dailyRunRef,
   rogueRunRef,
@@ -382,6 +388,11 @@ async function runSaveScenario(Component) {
   assert(handlers.objectiveState?.title, "Objective state was not available for smoke validation.");
   assert(Array.isArray(handlers.worldFeed) && handlers.worldFeed.length >= 2, "World feed did not expose actionable entries.");
   assert(handlers.worldFeed.every((entry) => entry.action), "World feed entries should expose action metadata.");
+  assert(handlers.sunAlmanac?.forecast?.length === 7, "Sun Almanac did not expose the expected seven-day forecast.");
+  assert(handlers.mythScenes?.scenes?.length >= 3, "Myth So Far did not expose deterministic scenes.");
+  assert(handlers.vowOffers?.length >= 2, "Legacy Vow picker did not expose seeded vow offers.");
+  assert(handlers.dailyRitePlan?.route?.length === 6, "Daily Rite plan did not expose six route segments.");
+  assert(handlers.sundialBriefing?.public_safe === true, "Sundial Queue briefing was not available to the app surface.");
 
   const saved = handlers.saveGame();
   assert(saved && saved.ver >= 1, "Save scenario did not return a payload.");

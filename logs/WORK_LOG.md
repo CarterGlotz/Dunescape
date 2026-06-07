@@ -52,3 +52,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - the fuzz harness exposed a real Number([Symbol()]) crash in the save sanitizer; hardened with toNumberOrNaN
 - aligned generate-public-status dayNumber to the runtime season-day; fixed ordinal rendering in chronicle scenes
 - verified 45 unit tests (up from 31), production build, smoke runtime, and chronicle export contracts
+
+## 2026-06-07
+
+- ran /start gates and wrote docs/AUDIT_2026-06-07.md / .json with six Solara-specific items tied to the Supabase hardening gate and shipped Daily Rite systems
+- implemented a shared backend RPC contract manifest and wired it into the Supabase hardening verifier plus public chronicle/status exports
+- upgraded Sundial Queue transparency with grouped public-safe queue briefings and zero-token queue_pending outcome receipts
+- added deterministic Rite Pacing Coach guidance and Last Light result cards to the Daily Rite run/debrief loop
+- expanded smoke validation so the app surface must expose World Feed, Almanac, Myth So Far, Legacy Vows, queue briefing, Daily Rite plan, save, and import surfaces
+- verified 50 unit tests, production build, and smoke runtime

@@ -72,3 +72,13 @@ Public-safe decisions only. Detailed internal decision history is maintained pri
 **Rationale:** Extends the 2026-04-17 deterministic-first decision from cost policy into honesty policy: the game should never imply knowledge of future communal outcomes it cannot have.
 
 ---
+
+## 2026-06-07 — Shared-world backend contracts live in runtime code
+
+**Decision:** Required shared-world tables and RPC write contracts are declared in `src/game/backendContract.js` and consumed by both public chronicle/status exports and `scripts/verify-supabase-hardening.mjs`.
+
+**Applies to this project:** Yes — the manifest covers daily scores, graves, sun state, player echoes, and the five write kinds used by the Sundial Queue.
+
+**Rationale:** The Supabase hardening gate should fail because a live backend is missing a contract, not because a verifier checklist drifted away from runtime behavior. One manifest keeps deploy verification, queue semantics, and Studio integration status aligned.
+
+---

@@ -17,6 +17,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - keep the public repo free of private Studio OS operating procedures while exposing public-safe integration schemas
 - turn world-feed items into action targets so feedback can route players to the right tab, map objective, or run loop
 - keep outcome receipts, backend readiness, and runtime cost guardrails visible in public status/chronicle contracts
+- keep the backend RPC contract manifest, Sundial Queue briefing, Rite Pacing Coach, Last Light result card, and Daily Rite smoke contract aligned as the next App.jsx extraction guardrails
 
 ## Next
 
@@ -40,6 +41,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - version Studio Hub / Social Dashboard / Sparkfunnel JSON contracts and include conversion / retention event hints
 - add deterministic content-intelligence fallbacks before any paid server-side AI summary work
 - mirror vow legacy multipliers and Sundial Queue flush validation in Supabase RPC enforcement once `SUPABASE_DB_URL` lands
+- use `src/game/backendContract.js` as the source for Supabase hardening verification and update it before adding any new shared-world write kind
+- expand Rite Pacing Coach from guidance copy into actual room/reward nudges once the next Daily Rite runtime extraction starts
 - surface the Sun Almanac and Myth So Far panels on the front-door menu in addition to the Daily Rite tab
 - make Daily Rite generation consume Director encounter/reward/shrine/rival plans directly
 - add browser-level gameplay smoke coverage for first route, combat/death, grave, offering, and save import/export
@@ -130,6 +133,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - dirty/untracked worktree resolved into a clean committed baseline (git status clean at 2026-06-04 session start)
 - 2026-06-04 audit-derived pass shipped the Sun Almanac 7-day forecast, Sundial Queue offline outbox with flush-on-connect, Legacy Vows with grave epitaph stamping, Director Memory personal adaptive pressure, Myth So Far chronicle scenes, Last Light challenge links, a 250-seed save-import fuzz harness (which found and fixed a real sanitizer crash), and an XL accessibility text scale
 - five studio-ops lib modules (cross-repo-tasks, ignis-insight, sil-forecaster, human-action-ages, task-board, skill-cost-ledger) propagated into scripts/lib so the startup brief renders again
+- 2026-06-07 audit-derived pass shipped a backend RPC contract manifest, grouped Sundial Queue briefing, zero-token queue_pending outcome receipts, deterministic Rite Pacing Coach, sanitized Last Light result cards, and a Daily Rite app-surface smoke contract; validation passed 50 unit tests, production build, and smoke runtime
 
 ## Deferred to Project Agents
 

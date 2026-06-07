@@ -1,22 +1,18 @@
 <!-- generated-by: /implement skill v1.0 -->
-<!-- generated-at: 2026-06-04 -->
-<!-- source: docs/AUDIT_2026-06-04.json -->
+<!-- generated-at: 2026-06-07 -->
+<!-- source: docs/AUDIT_2026-06-07.json -->
 
-# Implement Plan — Solara · 2026-06-04
+# Implement Plan - Solara · 2026-06-07
 
-Sequenced for Priority-per-hour, not raw Priority.
+Sequenced for Priority-per-hour and shared code surface.
 
 | Seq | Slug | Audit # | Surface group | Why this slot |
 |---|---|---|---|---|
-| 1 | director-memory | 4 | Director | 1h foundational; almanac shares the Director surface next |
-| 2 | sun-almanac | 1 | Director | Top-priority item rides the warm Director context |
-| 3 | legacy-vows | 3 | Run lifecycle | Foundational for challenge-links (vow rides the URL token) |
-| 4 | sundial-queue | 2 | Shared-world service | Independent service surface; blocker-to-feature conversion |
-| 5 | chronicle-scenes | 5 | Chronicle exports | Reads outputs of 1–4 (memory, almanac, vows, queue receipts) |
-| 6 | challenge-links | 6 | Boot/URL + debrief | Depends on vows; stamps debrief comparison |
-| 7 | save-fuzz-tests | 7 | Tests only | Validates save surface after all feature writes settle |
-| 8 | hud-text-scale | 8 | UI/CSS | Pure presentation; no logic dependencies |
-| 9 | menu-chunk-split | 9 | Build config | Perf/token-adjacent — measured last per heuristic |
-| 10 | board-hygiene-worktree | 10 | Context docs | Folds into closeout write-back path |
+| 1 | rpc-contract-manifest | 1 | Backend trust contract | Foundation for verifier, queue contracts, and public status truth |
+| 2 | sundial-queue-briefing | 2 | Offline shared-world queue | Uses the manifest context and upgrades the active Supabase blocker path |
+| 3 | outcome-receipt-queue-link | 5 | Deterministic intelligence | Reads the queue briefing and preserves zero-token receipt policy |
+| 4 | rite-pacing-coach | 3 | Daily Rite runtime | Small deterministic module, then thin App.jsx wiring |
+| 5 | last-light-result-card | 4 | Debrief/share loop | Depends on run/vow/challenge results and coach copy |
+| 6 | app-surface-smoke-contract | 6 | Validation | Verifies the newly wired Daily Rite surface after implementation |
 
-Preflight: no item names a credentialed capability (sundial-queue is local-outbox only; flush path reuses existing service guards). `SUPABASE_DB_URL` blocker remains flagged for Carter — no item depends on it.
+Preflight: no item requires a new paid service or credential. `SUPABASE_DB_URL` remains the hardening gate for production RPC deployment, but every item here is local, deterministic, and free-tier cost neutral.

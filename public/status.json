@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-05T18:49:08.064Z",
+  "generated_at": "2026-06-07T18:05:50.387Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -85,6 +85,56 @@
         "SUPABASE_DB_URL"
       ]
     },
+    "backend_contract": {
+      "version": 1,
+      "tables": [
+        "daily_scores",
+        "graves",
+        "sun_state",
+        "player_echoes"
+      ],
+      "required_rpcs": [
+        {
+          "name": "submit_daily_score",
+          "kind": "daily_score"
+        },
+        {
+          "name": "submit_grave",
+          "kind": "grave"
+        },
+        {
+          "name": "submit_player_echo",
+          "kind": "echo"
+        },
+        {
+          "name": "react_to_echo",
+          "kind": "reaction"
+        },
+        {
+          "name": "offer_sunstone",
+          "kind": "offering"
+        }
+      ],
+      "queue_write_kinds": [
+        "daily_score",
+        "grave",
+        "echo",
+        "reaction",
+        "offering"
+      ],
+      "hardening_gate": "SUPABASE_DB_URL",
+      "safe_to_scale_when": "all required_rpcs deployed and RLS/RPC validation active"
+    },
+    "sundial_queue": {
+      "version": 1,
+      "size": 0,
+      "cap": 50,
+      "groups": [],
+      "oldest_minutes": null,
+      "next_sync": "Live link detected; sealed records flush through hardened RPCs.",
+      "line": "The Sundial Queue is empty.",
+      "public_safe": true
+    },
     "outcome_receipts": {
       "version": 1,
       "count": 5
@@ -108,6 +158,6 @@
       "fallback": "deterministic_chronicle",
       "input_policy": "structured_public_state_only"
     },
-    "cache_key": "season:1:day:71:sun:100:deaths:0:runs:0:graves:0:echoes:0"
+    "cache_key": "season:1:day:73:sun:100:deaths:0:runs:0:graves:0:echoes:0"
   }
 }

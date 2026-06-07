@@ -8,7 +8,18 @@ import {
 
 const QUEUE_KEY = "solara_sundial_queue";
 const QUEUE_CAP = 50;
-const QUEUE_KINDS = ["grave", "daily_score", "echo", "reaction", "offering"];
+export const QUEUE_KINDS = ["grave", "daily_score", "echo", "reaction", "offering"];
+const KIND_LABELS = {
+  grave: "graves",
+  daily_score: "daily scores",
+  echo: "echoes",
+  reaction: "echo reactions",
+  offering: "offerings",
+};
+
+function cleanText(value, fallback = "") {
+  return String(value || fallback).replace(/[<>`]/g, "").replace(/\s+/g, " ").trim();
+}
 
 function sanitizeQueueEntry(entry) {
   if (!entry || typeof entry !== "object" || !QUEUE_KINDS.includes(entry.kind)) {
@@ -130,6 +141,40 @@ export function getSundialQueueSummary(queue = null) {
     line: entries.length
       ? `${entries.length} sealed record${entries.length === 1 ? "" : "s"} await the sun's return.`
       : "The Sundial Queue is empty.",
+  };
+}
+
+export function getSundialQueueBriefing(queue = null, { now = Date.now(), backendConnected = false } = {}) {
+  const entries = queue || loadSundialQueue();
+  const summary = getSundialQueueSummary(entries);
+  const oldest = entries.reduce((min, entry) => {
+    const time = Date.parse(entry.queuedAt || "");
+    return Number.isFinite(time) && time > 0 ? Math.min(min, time) : min;
+  }, Number.POSITIVE_INFINITY);
+  const oldestMinutes = Number.isFinite(oldest)
+    ? Math.max(0, Math.floor((Number(now) - oldest) / 60000))
+    : null;
+  const groups = QUEUE_KINDS
+    .filter((kind) => summary.counts[kind])
+    .map((kind) => ({
+      kind,
+      label: KIND_LABELS[kind] || kind.replace("_", " "),
+      count: summary.counts[kind],
+    }));
+  const nextSync = backendConnected
+    ? "Live link detected; sealed records flush through hardened RPCs."
+    : "Records flush automatically when the Supabase live link returns.";
+  return {
+    version: 1,
+    size: summary.size,
+    cap: summary.cap,
+    groups,
+    oldest_minutes: oldestMinutes,
+    next_sync: cleanText(nextSync),
+    line: summary.size
+      ? `${summary.line} ${groups.map((group) => `${group.count} ${group.label}`).join(", ")}.`
+      : summary.line,
+    public_safe: true,
   };
 }
 

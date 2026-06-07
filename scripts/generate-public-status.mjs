@@ -34,6 +34,8 @@ const status = {
     ritual: chronicle.shared_world.ritual,
     director: chronicle.shared_world.director,
     backend_readiness: chronicle.shared_world.backend_readiness,
+    backend_contract: chronicle.shared_world.backend_contract,
+    sundial_queue: chronicle.shared_world.sundial_queue,
     outcome_receipts: {
       version: chronicle.shared_world.outcome_receipts.version,
       count: chronicle.shared_world.outcome_receipts.count,

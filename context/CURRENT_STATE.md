@@ -54,3 +54,6 @@ Public-safe summary:
 - UI scale now includes an XL (1.3) accessibility option persisted with existing preferences
 - `scripts/lib/` carries the six studio-ops modules the startup-brief renderer needs; public status `dayNumber` is aligned to the runtime season-day
 - latest local validation: 45 unit tests passing, production build passing, smoke flow passing
+- 2026-06-07 audit-derived pass shipped a shared backend RPC contract manifest, richer Sundial Queue briefing, zero-token queue outcome receipts, Rite Pacing Coach guidance, Last Light result cards, and a Daily Rite smoke contract that verifies Almanac/Myth/Vow/Queue/route-plan surface markers
+- public chronicle/status exports now include `backend_contract`, `shared_world.sundial_queue`, and `shared_world.result_card_shape` so Studio integrations can distinguish missing backend credentials from missing runtime behavior
+- latest local validation: 50 unit tests passing, production build passing, smoke flow passing

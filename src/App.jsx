@@ -30,6 +30,9 @@ import {
 } from "./game/sharedWorldService.js";
 import { getSunAlmanac } from "./game/almanac.js";
 import { buildChronicleScenes } from "./game/chronicleScenes.js";
+import { getDailyRitePlan } from "./game/directorMechanics.js";
+import { getRitePacingCoach } from "./game/riteCoach.js";
+import { buildLastLightResultCard } from "./game/resultCard.js";
 import { applyVowToEpitaph, evaluateVow, getVowById, getVowOffers } from "./game/vows.js";
 import {
   applyDirectorMemoryToMechanics,
@@ -44,7 +47,7 @@ import {
   encodeChallengeToken,
   getChallengeBanner,
 } from "./game/challengeLinks.js";
-import { getSundialQueueSummary } from "./game/sundialQueue.js";
+import { getSundialQueueBriefing, getSundialQueueSummary } from "./game/sundialQueue.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
 import { applyRunBlessing, getSharedWorldSnapshot } from "./game/sharedWorld.js";
@@ -1235,7 +1238,9 @@ export default function DS(){
     const memoryBias=getDirectorMemoryBias(loadDirectorMemoryRuns());
     const mechanics=applyDirectorMemoryToMechanics(worldState.director?.mechanics,memoryBias);
     const vow=pendingVowId?getVowById(pendingVowId):null;
-    const run={wave:0,startTime:Date.now(),rooms,done:false,deathWave:null,shareCard:null,mechanics,vow,vowResult:null,challengeResult:null};
+    const dailyPlan=getDailyRitePlan({sharedWorld:worldState,dayNumber:getDayNumber()});
+    const pacingCoach=getRitePacingCoach({dailyRitePlan:dailyPlan,wave:0,vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null});
+    const run={wave:0,startTime:Date.now(),rooms,done:false,deathWave:null,shareCard:null,mechanics,vow,vowResult:null,challengeResult:null,dailyPlan,pacingCoach};
     dailyRunRef.current=run;
     g2.mons=g2.mons.filter(m=>!m.dungeon);
     g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
@@ -1251,6 +1256,7 @@ export default function DS(){
       addC(`⚖️ Run tuning: enemies x${mechanics.enemyScale}, rewards x${mechanics.rewardMultiplier}, rival pressure x${mechanics.rivalWeight}.`);
       if(mechanics.remembrance)addC(`🌞 ${mechanics.remembrance}`);
     }
+    if(pacingCoach)addC(`🧭 Rite coach: ${pacingCoach.next_action}`);
     if(vow)addC(`⚜️ Vow pledged — ${vow.title}: "${vow.pledge}"`);
     if(challengeRef.current&&!challengeRef.current.expired)addC(`🔥 Challenge active: beat ${challengeRef.current.playerName}'s Wave ${challengeRef.current.wave}.`);
     run.prophecy=worldState.prophecy?.active||null;
@@ -2347,11 +2353,12 @@ export default function DS(){
               if(dailyRunRef.current&&!dailyRunRef.current.done){
                 const run=dailyRunRef.current;
                 run.done=true;run.deathWave=run.wave;
-                run.shareCard=generateShareCard(p.playerName||"Adventurer",run.wave,getPlayerFaction(p));
                 run.vowResult=run.vow?evaluateVow(run.vow,{wave:run.wave,completed:false,durationMs:Date.now()-run.startTime}):null;
                 if(run.vowResult)addC((run.vowResult.kept?"⚜️ ":"🕯️ ")+run.vowResult.debriefLine);
                 run.challengeResult=challengeRef.current&&!challengeRef.current.expired?compareChallengeResult(challengeRef.current,{wave:run.wave}):null;
                 if(run.challengeResult)addC("🔥 "+run.challengeResult.line);
+                run.pacingCoach=getRitePacingCoach({dailyRitePlan:run.dailyPlan,wave:run.wave,vow:run.vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null,completed:true});
+                run.shareCard=buildLastLightResultCard({playerName:p.playerName||"Adventurer",wave:run.wave,phase:getWorldSnapshot().phase?.label,vowResult:run.vowResult,challengeResult:run.challengeResult,mythLine:run.pacingCoach?.headline,dateSeed:getDailySeed()});
                 recordDirectorRunMemory({mode:"daily",wave:run.wave,completed:false,dateSeed:getDailySeed()});
                 addC("💀 Daily Rite ended at Wave "+run.wave+". Score recorded.");
                 submitEcho("daily","Daily Rite failed at Wave "+run.wave,`${p.playerName||"Adventurer"} reached Wave ${run.wave} in today's communal dungeon.`,run.wave);
@@ -2390,11 +2397,12 @@ export default function DS(){
           run.wave++;
           if(run.wave>=30){
             run.done=true;run.deathWave=30;
-            run.shareCard=generateShareCard(p.playerName||"Adventurer",30,getPlayerFaction(p));
             run.vowResult=run.vow?evaluateVow(run.vow,{wave:30,completed:true,durationMs:Date.now()-run.startTime}):null;
             if(run.vowResult)addC((run.vowResult.kept?"⚜️ ":"🕯️ ")+run.vowResult.debriefLine);
             run.challengeResult=challengeRef.current&&!challengeRef.current.expired?compareChallengeResult(challengeRef.current,{wave:30}):null;
             if(run.challengeResult)addC("🔥 "+run.challengeResult.line);
+            run.pacingCoach=getRitePacingCoach({dailyRitePlan:run.dailyPlan,wave:30,vow:run.vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null,completed:true});
+            run.shareCard=buildLastLightResultCard({playerName:p.playerName||"Adventurer",wave:30,phase:getWorldSnapshot().phase?.label,vowResult:run.vowResult,challengeResult:run.challengeResult,mythLine:run.pacingCoach?.headline,dateSeed:getDailySeed()});
             recordDirectorRunMemory({mode:"daily",wave:30,completed:true,dateSeed:getDailySeed()});
             addC("🏆 Daily Rite complete! Wave 30 cleared! The sun brightens.");
             submitEcho("daily","Daily Rite completed",`${p.playerName||"Adventurer"} cleared all 30 waves of the Daily Rite.`,30);
@@ -2809,10 +2817,15 @@ export default function DS(){
     echoCount:echoes.length,
     graveCount:gravesRef.current.length,
   });
+  const dailyRitePlan=getDailyRitePlan({sharedWorld,dayNumber:getDayNumber()});
   const sunAlmanac=getSunAlmanac({sharedWorld,dayNumber:getDayNumber(),sunBrightness});
   const mythScenes=buildChronicleScenes({sharedWorld,dayNumber:getDayNumber(),graveCount:gravesRef.current.length,echoCount:echoes.length});
   const vowOffers=getVowOffers({dateSeed:getDailySeed(),dayNumber:getDayNumber()});
   const sundialSummary=backendConnected?null:getSundialQueueSummary();
+  const sundialBriefing=backendConnected?null:getSundialQueueBriefing(null,{backendConnected});
+  const riteCoach=dailyRunRef.current&&!dailyRunRef.current.done
+    ? getRitePacingCoach({dailyRitePlan:dailyRunRef.current.dailyPlan||dailyRitePlan,wave:dailyRunRef.current.wave,vow:dailyRunRef.current.vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null})
+    : null;
   const activeChallengeBanner=challengeRef.current&&!challengeRef.current.expired?getChallengeBanner(challengeRef.current):null;
   const handleWorldFeedAction=useCallback((item)=>{
     const result=resolveWorldFeedAction(item);
@@ -3496,13 +3509,20 @@ export default function DS(){
               <SharedWorldStatus title="WORLD BRIEFING" briefing={sharedWorldBriefing} />
               <SessionDeltaCard delta={sessionDelta} />
               <WorldFeedCard feed={worldFeed} onAction={handleWorldFeedAction} />
+              {riteCoach&&<div style={{background:"rgba(10,18,16,0.62)",border:"1px solid rgba(120,210,170,0.16)",borderRadius:4,padding:6,display:"grid",gap:3}}>
+                <div style={{fontSize:8,color:"#7fd3a6",fontWeight:800,letterSpacing:1}}>RITE PACING COACH</div>
+                <div style={{fontSize:7,color:"#a8c8b8",lineHeight:1.45}}>{riteCoach.headline}</div>
+                <div style={{fontSize:7,color:"#7fd3a6",fontWeight:700}}>{riteCoach.next_action}</div>
+              </div>}
               {activeChallengeBanner&&<div style={{background:"rgba(50,18,4,0.7)",border:"1px solid #c8642e",borderRadius:4,padding:6}}>
                 <div style={{fontSize:8,color:"#f0884e",fontWeight:700,letterSpacing:1}}>🔥 {activeChallengeBanner.title.toUpperCase()}</div>
                 <div style={{fontSize:7,color:"#c8a06a",lineHeight:1.4,marginTop:1}}>{activeChallengeBanner.detail}</div>
               </div>}
               {sundialSummary&&sundialSummary.size>0&&<div style={{background:"rgba(16,14,28,0.6)",border:"1px solid rgba(110,110,200,0.25)",borderRadius:4,padding:"5px 6px"}}>
                 <div style={{fontSize:8,color:"#9090e0",fontWeight:700,letterSpacing:1}}>🕰️ SUNDIAL QUEUE</div>
-                <div style={{fontSize:7,color:"#8a86a8",lineHeight:1.4,marginTop:1}}>{sundialSummary.line} They sync automatically when the live link returns.</div>
+                <div style={{fontSize:7,color:"#8a86a8",lineHeight:1.4,marginTop:1}}>{sundialBriefing?.line||sundialSummary.line}</div>
+                {sundialBriefing?.groups?.length>0&&<div style={{fontSize:7,color:"#b6a6df",lineHeight:1.35}}>{sundialBriefing.groups.map(group=>`${group.count} ${group.label}`).join(" · ")}</div>}
+                <div style={{fontSize:6,color:"#6d688a",lineHeight:1.35}}>{sundialBriefing?.next_sync||"They sync automatically when the live link returns."}</div>
               </div>}
               <div style={{background:"rgba(18,10,4,0.55)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,padding:6,display:"grid",gap:3}}>
                 <div style={{fontSize:8,color:"#c8a84e",fontWeight:700,letterSpacing:1}}>📅 SUN ALMANAC — 7-DAY FORECAST</div>
@@ -3564,6 +3584,7 @@ export default function DS(){
                 </div>
                 {dailyRunRef.current.vowResult&&<div style={{fontSize:7,color:dailyRunRef.current.vowResult.kept?"#e0b050":"#a06050",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{dailyRunRef.current.vowResult.kept?"⚜️":"🕯️"} {dailyRunRef.current.vowResult.debriefLine}</div>}
                 {dailyRunRef.current.challengeResult&&<div style={{fontSize:7,color:dailyRunRef.current.challengeResult.beaten?"#6c4":"#c86",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🔥 {dailyRunRef.current.challengeResult.line}</div>}
+                {dailyRunRef.current.pacingCoach&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🧭 {dailyRunRef.current.pacingCoach.next_action}</div>}
                 {dailyRunRef.current.shareCard&&<>
                   <pre style={{fontSize:7,color:"#8a7a5a",background:"rgba(0,0,0,0.4)",padding:4,borderRadius:3,marginBottom:4,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"'Courier New',monospace"}}>{dailyRunRef.current.shareCard}</pre>
                   <button onClick={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});}catch(e){}}else{try{await navigator.clipboard.writeText(t);addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}} style={{width:"100%",background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>📋 Copy &amp; Share</button>

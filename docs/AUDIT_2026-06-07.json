@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-07",
+  "project": {
+    "slug": "solara",
+    "name": "Solara",
+    "type": "game"
+  },
+  "topLine": {
+    "totalItems": 6,
+    "combinedPriority": 162.7,
+    "top3": [
+      "rpc-contract-manifest",
+      "sundial-queue-briefing",
+      "rite-pacing-coach"
+    ],
+    "signals": [
+      "The 2026-06-04 audit is fully executed; this plan deliberately builds on the shipped Almanac, Sundial Queue, Legacy Vows, Director Memory, Myth So Far, and Last Light links.",
+      "SUPABASE_DB_URL remains the only production-scale blocker, so the highest-value agent work is to make the backend contract more explicit and the offline path more trustworthy.",
+      "App.jsx is still large, but the safest June 7 pass is small reusable modules plus thin UI/export wiring rather than a broad split.",
+      "Every item preserves the deterministic zero-browser-token policy and keeps free-tier cost neutral."
+    ]
+  },
+  "items": [
+    {
+      "slug": "rpc-contract-manifest",
+      "tier": "fire",
+      "axis": "security",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 7,
+      "priority": 36.0,
+      "title": "RPC Contract Manifest - make backend hardening verifiable before the secret lands",
+      "why": "The current verifier proves public reads and two hardened RPCs, but Solara now depends on five write contracts: grave, score, echo, reaction, and offering. A shared manifest turns the Supabase blocker from a vague secret gap into a crisp deploy checklist, and it keeps runtime, docs, tests, and public status aligned when the database finally comes online.",
+      "recipe": "Add a reusable backend contract manifest for required tables/RPCs, make scripts/verify-supabase-hardening.mjs consume it, export the manifest summary through public chronicle/status contracts, and add tests that all queued write kinds have a matching RPC contract."
+    },
+    {
+      "slug": "sundial-queue-briefing",
+      "tier": "fire",
+      "axis": "user-feedback-loop",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 32.0,
+      "title": "Sundial Queue Briefing - show exactly what offline light is waiting to sync",
+      "why": "The queue is already a strong offline-first invention, but its summary is still too coarse for a player deciding whether their run mattered. A grouped briefing by record kind, oldest age, and next sync condition makes the pending chronicle feel intentional instead of hidden technical debt.",
+      "recipe": "Extend src/game/sundialQueue.js with a public-safe briefing object, surface it in the Daily Rite queue card and chronicle export, and test grouping, caps, and no-secret/no-HTML output."
+    },
+    {
+      "slug": "rite-pacing-coach",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 32.0,
+      "title": "Rite Pacing Coach - turn the Director route plan into mid-run decisions",
+      "why": "Daily Rite route segments are now deterministic, but most of their value appears before the run starts. A pacing coach that reads current wave, vow, challenge target, and Director segment can tell the player when to bank, push, or hunt a rival, making the run feel authored minute by minute with no AI spend.",
+      "recipe": "Add src/game/riteCoach.js, wire it into run start/debrief copy, and test segment selection, vow/challenge pressure, and deterministic guidance."
+    },
+    {
+      "slug": "last-light-result-card",
+      "tier": "high",
+      "axis": "engagement",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 7,
+      "priority": 28.0,
+      "title": "Last Light Result Card - make every Daily Rite shareable without a screenshot",
+      "why": "Challenge links let a friend replay the route, but the current share artifact is still just a URL. A compact deterministic result card gives players a Wordle-like social object: wave, vow result, challenge comparison, phase, and one line of myth, all sanitized and copied as text.",
+      "recipe": "Add src/game/resultCard.js, use it in the completed Daily Rite copy action, export the latest shape through chronicle contracts, and test sanitization plus stable formatting."
+    },
+    {
+      "slug": "outcome-receipt-queue-link",
+      "tier": "high",
+      "axis": "ai-intelligence",
+      "effort": "30m",
+      "impact": 7,
+      "innovation": 6,
+      "priority": 26.0,
+      "title": "Outcome Receipt Queue Link - connect pending writes to the zero-token intelligence layer",
+      "why": "Outcome receipts currently summarize world signals, but they do not acknowledge records sealed in the Sundial Queue. Adding a queue receipt closes the feedback loop: the player sees that an offline grave, score, or offering is already part of the deterministic intelligence surface even before Supabase accepts it.",
+      "recipe": "Update outcome receipt generation to include a queue_pending receipt when a queue briefing is present; export it through chronicle/status and test token cost remains zero."
+    },
+    {
+      "slug": "app-surface-smoke-contract",
+      "tier": "high",
+      "axis": "speed-organization-efficiency",
+      "effort": "1h",
+      "impact": 6,
+      "innovation": 5,
+      "priority": 8.7,
+      "title": "App Surface Smoke Contract - stop regressions in the newly modular Daily Rite surface",
+      "why": "The biggest risk after the June 4 tranche is not missing code, it is UI drift: imported modules can pass unit tests while App.jsx stops exposing them coherently. A smoke contract that asserts the app still references the World Feed, Almanac, Myth So Far, Vow picker, queue card, challenge copy, and new result-card/coach surfaces gives the next extraction pass a tripwire.",
+      "recipe": "Extend scripts/smoke-runtime.mjs or add a focused test to scan the transformed app surface for the required Daily Rite integration markers; include the new modules in the contract."
+    }
+  ],
+  "innovationReserve": [
+    "sundial-queue-briefing",
+    "rite-pacing-coach",
+    "last-light-result-card"
+  ],
+  "skipped": [
+    {
+      "slug": "deploy-supabase-hardening",
+      "reason": "Still depends on SUPABASE_DB_URL or owner dashboard credentials. The audit keeps this visible but does not relabel it as agent-shippable without the credential."
+    },
+    {
+      "slug": "full-app-jsx-split",
+      "reason": "The current risk profile favors small module extraction and smoke contracts before another broad UI surgery pass."
+    },
+    {
+      "slug": "paid-ai-narration",
+      "reason": "Blocked by CANON-029 free-tier cost discipline; deterministic narrative generation remains the correct path."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "rpc-contract-manifest",
+      "status": "shipped",
+      "evidence": "src/game/backendContract.js now defines the shared-world table/RPC contract for grave, daily_score, echo, reaction, and offering writes; scripts/verify-supabase-hardening.mjs consumes the manifest; chronicle/status exports include backend_contract. tests/june7-systems.test.mjs verifies every Sundial Queue kind has a matching RPC contract."
+    },
+    {
+      "slug": "sundial-queue-briefing",
+      "status": "shipped",
+      "evidence": "src/game/sundialQueue.js exports getSundialQueueBriefing() with grouped public-safe counts, oldest age, next-sync copy, and cap data; App.jsx surfaces the briefing in the Daily Rite queue card; chronicle/status exports include shared_world.sundial_queue."
+    },
+    {
+      "slug": "rite-pacing-coach",
+      "status": "shipped",
+      "evidence": "src/game/riteCoach.js maps Daily Rite route segment, wave, vow, and challenge pressure into deterministic mid-run guidance; App.jsx announces the coach at run start, shows it while the run is active, and stores final coach guidance on debrief."
+    },
+    {
+      "slug": "last-light-result-card",
+      "status": "shipped",
+      "evidence": "src/game/resultCard.js builds a sanitized deterministic Last Light result card; App.jsx uses it for completed/failed Daily Rite share cards; chronicle exports result_card_shape for integration consumers."
+    },
+    {
+      "slug": "outcome-receipt-queue-link",
+      "status": "shipped",
+      "evidence": "src/game/outcomeReceipts.js emits queue_pending receipts when a queue briefing has sealed records. Tests verify the new receipt keeps token_cost at zero."
+    },
+    {
+      "slug": "app-surface-smoke-contract",
+      "status": "shipped",
+      "evidence": "scripts/smoke-runtime.mjs now exports and asserts Sun Almanac, Myth So Far, Legacy Vows, Daily Rite route plan, Sundial Queue briefing, world feed, first-session plan, save, and import surfaces. npm run smoke passes."
+    }
+  ]
+}

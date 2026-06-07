@@ -1,29 +1,29 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-06 (Session ? closeout) -->
+<!-- generated-at: 2026-06-07 (Session ? closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
 ╔══ SESSION CLOSEOUT · Solara · S? ══════════════════════════════╗
-║  Date: 2026-06-06  ·  SIL: 834/1000  ·  Velocity: 10 ->          ║
+║  Date: 2026-06-07  ·  SIL: 852/1000  ·  Velocity: 10 ->          ║
 ║  Mode: FOUNDER  ·  Agent: claude-code                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: Sun Almanac 7-day deterministic forecast, Sundial Q  ║
-║  ✓ Tests: 45 passing (unit, up from 31) plus smoke runtime and   ║
-║  ✓ Deploy: committed on `main` (`a597486`) and pushed through t  ║
+║  ✓ Shipped: backend RPC contract manifest, Supabase hardening v  ║
+║  ✓ Tests: 50 passing unit tests plus production build and smoke  ║
+║  ✓ Remaining gate: Supabase production hardening still needs de  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 834/1000 ═══════════════════════════════════════╗
-║    Dev Health         82   ████████░░                            ║
+╔══ SCORES · SIL 852/1000 ═══════════════════════════════════════╗
+║    Dev Health         84   ████████░░                            ║
 ║    Alignment          85   █████████░                            ║
 ║    Momentum           85   █████████░                            ║
-║    Engagement         80   ████████░░                            ║
-║    Process Qual       80   ████████░░                            ║
+║    Engagement         84   ████████░░                            ║
+║    Process Qual       82   ████████░░                            ║
 ║    Coherence          90   █████████░                            ║
-║    Security           90   █████████░                            ║
-║    Ecosystem          86   █████████░                            ║
-║    Capital            80   ████████░░                            ║
-║    Automation         76   ████████░░                            ║
+║    Security           92   █████████░                            ║
+║    Ecosystem          88   █████████░                            ║
+║    Capital            82   ████████░░                            ║
+║    Automation         81   ████████░░                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
 ║  ✓ context/CURRENT_STATE.md                                      ║
@@ -38,15 +38,15 @@
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 19 files  ·  M:9 A:10 D:0 ?:0                          ║
-║  Ahead: 1  ·  Behind: 0                                          ║
+║  Changes: 25 files  ·  M:19 A:0 D:0 ?:6                          ║
+║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
 ║  Doctor:        —                                                ║
 ║  Compliance:    —                                                ║
 ║  Tests:         —                                                ║
-║  IGNIS:         1d ago                                           ║
+║  IGNIS:         3d ago                                           ║
 ║  Truth:         green                                            ║
 ║  Sanitization:  —                                                ║
 ╚════════════════════════════════════════════════════════════════╝

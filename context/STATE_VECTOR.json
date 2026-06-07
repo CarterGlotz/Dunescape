@@ -1,10 +1,10 @@
 {
   "vectorVersion": "1.0",
-  "generatedAt": "2026-06-05",
+  "generatedAt": "2026-06-07",
   "generatedAtMs": 1780695477776,
   "session": null,
   "vectorHash": "6cddcfd88cec3049",
-  "silTotal": 834,
+  "silTotal": 852,
   "silAvg3": null,
   "velocity": null,
   "debt": "->",
@@ -25,9 +25,9 @@
   "slug": "solara",
   "type": null,
   "lifecycle": "building",
-  "nextMilestone": "Deploy and verify Supabase RPC/RLS hardening in the live backend (flushes the Sundial Queue), mirror vow legacy multipliers server-side, then continue modular extraction from App.jsx and add browser-level gameplay validation.",
-  "currentFocus": "Deepen the daily appointment loop with the deterministic Sun Almanac, Legacy Vows, Director Memory, Myth So Far scenes, and Last Light challenge links, while the Sundial Queue holds offline shared-world writes for RPC-first flush when the backend link lands.",
-  "lastShipped": "Sun Almanac 7-day deterministic forecast, Sundial Queue offline outbox with flush-on-connect, Legacy Vows with grave epitaph stamping, Director Memory adaptive personal pressure, Myth So Far chronicle scenes, Last Light challenge links, a 250-seed save-import fuzz harness (found and fixed a real sanitizer crash), XL accessibility text scale, and repaired startup-brief renderer libs",
+  "nextMilestone": "Deploy and verify Supabase RPC/RLS hardening in the live backend using the shared RPC contract manifest, then continue modular extraction from App.jsx with the Daily Rite smoke contract guarding the Almanac, Myth, Vow, Queue, Coach, and Result Card surfaces.",
+  "currentFocus": "Make the shared-world loop legible and verifiable: backend contract manifest, Sundial Queue briefing, zero-token queue receipts, Rite Pacing Coach guidance, and Last Light result cards now clarify what each Daily Rite changes.",
+  "lastShipped": "June 7 audit/implement pass shipped a shared backend RPC contract manifest, richer Sundial Queue briefing, zero-token queue outcome receipts, Rite Pacing Coach, Last Light result cards, and a Daily Rite app-surface smoke contract; validation passed 50 unit tests, production build, and smoke runtime.",
   "blockers": [
     "Supabase production policies must enforce the same trust rules before public traffic scales."
   ]

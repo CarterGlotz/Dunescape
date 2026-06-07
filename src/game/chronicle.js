@@ -9,6 +9,9 @@ import { buildOutcomeReceiptSet } from "./outcomeReceipts.js";
 import { buildWorldFeed } from "./worldFeed.js";
 import { getSunAlmanac } from "./almanac.js";
 import { buildChronicleScenes } from "./chronicleScenes.js";
+import { getBackendContractSummary } from "./backendContract.js";
+import { getSundialQueueBriefing } from "./sundialQueue.js";
+import { buildLastLightResultCard } from "./resultCard.js";
 
 function sortByWave(entries = []) {
   return [...entries].sort((a, b) => Number(b?.wave_reached || 0) - Number(a?.wave_reached || 0));
@@ -121,11 +124,14 @@ export function buildPublicChronicle({
     requiredSecretsPresent: false,
     missingSecrets: ["SUPABASE_DB_URL"],
   });
+  const backendContract = getBackendContractSummary();
+  const queueBriefing = getSundialQueueBriefing([], { backendConnected: true });
   const outcomeReceipts = buildOutcomeReceiptSet({
     sharedWorld,
     objectiveState: { title: sharedWorld.crisis.title },
     worldFeed,
     aiPolicy,
+    queueBriefing,
   });
   const almanac = getSunAlmanac({ sharedWorld, dayNumber, sunBrightness: brightness });
   const mythScenes = buildChronicleScenes({
@@ -133,6 +139,13 @@ export function buildPublicChronicle({
     dayNumber,
     graveCount: publicGraves.length,
     echoCount: publicEchoes.length,
+  });
+  const resultCardShape = buildLastLightResultCard({
+    playerName: topRuns[0]?.player_name || "Adventurer",
+    wave: topRuns[0]?.wave_reached || 0,
+    phase: sharedWorld.phase.label,
+    mythLine: mythScenes.scenes[0],
+    dateSeed: `season-${season}-day-${dayNumber}`,
   });
 
   return {
@@ -167,9 +180,12 @@ export function buildPublicChronicle({
       daily_rite_plan: dailyRitePlan,
       constellation_objectives: constellationObjectives.slice(0, 5),
       backend_readiness: backendReadiness,
+      backend_contract: backendContract,
+      sundial_queue: queueBriefing,
       outcome_receipts: outcomeReceipts,
       almanac,
       myth_scenes: mythScenes,
+      result_card_shape: resultCardShape,
     },
     top_runs: topRuns,
     graves: publicGraves,
@@ -210,6 +226,7 @@ export function buildPublicChronicle({
         latest: outcomeReceipts.receipts[0],
       },
       backend_readiness: backendReadiness,
+      backend_contract: backendContract,
     },
     ai_policy: aiPolicy,
   };
