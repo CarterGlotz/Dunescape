@@ -2,6 +2,15 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-10 · Session 64)
+- Shipped: `PG_CONNECTION_SOLARA` truth gate across backend contracts, workflow preflight, tests, docs, and generated public status/chronicle JSON
+- Shipped: deterministic Daily Rite consequence engine for Director-derived entry, clear, failure, share, reward, urgency, and next-action copy
+- Shipped: Daily Rite run-session extraction into `src/game/dailyRunSession.js`, reducing inline `src/App.jsx` responsibility without moving combat state
+- Shipped: zero-token feedback next-action digest rendered on the front door and exported through public chronicle/status integration surfaces
+- Tests: 56 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: convert consequence receipts into actual reward/modifier effects, continue App.jsx extraction around Daily Rite presentation/combat boundaries, and deploy/verify Supabase RPC/RLS hardening once the project-scoped connection lands
+
 ## Where We Left Off (2026-06-10)
 - Shipped: Director-aware Daily Rite room weaving, front-door Sun Almanac/Myth So Far planning panel, capped public-safe local feedback ledger, public chronicle/status `feedback_summary` exports, and smoke/unit coverage for the new surfaces
 - Protocol repair: `/start` deferred propagation updated AGENTS/protocol scripts; added the missing copied `scripts/lib/shared-policies.mjs` dependency so `node scripts/render-startup-brief.mjs` runs cleanly again

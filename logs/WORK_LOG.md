@@ -72,3 +72,9 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - added a capped public-safe local feedback ledger for Daily Rite start/end, share-copy, and save-import repair events, then exported aggregate feedback summaries through chronicle/status contracts
 - repaired the propagated startup-brief renderer by adding the missing copied shared-policy helper after the /start propagation hook updated protocol scripts
 - verified 54 unit tests, production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board render
+- ran a Session 64 /start → /audit → /implement pass using docs/AUDIT_2026-06-10-S64.md / .json
+- aligned Supabase hardening contracts, workflow preflight, tests, docs, and generated public JSON to the project-scoped `PG_CONNECTION_SOLARA` gate
+- added deterministic Daily Rite consequence receipts and extracted Daily Rite run-session assembly/completion into focused game modules
+- extended the local feedback ledger with a zero-token next-action digest, rendered it on the front door, and exported it through status/chronicle contracts
+- repaired the smoke harness so successful assertions exit cleanly instead of hanging behind app timers
+- verified 56 unit tests, production build, and smoke runtime

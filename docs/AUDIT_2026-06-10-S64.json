@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-10",
+  "session": 64,
+  "project": {
+    "slug": "solara",
+    "name": "Solara",
+    "type": "game"
+  },
+  "topLine": {
+    "totalItems": 4,
+    "combinedPriority": 119.0,
+    "top3": [
+      "pg-connection-truth-gate",
+      "rite-consequence-engine",
+      "feedback-next-action-digest"
+    ],
+    "signals": [
+      "Session 63 left Solara deployable with 54 tests passing, but the generated public backend surfaces still say SUPABASE_DB_URL while project decisions now require PG_CONNECTION_SOLARA for cloud project fjnpzjjyhnpmunfoycrp.",
+      "The Daily Rite now consumes Director route segments, but room consequences are still mostly narration; the next high-leverage move is to make each segment produce deterministic player-facing risk/reward and next-action receipts.",
+      "The public-safe feedback ledger counts starts, ends, shares, and repairs, but it does not yet convert those signals into a zero-token recommendation loop for the menu, status JSON, and Studio integrations.",
+      "App.jsx is still 4,229 lines; extracting one more Daily Rite seam is the safest way to reduce risk without destabilizing canvas, combat, inventory, or save flows."
+    ]
+  },
+  "items": [
+    {
+      "slug": "pg-connection-truth-gate",
+      "tier": "fire",
+      "axis": "security",
+      "effort": "30m",
+      "impact": 9,
+      "innovation": 7,
+      "priority": 42.0,
+      "title": "PG Connection Truth Gate - align workflow, contracts, and public JSON to PG_CONNECTION_SOLARA",
+      "why": "Solara's live decision record says the hardening credential is project-scoped PG_CONNECTION_SOLARA, but code, workflow preflight, tests, and generated public JSON still mention SUPABASE_DB_URL. This is a process-honesty and founder-pressure bug: the public contract should point at the credential that is actually safe for this project.",
+      "recipe": "Update backend readiness and contract modules, the Supabase Hardening workflow, tests, generated public status/chronicle output, and task-board language so the hardening gate consistently names PG_CONNECTION_SOLARA while preserving the owner SQL-editor fallback."
+    },
+    {
+      "slug": "rite-consequence-engine",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 8,
+      "priority": 36.0,
+      "title": "Rite Consequence Engine - turn Director room segments into deterministic risk/reward receipts",
+      "why": "Director-aware rooms currently tell the player what segment they entered, but they do not yet produce a compact consequence model that later rewards, debriefs, and telemetry can share. A deterministic consequence engine makes the Daily Rite feel authored by the sun instead of merely described by it.",
+      "recipe": "Add a Daily Rite consequence module that derives entry, clear, failure, reward, urgency, and next-action copy from the current segment; wire it into run start, room transition, death/clear share-card myth lines, and tests."
+    },
+    {
+      "slug": "feedback-next-action-digest",
+      "tier": "high",
+      "axis": "user-feedback-loop",
+      "effort": "45m",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 28.0,
+      "title": "Feedback Next-Action Digest - convert local aggregate events into a zero-token recommendation loop",
+      "why": "The local feedback ledger is privacy-safe but passive. Solara should use those capped aggregate events to tell the player and Studio integrations what the runtime most needs next: first run, completed run, share, import recovery, or backend activation.",
+      "recipe": "Extend feedbackLedger with a digest that names the strongest missing/underused action, expose it in public chronicle/status integrations, render it on the front door, and test that it stays sanitized and zero-token."
+    },
+    {
+      "slug": "daily-run-session-extraction",
+      "tier": "high",
+      "axis": "speed-organization-efficiency",
+      "effort": "45m",
+      "impact": 6,
+      "innovation": 5,
+      "priority": 13.0,
+      "title": "Daily Run Session Extraction - pull Daily Rite run object assembly out of App.jsx",
+      "why": "Full canvas/combat decomposition is still too risky for a single unattended pass, but the Daily Rite run object now has enough stable inputs to leave App.jsx. A small factory reduces main-component responsibility and creates a repeatable pattern for the next extraction tranche.",
+      "recipe": "Add a dailyRunSession module that creates and completes Daily Rite session state from room weave, mechanics, vow, challenge, and consequence inputs; use it from App.jsx and cover it with Node tests."
+    }
+  ],
+  "innovationReserve": [
+    "rite-consequence-engine",
+    "feedback-next-action-digest"
+  ],
+  "skipped": [
+    {
+      "slug": "deploy-supabase-hardening",
+      "reason": "Still requires the project-scoped PG_CONNECTION_SOLARA database credential or owner SQL-editor access."
+    },
+    {
+      "slug": "paid-ai-myth-narration",
+      "reason": "Still conflicts with Solara's deterministic-first, zero-browser-token, free-tier cost-neutral posture."
+    },
+    {
+      "slug": "full-canvas-combat-split",
+      "reason": "Correct next technical mountain, but too high-risk before another guarded Daily Rite extraction lands."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "pg-connection-truth-gate",
+      "status": "shipped",
+      "evidence": "Backend readiness, backend contract summary, Supabase Hardening workflow, tests, docs, public/status.json, and public/chronicle.json now use PG_CONNECTION_SOLARA. Active source/tests/workflow/public output contain no SUPABASE_DB_URL references."
+    },
+    {
+      "slug": "rite-consequence-engine",
+      "status": "shipped",
+      "evidence": "src/game/dailyRiteConsequences.js derives deterministic entry, clear, failure, share, urgency, reward, and next-action copy from Director route segments; src/App.jsx uses those consequences in the Daily Rite runtime."
+    },
+    {
+      "slug": "feedback-next-action-digest",
+      "status": "shipped",
+      "evidence": "src/game/feedbackLedger.js emits a zero-token next_action digest, src/App.jsx renders it on the front door, and public chronicle/status exports include it in feedback_summary."
+    },
+    {
+      "slug": "daily-run-session-extraction",
+      "status": "shipped",
+      "evidence": "src/game/dailyRunSession.js creates and completes Daily Rite run state, including room weave, pacing coach, consequence, and share-card creation. tests/june10-systems.test.mjs covers the factory and completion behavior."
+    }
+  ]
+}

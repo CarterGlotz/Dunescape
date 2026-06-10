@@ -10,6 +10,9 @@ import {
 
 const projectRoot = process.cwd();
 const appEntry = path.resolve(projectRoot, "src/App.jsx");
+let smokeStage = "boot";
+globalThis.__nativeSetTimeout = globalThis.setTimeout;
+globalThis.__nativeClearTimeout = globalThis.clearTimeout;
 
 function installBrowserStubs() {
   const storage = new Map();
@@ -129,6 +132,10 @@ function installBrowserStubs() {
 
   globalThis.confirm = () => false;
   globalThis.__reloadCalled = false;
+  globalThis.setInterval = () => 1;
+  globalThis.clearInterval = noop;
+  globalThis.setTimeout = () => 1;
+  globalThis.clearTimeout = noop;
   globalThis.requestAnimationFrame = () => 1;
   globalThis.cancelAnimationFrame = noop;
 }
@@ -256,6 +263,7 @@ function render(Component) {
 }
 
 async function loadComponent() {
+  smokeStage = "reading App.jsx";
   const source = await fs.readFile(appEntry, "utf8");
   const canvasReturnPattern = /return <canvas[\s\S]*?\/>;/;
 
@@ -335,6 +343,7 @@ return null;
   }
   const tempPath = path.resolve(projectRoot, "src/.tmp-smoke-runtime.mjs");
   await fs.writeFile(tempPath, patchedSource, "utf8");
+  smokeStage = "importing rewritten App";
   return {
     module: await import(`${pathToFileURL(tempPath).href}?t=${Date.now()}`),
     tempPath,
@@ -342,6 +351,7 @@ return null;
 }
 
 async function runScenario(Component, buttonLabel, expectedRefPredicate) {
+  smokeStage = `rendering ${buttonLabel}`;
   resetRuntime();
   render(Component);
   const hookState = getHookState();
@@ -364,6 +374,7 @@ async function runScenario(Component, buttonLabel, expectedRefPredicate) {
   assert(typeof handler === "function", `Missing startup handler for "${buttonLabel}".`);
 
   handler();
+  smokeStage = `running ${buttonLabel}`;
   render(Component);
 
   const runRef = findRef(expectedRefPredicate);
@@ -377,6 +388,7 @@ async function runScenario(Component, buttonLabel, expectedRefPredicate) {
 }
 
 async function runSaveScenario(Component) {
+  smokeStage = "rendering save scenario";
   resetRuntime();
   render(Component);
   const hookState = getHookState();
@@ -412,6 +424,11 @@ async function runSaveScenario(Component) {
 }
 
 async function main() {
+  const watchdog = globalThis.__nativeSetTimeout(() => {
+    console.error(`Smoke test timed out during: ${smokeStage}`);
+    process.exit(1);
+  }, 30000);
+  globalThis.__smokeWatchdog = watchdog;
   installBrowserStubs();
   const { module, tempPath } = await loadComponent();
   const Component = module.default;
@@ -433,6 +450,8 @@ async function main() {
     await runSaveScenario(Component);
 
     console.log("Smoke test passed: app mounts, Daily/Roguelite startup flows initialize, and save/import paths work.");
+    globalThis.__nativeClearTimeout(watchdog);
+    return true;
   } finally {
     try {
       await fs.unlink(tempPath);
@@ -440,7 +459,12 @@ async function main() {
   }
 }
 
-main().catch((error) => {
+main().then(() => {
+  process.exit(0);
+}).catch((error) => {
+  if (globalThis.__smokeWatchdog) {
+    globalThis.__nativeClearTimeout(globalThis.__smokeWatchdog);
+  }
   console.error("Smoke test failed.");
   console.error(error?.stack || error);
   process.exitCode = 1;

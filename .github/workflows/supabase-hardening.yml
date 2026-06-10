@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      PG_CONNECTION_SOLARA: ${{ secrets.PG_CONNECTION_SOLARA }}
       VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
       VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
     steps:
@@ -17,8 +17,8 @@ jobs:
       - name: Validate required secrets
         run: |
           missing=0
-          if [ -z "$SUPABASE_DB_URL" ]; then
-            echo "::error title=Missing GitHub secret::SUPABASE_DB_URL is required to apply docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql."
+          if [ -z "$PG_CONNECTION_SOLARA" ]; then
+            echo "::error title=Missing GitHub secret::PG_CONNECTION_SOLARA is required to apply docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql to Solara's Supabase project."
             missing=1
           fi
           if [ -z "$VITE_SUPABASE_URL" ]; then
@@ -43,7 +43,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
       - name: Apply Supabase public write hardening
-        run: psql "$SUPABASE_DB_URL" --set=ON_ERROR_STOP=1 --file docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql
+        run: psql "$PG_CONNECTION_SOLARA" --set=ON_ERROR_STOP=1 --file docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql
 
       - name: Verify Supabase public hardening
         run: npm run verify:supabase

@@ -40,7 +40,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - add first-session "first myth" onboarding that reaches a shared-world consequence within five minutes
 - version Studio Hub / Social Dashboard / Sparkfunnel JSON contracts and include conversion / retention event hints
 - add deterministic content-intelligence fallbacks before any paid server-side AI summary work
-- mirror vow legacy multipliers and Sundial Queue flush validation in Supabase RPC enforcement once `SUPABASE_DB_URL` lands
+- mirror vow legacy multipliers and Sundial Queue flush validation in Supabase RPC enforcement once `PG_CONNECTION_SOLARA` lands
 - use `src/game/backendContract.js` as the source for Supabase hardening verification and update it before adding any new shared-world write kind
 - keep Supabase production hardening scoped to `PG_CONNECTION_SOLARA` for project `fjnpzjjyhnpmunfoycrp`; do not reuse the Hetzner/Vorn shared database credential for Solara
 - expand Rite Pacing Coach from guidance copy into actual room/reward nudges once the next Daily Rite runtime extraction starts
@@ -50,9 +50,9 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - continue converting smoke coverage into browser-level validation when a browser runner is added; current smoke now verifies first-session, objective, and world-feed data contracts
 - deploy `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` to cloud project `fjnpzjjyhnpmunfoycrp` with owner SQL-editor access or project-specific Postgres credentials, then rerun `npm run verify:supabase`
 - add GitHub repo secret `PG_CONNECTION_SOLARA`, then update/run the manual Supabase Hardening workflow against that project-scoped key
-- rerun Supabase Hardening workflow after `PG_CONNECTION_SOLARA` is present; prior run `24579847516` confirmed the old required-secret preflight worked but needs to move away from generic `SUPABASE_DB_URL`
+- rerun Supabase Hardening workflow after `PG_CONNECTION_SOLARA` is present; prior run `24579847516` confirmed the old required-secret preflight worked before the project-scoped gate was adopted
 - extend the new deterministic outcome receipts into visible post-action UI surfaces for offerings, echo reactions, and run-end share flows
-- use the new Director route brief fields to tune actual Daily Rite room selection and reward pacing beyond public JSON/contracts
+- use the Director route consequence fields to tune actual Daily Rite reward payout and room modifier behavior beyond public JSON/contracts
 
 ## Combined Top Recommendations
 
@@ -141,6 +141,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - front-door menu now previews Sun Almanac and Myth So Far signals before players enter the Daily tab
 - latest local validation: 54 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing, closeout-board render passing
 - propagated startup protocol scripts now have the missing local shared-policy helper required by the startup-brief renderer
+- 2026-06-10 Session 64 pass aligned the hardening gate to `PG_CONNECTION_SOLARA`, added deterministic Daily Rite consequence receipts, extracted Daily Rite run-session assembly/completion, and turned feedback summaries into front-door/public JSON next-action digests
+- latest local validation: 56 unit tests passing, production build passing, smoke flow passing
 
 ## Deferred to Project Agents
 

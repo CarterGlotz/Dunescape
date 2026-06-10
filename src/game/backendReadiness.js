@@ -1,4 +1,5 @@
 export const BACKEND_READINESS_VERSION = 1;
+export const SUPABASE_HARDENING_GATE = "PG_CONNECTION_SOLARA";
 
 export function buildBackendReadiness({
   backendConnected = false,
@@ -25,7 +26,7 @@ export function buildBackendReadiness({
       ? "Monitor public-write health."
       : requiredSecretsPresent
         ? "Run the Supabase Hardening workflow and verify RPC enforcement."
-        : "Add SUPABASE_DB_URL, then run the Supabase Hardening workflow.",
+        : `Add ${SUPABASE_HARDENING_GATE}, then run the Supabase Hardening workflow.`,
     missing_secret_labels: missing,
   };
 }

@@ -66,3 +66,9 @@ Public-safe summary:
 - local feedback events now record capped zero-token aggregates for Daily Rite start/end, share-copy, and save-import repair moments without storing raw saves, private notes, credentials, or cookies
 - /start deferred propagation refreshed AGENTS/protocol scripts; startup-brief rendering was repaired by adding the copied `scripts/lib/shared-policies.mjs` dependency required by the new renderer import
 - latest local validation: 54 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing, closeout-board render passing
+- 2026-06-10 Session 64 audit/implement pass shipped the PG connection truth gate, Daily Rite consequence engine, Daily Rite run-session extraction, and zero-token feedback next-action digest
+- active backend hardening contracts, workflow preflight, tests, and generated public status/chronicle JSON now consistently name `PG_CONNECTION_SOLARA`; active source/tests/workflow/public output no longer contains stale `SUPABASE_DB_URL`
+- Daily Rite runtime now derives deterministic entry, clear, failure, share, urgency, reward, and next-action copy from Director route segments
+- Daily Rite run object assembly and completion/share-card creation now live in `src/game/dailyRunSession.js` instead of inline `src/App.jsx`
+- feedback ledger summaries now include a public-safe zero-token `next_action` digest, rendered on the front door and exported through public chronicle/status integration surfaces
+- latest local validation: 56 unit tests passing, production build passing, smoke flow passing

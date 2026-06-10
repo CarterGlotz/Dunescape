@@ -51,3 +51,11 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - public chronicle/status exports now include `feedback_summary`, which is deterministic/public-safe when generated from provided aggregate events and empty by default in static generation
 - propagated protocol scripts remain public-safe; the copied shared-policy helper contains only blocked-status labels needed by startup brief rendering
 - local validation passed: 54 unit tests, production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board render
+
+## 2026-06-10 Session 64 Public-Safe Check
+
+- active backend hardening surfaces now consistently use the project-scoped `PG_CONNECTION_SOLARA` gate; public status/chronicle output no longer advertises stale `SUPABASE_DB_URL`
+- Daily Rite consequence receipts are deterministic functions of Director route segments and do not require paid generation, private state, or credentials
+- feedback next-action digest is derived only from capped local aggregate event counts and keeps `token_cost: 0`
+- Daily Rite session extraction moved run object assembly/completion out of `src/App.jsx` without moving combat state or changing persistence boundaries
+- local validation passed: 56 unit tests, production build, and smoke runtime

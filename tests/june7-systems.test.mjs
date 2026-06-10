@@ -27,7 +27,7 @@ const {
 
 test("backend contract manifest covers every queued write kind", () => {
   const summary = getBackendContractSummary();
-  assert.equal(summary.hardening_gate, "SUPABASE_DB_URL");
+  assert.equal(summary.hardening_gate, "PG_CONNECTION_SOLARA");
   assert.equal(getMissingQueueContracts(QUEUE_KINDS).length, 0);
   assert.deepEqual(
     new Set(summary.required_rpcs.map((rpc) => rpc.kind)),
@@ -58,7 +58,7 @@ test("sundial queue briefing groups pending records without unsafe text", () => 
   assert.equal(briefing.groups.length, 2);
   assert.equal(briefing.oldest_minutes, 60);
   assert.match(briefing.line, /graves/);
-  assert.doesNotMatch(JSON.stringify(briefing), /<script>|SUPABASE_DB_URL=/);
+  assert.doesNotMatch(JSON.stringify(briefing), /<script>|PG_CONNECTION_SOLARA=/);
   clearSundialQueue();
 });
 

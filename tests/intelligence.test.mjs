@@ -103,7 +103,7 @@ test("backend readiness and outcome receipts stay public-safe and deterministic"
   const readiness = buildBackendReadiness({
     backendConnected: true,
     hardenedRpcDeployed: false,
-    missingSecrets: ["SUPABASE_DB_URL"],
+    missingSecrets: ["PG_CONNECTION_SOLARA"],
   });
   const receipts = buildOutcomeReceiptSet({
     sharedWorld,
@@ -113,10 +113,10 @@ test("backend readiness and outcome receipts stay public-safe and deterministic"
   });
 
   assert.equal(readiness.mode, "live-read-table-fallback");
-  assert.match(readiness.required_next_action, /SUPABASE_DB_URL/);
+  assert.match(readiness.required_next_action, /PG_CONNECTION_SOLARA/);
   assert.equal(receipts.receipts[0].world_state.next_action, "Answer Other");
   assert.equal(receipts.receipts.every((receipt) => receipt.token_cost === 0), true);
-  assert.doesNotMatch(JSON.stringify(receipts), new RegExp("<script>|SUPABASE_DB_URL" + "="));
+  assert.doesNotMatch(JSON.stringify(receipts), new RegExp("<script>|PG_CONNECTION_SOLARA" + "="));
 });
 
 test("constellation objectives expose playable map routing and offering value", () => {

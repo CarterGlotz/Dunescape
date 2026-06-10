@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-10T14:25:21.164Z",
+  "generated_at": "2026-06-10T15:16:03.946Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -80,9 +80,9 @@
       "public_writes": "client-sanitized-with-table-fallback",
       "player_copy": "Live reads are available; public writes still rely on staged fallback until hardening is deployed.",
       "safe_to_scale_public_traffic": false,
-      "required_next_action": "Add SUPABASE_DB_URL, then run the Supabase Hardening workflow.",
+      "required_next_action": "Add PG_CONNECTION_SOLARA, then run the Supabase Hardening workflow.",
       "missing_secret_labels": [
-        "SUPABASE_DB_URL"
+        "PG_CONNECTION_SOLARA"
       ]
     },
     "backend_contract": {
@@ -122,7 +122,7 @@
         "reaction",
         "offering"
       ],
-      "hardening_gate": "SUPABASE_DB_URL",
+      "hardening_gate": "PG_CONNECTION_SOLARA",
       "safe_to_scale_when": "all required_rpcs deployed and RLS/RPC validation active"
     },
     "sundial_queue": {
@@ -146,7 +146,19 @@
       "counts": {},
       "lastEvent": null,
       "cap": 80,
-      "token_cost": 0
+      "token_cost": 0,
+      "next_action": {
+        "version": 1,
+        "id": "start_daily_rite",
+        "label": "Start today's Daily Rite",
+        "detail": "No local Daily Rite signal is recorded yet; the best next action is to enter the",
+        "action": {
+          "type": "tab",
+          "tab": "daily",
+          "label": "Open Daily Rite"
+        },
+        "token_cost": 0
+      }
     }
   },
   "ai_policy": {

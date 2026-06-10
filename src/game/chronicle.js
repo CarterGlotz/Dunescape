@@ -124,7 +124,7 @@ export function buildPublicChronicle({
     backendConnected: true,
     hardenedRpcDeployed: false,
     requiredSecretsPresent: false,
-    missingSecrets: ["SUPABASE_DB_URL"],
+    missingSecrets: ["PG_CONNECTION_SOLARA"],
   });
   const backendContract = getBackendContractSummary();
   const queueBriefing = getSundialQueueBriefing([], { backendConnected: true });

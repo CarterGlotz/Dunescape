@@ -1,31 +1,31 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-10 (Session 63 closeout) -->
+<!-- generated-at: 2026-06-10 (Session 64 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S63 ═════════════════════════════╗
-║  Date: 2026-06-10  ·  SIL: 868/1000  ·  Velocity: 10 ->          ║
+╔══ SESSION CLOSEOUT · Solara · S64 ═════════════════════════════╗
+║  Date: 2026-06-10  ·  SIL: 881/1000  ·  Velocity: 10 ->          ║
 ║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: Director-aware Daily Rite room weaving, front-door   ║
-║  ✓ Protocol repair: `/start` deferred propagation updated AGENT  ║
-║  ✓ Tests: 54 passing unit tests plus production build, smoke ru  ║
-║  ✓ Remaining gate: Supabase production hardening still needs pr  ║
-║  ✓ Next best work: deepen the actual Daily Rite room/reward con  ║
+║  ✓ Shipped: `PG_CONNECTION_SOLARA` truth gate across backend co  ║
+║  ✓ Shipped: deterministic Daily Rite consequence engine for Dir  ║
+║  ✓ Shipped: Daily Rite run-session extraction into `src/game/da  ║
+║  ✓ Shipped: zero-token feedback next-action digest rendered on   ║
+║  ✓ Tests: 56 passing unit tests plus production build and smoke  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 868/1000 ═══════════════════════════════════════╗
-║    Dev Health         86   █████████░                            ║
-║    Alignment          87   █████████░                            ║
-║    Momentum           88   █████████░                            ║
-║    Engagement         87   █████████░                            ║
-║    Process Qual       84   ████████░░                            ║
+╔══ SCORES · SIL 881/1000 ═══════════════════════════════════════╗
+║    Dev Health         88   █████████░                            ║
+║    Alignment          89   █████████░                            ║
+║    Momentum           90   █████████░                            ║
+║    Engagement         89   █████████░                            ║
+║    Process Qual       86   █████████░                            ║
 ║    Coherence          90   █████████░                            ║
-║    Security           92   █████████░                            ║
-║    Ecosystem          89   █████████░                            ║
-║    Capital            83   ████████░░                            ║
-║    Automation         82   ████████░░                            ║
+║    Security           94   █████████░                            ║
+║    Ecosystem          91   █████████░                            ║
+║    Capital            85   █████████░                            ║
+║    Automation         89   █████████░                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
 ║  ✓ context/CURRENT_STATE.md                                      ║
@@ -40,14 +40,14 @@
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 23 files  ·  M:20 A:0 D:0 ?:3                          ║
+║  Changes: 26 files  ·  M:22 A:0 D:0 ?:4                          ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
 ║  Doctor:        —                                                ║
 ║  Compliance:    —                                                ║
-║  Tests:         54/54                                            ║
+║  Tests:         56/56                                            ║
 ║  IGNIS:         6d ago                                           ║
 ║  Truth:         green                                            ║
 ║  Sanitization:  —                                                ║

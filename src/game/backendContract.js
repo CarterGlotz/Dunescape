@@ -5,6 +5,8 @@ export const SHARED_WORLD_TABLES = [
   "player_echoes",
 ];
 
+export const SUPABASE_HARDENING_GATE = "PG_CONNECTION_SOLARA";
+
 export const SHARED_WORLD_RPC_CONTRACTS = [
   {
     name: "submit_daily_score",
@@ -47,7 +49,7 @@ export function getBackendContractSummary() {
       kind: contract.kind,
     })),
     queue_write_kinds: SHARED_WORLD_RPC_CONTRACTS.map((contract) => contract.kind),
-    hardening_gate: "SUPABASE_DB_URL",
+    hardening_gate: SUPABASE_HARDENING_GATE,
     safe_to_scale_when: "all required_rpcs deployed and RLS/RPC validation active",
   };
 }
