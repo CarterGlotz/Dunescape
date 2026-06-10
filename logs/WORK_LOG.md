@@ -63,3 +63,11 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - verified 50 unit tests, production build, and smoke runtime
 - resolved the Supabase credential-path question by keeping Solara on cloud project `fjnpzjjyhnpmunfoycrp`, avoiding the Hetzner/Vorn shared database, normalizing project-ref URLs at runtime, and adding a focused regression test
 - verified 51 unit tests, production build, and smoke runtime after the Supabase URL normalization pass
+
+## 2026-06-10
+
+- ran /start gates and wrote docs/AUDIT_2026-06-10.md / .json with four Solara-specific items tied to Daily Rite depth, front-door planning, local feedback, and App.jsx extraction
+- implemented a Director-aware Daily Rite room weaver so the live dungeon consumes route segment encounter/reward/shrine/rival intent
+- added a front-door world-planning panel for Sun Almanac and Myth So Far signals before players commit to a run
+- added a capped public-safe local feedback ledger for Daily Rite start/end, share-copy, and save-import repair events, then exported aggregate feedback summaries through chronicle/status contracts
+- verified 54 unit tests, production build, and smoke runtime

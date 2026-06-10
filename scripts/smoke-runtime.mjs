@@ -285,6 +285,10 @@ async function loadComponent() {
       'function WorldFeedCard() { return null; }',
     )
     .replace(
+      'import MenuWorldPlanning from "./components/MenuWorldPlanning.jsx";',
+      'function MenuWorldPlanning() { return null; }',
+    )
+    .replace(
       'const MenuLorePanels = React.lazy(() => import("./components/MenuLorePanels.jsx"));',
       'const MenuLorePanels = () => null;',
     )
@@ -317,6 +321,7 @@ async function loadComponent() {
   sundialBriefing,
   dailyRitePlan,
   riteCoach,
+  feedbackSummary,
   gR,
   dailyRunRef,
   rogueRunRef,
@@ -393,6 +398,7 @@ async function runSaveScenario(Component) {
   assert(handlers.vowOffers?.length >= 2, "Legacy Vow picker did not expose seeded vow offers.");
   assert(handlers.dailyRitePlan?.route?.length === 6, "Daily Rite plan did not expose six route segments.");
   assert(handlers.sundialBriefing?.public_safe === true, "Sundial Queue briefing was not available to the app surface.");
+  assert(handlers.feedbackSummary?.token_cost === 0, "Feedback summary was not exposed as a zero-token surface.");
 
   const saved = handlers.saveGame();
   assert(saved && saved.ver >= 1, "Save scenario did not return a payload.");

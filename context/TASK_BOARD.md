@@ -44,8 +44,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - use `src/game/backendContract.js` as the source for Supabase hardening verification and update it before adding any new shared-world write kind
 - keep Supabase production hardening scoped to `PG_CONNECTION_SOLARA` for project `fjnpzjjyhnpmunfoycrp`; do not reuse the Hetzner/Vorn shared database credential for Solara
 - expand Rite Pacing Coach from guidance copy into actual room/reward nudges once the next Daily Rite runtime extraction starts
-- surface the Sun Almanac and Myth So Far panels on the front-door menu in addition to the Daily Rite tab
-- make Daily Rite generation consume Director encounter/reward/shrine/rival plans directly
+- continue refining the front-door Sun Almanac and Myth So Far planning panel now that it is visible before Daily Rite commitment
+- deepen Daily Rite generation now that rooms consume Director encounter/reward/shrine/rival plans directly
 - add browser-level gameplay smoke coverage for first route, combat/death, grave, offering, and save import/export
 - continue converting smoke coverage into browser-level validation when a browser runner is added; current smoke now verifies first-session, objective, and world-feed data contracts
 - deploy `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` to cloud project `fjnpzjjyhnpmunfoycrp` with owner SQL-editor access or project-specific Postgres credentials, then rerun `npm run verify:supabase`
@@ -136,6 +136,10 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - five studio-ops lib modules (cross-repo-tasks, ignis-insight, sil-forecaster, human-action-ages, task-board, skill-cost-ledger) propagated into scripts/lib so the startup brief renders again
 - 2026-06-07 audit-derived pass shipped a backend RPC contract manifest, grouped Sundial Queue briefing, zero-token queue_pending outcome receipts, deterministic Rite Pacing Coach, sanitized Last Light result cards, and a Daily Rite app-surface smoke contract; validation passed 50 unit tests, production build, and smoke runtime
 - 2026-06-07 closeout repair normalized Supabase project-ref URLs in runtime, added a regression test, and confirmed the safest long-term hardening path is `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp` rather than the Hetzner/Vorn shared database
+- 2026-06-10 audit-derived pass shipped a Director-aware Daily Rite room weaver, front-door world-planning panel, local public-safe feedback ledger, public chronicle/status feedback summary export, and updated smoke/unit coverage
+- Daily Rite room sequences now consume Director route segments instead of only displaying route-plan copy
+- front-door menu now previews Sun Almanac and Myth So Far signals before players enter the Daily tab
+- latest local validation: 54 unit tests passing, production build passing, smoke flow passing
 
 ## Deferred to Project Agents
 

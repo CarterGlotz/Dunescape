@@ -2,7 +2,7 @@
 # Truth Audit
 
 Overall status: green
-Last reviewed: 2026-06-07
+Last reviewed: 2026-06-10
 Public-safe summary only. Sensitive verification notes are maintained privately.
 
 ## 2026-04-14 Public-Safe Check
@@ -42,3 +42,11 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - Solara's runtime Supabase client now normalizes the stored project ref `fjnpzjjyhnpmunfoycrp` to a full cloud Supabase URL before client creation
 - the remaining hardening credential is project-scoped `PG_CONNECTION_SOLARA`; using the Hetzner/Vorn shared database would be a cross-project migration and is not the current safe path
 - local validation passed: 51 unit tests, production build, and smoke runtime
+
+## 2026-06-10 Public-Safe Check
+
+- Daily Rite room weaving is deterministic, date/Director-derived, and keeps browser token cost at zero
+- front-door Sun Almanac and Myth So Far planning surfaces reuse deterministic public shared-world state already exported through chronicle/status contracts
+- local feedback ledger stores only capped aggregate event metadata with explicit zero token cost; it does not store raw saves, private notes, credentials, cookies, or internal ops data
+- public chronicle/status exports now include `feedback_summary`, which is deterministic/public-safe when generated from provided aggregate events and empty by default in static generation
+- local validation passed: 54 unit tests, production build, and smoke runtime

@@ -48,6 +48,8 @@ import {
   getChallengeBanner,
 } from "./game/challengeLinks.js";
 import { getSundialQueueBriefing, getSundialQueueSummary } from "./game/sundialQueue.js";
+import { buildDailyRiteRoomSequence } from "./game/dailyRiteRooms.js";
+import { recordFeedbackEvent, summarizeFeedbackLedger } from "./game/feedbackLedger.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
 import { applyRunBlessing, getSharedWorldSnapshot } from "./game/sharedWorld.js";
@@ -68,6 +70,7 @@ import SharedWorldStatus from "./components/SharedWorldStatus.jsx";
 import RunDebriefCard from "./components/RunDebriefCard.jsx";
 import SessionDeltaCard from "./components/SessionDeltaCard.jsx";
 import WorldFeedCard from "./components/WorldFeedCard.jsx";
+import MenuWorldPlanning from "./components/MenuWorldPlanning.jsx";
 
 const MenuLorePanels = React.lazy(() => import("./components/MenuLorePanels.jsx"));
 
@@ -712,7 +715,7 @@ const hashSeed=(str)=>{let h=0;for(let i=0;i<str.length;i++){const c=str.charCod
 const getDailySeed=()=>{const d=new Date();return`solara-${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;};
 const getDayNumber=()=>{const start=new Date('2026-03-27');const now=new Date();return Math.max(1,Math.floor((now-start)/86400000)+1);};
 const getDailyBossName=()=>{const h=hashSeed(getDailySeed()+'-boss');const pfx=["Vexar","Solveth","Kael","Morthis","Dravan","Zephon","Ashan","Corrath","Duvak","Elrith","Faeron","Grauth"];const sfx=["the Ash-Born","of the Dim Flame","the Sunless","the Twilight Herald","the Eclipse-Born","the Shadow","of the Final Dark","the Eternal","the Burning","the Doomed","the Forgotten","the Last Light"];return pfx[h%pfx.length]+" "+sfx[Math.floor(h/pfx.length)%sfx.length];};
-const generateDailyRooms=()=>{const rng=mulberry32(hashSeed(getDailySeed()));return Array.from({length:30},(_,i)=>i===29?4:Math.floor(rng()*(DUNGEON_ROOMS.length-1)));};
+const generateDailyRooms=(dailyRitePlan)=>buildDailyRiteRoomSequence({dailyRitePlan,daySeed:getDailySeed()});
 const generateShareCard=(playerName,waveReached,faction)=>{const bars=Math.min(5,Math.floor(waveReached/6));const row=Array(5).fill('').map((_,i)=>i<bars?'🔥':'☀️').join('');const fStr=faction?faction.charAt(0).toUpperCase()+faction.slice(1):'No faction';return`☀️ Solara: Sunfall — Day ${getDayNumber()} ${row}\nWave ${waveReached}/30 · ${fStr} · Season ${CURRENT_SEASON}: ${CURRENT_SEASON_NAME}\n\nPlay free → vaultsparkstudios.github.io/solara/\n#SolaraSunfall`;};
 const generateRogueShareCard=(playerName,waveReached,bestWave,relicCount,sunBrightness)=>{const bars=Math.max(1,Math.min(6,Math.floor(waveReached/5)));const row=Array(6).fill('').map((_,i)=>i<bars?'🌒':'⬛').join('');const phase=sunBrightness>80?'Full Dawn':sunBrightness>60?'Amber Warning':sunBrightness>40?'The Twilight':sunBrightness>20?'The Dimming':'The Eclipse';return`🌘 Solara: Sunfall — Roguelite Push\n${playerName||'Adventurer'} · Wave ${waveReached} · Best ${bestWave}\n${row} · Relics ${relicCount} · ${phase} ${Math.round(sunBrightness)}%\n\nEvery death dims the shared sun.\nPlay free → vaultsparkstudios.github.io/solara/\n#SolaraSunfall #Roguelite`;};
 const generateProphecyScrollPNG=(opts)=>{
@@ -1233,14 +1236,15 @@ export default function DS(){
 
   const startDailyRun=useCallback(()=>{
     const g2=gR.current;if(!g2)return;
-    const rooms=generateDailyRooms();
     const worldState=getWorldSnapshot();
     const memoryBias=getDirectorMemoryBias(loadDirectorMemoryRuns());
     const mechanics=applyDirectorMemoryToMechanics(worldState.director?.mechanics,memoryBias);
     const vow=pendingVowId?getVowById(pendingVowId):null;
     const dailyPlan=getDailyRitePlan({sharedWorld:worldState,dayNumber:getDayNumber()});
+    const roomWeave=generateDailyRooms(dailyPlan);
+    const rooms=roomWeave.rooms;
     const pacingCoach=getRitePacingCoach({dailyRitePlan:dailyPlan,wave:0,vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null});
-    const run={wave:0,startTime:Date.now(),rooms,done:false,deathWave:null,shareCard:null,mechanics,vow,vowResult:null,challengeResult:null,dailyPlan,pacingCoach};
+    const run={wave:0,startTime:Date.now(),rooms,roomWeave,done:false,deathWave:null,shareCard:null,mechanics,vow,vowResult:null,challengeResult:null,dailyPlan,pacingCoach};
     dailyRunRef.current=run;
     g2.mons=g2.mons.filter(m=>!m.dungeon);
     g2.dungeon={active:false,room:0,cleared:false,monsters:[]};
@@ -1275,6 +1279,8 @@ export default function DS(){
     if(run.rival)addC(`${run.rival.icon} Rival marked: ${run.rival.playerName} waits beyond the threshold.`);
     if(worldState.crisis)addC(`☀️ Crisis directive: ${worldState.crisis.title}. ${worldState.crisis.detail}`);
     addC(`${worldState.event.icon} ${worldState.event.label}: ${worldState.event.description}`);
+    addC(`🧭 ${roomWeave.segmentByWave[0]?.label}: ${roomWeave.segmentByWave[0]?.goal}`);
+    recordFeedbackEvent("daily_rite_start",{phase:worldState.phase?.id,pressure:worldState.director?.pressure,modifier:worldState.director?.dailyModifier?.id,wave:0,outcome:dailyPlan.id});
     updateDailyStreak(getDailySeed());
     markDailyPlayedToday(getDailySeed());
     setDailyTick(n=>n+1);setTab("inv");
@@ -2060,6 +2066,8 @@ export default function DS(){
                 room=DUNGEON_ROOMS[roomIdx];
                 const req=room.skillReq;if(req&&lvl(p.sk[req.skill]||0)<req.lvl){addC("Need "+req.skill+" level "+req.lvl+" to enter this room.");p.actTgt=null;return;}
                 addC("☀️ Daily Rite — Wave "+(dailyRunRef.current.wave+1)+"/30 · "+room.msg);
+                const segment=dailyRunRef.current.roomWeave?.segmentByWave?.[dailyRunRef.current.wave];
+                if(segment)addC(`🧭 ${segment.label} · ${segment.encounterLabel} for ${segment.rewardTell}: ${segment.goal}`);
               }else{
                 room=DUNGEON_ROOMS[g.dungeon.room||0];
                 addC(room.msg);
@@ -2360,6 +2368,7 @@ export default function DS(){
                 run.pacingCoach=getRitePacingCoach({dailyRitePlan:run.dailyPlan,wave:run.wave,vow:run.vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null,completed:true});
                 run.shareCard=buildLastLightResultCard({playerName:p.playerName||"Adventurer",wave:run.wave,phase:getWorldSnapshot().phase?.label,vowResult:run.vowResult,challengeResult:run.challengeResult,mythLine:run.pacingCoach?.headline,dateSeed:getDailySeed()});
                 recordDirectorRunMemory({mode:"daily",wave:run.wave,completed:false,dateSeed:getDailySeed()});
+                recordFeedbackEvent("daily_rite_end",{phase:getWorldSnapshot().phase?.id,pressure:getWorldSnapshot().director?.pressure,modifier:getWorldSnapshot().director?.dailyModifier?.id,wave:run.wave,outcome:"failed"});
                 addC("💀 Daily Rite ended at Wave "+run.wave+". Score recorded.");
                 submitEcho("daily","Daily Rite failed at Wave "+run.wave,`${p.playerName||"Adventurer"} reached Wave ${run.wave} in today's communal dungeon.`,run.wave);
                 submitDailyScore(p.playerName||"Adventurer",run.wave,getPlayerFaction(p));
@@ -2404,6 +2413,7 @@ export default function DS(){
             run.pacingCoach=getRitePacingCoach({dailyRitePlan:run.dailyPlan,wave:30,vow:run.vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null,completed:true});
             run.shareCard=buildLastLightResultCard({playerName:p.playerName||"Adventurer",wave:30,phase:getWorldSnapshot().phase?.label,vowResult:run.vowResult,challengeResult:run.challengeResult,mythLine:run.pacingCoach?.headline,dateSeed:getDailySeed()});
             recordDirectorRunMemory({mode:"daily",wave:30,completed:true,dateSeed:getDailySeed()});
+            recordFeedbackEvent("daily_rite_end",{phase:getWorldSnapshot().phase?.id,pressure:getWorldSnapshot().director?.pressure,modifier:getWorldSnapshot().director?.dailyModifier?.id,wave:30,outcome:"completed"});
             addC("🏆 Daily Rite complete! Wave 30 cleared! The sun brightens.");
             submitEcho("daily","Daily Rite completed",`${p.playerName||"Adventurer"} cleared all 30 waves of the Daily Rite.`,30);
             g.dungeon={active:false,room:0,cleared:true,monsters:[]};
@@ -2412,6 +2422,8 @@ export default function DS(){
             const nextRoom=DUNGEON_ROOMS[run.rooms[run.wave]];
             addC("✅ Wave "+run.wave+" cleared! Entering Wave "+(run.wave+1)+"/30...");
             addC(nextRoom.msg);
+            const segment=run.roomWeave?.segmentByWave?.[run.wave];
+            if(segment)addC(`🧭 ${segment.label} · ${segment.encounterLabel} for ${segment.rewardTell}: ${segment.goal}`);
             const dungMons=[];
             nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,dailyRun:true};if(run.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();dm=applySpawnState(dm,"dungeon");g.mons.push(dm);dungMons.push(dm);}});
             g.dungeon.monsters=dungMons;
@@ -2826,6 +2838,7 @@ export default function DS(){
   const riteCoach=dailyRunRef.current&&!dailyRunRef.current.done
     ? getRitePacingCoach({dailyRitePlan:dailyRunRef.current.dailyPlan||dailyRitePlan,wave:dailyRunRef.current.wave,vow:dailyRunRef.current.vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null})
     : null;
+  const feedbackSummary=summarizeFeedbackLedger();
   const activeChallengeBanner=challengeRef.current&&!challengeRef.current.expired?getChallengeBanner(challengeRef.current):null;
   const handleWorldFeedAction=useCallback((item)=>{
     const result=resolveWorldFeedAction(item);
@@ -2995,6 +3008,7 @@ export default function DS(){
     localStorage.setItem("solara_save",JSON.stringify(sanitized.data));
     const body=sanitized.issues.length?`Imported with repairs:\n- ${sanitized.issues.join('\n- ')}`:"Save imported successfully.";
     addC(sanitized.issues.length?"Save imported with repairs.":"Save imported successfully.");
+    if(sanitized.issues.length)recordFeedbackEvent("save_import_repaired",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,outcome:`${sanitized.issues.length} repairs`});
     showSystemNotice("Save Import",body,sanitized.issues.length?"#d8a84e":"#7fd37f");
     if(reload)window.location.reload();
     return sanitized;
@@ -3587,9 +3601,9 @@ export default function DS(){
                 {dailyRunRef.current.pacingCoach&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🧭 {dailyRunRef.current.pacingCoach.next_action}</div>}
                 {dailyRunRef.current.shareCard&&<>
                   <pre style={{fontSize:7,color:"#8a7a5a",background:"rgba(0,0,0,0.4)",padding:4,borderRadius:3,marginBottom:4,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"'Courier New',monospace"}}>{dailyRunRef.current.shareCard}</pre>
-                  <button onClick={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});}catch(e){}}else{try{await navigator.clipboard.writeText(t);addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}} style={{width:"100%",background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>📋 Copy &amp; Share</button>
+                  <button onClick={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current.deathWave||0,outcome:"daily_native_share"});}catch(e){}}else{try{await navigator.clipboard.writeText(t);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current.deathWave||0,outcome:"daily_score_card"});addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}} style={{width:"100%",background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>📋 Copy &amp; Share</button>
                   <button onClick={()=>{const p2=gR.current?.p;const run=dailyRunRef.current;const url=generateProphecyScrollPNG({playerName:p2?.playerName||travelerNameDraft,sigil:p2?.travelerSigil||travelerSigilDraft,waveReached:run.deathWave||0,faction:getPlayerFaction(p2),sunBrightness:sunBrightnessRef.current,type:'daily',dayNumber:getDayNumber()});if(url)shareProphecyScroll(url,'daily');}} style={{width:"100%",background:"#101a20",border:"1px solid #206080",color:"#60c0f0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:3}}>📸 Download Scroll</button>
-                  <button onClick={async()=>{const run=dailyRunRef.current;const p2=gR.current?.p;const token=encodeChallengeToken({dateSeed:getDailySeed(),wave:run.deathWave||0,playerName:p2?.playerName||travelerNameDraft||"Adventurer",vowId:run.vow?.id||null});const url=buildChallengeUrl({baseUrl:window.location.href,token});if(!url){addC("Challenge link could not be created.");return;}try{await navigator.clipboard.writeText(url);addC("🔗 Challenge link copied — dare a rival to beat your light on today's route.");}catch(e){addC("Copy failed — challenge link: "+url);}}} style={{width:"100%",background:"#1c1208",border:"1px solid #c8642e",color:"#f0884e",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:3}}>🔗 Copy Challenge Link</button>
+                  <button onClick={async()=>{const run=dailyRunRef.current;const p2=gR.current?.p;const token=encodeChallengeToken({dateSeed:getDailySeed(),wave:run.deathWave||0,playerName:p2?.playerName||travelerNameDraft||"Adventurer",vowId:run.vow?.id||null});const url=buildChallengeUrl({baseUrl:window.location.href,token});if(!url){addC("Challenge link could not be created.");return;}try{await navigator.clipboard.writeText(url);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:run.deathWave||0,outcome:"daily_challenge_link"});addC("🔗 Challenge link copied — dare a rival to beat your light on today's route.");}catch(e){addC("Copy failed — challenge link: "+url);}}} style={{width:"100%",background:"#1c1208",border:"1px solid #c8642e",color:"#f0884e",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:3}}>🔗 Copy Challenge Link</button>
                 </>}
               </div>}
               {/* Phase 4: Roguelite Run */}
@@ -3608,7 +3622,7 @@ export default function DS(){
                     <div style={{color:"#f44",fontSize:10,fontWeight:700,textAlign:"center"}}>💀 Fell at Wave {rogueRunRef.current.deathWave}</div>
                     {rogueRunRef.current.shareCard&&<>
                       <pre style={{fontSize:7,color:"#a996c8",background:"rgba(0,0,0,0.28)",padding:4,borderRadius:3,marginTop:4,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"'Courier New',monospace"}}>{rogueRunRef.current.shareCard}</pre>
-                      <button onClick={async()=>{const t=rogueRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});return;}catch(e){}}try{await navigator.clipboard.writeText(t);addC("📋 Roguelite share card copied.");}catch(e){addC("Copy failed — share card shown above.");}}} style={{width:"100%",background:"#241038",border:"1px solid #8060c0",color:"#c8a0ff",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:4}}>📋 Copy Roguelite Share</button>
+                      <button onClick={async()=>{const t=rogueRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:rogueRunRef.current.deathWave||0,outcome:"roguelite_native_share"});return;}catch(e){}}try{await navigator.clipboard.writeText(t);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:rogueRunRef.current.deathWave||0,outcome:"roguelite_score_card"});addC("📋 Roguelite share card copied.");}catch(e){addC("Copy failed — share card shown above.");}}} style={{width:"100%",background:"#241038",border:"1px solid #8060c0",color:"#c8a0ff",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:4}}>📋 Copy Roguelite Share</button>
                       <button onClick={()=>{const p2=gR.current?.p;const run=rogueRunRef.current;const url=generateProphecyScrollPNG({playerName:p2?.playerName||travelerNameDraft,sigil:p2?.travelerSigil||travelerSigilDraft,waveReached:run.deathWave||0,faction:getPlayerFaction(p2),sunBrightness:sunBrightnessRef.current,type:'roguelite',bestWave:p2?.rogueliteStats?.bestWave||0,relicCount:(p2?.rogueliteStats?.relics||[]).length});if(url)shareProphecyScroll(url,'roguelite');}} style={{width:"100%",background:"#180a28",border:"1px solid #604090",color:"#b090e0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:3}}>📸 Download Scroll</button>
                     </>}
                   </div>}
@@ -4129,6 +4143,11 @@ export default function DS(){
             <SharedWorldStatus title="Shared World Status" briefing={sharedWorldBriefing} compact />
             <SessionDeltaCard delta={sessionDelta} compact />
             <WorldFeedCard feed={worldFeed} compact onAction={handleWorldFeedAction} />
+            <MenuWorldPlanning almanac={sunAlmanac} mythScenes={mythScenes} />
+            {feedbackSummary.count>0&&<div style={{background:"rgba(0,0,0,0.18)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:8,padding:10}}>
+              <div style={{color:"#f0c060",fontSize:10,fontWeight:800,letterSpacing:1}}>LOCAL FEEDBACK</div>
+              <div style={{color:"#9f8a73",fontSize:9,lineHeight:1.45,marginTop:5}}>Signals: {feedbackSummary.count} · starts {feedbackSummary.counts.daily_rite_start||0} · ends {feedbackSummary.counts.daily_rite_end||0} · shares {feedbackSummary.counts.share_copy||0}</div>
+            </div>}
           </div>
           <div style={{background:"rgba(10,4,3,0.9)",border:"1px solid rgba(200,168,78,0.18)",borderRadius:18,padding:22,overflow:"auto",boxShadow:"0 24px 60px rgba(0,0,0,0.35)"}}>
             {menuSection==="play"&&<div style={{display:"grid",gap:18}}>

@@ -60,3 +60,8 @@ Public-safe summary:
 - Solara's browser Supabase bootstrap now accepts either a full Supabase URL or the stored project ref `fjnpzjjyhnpmunfoycrp`, normalizing the ref into `https://fjnpzjjyhnpmunfoycrp.supabase.co` before `createClient`
 - long-term backend posture is project-specific: keep Solara on the `fjnpzjjyhnpmunfoycrp` cloud Supabase project and require `PG_CONNECTION_SOLARA` for schema/RLS/RPC hardening, rather than reusing the Hetzner/Vorn self-hosted Postgres password
 - latest local validation: 51 unit tests passing, production build passing, smoke flow passing
+- 2026-06-10 audit/implement pass shipped a Director-aware Daily Rite room weaver, front-door Sun Almanac/Myth So Far planning panel, local public-safe feedback ledger, and public chronicle/status `feedback_summary` export
+- Daily Rite room generation now consumes the deterministic Director route plan, keeps the final boss slot, and surfaces segment goals/reward intent when entering or clearing rooms
+- front-door Play menu now shows the same Almanac/Myth planning signals previously hidden deeper in the Daily Rite tab
+- local feedback events now record capped zero-token aggregates for Daily Rite start/end, share-copy, and save-import repair moments without storing raw saves, private notes, credentials, or cookies
+- latest local validation: 54 unit tests passing, production build passing, smoke flow passing

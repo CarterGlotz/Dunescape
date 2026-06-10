@@ -1,51 +1,53 @@
 <!-- generated-by: scripts/compact-handoff.mjs v3.1 -->
-<!-- source-hash: b528f50d0e39 -->
-<!-- generated-at: 2026-06-07T18:15:39.061Z -->
+<!-- source-hash: manual-closeout-2026-06-10 -->
+<!-- generated-at: 2026-06-10T14:45:00.000Z -->
 
 # LATEST_HANDOFF (compact)
 
-Session: 2026-06-07
+Session: 2026-06-10
 
 Shipped
-- Backend RPC contract manifest
-- Supabase hardening verifier manifest wiring
-- Grouped Sundial Queue briefing
-- Zero-token queue_pending outcome receipts
-- Rite Pacing Coach
-- Sanitized Last Light result cards
-- Public chronicle/status contract exports
-- Daily Rite app-surface smoke coverage
+- Director-aware Daily Rite room weaving from route segments
+- Front-door Sun Almanac and Myth So Far planning panel
+- Capped public-safe local feedback ledger
+- Public chronicle/status `feedback_summary` exports
+- Smoke/unit coverage for the new route and feedback surfaces
 
 Tests
-- 50 unit passing
+- 54 unit tests passing
 - Production build passing
 - Smoke runtime passing
 
 Intent
-- Full /start → /audit → /implement → /closeout cycle with net-new audit personalized to project lists/flags/blockers; implement repo-feasible items at quality; keep deployable.
+- Run /start → /audit → /implement → /closeout cycle with project-personalized audit; implement repo-feasible items; keep repo deployable.
 
 Now (top 3)
-1. Run net-new audit against current state (post 2026-06-07 ship); refresh priority list
-2. Advance modularization (continue extracting from src/App.jsx; expand component/service split)
-3. Deepen Daily Rite loop + onboarding/debrief feedback surfaces
+- Deepen actual Daily Rite room/reward consequences now that rooms consume Director route segments
+- Continue App.jsx extraction around Daily Rite planning/presentation surfaces
+- Deploy and verify Supabase RPC/RLS hardening when `PG_CONNECTION_SOLARA` lands
 
 Blockers (top 3)
-1. Supabase production hardening cannot deploy without `SUPABASE_DB_URL` secret or owner SQL Editor action (gates public scale traffic)
-2. Hardened RPCs not yet live (PGRST202 from anon probe); verify:supabase only non-mutating until applied
-3. No full Postgres connection string / DB password in private ops secrets suitable for hardening workflow
+- Supabase hardened RPCs not deployed in cloud project `fjnpzjjyhnpmunfoycrp` (PGRST202); blocks public-write scale
+- Hardening workflow lacks `PG_CONNECTION_SOLARA` Postgres connection string
+- No owner-credential path applied for `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql`
 
-Human-Blocked
-- Supabase Hardening workflow secret `SUPABASE_DB_URL` — outstanding since 2026-06-03 (4 days); alt path: apply `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` via SQL Editor then `npm run verify:supabase`
-- Prior workflow runs `24576797263` (failed: blank secrets) and `24579847516` (preflight confirms missing var)
+Human-Blocked (with age)
+- Add `PG_CONNECTION_SOLARA` secret for project `fjnpzjjyhnpmunfoycrp`, then rerun Supabase Hardening workflow; OR apply hardening SQL via Supabase SQL Editor with owner creds and rerun `npm run verify:supabase` — open since 2026-06-03 (~4 days)
 
-Standing Constraints
-- Zero browser token cost by default
-- RPC-first with legacy table-write fallback
-- Trust-sanitized public writes; offline outbox flush-on-connect
-- Deterministic status.json / chronicle.json
-- Identity-safe Solara canon
+Decisions in force
+- Keep Solara on its current cloud Supabase project; do not repoint to Hetzner/Vorn shared DB
+- RPC-first writes with legacy table-write fallback during staged migration
+- Offline-first boot; Supabase client loads async on demand
+- Zero browser token cost by default for status.json/chronicle.json
 
-Roadmap Order (carry)
-- Backend trust enforcement, monolith extraction, onboarding/debrief loops, world-impact surfacing, Daily Rite depth, accessibility (XL scale shipped), performance, telemetry, wider tests
+Key surfaces
+- Daily Rite: Director room weave, Sun Almanac (7-day), Legacy Vows, Myth So Far, Sundial Queue card, Last Light challenge banners, Rite Pacing Coach
+- Director: bounded mercy/challenge bias from last 5 runs; route briefs with encounter/reward/shrine/rival/boss/share-line
+- Shared-world: trust-sanitized capped outbox, flush-on-connect, RPC-first service path
+- Feedback: capped local aggregate ledger for Daily Rite start/end, share-copy, and save-import repair events
+- Save import: 250-seed fuzz harness in place
 
-Next: Resolve the Supabase hardening credential or owner SQL path, then use the Daily Rite smoke contract as the guardrail for the next App.jsx extraction pass.
+Verification commands
+- npm test, npm run build, smoke runtime, npm run verify:supabase, npm audit
+
+Next: deepen the route weave into real room reward/pressure effects, or unblock Supabase hardening with `PG_CONNECTION_SOLARA`.

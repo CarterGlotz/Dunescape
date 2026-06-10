@@ -2,6 +2,12 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-10)
+- Shipped: Director-aware Daily Rite room weaving, front-door Sun Almanac/Myth So Far planning panel, capped public-safe local feedback ledger, public chronicle/status `feedback_summary` exports, and smoke/unit coverage for the new surfaces
+- Tests: 54 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: deepen the actual Daily Rite room/reward consequences now that the room sequence consumes Director segments, continue App.jsx extraction around Daily Rite presentation, and deploy/verify Supabase RPC/RLS hardening once the project-scoped connection lands
+
 ## Where We Left Off (2026-06-07)
 - Shipped: backend RPC contract manifest, Supabase hardening verifier manifest wiring, grouped Sundial Queue briefing, zero-token queue_pending outcome receipts, Rite Pacing Coach, sanitized Last Light result cards, public chronicle/status contract exports, Daily Rite app-surface smoke coverage, and Supabase project-ref URL normalization
 - Tests: 51 passing unit tests plus production build and smoke runtime passing

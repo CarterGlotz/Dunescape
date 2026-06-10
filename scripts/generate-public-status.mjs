@@ -40,6 +40,7 @@ const status = {
       version: chronicle.shared_world.outcome_receipts.version,
       count: chronicle.shared_world.outcome_receipts.count,
     },
+    feedback_summary: chronicle.shared_world.feedback_summary,
   },
   ai_policy: chronicle.ai_policy,
 };

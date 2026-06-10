@@ -12,6 +12,7 @@ import { buildChronicleScenes } from "./chronicleScenes.js";
 import { getBackendContractSummary } from "./backendContract.js";
 import { getSundialQueueBriefing } from "./sundialQueue.js";
 import { buildLastLightResultCard } from "./resultCard.js";
+import { summarizeFeedbackLedger } from "./feedbackLedger.js";
 
 function sortByWave(entries = []) {
   return [...entries].sort((a, b) => Number(b?.wave_reached || 0) - Number(a?.wave_reached || 0));
@@ -39,6 +40,7 @@ export function buildPublicChronicle({
   graves = [],
   echoes = [],
   dayNumber = 1,
+  feedbackEvents = [],
 } = {}) {
   const brightness = Math.max(0, Math.min(100, Number(sunState.brightness ?? 100)));
   const totalDeaths = Math.max(0, Math.floor(Number(sunState.total_deaths ?? sunState.totalDeaths ?? 0)));
@@ -147,6 +149,7 @@ export function buildPublicChronicle({
     mythLine: mythScenes.scenes[0],
     dateSeed: `season-${season}-day-${dayNumber}`,
   });
+  const feedbackSummary = summarizeFeedbackLedger(feedbackEvents);
 
   return {
     schema_version: 1,
@@ -186,6 +189,7 @@ export function buildPublicChronicle({
       almanac,
       myth_scenes: mythScenes,
       result_card_shape: resultCardShape,
+      feedback_summary: feedbackSummary,
     },
     top_runs: topRuns,
     graves: publicGraves,
@@ -225,6 +229,7 @@ export function buildPublicChronicle({
         count: outcomeReceipts.count,
         latest: outcomeReceipts.receipts[0],
       },
+      feedback_summary: feedbackSummary,
       backend_readiness: backendReadiness,
       backend_contract: backendContract,
     },

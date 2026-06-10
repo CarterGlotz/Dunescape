@@ -1,18 +1,16 @@
 <!-- generated-by: /implement skill v1.0 -->
-<!-- generated-at: 2026-06-07 -->
-<!-- source: docs/AUDIT_2026-06-07.json -->
+<!-- generated-at: 2026-06-10 -->
+<!-- source: docs/AUDIT_2026-06-10.json -->
 
-# Implement Plan - Solara · 2026-06-07
+# Implement Plan - Solara · 2026-06-10
 
 Sequenced for Priority-per-hour and shared code surface.
 
 | Seq | Slug | Audit # | Surface group | Why this slot |
 |---|---|---|---|---|
-| 1 | rpc-contract-manifest | 1 | Backend trust contract | Foundation for verifier, queue contracts, and public status truth |
-| 2 | sundial-queue-briefing | 2 | Offline shared-world queue | Uses the manifest context and upgrades the active Supabase blocker path |
-| 3 | outcome-receipt-queue-link | 5 | Deterministic intelligence | Reads the queue briefing and preserves zero-token receipt policy |
-| 4 | rite-pacing-coach | 3 | Daily Rite runtime | Small deterministic module, then thin App.jsx wiring |
-| 5 | last-light-result-card | 4 | Debrief/share loop | Depends on run/vow/challenge results and coach copy |
-| 6 | app-surface-smoke-contract | 6 | Validation | Verifies the newly wired Daily Rite surface after implementation |
+| 1 | director-room-weaver | 1 | Daily Rite runtime | Foundation: turns existing Director route plans into actual dungeon room sequences |
+| 2 | front-door-world-planning | 2 | Menu/UI extraction | Uses Almanac/Myth data already computed by App.jsx and moves display into a focused component |
+| 3 | app-jsx-ritual-extraction | 4 | Maintainability | Lands naturally with the room weaver and menu component instead of a broad App.jsx split |
+| 4 | local-feedback-ledger | 3 | Feedback loop / integrations | Records the start/end/share evidence created by the runtime work and exports aggregate counts |
 
-Preflight: no item requires a new paid service or credential. `SUPABASE_DB_URL` remains the hardening gate for production RPC deployment, but every item here is local, deterministic, and free-tier cost neutral.
+Preflight: no item requires a new paid service or credential. `PG_CONNECTION_SOLARA` remains the hardening gate for production RPC deployment, but every item here is local, deterministic, public-safe, and free-tier cost neutral.

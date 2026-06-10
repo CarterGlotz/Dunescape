@@ -1,0 +1,115 @@
+{
+  "schemaVersion": "1.0",
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-10",
+  "project": {
+    "slug": "solara",
+    "name": "Solara",
+    "type": "game"
+  },
+  "topLine": {
+    "totalItems": 4,
+    "combinedPriority": 116.0,
+    "top3": [
+      "director-room-weaver",
+      "front-door-world-planning",
+      "local-feedback-ledger"
+    ],
+    "signals": [
+      "Solara's June 7 tranche shipped route plans, pacing coach, queue receipts, and smoke contracts; the next pass should make those systems affect play and first-screen comprehension.",
+      "The Daily Rite still generates room indices from the date seed instead of the Director route plan, so the authored encounter/reward/shrine/rival intent is not yet steering the actual dungeon.",
+      "The front door has a world feed but hides the Almanac and Myth So Far until the player reaches the Daily tab, weakening the first-viewport shared-world signal.",
+      "Supabase hardening still waits on PG_CONNECTION_SOLARA, so today's work stays local, deterministic, public-safe, and zero browser token cost."
+    ]
+  },
+  "items": [
+    {
+      "slug": "director-room-weaver",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 8,
+      "priority": 36.0,
+      "title": "Director Room Weaver - make Daily Rite rooms consume the Director plan",
+      "why": "Solara already computes six Director route segments, but the live Daily Rite still chooses generic room indices from a date seed. Mapping segment encounter/reward/danger data into the thirty actual room slots turns the Director from a briefing layer into a playable dungeon author.",
+      "recipe": "Add a deterministic route-to-room mapper, use it when starting a Daily Rite, include segment goals in room-enter/clear messages, and test that different Director plans produce stable but meaningfully different room sequences."
+    },
+    {
+      "slug": "front-door-world-planning",
+      "tier": "fire",
+      "axis": "ui-ux",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 32.0,
+      "title": "Front-Door World Planning - show Almanac and Myth So Far before the player commits",
+      "why": "The task board explicitly asks for Sun Almanac and Myth So Far on the front door, and the first viewport is where Solara must prove it is a living shared world. A compact planning panel lets the menu answer what is happening today, what the week favors, and what myth the community has created without sending players hunting through tabs.",
+      "recipe": "Extract a reusable MenuWorldPlanning component that renders today/tomorrow Almanac cards plus Myth scenes, wire it into the Play menu beside the World Feed, and extend smoke coverage so App.jsx must expose it."
+    },
+    {
+      "slug": "local-feedback-ledger",
+      "tier": "high",
+      "axis": "user-feedback-loop",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 7,
+      "priority": 28.0,
+      "title": "Local Feedback Ledger - record public-safe funnel events before analytics exists",
+      "why": "The telemetry contract names the right events, but the runtime does not keep a local evidence trail for onboarding starts, Daily Rite ends, share copies, or import repairs. A capped local ledger gives future balancing and Studio integrations a zero-cost feedback loop without external analytics, cookies, or private save data.",
+      "recipe": "Add a small public-safe telemetry ledger module, record Daily Rite start/end and share-copy events, export aggregate counts into public chronicle/status, and test cap/sanitization behavior."
+    },
+    {
+      "slug": "app-jsx-ritual-extraction",
+      "tier": "high",
+      "axis": "speed-organization-efficiency",
+      "effort": "1h",
+      "impact": 6,
+      "innovation": 5,
+      "priority": 20.0,
+      "title": "App.jsx Ritual Extraction - move planning UI out without destabilizing combat",
+      "why": "Full App.jsx decomposition is still too risky for one unattended pass, but menu planning and Daily Rite helper logic are now separable. Extracting the new planning panel and room weaver creates a safe pattern for the larger canvas/combat split while reducing the main component's responsibility.",
+      "recipe": "Keep combat state in App.jsx, but move route mapping and menu planning presentation into focused modules with tests, then update the smoke harness to guard the extracted surface."
+    }
+  ],
+  "innovationReserve": [
+    "director-room-weaver",
+    "front-door-world-planning"
+  ],
+  "skipped": [
+    {
+      "slug": "deploy-supabase-hardening",
+      "reason": "Still requires the project-scoped PG_CONNECTION_SOLARA database credential or owner SQL-editor access."
+    },
+    {
+      "slug": "paid-ai-myth-narration",
+      "reason": "Not compatible with the deterministic-first and free-tier cost-neutral posture before revenue."
+    },
+    {
+      "slug": "full-canvas-combat-split",
+      "reason": "Worth doing, but this pass should first land smaller extracted modules and smoke guards around the Daily Rite surface."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "director-room-weaver",
+      "status": "shipped",
+      "evidence": "src/game/dailyRiteRooms.js maps Director route segments into a deterministic 30-wave Daily Rite room sequence; src/App.jsx uses the weave on run start and surfaces segment goals on room entry/clear; tests/june10-systems.test.mjs verifies stable distinct room sequences."
+    },
+    {
+      "slug": "front-door-world-planning",
+      "status": "shipped",
+      "evidence": "src/components/MenuWorldPlanning.jsx renders front-door Sun Almanac and Myth So Far previews; src/App.jsx wires it into the menu rail before the Play tab content; scripts/smoke-runtime.mjs stubs and verifies the exposed planning surfaces."
+    },
+    {
+      "slug": "local-feedback-ledger",
+      "status": "shipped",
+      "evidence": "src/game/feedbackLedger.js records capped public-safe zero-token aggregate events; App.jsx records Daily Rite start/end, share-copy, and save-import repair events; chronicle/status exports include feedback_summary; tests cover capping and sanitization."
+    },
+    {
+      "slug": "app-jsx-ritual-extraction",
+      "status": "shipped",
+      "evidence": "Daily Rite route mapping and front-door planning presentation moved into focused modules while App.jsx keeps combat state; smoke coverage now guards feedbackSummary plus the existing Daily Rite planning contract."
+    }
+  ]
+}

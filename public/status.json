@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-07T18:18:20.356Z",
+  "generated_at": "2026-06-10T14:13:41.374Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -138,6 +138,15 @@
     "outcome_receipts": {
       "version": 1,
       "count": 5
+    },
+    "feedback_summary": {
+      "version": 1,
+      "privacy": "local public-safe aggregate events only; no raw save payloads, personal data, private notes, credentials, or cookies",
+      "count": 0,
+      "counts": {},
+      "lastEvent": null,
+      "cap": 80,
+      "token_cost": 0
     }
   },
   "ai_policy": {
@@ -158,6 +167,6 @@
       "fallback": "deterministic_chronicle",
       "input_policy": "structured_public_state_only"
     },
-    "cache_key": "season:1:day:73:sun:100:deaths:0:runs:0:graves:0:echoes:0"
+    "cache_key": "season:1:day:76:sun:100:deaths:0:runs:0:graves:0:echoes:0"
   }
 }
