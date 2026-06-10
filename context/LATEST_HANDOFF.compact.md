@@ -1,53 +1,44 @@
 <!-- generated-by: scripts/compact-handoff.mjs v3.1 -->
-<!-- source-hash: manual-closeout-2026-06-10 -->
-<!-- generated-at: 2026-06-10T14:45:00.000Z -->
+<!-- source-hash: fbce113a4e49 -->
+<!-- generated-at: 2026-06-10T14:20:45.828Z -->
 
 # LATEST_HANDOFF (compact)
 
-Session: 2026-06-10
+SESSION HANDOFF SUMMARY
 
-Shipped
-- Director-aware Daily Rite room weaving from route segments
-- Front-door Sun Almanac and Myth So Far planning panel
+Session date: 2026-06-10
+
+Shipped this session:
+- Director-aware Daily Rite room weaving (room sequence consumes Director segments)
+- Front-door Sun Almanac / Myth So Far planning panel
 - Capped public-safe local feedback ledger
-- Public chronicle/status `feedback_summary` exports
-- Smoke/unit coverage for the new route and feedback surfaces
+- Public chronicle/status feedback_summary exports
+- Smoke/unit coverage for new surfaces
 
-Tests
-- 54 unit tests passing
+Tests status:
+- 54 passing unit tests
 - Production build passing
 - Smoke runtime passing
 
-Intent
-- Run /start → /audit → /implement → /closeout cycle with project-personalized audit; implement repo-feasible items; keep repo deployable.
+Current intent:
+- Run full /start to /audit to /implement to /closeout cycle with net-new project-specific audit; implement all repo-feasible items; keep repo deployable
 
-Now (top 3)
-- Deepen actual Daily Rite room/reward consequences now that rooms consume Director route segments
-- Continue App.jsx extraction around Daily Rite planning/presentation surfaces
-- Deploy and verify Supabase RPC/RLS hardening when `PG_CONNECTION_SOLARA` lands
+Now bucket (top 3):
+- Deepen Daily Rite room/reward consequences now that rooms consume Director segments
+- Continue App.jsx extraction around Daily Rite presentation
+- Deploy and verify Supabase RPC/RLS hardening once project-scoped connection lands
 
-Blockers (top 3)
-- Supabase hardened RPCs not deployed in cloud project `fjnpzjjyhnpmunfoycrp` (PGRST202); blocks public-write scale
-- Hardening workflow lacks `PG_CONNECTION_SOLARA` Postgres connection string
-- No owner-credential path applied for `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql`
+Blockers (top 3):
+- Supabase production hardening blocked: needs project-specific PG_CONNECTION_SOLARA for cloud project fjnpzjjyhnpmunfoycrp
+- Hardened RPCs not yet deployed (PGRST202); anon probe can read public tables only
+- No full Postgres connection string / DB password present in ops secrets for the hardening workflow
 
-Human-Blocked (with age)
-- Add `PG_CONNECTION_SOLARA` secret for project `fjnpzjjyhnpmunfoycrp`, then rerun Supabase Hardening workflow; OR apply hardening SQL via Supabase SQL Editor with owner creds and rerun `npm run verify:supabase` — open since 2026-06-03 (~4 days)
+Human-blocked items (with age):
+- Add project-scoped Postgres connection as PG_CONNECTION_SOLARA, then rerun manual Supabase Hardening workflow. Alternative: deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql via SQL Editor with owner creds, then rerun npm run verify:supabase. Outstanding since at least 2026-06-07 (approx 3 days).
 
-Decisions in force
-- Keep Solara on its current cloud Supabase project; do not repoint to Hetzner/Vorn shared DB
-- RPC-first writes with legacy table-write fallback during staged migration
-- Offline-first boot; Supabase client loads async on demand
-- Zero browser token cost by default for status.json/chronicle.json
+Key context:
+- Decision: keep Solara on current cloud Supabase project rather than repointing to Hetzner/Vorn shared DB; avoids cross-project drift
+- Architecture: RPC-first shared-world writes with legacy table-write fallback; offline writes queue in trust-sanitized capped outbox, flush on reconnect
+- Verification command: npm run verify:supabase (non-mutating)
 
-Key surfaces
-- Daily Rite: Director room weave, Sun Almanac (7-day), Legacy Vows, Myth So Far, Sundial Queue card, Last Light challenge banners, Rite Pacing Coach
-- Director: bounded mercy/challenge bias from last 5 runs; route briefs with encounter/reward/shrine/rival/boss/share-line
-- Shared-world: trust-sanitized capped outbox, flush-on-connect, RPC-first service path
-- Feedback: capped local aggregate ledger for Daily Rite start/end, share-copy, and save-import repair events
-- Save import: 250-seed fuzz harness in place
-
-Verification commands
-- npm test, npm run build, smoke runtime, npm run verify:supabase, npm audit
-
-Next: deepen the route weave into real room reward/pressure effects, or unblock Supabase hardening with `PG_CONNECTION_SOLARA`.
+Next session pointer: Run new audit, then deepen Daily Rite room/reward consequences and continue App.jsx extraction while awaiting the human Supabase connection key.

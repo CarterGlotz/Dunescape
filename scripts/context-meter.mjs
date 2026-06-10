@@ -47,6 +47,7 @@ const PRICING = {
 // Exact-prefix overrides for known model IDs. Add to this map when pricing
 // diverges for a specific generation; fallback below keeps the tier default.
 const PRICING_BY_ID = {
+  'claude-opus-4-8':         PRICING.opus,
   'claude-opus-4-7':         PRICING.opus,
   'claude-opus-4-6':         PRICING.opus,
   'claude-sonnet-4-6':       PRICING.sonnet,

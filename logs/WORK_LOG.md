@@ -70,4 +70,5 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - implemented a Director-aware Daily Rite room weaver so the live dungeon consumes route segment encounter/reward/shrine/rival intent
 - added a front-door world-planning panel for Sun Almanac and Myth So Far signals before players commit to a run
 - added a capped public-safe local feedback ledger for Daily Rite start/end, share-copy, and save-import repair events, then exported aggregate feedback summaries through chronicle/status contracts
-- verified 54 unit tests, production build, and smoke runtime
+- repaired the propagated startup-brief renderer by adding the missing copied shared-policy helper after the /start propagation hook updated protocol scripts
+- verified 54 unit tests, production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board render

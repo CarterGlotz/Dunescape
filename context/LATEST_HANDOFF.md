@@ -4,7 +4,8 @@ This repo now keeps only a public-safe handoff summary. Detailed handoff history
 
 ## Where We Left Off (2026-06-10)
 - Shipped: Director-aware Daily Rite room weaving, front-door Sun Almanac/Myth So Far planning panel, capped public-safe local feedback ledger, public chronicle/status `feedback_summary` exports, and smoke/unit coverage for the new surfaces
-- Tests: 54 passing unit tests plus production build and smoke runtime passing
+- Protocol repair: `/start` deferred propagation updated AGENTS/protocol scripts; added the missing copied `scripts/lib/shared-policies.mjs` dependency so `node scripts/render-startup-brief.mjs` runs cleanly again
+- Tests: 54 passing unit tests plus production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board render passing
 - Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
 - Next best work: deepen the actual Daily Rite room/reward consequences now that the room sequence consumes Director segments, continue App.jsx extraction around Daily Rite presentation, and deploy/verify Supabase RPC/RLS hardening once the project-scoped connection lands
 

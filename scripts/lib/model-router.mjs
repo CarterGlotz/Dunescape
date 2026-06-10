@@ -6,7 +6,7 @@
  * studio-wide model upgrades in one place.
  *
  * Rules:
- *   COMPLEX  → claude-opus-4-7    (strategy, deep analysis, extended thinking)
+ *   COMPLEX  → claude-opus-4-8    (strategy, deep analysis, extended thinking)
  *   MODERATE → claude-sonnet-4-6  (implementation, code, Q&A, most work)
  *   SIMPLE   → claude-haiku-4-5-20251001  (validations, lookups, quick checks)
  *
@@ -41,7 +41,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const LEDGER_DEFAULT = path.resolve(__dirname, '..', '..', 'docs', 'cache-ledger.ndjson');
 
 export const MODELS = {
-  opus:   'claude-opus-4-7',
+  opus:   'claude-opus-4-8',
   sonnet: 'claude-sonnet-4-6',
   haiku:  'claude-haiku-4-5-20251001',
 };
@@ -64,7 +64,7 @@ export const CONTEXT_WINDOWS = {
 export function contextWindowForAgent(agent) {
   // Env override: CLAUDE_CONTEXT_LIMIT=1000000 for Max/extended-context plans
   if (process.env.CLAUDE_CONTEXT_LIMIT) return parseInt(process.env.CLAUDE_CONTEXT_LIMIT, 10);
-  // Studio Ops founder runs Opus 4.7 (1M context) exclusively across Claude Code sessions.
+  // Studio Ops founder runs Opus 4.8 (1M context) exclusively across Claude Code sessions.
   // Set CLAUDE_CONTEXT_LIMIT=200000 to pin to the legacy 200K window.
   if (agent === 'claude-code') return CONTEXT_WINDOWS['opus-1m'];
   if (agent === 'codex') return CONTEXT_WINDOWS['codex-1m'];
@@ -445,7 +445,7 @@ export function callClaude({ apiKey, model, maxTokens, system, messages, thinkin
         routedModel = 'claude-haiku-4-5-20251001';
         classifyTag = `routing:turn-classifier-v1:${verdict.reason}`;
       } else if (verdict.model === 'opus' && /haiku|sonnet/i.test(model)) {
-        routedModel = 'claude-opus-4-7';
+        routedModel = MODELS.opus;
         classifyTag = `routing:turn-classifier-v1:${verdict.reason}`;
       }
     } catch { /* classifier optional — never break callers */ }

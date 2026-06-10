@@ -64,4 +64,5 @@ Public-safe summary:
 - Daily Rite room generation now consumes the deterministic Director route plan, keeps the final boss slot, and surfaces segment goals/reward intent when entering or clearing rooms
 - front-door Play menu now shows the same Almanac/Myth planning signals previously hidden deeper in the Daily Rite tab
 - local feedback events now record capped zero-token aggregates for Daily Rite start/end, share-copy, and save-import repair moments without storing raw saves, private notes, credentials, or cookies
-- latest local validation: 54 unit tests passing, production build passing, smoke flow passing
+- /start deferred propagation refreshed AGENTS/protocol scripts; startup-brief rendering was repaired by adding the copied `scripts/lib/shared-policies.mjs` dependency required by the new renderer import
+- latest local validation: 54 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing, closeout-board render passing

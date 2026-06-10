@@ -139,7 +139,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-10 audit-derived pass shipped a Director-aware Daily Rite room weaver, front-door world-planning panel, local public-safe feedback ledger, public chronicle/status feedback summary export, and updated smoke/unit coverage
 - Daily Rite room sequences now consume Director route segments instead of only displaying route-plan copy
 - front-door menu now previews Sun Almanac and Myth So Far signals before players enter the Daily tab
-- latest local validation: 54 unit tests passing, production build passing, smoke flow passing
+- latest local validation: 54 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing, closeout-board render passing
+- propagated startup protocol scripts now have the missing local shared-policy helper required by the startup-brief renderer
 
 ## Deferred to Project Agents
 
