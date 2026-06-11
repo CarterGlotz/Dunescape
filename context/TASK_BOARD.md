@@ -19,6 +19,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - keep outcome receipts, backend readiness, and runtime cost guardrails visible in public status/chronicle contracts
 - keep the backend RPC contract manifest, Sundial Queue briefing, Rite Pacing Coach, Last Light result card, and Daily Rite smoke contract aligned as the next App.jsx extraction guardrails
 - keep the new Daily Rite stakes ledger, feedback attribution summary, backend readiness runbook fields, and Daily Rite status component aligned with public chronicle/status exports
+- keep the new Daily Rite mechanical modifiers, status render contract, and feedback route targets aligned with public chronicle/status exports
 
 ## Next
 
@@ -54,8 +55,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - rerun Supabase Hardening workflow after `PG_CONNECTION_SOLARA` is present; prior run `24579847516` confirmed the old required-secret preflight worked before the project-scoped gate was adopted
 - extend the new deterministic outcome receipts into visible post-action UI surfaces for offerings, echo reactions, and run-end share flows
 - use the Director route consequence fields to tune actual Daily Rite reward payout and room modifier behavior beyond public JSON/contracts
-- turn Daily Rite stakes into mechanical payout/risk modifiers, not just route briefing and share/debrief copy
-- add browser-level validation for the extracted Daily Rite status component once a browser runner exists
+- extend Daily Rite mechanical modifiers into reward-drop tuning, recovery-room odds, and route-specific shrine bargains
+- add browser-level validation for the extracted Daily Rite status component and mechanical modifier effects once a browser runner exists
 
 ## Combined Top Recommendations
 
@@ -149,6 +150,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-11 pass shipped Daily Rite stakes ledger, feedback action/source attribution, structured backend readiness runbook fields, local Studio protocol drift shims, and extracted Daily Rite status presentation
 - latest local validation: 56 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing
 - 2026-06-11 closeout continuation added the public closeout brief/audit record and revalidated tests, build, smoke, startup brief, and closeout board
+- 2026-06-11 Session 66 pass shipped Daily Rite mechanical modifiers, public `daily_rite_modifiers` exports, deterministic Daily Rite status contracts, and feedback route targets
 
 ## Deferred to Project Agents
 

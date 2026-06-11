@@ -68,3 +68,11 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - local Studio protocol shims are explicit no-ops for public-repo boundaries and do not read private cargo or credentials
 - local validation passed: 56 unit tests, production build, smoke runtime, startup-brief render, and brief-format validation
 - closeout continuation revalidated the same public-safe surfaces, added `docs/CLOSEOUT_BRIEF_2026-06-11.md` and `audits/2026-06-11.json`, and confirmed the closeout board format gate passes
+
+## 2026-06-11 Session 66 Public-Safe Check
+
+- Daily Rite mechanical modifiers are deterministic functions of public route stakes; they expose bounded enemy/reward multipliers and keep `token_cost: 0`
+- public chronicle/status exports now include `daily_rite_modifiers` so Studio integrations can distinguish visible stakes from mechanical route pressure without credentials or paid generation
+- Daily Rite status contracts expose only UI state, action availability, stake labels, risk labels, and modifier labels; no private player payloads or secrets are included
+- feedback route targets are fixed public UI intents and remain aggregate-only alongside capped local feedback attribution
+- local validation passed: 57 unit tests, production build, and smoke runtime

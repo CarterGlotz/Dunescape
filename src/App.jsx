@@ -49,6 +49,7 @@ import {
 import { getSundialQueueBriefing, getSundialQueueSummary } from "./game/sundialQueue.js";
 import { getDailyRiteConsequence } from "./game/dailyRiteConsequences.js";
 import { completeDailyRiteRun, createDailyRiteRun } from "./game/dailyRunSession.js";
+import { applyDailyRiteMonsterModifier, getDailyRiteModifierForWave } from "./game/dailyRiteModifiers.js";
 import { recordFeedbackEvent, summarizeFeedbackLedger } from "./game/feedbackLedger.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
@@ -1165,6 +1166,10 @@ export default function DS(){
     const snapshot=getWorldSnapshot();
     return applyMonsterWorldState(monster,snapshot,context);
   },[getWorldSnapshot]);
+  const applyDailySpawnState=useCallback((monster,run)=>{
+    const modifier=getDailyRiteModifierForWave({modifiers:run?.modifiers,roomWeave:run?.roomWeave,wave:run?.wave||0});
+    return applyDailyRiteMonsterModifier(applySpawnState(monster,"dungeon"),modifier);
+  },[applySpawnState]);
   const spawnEchoRival=useCallback((snapshot, baseMonster, contextTag)=>{
     if(!snapshot?.rival||!baseMonster)return null;
     const rivalBase={...baseMonster,x:10,y:56,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,isEchoRival:true,echoRival:true};
@@ -2082,7 +2087,7 @@ export default function DS(){
               room.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dead&&!m.dungeon);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:md.c||"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true};
               if(isRogueRun){const scaled=scaleRogueMon(dm,waveNum);Object.assign(dm,scaled);dm.rogueRun=true;}
               if(isDailyRun){dm.dailyRun=true;if(dailyRunRef.current.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();}
-              dm=applySpawnState(dm,"dungeon");
+              dm=isDailyRun?applyDailySpawnState(dm,dailyRunRef.current):applySpawnState(dm,"dungeon");
               g.mons.push(dm);dungMons.push(dm);}});
               if(activeRun?.rival&&!activeRun.rivalSpawned){
                 const rivalBase=g.mons.find(m=>m.nm===activeRun.rival.monsterName&&!m.dead&&!m.dungeon)||g.mons.find(m=>m.nm===activeRun.rival.monsterName)||g.mons.find(m=>m.nm==="Bandit")||g.mons[0];
@@ -2430,7 +2435,7 @@ export default function DS(){
             if(consequence)addC(consequence.clear_line);
             if(consequence)addC(consequence.entry_line);
             const dungMons=[];
-            nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,dailyRun:true};if(run.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();dm=applySpawnState(dm,"dungeon");g.mons.push(dm);dungMons.push(dm);}});
+            nextRoom.monsters.forEach(md=>{const base=g.mons.find(m=>m.nm===md.nm&&!m.dungeon&&!m.dead);for(let di=0;di<(md.count||1);di++){let dm={...(base||{nm:md.nm,c:"#606",hp:md.hp||50,mhp:md.hp||50,atk:md.atk||8,def:md.def||5,str:md.str||7,xp:md.xp||30,drops:md.drops||[],rsp:0,lvl:md.lvl||10}),x:8+di*2,y:55+di,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,dailyRun:true};if(run.wave===29&&md.nm==="Shadow Drake")dm.nm=getDailyBossName();dm=applyDailySpawnState(dm,run);g.mons.push(dm);dungMons.push(dm);}});
             g.dungeon.monsters=dungMons;
           }
           dirtyR.current=true;setDailyTick(n=>n+1);

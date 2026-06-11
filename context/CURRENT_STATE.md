@@ -78,3 +78,5 @@ Public-safe summary:
 - local `/start` support now has explicit public-safe no-op shims for skill-profile, credential-watch, Ark drain, and brief staleness so future sessions do not fail before the validated brief path
 - latest local validation: 56 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing
 - 2026-06-11 closeout continuation verified the audit implementation evidence, regenerated public status/chronicle JSON, added the public closeout brief and audit JSON, and validated the closeout board
+- 2026-06-11 Session 66 audit/implement pass turned Daily Rite stakes into deterministic mechanical modifiers, exported `daily_rite_modifiers` through public chronicle/status JSON, added a pure Daily Rite status render contract, and gave feedback next-action digests explicit route targets
+- latest local validation: 57 unit tests passing, production build passing, smoke flow passing

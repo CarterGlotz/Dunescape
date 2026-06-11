@@ -3,8 +3,10 @@ import assert from "node:assert/strict";
 import { buildDailyRiteRoomSequence } from "../src/game/dailyRiteRooms.js";
 import { getDailyRiteConsequence } from "../src/game/dailyRiteConsequences.js";
 import { completeDailyRiteRun, createDailyRiteRun } from "../src/game/dailyRunSession.js";
+import { applyDailyRiteMonsterModifier, buildDailyRiteModifiers, getDailyRiteModifierForWave } from "../src/game/dailyRiteModifiers.js";
+import { getDailyRiteStatusContract } from "../src/game/dailyRiteStatusContract.js";
 import { getDailyRitePlan } from "../src/game/directorMechanics.js";
-import { clearFeedbackLedger, getFeedbackNextActionDigest, loadFeedbackLedger, recordFeedbackEvent, summarizeFeedbackLedger } from "../src/game/feedbackLedger.js";
+import { FEEDBACK_ACTION_ROUTES, clearFeedbackLedger, getFeedbackNextActionDigest, loadFeedbackLedger, recordFeedbackEvent, summarizeFeedbackLedger } from "../src/game/feedbackLedger.js";
 import { buildPublicChronicle } from "../src/game/chronicle.js";
 import { getSharedWorldSnapshot } from "../src/game/sharedWorld.js";
 
@@ -56,8 +58,11 @@ test("Daily Rite consequence engine and run factory share deterministic segment 
 
   assert.equal(run.rooms.length, 30);
   assert.equal(run.stakes.token_cost, 0);
+  assert.equal(run.modifiers.token_cost, 0);
   assert.equal(run.stakes.segment_count, plan.route.length);
+  assert.equal(run.modifiers.segment_count, run.stakes.segment_count);
   assert.ok(run.stakes.primary_stake.risk >= 1);
+  assert.ok(run.modifiers.highest_risk_segment.enemy_scale >= 1);
   assert.ok(run.pacingCoach.next_action);
   assert.match(run.consequence.entry_line, /Room entered|Waves|for/);
   assert.equal(consequence.wave, 4);
@@ -78,6 +83,39 @@ test("Daily Rite consequence engine and run factory share deterministic segment 
   assert.match(run.shareCard, /SOLARA: LAST LIGHT/);
   assert.doesNotMatch(run.shareCard, /<script>|`/);
   assert.match(run.shareCard, /Rite broke/);
+});
+
+test("Daily Rite stakes produce mechanical modifiers and status contracts", () => {
+  const sharedWorld = getSharedWorldSnapshot({
+    sunBrightness: 8,
+    totalDeaths: 5200,
+    leaderboard: [{ faction: "eclipser", wave_reached: 20 }],
+    echoes: [{ player_name: "Kael", kind: "daily", wave_reached: 18, commend_count: 4 }],
+    graves: Array.from({ length: 8 }, (_, index) => ({ x: 12 + index, y: 18, sunstone_offerings: 30, epitaph: "warning" })),
+    dayNumber: 91,
+  });
+  const plan = getDailyRitePlan({ sharedWorld, dayNumber: 91 });
+  const run = createDailyRiteRun({ dailyRitePlan: plan, mechanics: { enemyScale: 1.2 }, daySeed: "mechanical-stakes" });
+  const modifiers = buildDailyRiteModifiers({ stakes: run.stakes });
+  const active = getDailyRiteModifierForWave({ modifiers, roomWeave: run.roomWeave, wave: 0 });
+  const monster = applyDailyRiteMonsterModifier({ nm: "Goblin", hp: 20, mhp: 20, atk: 3, str: 3, xp: 10 }, active);
+
+  assert.equal(modifiers.token_cost, 0);
+  assert.ok(active.enemy_scale >= 1);
+  assert.ok(monster.hp >= 20);
+  assert.ok(monster.xp >= 10);
+  assert.equal(monster.dailyRiteModifier.id, active.id);
+
+  assert.equal(getDailyRiteStatusContract({ playedDailyToday: false }).state, "idle");
+  const activeContract = getDailyRiteStatusContract({ dailyRun: run });
+  assert.equal(activeContract.state, "active");
+  assert.ok(activeContract.stake_label);
+  assert.match(activeContract.modifier_label, /Risk/);
+  run.shareCard = "SOLARA: LAST LIGHT";
+  completeDailyRiteRun({ run, wave: 30, completed: true, playerName: "Mara", phase: "Dawn", dateSeed: "mechanical-stakes" });
+  const completeContract = getDailyRiteStatusContract({ dailyRun: run });
+  assert.equal(completeContract.state, "complete");
+  assert.ok(completeContract.actions.includes("copy_share"));
 });
 
 test("feedback ledger stores capped public-safe aggregate events", () => {
@@ -115,6 +153,23 @@ test("feedback digest turns aggregate events into a next action without tokens",
   const deep = getFeedbackNextActionDigest({ count: 3, counts: { daily_rite_start: 1, daily_rite_end: 1, share_copy: 1 }, cap: 80 });
   assert.equal(deep.id, "deepen_route");
   assert.equal(deep.token_cost, 0);
+  for (const id of Object.keys(FEEDBACK_ACTION_ROUTES)) {
+    const digest = getFeedbackNextActionDigest({
+      count: id === "ledger_cap_reached" ? 80 : 1,
+      cap: id === "ledger_cap_reached" ? 80 : 80,
+      counts: id === "finish_daily_rite"
+        ? { daily_rite_start: 1 }
+        : id === "share_result"
+          ? { daily_rite_start: 1, daily_rite_end: 1 }
+          : id === "review_import_repairs"
+            ? { save_import_repaired: 1 }
+            : id === "deepen_route"
+              ? { daily_rite_start: 1, daily_rite_end: 1, share_copy: 1 }
+              : {},
+    });
+    assert.ok(digest.route_target?.tab || digest.route_target?.type, id);
+    assert.equal(digest.token_cost, 0);
+  }
   assert.doesNotMatch(JSON.stringify(deep), /<script>|`/);
 });
 
@@ -130,7 +185,10 @@ test("public chronicle exports a zero-token feedback summary", () => {
 
   assert.equal(chronicle.shared_world.feedback_summary.count, 2);
   assert.equal(chronicle.shared_world.daily_rite_stakes.token_cost, 0);
+  assert.equal(chronicle.shared_world.daily_rite_modifiers.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_stakes.segment_count, chronicle.shared_world.daily_rite_plan.route.length);
+  assert.equal(chronicle.shared_world.daily_rite_modifiers.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
+  assert.ok(chronicle.integrations.daily_rite_modifiers.highest_risk_segment.enemy_scale >= 1);
   assert.ok(chronicle.shared_world.daily_rite_stakes.summary.includes("stakes"));
   assert.equal(chronicle.shared_world.feedback_summary.counts.daily_rite_end, 1);
   assert.equal(chronicle.shared_world.feedback_summary.attribution.token_cost, 0);

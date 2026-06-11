@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-11T03:23:19.440Z",
+  "generated_at": "2026-06-11T03:54:43.478Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -250,6 +250,11 @@
         "label": "Start today's Daily Rite",
         "detail": "No local Daily Rite signal is recorded yet; the best next action is to enter the",
         "action": {
+          "type": "tab",
+          "tab": "daily",
+          "label": "Open Daily Rite"
+        },
+        "route_target": {
           "type": "tab",
           "tab": "daily",
           "label": "Open Daily Rite"

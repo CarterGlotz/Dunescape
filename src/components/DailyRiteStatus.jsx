@@ -1,5 +1,6 @@
 import React from "react";
 import RunDebriefCard from "./RunDebriefCard.jsx";
+import { getDailyRiteStatusContract } from "../game/dailyRiteStatusContract.js";
 
 export default function DailyRiteStatus({
   dailyRun,
@@ -10,11 +11,12 @@ export default function DailyRiteStatus({
   onDownloadScroll,
   onCopyChallenge,
 }) {
+  const contract = getDailyRiteStatusContract({ dailyRun, playedDailyToday });
   if (!dailyRun) {
     return (
       <div>
-        <button onClick={onStart} style={{width:"100%",background:"linear-gradient(180deg,#3a1808,#280e04)",border:"2px solid #c8a84e",color:"#da0",fontSize:10,padding:"8px 4px",cursor:"pointer",borderRadius:4,fontWeight:700,marginBottom:3,boxShadow:!playedDailyToday?"0 0 14px rgba(240,192,96,0.28)":"none",animation:!playedDailyToday?"pulse 1.5s ease-in-out infinite":"none"}}>☀️ {playedDailyToday?"Replay Today's Dungeon":"Play Today's Dungeon"}</button>
-        <div style={{fontSize:7,color:"#555",textAlign:"center",lineHeight:1.4}}>30 waves · seeded by today's date<br/>same dungeon for all players worldwide</div>
+        <button onClick={onStart} style={{width:"100%",background:"linear-gradient(180deg,#3a1808,#280e04)",border:"2px solid #c8a84e",color:"#da0",fontSize:10,padding:"8px 4px",cursor:"pointer",borderRadius:4,fontWeight:700,marginBottom:3,boxShadow:!playedDailyToday?"0 0 14px rgba(240,192,96,0.28)":"none",animation:!playedDailyToday?"pulse 1.5s ease-in-out infinite":"none"}}>☀️ {contract.headline}</button>
+        <div style={{fontSize:7,color:"#555",textAlign:"center",lineHeight:1.4}}>{contract.progress_label}<br/>same dungeon for all players worldwide</div>
       </div>
     );
   }
@@ -22,9 +24,10 @@ export default function DailyRiteStatus({
   if (!dailyRun.done) {
     return (
       <div style={{background:"rgba(40,20,5,0.6)",border:"1px solid #5a3010",borderRadius:4,padding:"6px 4px",textAlign:"center"}}>
-        <div style={{color:"#da0",fontSize:12,fontWeight:700}}>⚔️ Wave {dailyRun.wave}/30</div>
-        <div style={{fontSize:8,color:"#888",marginTop:2}}>Go to the dungeon entrance (south of The Mine)!</div>
-        {dailyRun.stakes?.primary_stake&&<div style={{fontSize:7,color:"#d8a86a",lineHeight:1.4,marginTop:4}}>Stake: {dailyRun.stakes.primary_stake.label} · risk {dailyRun.stakes.primary_stake.risk}/5</div>}
+        <div style={{color:"#da0",fontSize:12,fontWeight:700}}>⚔️ {contract.headline}</div>
+        <div style={{fontSize:8,color:"#888",marginTop:2}}>{contract.progress_label}</div>
+        {contract.stake_label&&<div style={{fontSize:7,color:"#d8a86a",lineHeight:1.4,marginTop:4}}>Stake: {contract.stake_label} · {contract.risk_label}</div>}
+        {contract.modifier_label&&<div style={{fontSize:7,color:"#9fc6a0",lineHeight:1.4,marginTop:3}}>{contract.modifier_label}</div>}
         <div style={{height:4,background:"#120604",borderRadius:2,marginTop:4}}><div style={{height:"100%",background:"#c8a84e",borderRadius:2,width:((dailyRun.wave/30)*100)+"%"}}/></div>
       </div>
     );
@@ -34,9 +37,10 @@ export default function DailyRiteStatus({
     <div style={{background:"rgba(40,20,5,0.6)",border:"1px solid rgba(200,168,78,0.2)",borderRadius:4,padding:6}}>
       <RunDebriefCard debrief={dailyDebrief} />
       <div style={{color:dailyRun.deathWave>=30?"#da0":"#f44",fontSize:11,fontWeight:700,textAlign:"center",marginBottom:4}}>
-        {dailyRun.deathWave>=30?"🏆 COMPLETED!":"💀 Wave "+dailyRun.deathWave+"/30"}
+        {dailyRun.deathWave>=30?"🏆 "+contract.headline:"💀 "+contract.headline}
       </div>
-      {dailyRun.stakes?.summary&&<div style={{fontSize:7,color:"#d8a86a",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>☀️ {dailyRun.stakes.summary}</div>}
+      {contract.progress_label&&<div style={{fontSize:7,color:"#d8a86a",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>☀️ {contract.progress_label}</div>}
+      {contract.modifier_label&&<div style={{fontSize:7,color:"#9fc6a0",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{contract.modifier_label}</div>}
       {dailyRun.vowResult&&<div style={{fontSize:7,color:dailyRun.vowResult.kept?"#e0b050":"#a06050",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{dailyRun.vowResult.kept?"⚜️":"🕯️"} {dailyRun.vowResult.debriefLine}</div>}
       {dailyRun.challengeResult&&<div style={{fontSize:7,color:dailyRun.challengeResult.beaten?"#6c4":"#c86",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🔥 {dailyRun.challengeResult.line}</div>}
       {dailyRun.pacingCoach&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🧭 {dailyRun.pacingCoach.next_action}</div>}

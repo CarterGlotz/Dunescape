@@ -87,3 +87,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - regenerated public chronicle/status JSON so Studio integrations can read `daily_rite_stakes`, feedback attribution, and the stronger backend readiness contract
 - verified 56 unit tests, production build, smoke runtime, startup-brief render, and brief-format validation
 - closeout continuation added `docs/CLOSEOUT_BRIEF_2026-06-11.md`, `audits/2026-06-11.json`, regenerated the closeout board, and revalidated tests/build/smoke/startup-brief gates
+
+## 2026-06-11 — Session 66
+
+- ran a fresh /start, resolved the game overlay, and wrote docs/AUDIT_2026-06-11-S66.md / .json with four Solara-specific items tied to mechanical Daily Rite stakes, public intelligence exports, status contract coverage, and feedback route targets
+- implemented deterministic Daily Rite modifier contracts and attached them to run creation; active Daily Rite monster spawns now apply segment risk/reward pressure
+- exported `daily_rite_modifiers` through public chronicle/status JSON with `token_cost: 0`
+- added a pure Daily Rite status contract for idle/active/completed states and wired it into `DailyRiteStatus.jsx`
+- gave feedback next-action digests explicit route targets through `FEEDBACK_ACTION_ROUTES`
+- verified 57 unit tests, production build, and smoke runtime

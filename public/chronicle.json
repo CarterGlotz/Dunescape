@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-11T03:23:19.440Z",
+  "generated_at": "2026-06-11T03:54:43.478Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -418,6 +418,91 @@
       "summary": "Clear Routes stakes: Waves 26-30 is the pressure point; Take one clean reward, then reset tempo.",
       "token_cost": 0
     },
+    "daily_rite_modifiers": {
+      "version": 1,
+      "token_cost": 0,
+      "segment_count": 6,
+      "highest_risk_segment": {
+        "id": "segment_6",
+        "label": "Waves 26-30",
+        "risk": 3,
+        "reward_bias": "xp",
+        "enemy_scale": 1.09,
+        "xp_multiplier": 1.105,
+        "coin_multiplier": 1.045,
+        "recovery_pressure": "guarded",
+        "rule": "Risk 3/5: enemies x1.09, xp payout pressure x1.105."
+      },
+      "segments": [
+        {
+          "id": "segment_1",
+          "label": "Waves 1-5",
+          "risk": 1,
+          "reward_bias": "relic",
+          "enemy_scale": 1,
+          "xp_multiplier": 1.07,
+          "coin_multiplier": 1.015,
+          "recovery_pressure": "open",
+          "rule": "Risk 1/5: enemies x1, relic payout pressure x1.07."
+        },
+        {
+          "id": "segment_2",
+          "label": "Waves 6-10",
+          "risk": 2,
+          "reward_bias": "coins",
+          "enemy_scale": 1.045,
+          "xp_multiplier": 1.04,
+          "coin_multiplier": 1.07,
+          "recovery_pressure": "open",
+          "rule": "Risk 2/5: enemies x1.045, coins payout pressure x1.07."
+        },
+        {
+          "id": "segment_3",
+          "label": "Waves 11-15",
+          "risk": 2,
+          "reward_bias": "xp",
+          "enemy_scale": 1.045,
+          "xp_multiplier": 1.07,
+          "coin_multiplier": 1.03,
+          "recovery_pressure": "open",
+          "rule": "Risk 2/5: enemies x1.045, xp payout pressure x1.07."
+        },
+        {
+          "id": "segment_4",
+          "label": "Waves 16-20",
+          "risk": 2,
+          "reward_bias": "relic",
+          "enemy_scale": 1.045,
+          "xp_multiplier": 1.105,
+          "coin_multiplier": 1.03,
+          "recovery_pressure": "open",
+          "rule": "Risk 2/5: enemies x1.045, relic payout pressure x1.105."
+        },
+        {
+          "id": "segment_5",
+          "label": "Waves 21-25",
+          "risk": 2,
+          "reward_bias": "coins",
+          "enemy_scale": 1.045,
+          "xp_multiplier": 1.04,
+          "coin_multiplier": 1.07,
+          "recovery_pressure": "open",
+          "rule": "Risk 2/5: enemies x1.045, coins payout pressure x1.07."
+        },
+        {
+          "id": "segment_6",
+          "label": "Waves 26-30",
+          "risk": 3,
+          "reward_bias": "xp",
+          "enemy_scale": 1.09,
+          "xp_multiplier": 1.105,
+          "coin_multiplier": 1.045,
+          "recovery_pressure": "guarded",
+          "rule": "Risk 3/5: enemies x1.09, xp payout pressure x1.105."
+        }
+      ],
+      "scale_posture": "Waves 26-30 carries the strongest mechanical pressure at risk 3/5."
+    },
     "constellation_objectives": [],
     "backend_readiness": {
       "version": 1,
@@ -766,6 +851,11 @@
           "tab": "daily",
           "label": "Open Daily Rite"
         },
+        "route_target": {
+          "type": "tab",
+          "tab": "daily",
+          "label": "Open Daily Rite"
+        },
         "token_cost": 0
       }
     }
@@ -893,8 +983,98 @@
           "tab": "daily",
           "label": "Open Daily Rite"
         },
+        "route_target": {
+          "type": "tab",
+          "tab": "daily",
+          "label": "Open Daily Rite"
+        },
         "token_cost": 0
       }
+    },
+    "daily_rite_modifiers": {
+      "version": 1,
+      "token_cost": 0,
+      "segment_count": 6,
+      "highest_risk_segment": {
+        "id": "segment_6",
+        "label": "Waves 26-30",
+        "risk": 3,
+        "reward_bias": "xp",
+        "enemy_scale": 1.09,
+        "xp_multiplier": 1.105,
+        "coin_multiplier": 1.045,
+        "recovery_pressure": "guarded",
+        "rule": "Risk 3/5: enemies x1.09, xp payout pressure x1.105."
+      },
+      "segments": [
+        {
+          "id": "segment_1",
+          "label": "Waves 1-5",
+          "risk": 1,
+          "reward_bias": "relic",
+          "enemy_scale": 1,
+          "xp_multiplier": 1.07,
+          "coin_multiplier": 1.015,
+          "recovery_pressure": "open",
+          "rule": "Risk 1/5: enemies x1, relic payout pressure x1.07."
+        },
+        {
+          "id": "segment_2",
+          "label": "Waves 6-10",
+          "risk": 2,
+          "reward_bias": "coins",
+          "enemy_scale": 1.045,
+          "xp_multiplier": 1.04,
+          "coin_multiplier": 1.07,
+          "recovery_pressure": "open",
+          "rule": "Risk 2/5: enemies x1.045, coins payout pressure x1.07."
+        },
+        {
+          "id": "segment_3",
+          "label": "Waves 11-15",
+          "risk": 2,
+          "reward_bias": "xp",
+          "enemy_scale": 1.045,
+          "xp_multiplier": 1.07,
+          "coin_multiplier": 1.03,
+          "recovery_pressure": "open",
+          "rule": "Risk 2/5: enemies x1.045, xp payout pressure x1.07."
+        },
+        {
+          "id": "segment_4",
+          "label": "Waves 16-20",
+          "risk": 2,
+          "reward_bias": "relic",
+          "enemy_scale": 1.045,
+          "xp_multiplier": 1.105,
+          "coin_multiplier": 1.03,
+          "recovery_pressure": "open",
+          "rule": "Risk 2/5: enemies x1.045, relic payout pressure x1.105."
+        },
+        {
+          "id": "segment_5",
+          "label": "Waves 21-25",
+          "risk": 2,
+          "reward_bias": "coins",
+          "enemy_scale": 1.045,
+          "xp_multiplier": 1.04,
+          "coin_multiplier": 1.07,
+          "recovery_pressure": "open",
+          "rule": "Risk 2/5: enemies x1.045, coins payout pressure x1.07."
+        },
+        {
+          "id": "segment_6",
+          "label": "Waves 26-30",
+          "risk": 3,
+          "reward_bias": "xp",
+          "enemy_scale": 1.09,
+          "xp_multiplier": 1.105,
+          "coin_multiplier": 1.045,
+          "recovery_pressure": "guarded",
+          "rule": "Risk 3/5: enemies x1.09, xp payout pressure x1.105."
+        }
+      ],
+      "scale_posture": "Waves 26-30 carries the strongest mechanical pressure at risk 3/5."
     },
     "daily_rite_stakes": {
       "version": 1,

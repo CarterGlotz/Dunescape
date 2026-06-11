@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-11",
+  "project": "solara",
+  "projectName": "Solara: Sunfall",
+  "type": "game",
+  "session": 66,
+  "topLine": {
+    "totalItems": 4,
+    "combinedPriority": 44.7,
+    "top3": [
+      "daily-rite-stakes-mechanics",
+      "daily-rite-status-contract",
+      "stakes-public-intelligence-delta"
+    ]
+  },
+  "items": [
+    {
+      "id": 1,
+      "slug": "daily-rite-stakes-mechanics",
+      "tier": "🔥",
+      "axis": "gamification",
+      "effort": "2h",
+      "impact": 10,
+      "innovation": 9,
+      "priority": 14.9,
+      "title": "Turn the Daily Rite stakes ledger into mechanical risk and payout modifiers",
+      "why": "Session 65 made route stakes visible, but the dungeon still mostly treats those stakes as copy. The next leap is to let each segment's risk and reward intent shape enemy scale, XP payout, coin payout, and recovery pressure so players can feel the sun's contract in combat instead of only reading it.",
+      "recipe": "Add a deterministic `dailyRiteModifiers` module derived from `dailyRiteStakes`, attach the modifiers to `createDailyRiteRun`, apply the active modifier when spawning Daily Rite monsters, and cover the contract in unit tests."
+    },
+    {
+      "id": 2,
+      "slug": "daily-rite-status-contract",
+      "tier": "⚡",
+      "axis": "UI / UX / user-experience",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 10.2,
+      "title": "Give the extracted Daily Rite status panel a deterministic render contract",
+      "why": "`DailyRiteStatus.jsx` is now the read-only Daily Rite surface, but the Node smoke harness only stubs JSX components. A public-safe contract helper gives tests a stable way to verify the panel states, labels, and call-to-action metadata without pulling a browser runner into this pass.",
+      "recipe": "Export a pure `getDailyRiteStatusContract` helper beside the component, use it inside the component, and test idle, active, and completed states including stakes and action availability."
+    },
+    {
+      "id": 3,
+      "slug": "stakes-public-intelligence-delta",
+      "tier": "⚡",
+      "axis": "AI / intelligence integration",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 10.2,
+      "title": "Publish zero-token mechanical stakes in chronicle/status intelligence",
+      "why": "Studio surfaces already see `daily_rite_stakes`, but they cannot yet tell whether the stakes alter play. Exporting the derived mechanical modifier summary lets Hub, social, and future embeds distinguish a cosmetic route from a mechanically volatile route without paying for generation.",
+      "recipe": "Expose `daily_rite_modifiers` in public chronicle/status output with `token_cost: 0`, including highest-risk segment, reward multiplier, enemy scale, and measurement-safe posture fields."
+    },
+    {
+      "id": 4,
+      "slug": "feedback-action-routing-map",
+      "tier": "⚡",
+      "axis": "user feedback loop",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 6,
+      "priority": 7.7,
+      "title": "Map feedback next actions to explicit UI route targets",
+      "why": "Feedback attribution now records action and source, but a future UI change could silently turn a next-action button into a dead hint. A deterministic routing map keeps next actions tied to tab/map intent and gives tests a zero-token guarantee that advice remains clickable.",
+      "recipe": "Add a small `feedbackActionRoutes` contract consumed by feedback summaries, assert every next-action id has a route target, and keep the exported summary public-safe."
+    }
+  ],
+  "innovationReserve": [
+    "daily-rite-stakes-mechanics"
+  ],
+  "skipped": [
+    {
+      "slug": "deploy-supabase-hardening",
+      "reason": "Still gated on project-scoped `PG_CONNECTION_SOLARA`; keep documenting and verifying the gate instead of faking production readiness."
+    },
+    {
+      "slug": "paid-route-oracle",
+      "reason": "Rejected by the deterministic-first browser AI/token decision; route intelligence remains zero-token in this pass."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "daily-rite-stakes-mechanics",
+      "status": "shipped",
+      "evidence": "Added deterministic Daily Rite modifier contracts, attached them to run creation, and applied the active segment modifier to Daily Rite monster spawns."
+    },
+    {
+      "slug": "stakes-public-intelligence-delta",
+      "status": "shipped",
+      "evidence": "Public chronicle/status exports now include `daily_rite_modifiers` with token_cost 0, risk segment, enemy scale, reward bias, and scale posture."
+    },
+    {
+      "slug": "daily-rite-status-contract",
+      "status": "shipped",
+      "evidence": "Added a pure Daily Rite status contract for idle/active/complete states and used it inside `DailyRiteStatus.jsx`; tests cover stakes and action availability."
+    },
+    {
+      "slug": "feedback-action-routing-map",
+      "status": "shipped",
+      "evidence": "Feedback next-action digests now carry explicit route targets from `FEEDBACK_ACTION_ROUTES`; tests assert all routes stay public-safe and zero-token."
+    }
+  ]
+}

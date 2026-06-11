@@ -2,6 +2,16 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-11 · Session 66)
+- Shipped: Daily Rite stakes now produce deterministic mechanical modifiers for enemy scale, XP/coin pressure, reward bias, and recovery posture
+- Shipped: Daily Rite monster spawns apply the active segment modifier during the run
+- Shipped: public chronicle/status JSON now exports `daily_rite_modifiers` with `token_cost: 0`
+- Shipped: pure Daily Rite status contract covering idle, active, and completed states for the extracted status panel
+- Shipped: feedback next-action digests now include explicit route targets so front-door advice remains clickable and public-safe
+- Tests: 57 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: add browser-level validation for mechanical Daily Rite effects, continue extracting combat/run-spawn logic out of `src/App.jsx`, and deploy/verify RPC/RLS hardening when `PG_CONNECTION_SOLARA` lands
+
 ## Where We Left Off (2026-06-11 · Session 65)
 - Shipped: deterministic Daily Rite stakes ledger attached to run creation, visible in the Daily Rite sidebar, and exported through public chronicle/status JSON
 - Shipped: zero-token feedback action/source attribution with capped sanitized aggregates and front-door/share action markers

@@ -18,6 +18,7 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 - 2026-06-10: Intent achieved. Ran /start, wrote a fresh four-item Solara-specific audit, and implemented the full tranche: Director-aware Daily Rite room weaving, front-door Almanac/Myth planning, capped public-safe local feedback ledger, public feedback summary exports, and updated smoke/unit coverage. Local validation passed: 54 unit tests, production build, and smoke runtime.
 - 2026-06-10: Closeout continuation achieved. Deferred propagation refreshed AGENTS/protocol scripts; the missing shared-policy helper was added so startup-brief rendering is healthy again. Local validation passed: 54 unit tests, production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board render.
 - 2026-06-11: Closeout continuation achieved. Verified the Session 65 audit implementation evidence, added the public closeout brief and audit JSON, regenerated public status/chronicle JSON, and validated the closeout board. Local validation passed: 56 unit tests, production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board validation.
+- 2026-06-11: Session 66 achieved. Ran a fresh /start -> /audit -> /implement pass and shipped mechanical Daily Rite stakes, public zero-token modifier exports, Daily Rite status contracts, and feedback route targets. Local validation passed: 57 unit tests, production build, and smoke runtime.
 
 ## 2026-06-10 — Session 63 — Total: 868/1000
 
@@ -63,3 +64,18 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 | 8 | Ecosystem Integration | 93 | +2 | Public status/chronicle now expose Daily Rite stakes, backend runbook fields, and feedback attribution aggregates. |
 | 9 | Capital Efficiency | 87 | +2 | New intelligence remains deterministic and browser token cost stays zero. |
 | 10 | Automation Coverage | 98 | +9 | Tests pin the new contracts and the smoke harness stubs the extracted Daily Rite component. |
+
+## 2026-06-11 — Session 66 — Total: 914/1000
+
+| # | Category | Score | Delta | Public-safe notes |
+|---|---|---:|---:|---|
+| 1 | Dev Health | 91 | +1 | 57 tests, production build, and smoke runtime pass after mechanical Daily Rite wiring. |
+| 2 | Creative Alignment | 93 | +2 | Daily Rite stakes now change the run through Solara-owned risk, reward, and recovery pressure. |
+| 3 | Momentum | 93 | +1 | Fresh four-item audit was fully implemented with execution evidence and public JSON updated. |
+| 4 | Engagement | 94 | +3 | Players can now feel route stakes through enemy/reward pressure, not only status copy. |
+| 5 | Process Quality | 90 | +1 | Implementation plan, audit execution log, status contracts, and validation evidence are aligned. |
+| 6 | Cross-Repo Coherence | 91 | 0 | Public repo boundaries remain intact; no private Studio data moved into deployable code. |
+| 7 | Security Posture | 95 | 0 | Supabase production hardening remains honestly gated on `PG_CONNECTION_SOLARA`. |
+| 8 | Ecosystem Integration | 95 | +2 | Public status/chronicle exports now distinguish Daily Rite stakes from mechanical modifiers. |
+| 9 | Capital Efficiency | 88 | +1 | All new intelligence is deterministic and browser token cost remains zero. |
+| 10 | Automation Coverage | 99 | +1 | Tests cover modifiers, status contracts, route targets, public exports, build, and smoke. |

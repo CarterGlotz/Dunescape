@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.3",
+  "project": "solara",
+  "date": "2026-06-11",
+  "session": 66,
+  "sessionType": "implementation",
+  "label": "audit-driven daily-rite-mechanical-stakes pass",
+  "calibration": false,
+  "silRubricVersion": "3.0",
+  "scores": {
+    "devHealth": 91,
+    "creativeAlignment": 93,
+    "momentum": 93,
+    "engagement": 94,
+    "processQuality": 90,
+    "crossRepoCoherence": 91,
+    "securityPosture": 95,
+    "ecosystemIntegration": 95,
+    "capitalEfficiency": 88,
+    "automationCoverage": 99
+  },
+  "total": 914,
+  "maxScore": 1000,
+  "previousTotal": 897,
+  "delta": 17,
+  "velocity": 17,
+  "debt": "->",
+  "shipped": [
+    "daily-rite-stakes-mechanics",
+    "stakes-public-intelligence-delta",
+    "daily-rite-status-contract",
+    "feedback-action-routing-map"
+  ],
+  "verifiedPreexisting": [],
+  "blocked": [],
+  "humanActionRequired": [
+    "Add project-scoped PG_CONNECTION_SOLARA for Supabase project fjnpzjjyhnpmunfoycrp, then rerun the manual Supabase Hardening workflow. Alternative: deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql through Supabase SQL Editor with owner credentials, then rerun npm run verify:supabase."
+  ],
+  "evidence": {
+    "tests": "57/57 unit tests passing",
+    "build": "vite production build passing",
+    "smoke": "smoke runtime passing",
+    "notable": "Daily Rite stakes now produce mechanical modifiers, public daily_rite_modifiers exports, deterministic status contracts, and feedback route targets with zero browser token cost."
+  }
+}

@@ -1,36 +1,39 @@
 <!-- generated-by: scripts/compact-handoff.mjs v3.1 -->
-<!-- source-hash: 3ed7ec8ba030 -->
-<!-- generated-at: 2026-06-11T03:26:45.528Z -->
+<!-- source-hash: 76822651745b -->
+<!-- generated-at: 2026-06-11T03:54:33.261Z -->
 
 # LATEST_HANDOFF (compact)
 
-SESSION 65 HANDOFF SUMMARY
+SESSION 66 HANDOFF SUMMARY
 
-Shipped (Session 65)
-- Deterministic Daily Rite stakes ledger on run creation, shown in sidebar and exported via public chronicle/status JSON
-- Zero-token feedback action/source attribution with capped sanitized aggregates and front-door/share markers
-- Structured backend readiness runbook fields for PG_CONNECTION_SOLARA (blocked_by, workflow, verification_command, scale_posture)
-- Public-safe no-op shims for missing Studio protocol scripts
-- Daily Rite status presentation extracted to src/components/DailyRiteStatus.jsx
+Shipped This Session
+- Daily Rite stakes now produce deterministic mechanical modifiers (enemy scale, XP/coin pressure, reward bias, recovery posture)
+- Daily Rite monster spawns apply active segment modifier during runs
+- Public chronicle/status JSON exports daily_rite_modifiers with token_cost 0
+- Pure Daily Rite status contract covering idle/active/completed states
+- Feedback next-action digests include explicit clickable route targets
 
-Test/Build State
-- 56 unit tests passing; production build, smoke runtime, startup-brief render, brief-format validation passing
-- Public closeout brief/audit record added; closeout board rendered and validated
+Tests
+- 57 passing unit tests; production build and smoke runtime passing
 
 Current Intent
-- Run full /start to /audit to /implement to /closeout cycle with project-specific audit; implement all repo-feasible items; keep repo deployable
+- Run full /start to /audit to /implement to /closeout cycle with project-specific audit; implement repo-feasible items at quality; keep repo deployable
 
-Now Bucket (top 3)
-- Make Daily Rite stakes affect actual reward/risk mechanics (convert receipts into real reward/modifier effects)
-- Add browser-level validation for extracted DailyRiteStatus panel
-- Deploy/verify Supabase RPC/RLS hardening once project-scoped connection lands
+Now Bucket (Top 3)
+- Add browser-level validation for mechanical Daily Rite effects
+- Continue extracting combat/run-spawn logic out of src/App.jsx
+- Deploy/verify Supabase RPC/RLS hardening when PG_CONNECTION_SOLARA lands
 
-Blockers (top 3)
+Blockers (Top 3)
 - Supabase production hardening blocked: needs project-scoped PG_CONNECTION_SOLARA for cloud project fjnpzjjyhnpmunfoycrp before scaled public traffic
-- Hardened RPCs not yet deployed (PGRST202 from anon probe); verify:supabase captures non-mutating state
-- No full Postgres connection string / DB password in private ops secrets suitable for hardening workflow
+- Hardened RPCs not yet deployed (PGRST202); anon probe can read public tables but RPCs absent
+- No full Postgres connection string / DB password available in current secret inventory
 
-Human-Blocked (with age)
-- Add project-scoped Postgres connection as PG_CONNECTION_SOLARA (project fjnpzjjyhnpmunfoycrp) then rerun Supabase Hardening workflow; alternative: deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql via SQL Editor and rerun verify:supabase. Open since ~2026-06-07 (Session 62-era), ongoing through Session 65 (~4 days)
+Human-Blocked Items (with age)
+- Add PG_CONNECTION_SOLARA (project fjnpzjjyhnpmunfoycrp) and rerun Supabase Hardening workflow, OR deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql via SQL Editor with owner creds then rerun npm run verify:supabase. Open since 2026-06-03 (~8 days)
 
-Next session: start by wiring Daily Rite stakes into real reward/risk mechanics, then chase the Supabase hardening gate if the scoped connection arrives.
+Decision Notes
+- Keep Solara on current cloud Supabase project rather than repointing to Hetzner/Vorn shared DB; avoids cross-project drift
+
+Next Session Pointer
+- Start with browser-level validation of Daily Rite mechanical modifiers, then resume App.jsx combat extraction; deploy Supabase hardening if PG_CONNECTION_SOLARA has landed.

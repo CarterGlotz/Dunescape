@@ -1,19 +1,17 @@
-# Implement Plan — 2026-06-11 Audit
+# Implement Plan — 2026-06-11 S66
 
-Source: `docs/AUDIT_2026-06-11.json`
+Source audit: `docs/AUDIT_2026-06-11-S66.md`
 
-## Wave Order
+## Execution Order
 
-1. `studio-protocol-drift-shims` — repair command-surface gaps observed during `/start`.
-2. `backend-readiness-runbook` — strengthen public safety/status contract before expanding runtime surfaces.
-3. `feedback-action-attribution` — deepen zero-token feedback intelligence.
-4. `daily-rite-stakes-ledger` — add route-level Daily Rite stakes to run and public status contracts.
-5. `daily-rite-status-component` — extract the Daily Rite sidebar display after data contracts settle.
+1. `daily-rite-stakes-mechanics` — foundation for the pass; mechanical modifier data must exist before status/public exports can prove it.
+2. `stakes-public-intelligence-delta` — same data surface as item 1, exported through deterministic public chronicle/status JSON.
+3. `daily-rite-status-contract` — pure render contract for the extracted component, backed by the new modifier data.
+4. `feedback-action-routing-map` — independent feedback-loop contract, tested with the same zero-token summary surface.
 
-## Verification
+## Verification Surface
 
+- `node --test tests/june10-systems.test.mjs`
 - `npm test`
 - `npm run build`
 - `npm run smoke`
-- `node scripts/render-startup-brief.mjs`
-- `node scripts/validate-brief-format.mjs docs/STARTUP_BRIEF.md`

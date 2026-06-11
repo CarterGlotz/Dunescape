@@ -1,6 +1,15 @@
 const LEDGER_KEY = "solara_feedback_ledger";
 const MAX_EVENTS = 80;
 
+export const FEEDBACK_ACTION_ROUTES = {
+  start_daily_rite: { type: "tab", tab: "daily", label: "Open Daily Rite" },
+  finish_daily_rite: { type: "tab", tab: "daily", label: "Return to Daily Rite" },
+  share_result: { type: "tab", tab: "daily", label: "Copy Last Light Result" },
+  review_import_repairs: { type: "tab", tab: "settings", label: "Review Save Health" },
+  ledger_cap_reached: { type: "tab", tab: "settings", label: "Review Backend Link" },
+  deepen_route: { type: "tab", tab: "daily", label: "Push Harder Segment" },
+};
+
 function readStorage() {
   if (typeof localStorage === "undefined") return [];
   try {
@@ -54,7 +63,7 @@ export function getFeedbackNextActionDigest(summary = null) {
   let id = "start_daily_rite";
   let label = "Start today's Daily Rite";
   let detail = "No local Daily Rite signal is recorded yet; the best next action is to enter the shared route.";
-  let action = { type: "tab", tab: "daily", label: "Open Daily Rite" };
+  let action = FEEDBACK_ACTION_ROUTES.start_daily_rite;
 
   if (starts > ends) {
     id = "finish_daily_rite";
@@ -68,12 +77,12 @@ export function getFeedbackNextActionDigest(summary = null) {
     id = "review_import_repairs";
     label = "Review repaired save imports";
     detail = "The import sanitizer repaired a save; check the recovered state before pushing deeper.";
-    action = { type: "tab", tab: "settings", label: "Review Save Health" };
+    action = FEEDBACK_ACTION_ROUTES.review_import_repairs;
   } else if (source.count >= source.cap) {
     id = "ledger_cap_reached";
     label = "Sync or archive local signals";
     detail = "The capped local ledger is full; backend activation will turn these aggregate signals into better world tuning.";
-    action = { type: "tab", tab: "settings", label: "Review Backend Link" };
+    action = FEEDBACK_ACTION_ROUTES.ledger_cap_reached;
   } else if (starts > 0 && ends > 0 && shares > 0) {
     id = "deepen_route";
     label = "Push a harder route segment";
@@ -85,7 +94,8 @@ export function getFeedbackNextActionDigest(summary = null) {
     id,
     label,
     detail: cleanText(detail),
-    action,
+    action: FEEDBACK_ACTION_ROUTES[id] || action,
+    route_target: FEEDBACK_ACTION_ROUTES[id] || action,
     token_cost: 0,
   };
 }
