@@ -123,6 +123,7 @@ export function buildPublicChronicle({
   const dailyRitePlan = getDailyRitePlan({ sharedWorld, dayNumber });
   const dailyRiteStakes = buildDailyRiteStakes({ dailyRitePlan });
   const dailyRiteModifiers = buildDailyRiteModifiers({ stakes: dailyRiteStakes });
+  const dailyRitePolicy = dailyRiteModifiers.policy;
   const constellationObjectives = buildConstellationObjectives({ sharedWorld, hasSunstoneShard: false });
   const backendReadiness = buildBackendReadiness({
     backendConnected: true,
@@ -187,6 +188,7 @@ export function buildPublicChronicle({
       daily_rite_plan: dailyRitePlan,
       daily_rite_stakes: dailyRiteStakes,
       daily_rite_modifiers: dailyRiteModifiers,
+      daily_rite_policy: dailyRitePolicy,
       constellation_objectives: constellationObjectives.slice(0, 5),
       backend_readiness: backendReadiness,
       backend_contract: backendContract,
@@ -237,6 +239,7 @@ export function buildPublicChronicle({
       },
       feedback_summary: feedbackSummary,
       daily_rite_modifiers: dailyRiteModifiers,
+      daily_rite_policy: dailyRitePolicy,
       daily_rite_stakes: dailyRiteStakes,
       backend_readiness: backendReadiness,
       backend_contract: backendContract,

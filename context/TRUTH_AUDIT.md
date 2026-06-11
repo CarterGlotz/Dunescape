@@ -76,3 +76,11 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - Daily Rite status contracts expose only UI state, action availability, stake labels, risk labels, and modifier labels; no private player payloads or secrets are included
 - feedback route targets are fixed public UI intents and remain aggregate-only alongside capped local feedback attribution
 - local validation passed: 57 unit tests, production build, and smoke runtime
+
+## 2026-06-11 Session 67 Public-Safe Check
+
+- Daily Rite segment policy is deterministic from public route modifiers and exposes only bounded reward, drop, recovery, and shrine bargain fields with `token_cost: 0`
+- Daily Rite spawn policy now lives in a pure module; it applies public world state and active route policy without reading credentials or private Studio context
+- public chronicle/status exports include `daily_rite_policy` for Studio surfaces while preserving deterministic zero-token behavior
+- active-run smoke coverage now verifies stakes, modifiers, policy, and 30-wave segment mapping after Daily Rite start
+- local validation passed: 58 unit tests, production build, and smoke runtime

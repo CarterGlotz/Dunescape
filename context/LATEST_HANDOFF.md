@@ -2,6 +2,15 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-11 · Session 67)
+- Shipped: Daily Rite route modifiers now include deterministic segment policy for reward pressure, drop multipliers, recovery-room odds, and shrine bargain posture
+- Shipped: Daily Rite spawn mutation now lives in `src/game/dailyRiteSpawn.js`, applying world state and active route policy through a pure contract outside React
+- Shipped: public chronicle/status JSON now exports `daily_rite_policy` with `token_cost: 0`
+- Shipped: smoke runtime now proves active Daily Rite runs expose stakes, modifiers, segment policy, and 30-wave segment mapping after startup
+- Tests: 58 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: turn the segment policy into richer authored room choices and visible recovery decisions, continue extracting combat/run-spawn logic out of `src/App.jsx`, and deploy/verify RPC/RLS hardening when `PG_CONNECTION_SOLARA` lands
+
 ## Where We Left Off (2026-06-11 · Session 66)
 - Shipped: Daily Rite stakes now produce deterministic mechanical modifiers for enemy scale, XP/coin pressure, reward bias, and recovery posture
 - Shipped: Daily Rite monster spawns apply the active segment modifier during the run

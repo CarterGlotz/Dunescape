@@ -80,3 +80,8 @@ Public-safe summary:
 - 2026-06-11 closeout continuation verified the audit implementation evidence, regenerated public status/chronicle JSON, added the public closeout brief and audit JSON, and validated the closeout board
 - 2026-06-11 Session 66 audit/implement pass turned Daily Rite stakes into deterministic mechanical modifiers, exported `daily_rite_modifiers` through public chronicle/status JSON, added a pure Daily Rite status render contract, and gave feedback next-action digests explicit route targets
 - latest local validation: 57 unit tests passing, production build passing, smoke flow passing
+- 2026-06-11 Session 67 audit/implement pass extended Daily Rite modifiers into deterministic segment policy for reward pressure, drop multipliers, recovery-room odds, and shrine bargain posture
+- Daily Rite monster spawns now flow through `src/game/dailyRiteSpawn.js`, a pure spawn contract that applies world state, active route modifiers, and the segment policy outside React
+- public chronicle/status exports now include `daily_rite_policy` so Studio surfaces can distinguish reward pressure, recovery scarcity, and shrine bargaining without browser token cost
+- smoke coverage now verifies active Daily Rite runs expose zero-token stakes, modifiers, segment policy, and 30-wave route mapping after startup
+- latest local validation: 58 unit tests passing, production build passing, smoke flow passing

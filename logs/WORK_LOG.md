@@ -96,3 +96,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - added a pure Daily Rite status contract for idle/active/completed states and wired it into `DailyRiteStatus.jsx`
 - gave feedback next-action digests explicit route targets through `FEEDBACK_ACTION_ROUTES`
 - verified 57 unit tests, production build, and smoke runtime
+
+## 2026-06-11 — Session 67
+
+- ran /start with the Solara game overlay, then wrote docs/AUDIT_2026-06-11-S67.md / .json with four project-specific items tied to Daily Rite economy pressure, spawn extraction, active-run smoke coverage, and public policy exports
+- implemented deterministic Daily Rite segment policy for reward pressure, drop multipliers, recovery-room odds, and shrine bargain posture while keeping browser token cost at zero
+- extracted Daily Rite spawn mutation into `src/game/dailyRiteSpawn.js` and replaced the inline `App.jsx` glue with the pure helper
+- exported `daily_rite_policy` through public chronicle/status shared-world and integration surfaces
+- extended smoke coverage so an active Daily Rite run must expose zero-token stakes, modifiers, segment policy, and 30-wave segment mapping
+- verified 58 unit tests, production build, and smoke runtime

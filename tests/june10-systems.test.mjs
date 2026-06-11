@@ -3,7 +3,13 @@ import assert from "node:assert/strict";
 import { buildDailyRiteRoomSequence } from "../src/game/dailyRiteRooms.js";
 import { getDailyRiteConsequence } from "../src/game/dailyRiteConsequences.js";
 import { completeDailyRiteRun, createDailyRiteRun } from "../src/game/dailyRunSession.js";
-import { applyDailyRiteMonsterModifier, buildDailyRiteModifiers, getDailyRiteModifierForWave } from "../src/game/dailyRiteModifiers.js";
+import {
+  applyDailyRiteMonsterModifier,
+  buildDailyRiteModifiers,
+  getDailyRiteModifierForWave,
+  getDailyRiteSegmentPolicyForWave,
+} from "../src/game/dailyRiteModifiers.js";
+import { applyDailyRiteSpawnState } from "../src/game/dailyRiteSpawn.js";
 import { getDailyRiteStatusContract } from "../src/game/dailyRiteStatusContract.js";
 import { getDailyRitePlan } from "../src/game/directorMechanics.js";
 import { FEEDBACK_ACTION_ROUTES, clearFeedbackLedger, getFeedbackNextActionDigest, loadFeedbackLedger, recordFeedbackEvent, summarizeFeedbackLedger } from "../src/game/feedbackLedger.js";
@@ -98,10 +104,16 @@ test("Daily Rite stakes produce mechanical modifiers and status contracts", () =
   const run = createDailyRiteRun({ dailyRitePlan: plan, mechanics: { enemyScale: 1.2 }, daySeed: "mechanical-stakes" });
   const modifiers = buildDailyRiteModifiers({ stakes: run.stakes });
   const active = getDailyRiteModifierForWave({ modifiers, roomWeave: run.roomWeave, wave: 0 });
+  const policy = getDailyRiteSegmentPolicyForWave({ modifiers, roomWeave: run.roomWeave, wave: 0 });
   const monster = applyDailyRiteMonsterModifier({ nm: "Goblin", hp: 20, mhp: 20, atk: 3, str: 3, xp: 10 }, active);
 
   assert.equal(modifiers.token_cost, 0);
+  assert.equal(modifiers.policy.token_cost, 0);
+  assert.equal(modifiers.policy.segment_count, modifiers.segment_count);
   assert.ok(active.enemy_scale >= 1);
+  assert.ok(policy.drop_multiplier >= 1);
+  assert.ok(policy.recovery_room_chance > 0);
+  assert.match(policy.shrine_bargain, /Shrine|Sunstone|Rival|Preserve/i);
   assert.ok(monster.hp >= 20);
   assert.ok(monster.xp >= 10);
   assert.equal(monster.dailyRiteModifier.id, active.id);
@@ -116,6 +128,29 @@ test("Daily Rite stakes produce mechanical modifiers and status contracts", () =
   const completeContract = getDailyRiteStatusContract({ dailyRun: run });
   assert.equal(completeContract.state, "complete");
   assert.ok(completeContract.actions.includes("copy_share"));
+});
+
+test("Daily Rite spawn contract applies world, modifier, and economy policy together", () => {
+  const sharedWorld = getSharedWorldSnapshot({
+    sunBrightness: 8,
+    totalDeaths: 5200,
+    leaderboard: [{ faction: "eclipser", wave_reached: 20 }],
+    echoes: [],
+    graves: Array.from({ length: 8 }, (_, index) => ({ x: 12 + index, y: 18, sunstone_offerings: 30, epitaph: "warning" })),
+    dayNumber: 91,
+  });
+  const plan = getDailyRitePlan({ sharedWorld, dayNumber: 91 });
+  const run = createDailyRiteRun({ dailyRitePlan: plan, mechanics: { enemyScale: 1.2 }, daySeed: "spawn-policy" });
+  const monster = applyDailyRiteSpawnState(
+    { nm: "Skeleton", hp: 30, mhp: 30, atk: 4, def: 2, str: 4, xp: 12, drops: [{ i: "coins", c: 0.5, a: [10, 20] }] },
+    { snapshot: sharedWorld, run, wave: 0 },
+  );
+
+  assert.ok(monster.worldScale >= 1);
+  assert.ok(monster.dailyRiteModifier.enemy_scale >= 1);
+  assert.ok(monster.dailyRiteModifier.drop_multiplier >= 1);
+  assert.ok(monster.dailyRitePolicy.recovery_room_chance > 0);
+  assert.ok(monster.drops.find((drop) => drop.i === "coins").a[0] >= 10);
 });
 
 test("feedback ledger stores capped public-safe aggregate events", () => {
@@ -186,9 +221,13 @@ test("public chronicle exports a zero-token feedback summary", () => {
   assert.equal(chronicle.shared_world.feedback_summary.count, 2);
   assert.equal(chronicle.shared_world.daily_rite_stakes.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_modifiers.token_cost, 0);
+  assert.equal(chronicle.shared_world.daily_rite_policy.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_stakes.segment_count, chronicle.shared_world.daily_rite_plan.route.length);
   assert.equal(chronicle.shared_world.daily_rite_modifiers.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
+  assert.equal(chronicle.shared_world.daily_rite_policy.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
   assert.ok(chronicle.integrations.daily_rite_modifiers.highest_risk_segment.enemy_scale >= 1);
+  assert.ok(chronicle.integrations.daily_rite_policy.strongest_reward_segment.drop_multiplier >= 1);
+  assert.doesNotMatch(JSON.stringify(chronicle.integrations.daily_rite_policy), /<script>|`/);
   assert.ok(chronicle.shared_world.daily_rite_stakes.summary.includes("stakes"));
   assert.equal(chronicle.shared_world.feedback_summary.counts.daily_rite_end, 1);
   assert.equal(chronicle.shared_world.feedback_summary.attribution.token_cost, 0);

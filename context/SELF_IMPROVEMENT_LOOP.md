@@ -79,3 +79,18 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 | 8 | Ecosystem Integration | 95 | +2 | Public status/chronicle exports now distinguish Daily Rite stakes from mechanical modifiers. |
 | 9 | Capital Efficiency | 88 | +1 | All new intelligence is deterministic and browser token cost remains zero. |
 | 10 | Automation Coverage | 99 | +1 | Tests cover modifiers, status contracts, route targets, public exports, build, and smoke. |
+
+## 2026-06-11 — Session 67 — Total: 941/1000
+
+| # | Category | Score | Delta | Public-safe notes |
+|---|---|---:|---:|---|
+| 1 | Dev Health | 92 | +1 | 58 tests, production build, and smoke runtime pass after the Daily Rite spawn extraction and policy export. |
+| 2 | Creative Alignment | 94 | +1 | Route stakes now express Solara-owned reward, recovery, and shrine bargain pressure instead of generic dungeon tuning. |
+| 3 | Momentum | 95 | +2 | Fresh Session 67 audit was fully implemented and evidenced in one pass. |
+| 4 | Engagement | 96 | +2 | Daily Rite pressure now reaches payout/drop/recovery policy, making route choice more legible in play. |
+| 5 | Process Quality | 92 | +2 | Audit sidecar, implementation plan, execution log, public JSON, and smoke assertions all align to the same mechanic. |
+| 6 | Cross-Repo Coherence | 92 | +1 | Public status/chronicle surfaces expose the new policy without private Studio data or browser tokens. |
+| 7 | Security Posture | 95 | 0 | Supabase production hardening remains honestly gated on `PG_CONNECTION_SOLARA`. |
+| 8 | Ecosystem Integration | 96 | +1 | Studio surfaces can now read `daily_rite_policy` separately from stakes and raw modifiers. |
+| 9 | Capital Efficiency | 89 | +1 | All new intelligence remains deterministic and browser token cost stays zero. |
+| 10 | Automation Coverage | 100 | +1 | Unit and smoke coverage now prove active Daily Rite policy wiring, not only static data contracts. |

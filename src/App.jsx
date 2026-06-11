@@ -49,7 +49,7 @@ import {
 import { getSundialQueueBriefing, getSundialQueueSummary } from "./game/sundialQueue.js";
 import { getDailyRiteConsequence } from "./game/dailyRiteConsequences.js";
 import { completeDailyRiteRun, createDailyRiteRun } from "./game/dailyRunSession.js";
-import { applyDailyRiteMonsterModifier, getDailyRiteModifierForWave } from "./game/dailyRiteModifiers.js";
+import { applyDailyRiteSpawnState } from "./game/dailyRiteSpawn.js";
 import { recordFeedbackEvent, summarizeFeedbackLedger } from "./game/feedbackLedger.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
@@ -1167,9 +1167,8 @@ export default function DS(){
     return applyMonsterWorldState(monster,snapshot,context);
   },[getWorldSnapshot]);
   const applyDailySpawnState=useCallback((monster,run)=>{
-    const modifier=getDailyRiteModifierForWave({modifiers:run?.modifiers,roomWeave:run?.roomWeave,wave:run?.wave||0});
-    return applyDailyRiteMonsterModifier(applySpawnState(monster,"dungeon"),modifier);
-  },[applySpawnState]);
+    return applyDailyRiteSpawnState(monster,{snapshot:getWorldSnapshot(),run,wave:run?.wave||0});
+  },[getWorldSnapshot]);
   const spawnEchoRival=useCallback((snapshot, baseMonster, contextTag)=>{
     if(!snapshot?.rival||!baseMonster)return null;
     const rivalBase={...baseMonster,x:10,y:56,ox:8,oy:55,id:Math.random(),at:0,dead:false,agro:true,temp:true,dungeon:true,isEchoRival:true,echoRival:true};

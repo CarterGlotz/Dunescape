@@ -383,6 +383,19 @@ async function runScenario(Component, buttonLabel, expectedRefPredicate) {
 
   const runRef = findRef(expectedRefPredicate);
   assert(runRef, `Scenario "${buttonLabel}" did not create the expected run state.`);
+  if (buttonLabel === "Play Today's Dungeon") {
+    assert(runRef.current.stakes?.token_cost === 0, "Active Daily Rite run did not expose zero-token stakes.");
+    assert(runRef.current.modifiers?.token_cost === 0, "Active Daily Rite run did not expose zero-token modifiers.");
+    assert(runRef.current.modifiers?.policy?.token_cost === 0, "Active Daily Rite run did not expose a zero-token segment policy.");
+    assert(
+      runRef.current.modifiers?.policy?.segment_count === runRef.current.stakes?.segment_count,
+      "Daily Rite segment policy did not align with stakes.",
+    );
+    assert(
+      runRef.current.roomWeave?.segmentByWave?.length === 30,
+      "Daily Rite room weave did not expose segment mapping for every wave.",
+    );
+  }
   assert(
     gameRef.current.p.x === 9 && gameRef.current.p.y === 55,
     `Scenario "${buttonLabel}" did not move the player to the dungeon entrance.`,

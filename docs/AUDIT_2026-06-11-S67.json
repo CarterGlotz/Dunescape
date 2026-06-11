@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-11",
+  "project": "solara",
+  "projectName": "Solara: Sunfall",
+  "type": "game",
+  "session": 67,
+  "topLine": {
+    "totalItems": 4,
+    "combinedPriority": 43.5,
+    "top3": [
+      "daily-rite-segment-economy",
+      "daily-rite-spawn-contract",
+      "active-daily-smoke-contract"
+    ]
+  },
+  "items": [
+    {
+      "id": 1,
+      "slug": "daily-rite-segment-economy",
+      "tier": "🔥",
+      "axis": "gamification",
+      "effort": "2h",
+      "impact": 10,
+      "innovation": 9,
+      "priority": 14.9,
+      "title": "Make Daily Rite route stakes govern rewards, recovery, and shrine bargain pressure",
+      "why": "Session 66 made Daily Rite stakes change enemy and XP pressure, but coin payout, recovery scarcity, and shrine opportunity are still mostly implied. The next leap is to turn each segment into a deterministic economy policy so risk, reward bias, and recovery pressure are felt in the room loop and not just in copy.",
+      "recipe": "Extend `src/game/dailyRiteModifiers.js` with a segment policy contract that includes coin/drop multipliers, recovery-room odds, shrine bargain labels, and a zero-token summary; wire the policy into Daily Rite monster drops and recovery messaging."
+    },
+    {
+      "id": 2,
+      "slug": "daily-rite-spawn-contract",
+      "tier": "⚡",
+      "axis": "speed / organization / efficiency",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 10.2,
+      "title": "Extract Daily Rite spawn mutation into a pure contract",
+      "why": "`src/App.jsx` still owns the runtime glue that applies world and Daily Rite modifiers to spawned dungeon monsters. A pure spawn-policy helper makes the mechanic testable without React, keeps future browser smoke smaller, and reduces the blast radius of deeper Daily Rite tuning.",
+      "recipe": "Create a reusable helper that applies world-state and Daily Rite modifier state to a monster, use it from `App.jsx`, and cover the contract in Node tests."
+    },
+    {
+      "id": 3,
+      "slug": "active-daily-smoke-contract",
+      "tier": "⚡",
+      "axis": "UI / UX / user-experience",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 10.2,
+      "title": "Make smoke validation prove active Daily Rite mechanical state, not just startup state",
+      "why": "The smoke harness proves the Daily Rite can start and that planning contracts exist, but it does not yet assert the active run exposes modifiers, stakes, and segment mapping together. That leaves room for UI wiring to pass while the actual route mechanics silently disappear.",
+      "recipe": "Extend `scripts/smoke-runtime.mjs` to assert active Daily Rite runs carry zero-token stakes, modifiers, and segment policy after start; keep the harness dependency-free and browser-token-free."
+    },
+    {
+      "id": 4,
+      "slug": "daily-rite-policy-public-digest",
+      "tier": "⚡",
+      "axis": "AI / intelligence integration",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 7,
+      "priority": 8.2,
+      "title": "Publish a deterministic Daily Rite segment-policy digest for Studio surfaces",
+      "why": "Chronicle/status exports currently show stakes and modifiers, but integrations still need to infer what changed in the economy. A public digest lets Hub, social surfaces, and future weekly State of Sun posts distinguish monster pressure from reward pressure without paid generation or private planning data.",
+      "recipe": "Expose a compact `daily_rite_policy` object in public chronicle/status integrations with reward bias, recovery pressure, shrine bargain posture, and `token_cost: 0`; add tests that prove it remains sanitized and deterministic."
+    }
+  ],
+  "innovationReserve": [
+    "daily-rite-segment-economy"
+  ],
+  "skipped": [
+    {
+      "slug": "deploy-supabase-hardening",
+      "reason": "Still gated on project-scoped `PG_CONNECTION_SOLARA`; keep verification honest instead of inventing production readiness."
+    },
+    {
+      "slug": "paid-daily-rite-oracle",
+      "reason": "Rejected by Solara's deterministic-first browser token policy; all route intelligence in this pass remains generated from local structured state."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "daily-rite-segment-economy",
+      "status": "shipped",
+      "evidence": "Daily Rite modifiers now include deterministic segment policy for reward pressure, drop multipliers, recovery-room odds, and shrine bargain posture; monster drops are adjusted from the active segment policy."
+    },
+    {
+      "slug": "daily-rite-spawn-contract",
+      "status": "shipped",
+      "evidence": "Added `src/game/dailyRiteSpawn.js` and replaced `App.jsx` inline Daily Rite spawn mutation with the pure helper."
+    },
+    {
+      "slug": "active-daily-smoke-contract",
+      "status": "shipped",
+      "evidence": "Smoke validation now asserts active Daily Rite runs expose zero-token stakes, modifiers, segment policy, and 30-wave segment mapping after start."
+    },
+    {
+      "slug": "daily-rite-policy-public-digest",
+      "status": "shipped",
+      "evidence": "Public chronicle/status exports now include `daily_rite_policy` in shared-world and integration surfaces, with tests proving zero-token sanitized output."
+    }
+  ]
+}
