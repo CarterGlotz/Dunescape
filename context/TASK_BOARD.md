@@ -18,6 +18,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - turn world-feed items into action targets so feedback can route players to the right tab, map objective, or run loop
 - keep outcome receipts, backend readiness, and runtime cost guardrails visible in public status/chronicle contracts
 - keep the backend RPC contract manifest, Sundial Queue briefing, Rite Pacing Coach, Last Light result card, and Daily Rite smoke contract aligned as the next App.jsx extraction guardrails
+- keep the new Daily Rite stakes ledger, feedback attribution summary, backend readiness runbook fields, and Daily Rite status component aligned with public chronicle/status exports
 
 ## Next
 
@@ -53,6 +54,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - rerun Supabase Hardening workflow after `PG_CONNECTION_SOLARA` is present; prior run `24579847516` confirmed the old required-secret preflight worked before the project-scoped gate was adopted
 - extend the new deterministic outcome receipts into visible post-action UI surfaces for offerings, echo reactions, and run-end share flows
 - use the Director route consequence fields to tune actual Daily Rite reward payout and room modifier behavior beyond public JSON/contracts
+- turn Daily Rite stakes into mechanical payout/risk modifiers, not just route briefing and share/debrief copy
+- add browser-level validation for the extracted Daily Rite status component once a browser runner exists
 
 ## Combined Top Recommendations
 
@@ -143,6 +146,8 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - propagated startup protocol scripts now have the missing local shared-policy helper required by the startup-brief renderer
 - 2026-06-10 Session 64 pass aligned the hardening gate to `PG_CONNECTION_SOLARA`, added deterministic Daily Rite consequence receipts, extracted Daily Rite run-session assembly/completion, and turned feedback summaries into front-door/public JSON next-action digests
 - latest local validation: 56 unit tests passing, production build passing, smoke flow passing
+- 2026-06-11 pass shipped Daily Rite stakes ledger, feedback action/source attribution, structured backend readiness runbook fields, local Studio protocol drift shims, and extracted Daily Rite status presentation
+- latest local validation: 56 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing
 
 ## Deferred to Project Agents
 

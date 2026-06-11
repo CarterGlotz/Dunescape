@@ -72,3 +72,8 @@ Public-safe summary:
 - Daily Rite run object assembly and completion/share-card creation now live in `src/game/dailyRunSession.js` instead of inline `src/App.jsx`
 - feedback ledger summaries now include a public-safe zero-token `next_action` digest, rendered on the front door and exported through public chronicle/status integration surfaces
 - latest local validation: 56 unit tests passing, production build passing, smoke flow passing
+- 2026-06-11 audit/implement pass shipped a route-level Daily Rite stakes ledger, zero-token feedback action/source attribution, structured backend readiness runbook fields, local Studio protocol drift shims, and a Daily Rite sidebar presentation component extraction
+- public chronicle/status exports now include `daily_rite_stakes`, richer backend readiness fields (`blocked_by`, `workflow`, `verification_command`, `scale_posture`), and feedback attribution aggregates while preserving browser token cost at zero
+- Daily Rite runs now carry a deterministic `stakes` object derived from the Director route plan, and the sidebar shows the primary route stake during active/completed Daily Rite states
+- local `/start` support now has explicit public-safe no-op shims for skill-profile, credential-watch, Ark drain, and brief staleness so future sessions do not fail before the validated brief path
+- latest local validation: 56 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing

@@ -78,3 +78,11 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - extended the local feedback ledger with a zero-token next-action digest, rendered it on the front door, and exported it through status/chronicle contracts
 - repaired the smoke harness so successful assertions exit cleanly instead of hanging behind app timers
 - verified 56 unit tests, production build, and smoke runtime
+
+## 2026-06-11
+
+- ran /start gates, generated and validated the startup brief, and recorded local protocol-script drift found during the preflight
+- wrote docs/AUDIT_2026-06-11.md / .json with five Solara-specific items tied to Daily Rite stakes, feedback attribution, backend readiness honesty, protocol drift, and App.jsx extraction
+- implemented the full plan: deterministic Daily Rite stakes ledger, zero-token feedback action/source attribution, structured `PG_CONNECTION_SOLARA` backend readiness runbook fields, public-safe protocol no-op shims, and extracted Daily Rite status presentation
+- regenerated public chronicle/status JSON so Studio integrations can read `daily_rite_stakes`, feedback attribution, and the stronger backend readiness contract
+- verified 56 unit tests, production build, smoke runtime, startup-brief render, and brief-format validation

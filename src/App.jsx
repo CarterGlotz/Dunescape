@@ -71,6 +71,7 @@ import RunDebriefCard from "./components/RunDebriefCard.jsx";
 import SessionDeltaCard from "./components/SessionDeltaCard.jsx";
 import WorldFeedCard from "./components/WorldFeedCard.jsx";
 import MenuWorldPlanning from "./components/MenuWorldPlanning.jsx";
+import DailyRiteStatus from "./components/DailyRiteStatus.jsx";
 
 const MenuLorePanels = React.lazy(() => import("./components/MenuLorePanels.jsx"));
 
@@ -3586,30 +3587,15 @@ export default function DS(){
                 </div>)}
               </div>
               {/* Run state */}
-              {!dailyRunRef.current&&<div>
-                <button onClick={startDailyRun} style={{width:"100%",background:"linear-gradient(180deg,#3a1808,#280e04)",border:"2px solid #c8a84e",color:"#da0",fontSize:10,padding:"8px 4px",cursor:"pointer",borderRadius:4,fontWeight:700,marginBottom:3,boxShadow:!playedDailyToday?"0 0 14px rgba(240,192,96,0.28)":"none",animation:!playedDailyToday?"pulse 1.5s ease-in-out infinite":"none"}}>☀️ {playedDailyToday?"Replay Today's Dungeon":"Play Today's Dungeon"}</button>
-                <div style={{fontSize:7,color:"#555",textAlign:"center",lineHeight:1.4}}>30 waves · seeded by today's date<br/>same dungeon for all players worldwide</div>
-              </div>}
-              {dailyRunRef.current&&!dailyRunRef.current.done&&<div style={{background:"rgba(40,20,5,0.6)",border:"1px solid #5a3010",borderRadius:4,padding:"6px 4px",textAlign:"center"}}>
-                <div style={{color:"#da0",fontSize:12,fontWeight:700}}>⚔️ Wave {dailyRunRef.current.wave}/30</div>
-                <div style={{fontSize:8,color:"#888",marginTop:2}}>Go to the dungeon entrance (south of The Mine)!</div>
-                <div style={{height:4,background:"#120604",borderRadius:2,marginTop:4}}><div style={{height:"100%",background:"#c8a84e",borderRadius:2,width:((dailyRunRef.current.wave/30)*100)+"%"}}/></div>
-              </div>}
-              {dailyRunRef.current&&dailyRunRef.current.done&&<div style={{background:"rgba(40,20,5,0.6)",border:"1px solid rgba(200,168,78,0.2)",borderRadius:4,padding:6}}>
-                <RunDebriefCard debrief={dailyDebrief} />
-                <div style={{color:dailyRunRef.current.deathWave>=30?"#da0":"#f44",fontSize:11,fontWeight:700,textAlign:"center",marginBottom:4}}>
-                  {dailyRunRef.current.deathWave>=30?"🏆 COMPLETED!":"💀 Wave "+dailyRunRef.current.deathWave+"/30"}
-                </div>
-                {dailyRunRef.current.vowResult&&<div style={{fontSize:7,color:dailyRunRef.current.vowResult.kept?"#e0b050":"#a06050",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{dailyRunRef.current.vowResult.kept?"⚜️":"🕯️"} {dailyRunRef.current.vowResult.debriefLine}</div>}
-                {dailyRunRef.current.challengeResult&&<div style={{fontSize:7,color:dailyRunRef.current.challengeResult.beaten?"#6c4":"#c86",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🔥 {dailyRunRef.current.challengeResult.line}</div>}
-                {dailyRunRef.current.pacingCoach&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🧭 {dailyRunRef.current.pacingCoach.next_action}</div>}
-                {dailyRunRef.current.shareCard&&<>
-                  <pre style={{fontSize:7,color:"#8a7a5a",background:"rgba(0,0,0,0.4)",padding:4,borderRadius:3,marginBottom:4,whiteSpace:"pre-wrap",wordBreak:"break-word",fontFamily:"'Courier New',monospace"}}>{dailyRunRef.current.shareCard}</pre>
-                  <button onClick={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current.deathWave||0,outcome:"daily_native_share"});}catch(e){}}else{try{await navigator.clipboard.writeText(t);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current.deathWave||0,outcome:"daily_score_card"});addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}} style={{width:"100%",background:"#1a3010",border:"1px solid #3a6020",color:"#4c0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>📋 Copy &amp; Share</button>
-                  <button onClick={()=>{const p2=gR.current?.p;const run=dailyRunRef.current;const url=generateProphecyScrollPNG({playerName:p2?.playerName||travelerNameDraft,sigil:p2?.travelerSigil||travelerSigilDraft,waveReached:run.deathWave||0,faction:getPlayerFaction(p2),sunBrightness:sunBrightnessRef.current,type:'daily',dayNumber:getDayNumber()});if(url)shareProphecyScroll(url,'daily');}} style={{width:"100%",background:"#101a20",border:"1px solid #206080",color:"#60c0f0",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:3}}>📸 Download Scroll</button>
-                  <button onClick={async()=>{const run=dailyRunRef.current;const p2=gR.current?.p;const token=encodeChallengeToken({dateSeed:getDailySeed(),wave:run.deathWave||0,playerName:p2?.playerName||travelerNameDraft||"Adventurer",vowId:run.vow?.id||null});const url=buildChallengeUrl({baseUrl:window.location.href,token});if(!url){addC("Challenge link could not be created.");return;}try{await navigator.clipboard.writeText(url);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:run.deathWave||0,outcome:"daily_challenge_link"});addC("🔗 Challenge link copied — dare a rival to beat your light on today's route.");}catch(e){addC("Copy failed — challenge link: "+url);}}} style={{width:"100%",background:"#1c1208",border:"1px solid #c8642e",color:"#f0884e",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600,marginTop:3}}>🔗 Copy Challenge Link</button>
-                </>}
-              </div>}
+              <DailyRiteStatus
+                dailyRun={dailyRunRef.current}
+                dailyDebrief={dailyDebrief}
+                playedDailyToday={playedDailyToday}
+                onStart={startDailyRun}
+                onCopyShare={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current.deathWave||0,outcome:"daily_native_share",action_id:"daily_share_card",source:"daily_rite_status"});}catch(e){}}else{try{await navigator.clipboard.writeText(t);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current.deathWave||0,outcome:"daily_score_card",action_id:"daily_share_card",source:"daily_rite_status"});addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}}
+                onDownloadScroll={()=>{const p2=gR.current?.p;const run=dailyRunRef.current;const url=generateProphecyScrollPNG({playerName:p2?.playerName||travelerNameDraft,sigil:p2?.travelerSigil||travelerSigilDraft,waveReached:run.deathWave||0,faction:getPlayerFaction(p2),sunBrightness:sunBrightnessRef.current,type:'daily',dayNumber:getDayNumber()});if(url)shareProphecyScroll(url,'daily');}}
+                onCopyChallenge={async()=>{const run=dailyRunRef.current;const p2=gR.current?.p;const token=encodeChallengeToken({dateSeed:getDailySeed(),wave:run.deathWave||0,playerName:p2?.playerName||travelerNameDraft||"Adventurer",vowId:run.vow?.id||null});const url=buildChallengeUrl({baseUrl:window.location.href,token});if(!url){addC("Challenge link could not be created.");return;}try{await navigator.clipboard.writeText(url);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:run.deathWave||0,outcome:"daily_challenge_link",action_id:"daily_challenge_link",source:"daily_rite_status"});addC("🔗 Challenge link copied — dare a rival to beat your light on today's route.");}catch(e){addC("Copy failed — challenge link: "+url);}}}
+              />
               {/* Phase 4: Roguelite Run */}
               <div style={{borderTop:"1px solid rgba(200,168,78,0.08)",paddingTop:6,marginTop:4}}>
                 <div style={{color:"#8060c0",fontSize:10,fontWeight:700,letterSpacing:1,textAlign:"center",marginBottom:3}}>⚔️ ROGUELITE RUN</div>
@@ -4151,7 +4137,7 @@ export default function DS(){
             {feedbackSummary.count>0&&<div style={{background:"rgba(0,0,0,0.18)",border:"1px solid rgba(200,168,78,0.08)",borderRadius:8,padding:10}}>
               <div style={{color:"#f0c060",fontSize:10,fontWeight:800,letterSpacing:1}}>LOCAL FEEDBACK</div>
               <div style={{color:"#9f8a73",fontSize:9,lineHeight:1.45,marginTop:5}}>Signals: {feedbackSummary.count} · starts {feedbackSummary.counts.daily_rite_start||0} · ends {feedbackSummary.counts.daily_rite_end||0} · shares {feedbackSummary.counts.share_copy||0}</div>
-              {feedbackSummary.next_action&&<button onClick={()=>{const action=feedbackSummary.next_action.action;if(action?.tab)setTab(action.tab);}} style={{marginTop:8,width:"100%",background:"rgba(26,48,16,0.62)",border:"1px solid rgba(127,211,127,0.22)",color:"#9fe89f",fontSize:9,padding:"7px 8px",borderRadius:6,cursor:"pointer",fontWeight:800,textAlign:"left"}}>
+              {feedbackSummary.next_action&&<button onClick={()=>{recordFeedbackEvent("next_action_click",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current?.wave||0,outcome:feedbackSummary.next_action.id,action_id:feedbackSummary.next_action.id,source:"front_door_feedback"});const action=feedbackSummary.next_action.action;if(action?.tab)setTab(action.tab);}} style={{marginTop:8,width:"100%",background:"rgba(26,48,16,0.62)",border:"1px solid rgba(127,211,127,0.22)",color:"#9fe89f",fontSize:9,padding:"7px 8px",borderRadius:6,cursor:"pointer",fontWeight:800,textAlign:"left"}}>
                 {feedbackSummary.next_action.label}
                 <span style={{display:"block",fontSize:8,color:"#8fba8f",fontWeight:500,lineHeight:1.4,marginTop:3}}>{feedbackSummary.next_action.detail}</span>
               </button>}

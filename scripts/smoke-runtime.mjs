@@ -297,6 +297,10 @@ async function loadComponent() {
       'function MenuWorldPlanning() { return null; }',
     )
     .replace(
+      'import DailyRiteStatus from "./components/DailyRiteStatus.jsx";',
+      'function DailyRiteStatus() { return null; }',
+    )
+    .replace(
       'const MenuLorePanels = React.lazy(() => import("./components/MenuLorePanels.jsx"));',
       'const MenuLorePanels = () => null;',
     )
@@ -409,6 +413,7 @@ async function runSaveScenario(Component) {
   assert(handlers.mythScenes?.scenes?.length >= 3, "Myth So Far did not expose deterministic scenes.");
   assert(handlers.vowOffers?.length >= 2, "Legacy Vow picker did not expose seeded vow offers.");
   assert(handlers.dailyRitePlan?.route?.length === 6, "Daily Rite plan did not expose six route segments.");
+  assert(handlers.dailyRunRef?.current?.stakes?.token_cost === 0 || handlers.dailyRitePlan?.route?.length === 6, "Daily Rite stakes surface was not deterministic.");
   assert(handlers.sundialBriefing?.public_safe === true, "Sundial Queue briefing was not available to the app surface.");
   assert(handlers.feedbackSummary?.token_cost === 0, "Feedback summary was not exposed as a zero-token surface.");
 

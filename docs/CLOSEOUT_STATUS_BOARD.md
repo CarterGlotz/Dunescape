@@ -1,31 +1,31 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-10 (Session 64 closeout) -->
+<!-- generated-at: 2026-06-11 (Session 65 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S64 ═════════════════════════════╗
-║  Date: 2026-06-10  ·  SIL: 881/1000  ·  Velocity: 10 ->          ║
+╔══ SESSION CLOSEOUT · Solara · S65 ═════════════════════════════╗
+║  Date: 2026-06-11  ·  SIL: 897/1000  ·  Velocity: 16 ->          ║
 ║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: `PG_CONNECTION_SOLARA` truth gate across backend co  ║
-║  ✓ Shipped: deterministic Daily Rite consequence engine for Dir  ║
-║  ✓ Shipped: Daily Rite run-session extraction into `src/game/da  ║
-║  ✓ Shipped: zero-token feedback next-action digest rendered on   ║
-║  ✓ Tests: 56 passing unit tests plus production build and smoke  ║
+║  ✓ Shipped: deterministic Daily Rite stakes ledger attached to   ║
+║  ✓ Shipped: zero-token feedback action/source attribution with   ║
+║  ✓ Shipped: structured backend readiness runbook fields for `PG  ║
+║  ✓ Shipped: public-safe no-op shims for missing Studio protocol  ║
+║  ✓ Shipped: Daily Rite status presentation extracted into `src/  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 881/1000 ═══════════════════════════════════════╗
-║    Dev Health         88   █████████░                            ║
-║    Alignment          89   █████████░                            ║
-║    Momentum           90   █████████░                            ║
-║    Engagement         89   █████████░                            ║
-║    Process Qual       86   █████████░                            ║
-║    Coherence          90   █████████░                            ║
-║    Security           94   █████████░                            ║
-║    Ecosystem          91   █████████░                            ║
-║    Capital            85   █████████░                            ║
-║    Automation         89   █████████░                            ║
+╔══ SCORES · SIL 897/1000 ═══════════════════════════════════════╗
+║    Dev Health         90   █████████░                            ║
+║    Alignment          91   █████████░                            ║
+║    Momentum           92   █████████░                            ║
+║    Engagement         91   █████████░                            ║
+║    Process Qual       89   █████████░                            ║
+║    Coherence          91   █████████░                            ║
+║    Security           95   ██████████                            ║
+║    Ecosystem          93   █████████░                            ║
+║    Capital            87   █████████░                            ║
+║    Automation         98   ██████████                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
 ║  ✓ context/CURRENT_STATE.md                                      ║
@@ -40,7 +40,7 @@
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 26 files  ·  M:22 A:0 D:0 ?:4                          ║
+║  Changes: 29 files  ·  M:21 A:0 D:0 ?:8                          ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝

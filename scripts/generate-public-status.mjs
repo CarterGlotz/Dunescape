@@ -33,6 +33,7 @@ const status = {
     crisis: chronicle.shared_world.crisis,
     ritual: chronicle.shared_world.ritual,
     director: chronicle.shared_world.director,
+    daily_rite_stakes: chronicle.shared_world.daily_rite_stakes,
     backend_readiness: chronicle.shared_world.backend_readiness,
     backend_contract: chronicle.shared_world.backend_contract,
     sundial_queue: chronicle.shared_world.sundial_queue,

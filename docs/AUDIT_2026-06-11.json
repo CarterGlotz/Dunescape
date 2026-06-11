@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-11",
+  "project": "solara",
+  "projectName": "Solara: Sunfall",
+  "type": "game",
+  "topLine": {
+    "totalItems": 5,
+    "combinedPriority": 48.8,
+    "top3": [
+      "daily-rite-stakes-ledger",
+      "feedback-action-attribution",
+      "backend-readiness-runbook"
+    ]
+  },
+  "items": [
+    {
+      "id": 1,
+      "slug": "daily-rite-stakes-ledger",
+      "tier": "🔥",
+      "axis": "gamification",
+      "effort": "2h",
+      "impact": 10,
+      "innovation": 9,
+      "priority": 14.9,
+      "title": "Give every Daily Rite route segment a visible stake, risk, and consequence ledger",
+      "why": "The current Daily Rite room weave already consumes Director segments, but it mostly explains rooms one beat at a time. A route-level stakes ledger turns the run into a strategic myth contract before the first wave and makes every death, clear, and share feel authored by the sun rather than by a generic dungeon.",
+      "recipe": "Add a deterministic `dailyRiteStakes` module, attach its summary to `createDailyRiteRun`, export it in public chronicle/status, and cover the contract in tests."
+    },
+    {
+      "id": 2,
+      "slug": "feedback-action-attribution",
+      "tier": "🔥",
+      "axis": "user feedback loop",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 8,
+      "priority": 13.2,
+      "title": "Turn local feedback events into a zero-token action attribution loop",
+      "why": "Solara now records public-safe local events, but the digest only counts broad categories. Adding action/source attribution lets the game learn which guidance actually moves a player without collecting private payloads or paying for inference.",
+      "recipe": "Extend `feedbackLedger` events and summaries with sanitized `action_id` and `source`, then add tests proving privacy, caps, and next-action aggregation remain zero-token."
+    },
+    {
+      "id": 3,
+      "slug": "backend-readiness-runbook",
+      "tier": "⚡",
+      "axis": "security",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 10.2,
+      "title": "Make the PG_CONNECTION_SOLARA gate impossible to misread in public status",
+      "why": "The repo has converged on the right project-scoped database gate, but public integration surfaces still compress readiness into prose. A structured runbook block can distinguish missing secret, workflow not run, RPC not hardened, and live-ready states without leaking credentials.",
+      "recipe": "Expand `buildBackendReadiness` with `blocked_by`, `verification_command`, `workflow`, and `scale_posture`, then surface those fields in generated status and tests."
+    },
+    {
+      "id": 4,
+      "slug": "studio-protocol-drift-shims",
+      "tier": "⚡",
+      "axis": "speed / organization / efficiency",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 6,
+      "priority": 7.7,
+      "title": "Add local compatibility shims for missing Studio protocol scripts observed during /start",
+      "why": "This session hit missing `skill-profile`, `credential-watch`, `ark`, and brief-staleness scripts before reaching the validated brief. Lightweight no-op shims keep public repos aligned with the Studio command surface while preserving the public/private boundary.",
+      "recipe": "Add safe local scripts that return explicit no-op JSON/status for absent private overlays, credential watch, Ark drain, and brief freshness."
+    },
+    {
+      "id": 5,
+      "slug": "daily-rite-status-component",
+      "tier": "⚡",
+      "axis": "UI / UX / user-experience",
+      "effort": "2h",
+      "impact": 7,
+      "innovation": 5,
+      "priority": 2.8,
+      "title": "Extract the Daily Rite sidebar status into a focused component",
+      "why": "`src/App.jsx` remains the biggest drag on iteration, and the Daily Rite panel is now dense with run, vow, challenge, pacing, and share logic. Extracting the display surface creates a smaller future edit target without changing the run loop.",
+      "recipe": "Move the read-only Daily Rite status display into `src/components/DailyRiteStatus.jsx` and keep copy/share handlers in `App.jsx` until a later interaction extraction."
+    }
+  ],
+  "innovationReserve": [
+    "daily-rite-stakes-ledger",
+    "feedback-action-attribution"
+  ],
+  "skipped": [
+    {
+      "slug": "paid-ai-oracle-summary",
+      "reason": "Rejected because Solara's standing decision keeps browser and default runtime token cost at zero."
+    },
+    {
+      "slug": "generic-supabase-repoint",
+      "reason": "Rejected because the 2026-06-07 decision requires project-scoped `PG_CONNECTION_SOLARA`, not a generic shared database credential."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "studio-protocol-drift-shims",
+      "status": "shipped",
+      "evidence": "Added explicit no-op shims for skill-profile, credential-watch, Ark drain, and brief staleness; startup brief render and validation pass."
+    },
+    {
+      "slug": "backend-readiness-runbook",
+      "status": "shipped",
+      "evidence": "Backend readiness now exports blocked_by, verification_command, workflow, and scale_posture; chronicle tests pin PG_CONNECTION_SOLARA."
+    },
+    {
+      "slug": "feedback-action-attribution",
+      "status": "shipped",
+      "evidence": "Feedback ledger stores sanitized action/source labels and aggregate attribution with token_cost 0; unit tests cover privacy and chronicle export."
+    },
+    {
+      "slug": "daily-rite-stakes-ledger",
+      "status": "shipped",
+      "evidence": "New dailyRiteStakes module is attached to Daily Rite runs and exported through chronicle/status; tests cover token_cost 0 and segment coverage."
+    },
+    {
+      "slug": "daily-rite-status-component",
+      "status": "shipped",
+      "evidence": "Daily Rite sidebar display moved into src/components/DailyRiteStatus.jsx; build and smoke pass with the new component stubbed in the Node harness."
+    }
+  ]
+}

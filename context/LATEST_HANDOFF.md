@@ -2,6 +2,16 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-11 · Session 65)
+- Shipped: deterministic Daily Rite stakes ledger attached to run creation, visible in the Daily Rite sidebar, and exported through public chronicle/status JSON
+- Shipped: zero-token feedback action/source attribution with capped sanitized aggregates and front-door/share action markers
+- Shipped: structured backend readiness runbook fields for `PG_CONNECTION_SOLARA` (`blocked_by`, `workflow`, `verification_command`, `scale_posture`)
+- Shipped: public-safe no-op shims for missing Studio protocol scripts observed during `/start`
+- Shipped: Daily Rite status presentation extracted into `src/components/DailyRiteStatus.jsx`
+- Tests: 56 passing unit tests plus production build, smoke runtime, startup-brief render, and brief-format validation passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: make Daily Rite stakes affect reward/risk mechanics, add browser-level validation for the extracted Daily Rite status panel, and deploy/verify Supabase RPC/RLS hardening once the project-scoped connection lands
+
 ## Where We Left Off (2026-06-10 · Session 64)
 - Shipped: `PG_CONNECTION_SOLARA` truth gate across backend contracts, workflow preflight, tests, docs, and generated public status/chronicle JSON
 - Shipped: deterministic Daily Rite consequence engine for Director-derived entry, clear, failure, share, reward, urgency, and next-action copy

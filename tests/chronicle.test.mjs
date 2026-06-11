@@ -34,6 +34,10 @@ test("public chronicle exports deterministic public-safe shared-world status", (
   assert.equal(chronicle.shared_world.daily_rite_plan.boss.wave, 30);
   assert.equal(chronicle.shared_world.backend_readiness.mode, "live-read-table-fallback");
   assert.equal(chronicle.shared_world.backend_readiness.safe_to_scale_public_traffic, false);
+  assert.equal(chronicle.shared_world.backend_readiness.scale_posture, "do-not-scale-public-writes");
+  assert.deepEqual(chronicle.shared_world.backend_readiness.blocked_by, ["PG_CONNECTION_SOLARA"]);
+  assert.equal(chronicle.shared_world.backend_readiness.verification_command, "npm run verify:supabase");
+  assert.equal(chronicle.shared_world.backend_readiness.workflow.required_secret, "PG_CONNECTION_SOLARA");
   assert.ok(chronicle.shared_world.outcome_receipts.count >= 3);
   assert.equal(chronicle.integrations.outcome_receipts.latest.token_cost, 0);
   assert.ok(Array.isArray(chronicle.shared_world.constellation_objectives));

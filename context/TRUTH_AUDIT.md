@@ -59,3 +59,11 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - feedback next-action digest is derived only from capped local aggregate event counts and keeps `token_cost: 0`
 - Daily Rite session extraction moved run object assembly/completion out of `src/App.jsx` without moving combat state or changing persistence boundaries
 - local validation passed: 56 unit tests, production build, and smoke runtime
+
+## 2026-06-11 Public-Safe Check
+
+- Daily Rite stakes are deterministic functions of the Director route plan and expose only public route labels, risk scores, rewards, and guidance; `token_cost` remains 0
+- feedback attribution stores only capped, sanitized `action_id` and `source` labels plus aggregate counts; it still stores no raw saves, private notes, credentials, cookies, or internal ops data
+- backend readiness now exports a public-safe runbook for `PG_CONNECTION_SOLARA` without exposing connection material
+- local Studio protocol shims are explicit no-ops for public-repo boundaries and do not read private cargo or credentials
+- local validation passed: 56 unit tests, production build, smoke runtime, startup-brief render, and brief-format validation

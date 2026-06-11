@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-10T15:16:03.946Z",
+  "generated_at": "2026-06-11T01:34:01.140Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -74,12 +74,102 @@
         ]
       }
     },
+    "daily_rite_stakes": {
+      "version": 1,
+      "segment_count": 6,
+      "highest_risk": 3,
+      "total_risk": 12,
+      "primary_stake": {
+        "id": "segment_6",
+        "label": "Waves 26-30",
+        "encounter": "Scout pack",
+        "reward": "food",
+        "risk": 3,
+        "goal": "Use Scout pack pacing to secure food.",
+        "pledge": "Take one clean reward, then reset tempo.",
+        "consequence": "Waves 26-30 can turn Scout pack into food; Take one clean reward, then reset tempo."
+      },
+      "segments": [
+        {
+          "id": "segment_1",
+          "label": "Waves 1-5",
+          "encounter": "Low ambush",
+          "reward": "starter relic",
+          "risk": 1,
+          "goal": "Use Low ambush pacing to secure starter relic.",
+          "pledge": "Bank light efficiently and preserve options.",
+          "consequence": "Waves 1-5 can turn Low ambush into starter relic; Bank light efficiently and preserve options."
+        },
+        {
+          "id": "segment_2",
+          "label": "Waves 6-10",
+          "encounter": "Recovery room",
+          "reward": "coins",
+          "risk": 2,
+          "goal": "Use Recovery room pacing to secure coins.",
+          "pledge": "Bank light efficiently and preserve options.",
+          "consequence": "Waves 6-10 can turn Recovery room into coins; Bank light efficiently and preserve options."
+        },
+        {
+          "id": "segment_3",
+          "label": "Waves 11-15",
+          "encounter": "Scout pack",
+          "reward": "food",
+          "risk": 2,
+          "goal": "Use Scout pack pacing to secure food.",
+          "pledge": "Bank light efficiently and preserve options.",
+          "consequence": "Waves 11-15 can turn Scout pack into food; Bank light efficiently and preserve options."
+        },
+        {
+          "id": "segment_4",
+          "label": "Waves 16-20",
+          "encounter": "Low ambush",
+          "reward": "starter relic",
+          "risk": 2,
+          "goal": "Use Low ambush pacing to secure starter relic.",
+          "pledge": "Bank light efficiently and preserve options.",
+          "consequence": "Waves 16-20 can turn Low ambush into starter relic; Bank light efficiently and preserve options."
+        },
+        {
+          "id": "segment_5",
+          "label": "Waves 21-25",
+          "encounter": "Recovery room",
+          "reward": "coins",
+          "risk": 2,
+          "goal": "Use Recovery room pacing to secure coins.",
+          "pledge": "Bank light efficiently and preserve options.",
+          "consequence": "Waves 21-25 can turn Recovery room into coins; Bank light efficiently and preserve options."
+        },
+        {
+          "id": "segment_6",
+          "label": "Waves 26-30",
+          "encounter": "Scout pack",
+          "reward": "food",
+          "risk": 3,
+          "goal": "Use Scout pack pacing to secure food.",
+          "pledge": "Take one clean reward, then reset tempo.",
+          "consequence": "Waves 26-30 can turn Scout pack into food; Take one clean reward, then reset tempo."
+        }
+      ],
+      "summary": "Clear Routes stakes: Waves 26-30 is the pressure point; Take one clean reward, then reset tempo.",
+      "token_cost": 0
+    },
     "backend_readiness": {
       "version": 1,
       "mode": "live-read-table-fallback",
       "public_writes": "client-sanitized-with-table-fallback",
       "player_copy": "Live reads are available; public writes still rely on staged fallback until hardening is deployed.",
       "safe_to_scale_public_traffic": false,
+      "scale_posture": "do-not-scale-public-writes",
+      "blocked_by": [
+        "PG_CONNECTION_SOLARA"
+      ],
+      "verification_command": "npm run verify:supabase",
+      "workflow": {
+        "name": "Supabase Hardening",
+        "required_secret": "PG_CONNECTION_SOLARA",
+        "expected_result": "RPC validation, row-level security, constraints, and public-write verification pass for Solara's cloud Supabase project."
+      },
       "required_next_action": "Add PG_CONNECTION_SOLARA, then run the Supabase Hardening workflow.",
       "missing_secret_labels": [
         "PG_CONNECTION_SOLARA"
@@ -144,6 +234,13 @@
       "privacy": "local public-safe aggregate events only; no raw save payloads, personal data, private notes, credentials, or cookies",
       "count": 0,
       "counts": {},
+      "attribution": {
+        "top_action": null,
+        "top_source": null,
+        "action_counts": {},
+        "source_counts": {},
+        "token_cost": 0
+      },
       "lastEvent": null,
       "cap": 80,
       "token_cost": 0,
@@ -179,6 +276,6 @@
       "fallback": "deterministic_chronicle",
       "input_policy": "structured_public_state_only"
     },
-    "cache_key": "season:1:day:76:sun:100:deaths:0:runs:0:graves:0:echoes:0"
+    "cache_key": "season:1:day:77:sun:100:deaths:0:runs:0:graves:0:echoes:0"
   }
 }

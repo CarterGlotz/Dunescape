@@ -11,6 +11,11 @@ export function buildBackendReadiness({
   const live = !!backendConnected;
   const hardened = live && !!hardenedRpcDeployed;
   const mode = hardened ? "hardened-live" : live ? "live-read-table-fallback" : "local-only";
+  const blockedBy = hardened
+    ? []
+    : requiredSecretsPresent
+      ? ["supabase-hardening-workflow", "rpc-verification"]
+      : [SUPABASE_HARDENING_GATE];
 
   return {
     version: BACKEND_READINESS_VERSION,
@@ -22,6 +27,16 @@ export function buildBackendReadiness({
         ? "Live reads are available; public writes still rely on staged fallback until hardening is deployed."
         : "The game is fully playable locally; public world writes wait for backend activation.",
     safe_to_scale_public_traffic: hardened,
+    scale_posture: hardened
+      ? "ready-for-public-traffic"
+      : "do-not-scale-public-writes",
+    blocked_by: blockedBy,
+    verification_command: "npm run verify:supabase",
+    workflow: {
+      name: "Supabase Hardening",
+      required_secret: SUPABASE_HARDENING_GATE,
+      expected_result: "RPC validation, row-level security, constraints, and public-write verification pass for Solara's cloud Supabase project.",
+    },
     required_next_action: hardened
       ? "Monitor public-write health."
       : requiredSecretsPresent

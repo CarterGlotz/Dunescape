@@ -55,6 +55,9 @@ test("Daily Rite consequence engine and run factory share deterministic segment 
   const consequence = getDailyRiteConsequence({ dailyRitePlan: plan, roomWeave: run.roomWeave, wave: 4, outcome: "clear" });
 
   assert.equal(run.rooms.length, 30);
+  assert.equal(run.stakes.token_cost, 0);
+  assert.equal(run.stakes.segment_count, plan.route.length);
+  assert.ok(run.stakes.primary_stake.risk >= 1);
   assert.ok(run.pacingCoach.next_action);
   assert.match(run.consequence.entry_line, /Room entered|Waves|for/);
   assert.equal(consequence.wave, 4);
@@ -85,6 +88,8 @@ test("feedback ledger stores capped public-safe aggregate events", () => {
     modifier: "sunless_edict",
     wave: 999,
     outcome: "<bad>",
+    action_id: "daily-start<script>",
+    source: "daily-panel<script>",
   });
   for (let index = 0; index < 90; index += 1) {
     recordFeedbackEvent("share_copy", { wave: index, outcome: `copy-${index}` });
@@ -96,6 +101,8 @@ test("feedback ledger stores capped public-safe aggregate events", () => {
   assert.equal(summary.cap, 80);
   assert.equal(summary.token_cost, 0);
   assert.equal(summary.counts.share_copy, 80);
+  assert.equal(summary.attribution.top_source, "unknown");
+  assert.equal(summary.attribution.token_cost, 0);
   assert.doesNotMatch(JSON.stringify(summary), /<script>|<bad>|`/);
   assert.equal(summary.next_action.token_cost, 0);
   clearFeedbackLedger();
@@ -122,7 +129,11 @@ test("public chronicle exports a zero-token feedback summary", () => {
   });
 
   assert.equal(chronicle.shared_world.feedback_summary.count, 2);
+  assert.equal(chronicle.shared_world.daily_rite_stakes.token_cost, 0);
+  assert.equal(chronicle.shared_world.daily_rite_stakes.segment_count, chronicle.shared_world.daily_rite_plan.route.length);
+  assert.ok(chronicle.shared_world.daily_rite_stakes.summary.includes("stakes"));
   assert.equal(chronicle.shared_world.feedback_summary.counts.daily_rite_end, 1);
+  assert.equal(chronicle.shared_world.feedback_summary.attribution.token_cost, 0);
   assert.equal(chronicle.shared_world.feedback_summary.next_action.id, "share_result");
   assert.equal(chronicle.integrations.feedback_summary.token_cost, 0);
 });

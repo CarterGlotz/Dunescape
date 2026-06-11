@@ -25,6 +25,8 @@ export function recordFeedbackEvent(type, detail = {}) {
     modifier: cleanText(detail.modifier, "unknown"),
     wave: Math.max(0, Math.min(30, Math.floor(Number(detail.wave || 0)))),
     outcome: cleanText(detail.outcome, ""),
+    action_id: cleanText(detail.action_id || detail.actionId, ""),
+    source: cleanText(detail.source, "unknown"),
     token_cost: 0,
   };
   const next = [...readStorage(), event].slice(-MAX_EVENTS);
@@ -93,7 +95,15 @@ export function summarizeFeedbackLedger(events = readStorage()) {
   let lastEvent = null;
   for (const event of Array.isArray(events) ? events : []) {
     const type = cleanText(event?.type, "event");
+    const actionId = cleanText(event?.action_id || event?.actionId, "");
+    const source = cleanText(event?.source, "");
     counts[type] = (counts[type] || 0) + 1;
+    const actionCounts = counts.by_action || {};
+    const sourceCounts = counts.by_source || {};
+    if (actionId) actionCounts[actionId] = (actionCounts[actionId] || 0) + 1;
+    if (source) sourceCounts[source] = (sourceCounts[source] || 0) + 1;
+    counts.by_action = actionCounts;
+    counts.by_source = sourceCounts;
     lastEvent = {
       type,
       at: cleanText(event?.at, ""),
@@ -102,13 +112,24 @@ export function summarizeFeedbackLedger(events = readStorage()) {
       modifier: cleanText(event?.modifier, "unknown"),
       wave: Math.max(0, Math.min(30, Math.floor(Number(event?.wave || 0)))),
       outcome: cleanText(event?.outcome, ""),
+      action_id: actionId,
+      source,
     };
   }
+  const actionCounts = counts.by_action || {};
+  const sourceCounts = counts.by_source || {};
   const summary = {
     version: 1,
     privacy: "local public-safe aggregate events only; no raw save payloads, personal data, private notes, credentials, or cookies",
-    count: Object.values(counts).reduce((sum, count) => sum + count, 0),
+    count: Object.entries(counts).reduce((sum, [key, count]) => key.startsWith("by_") ? sum : sum + count, 0),
     counts,
+    attribution: {
+      top_action: Object.entries(actionCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null,
+      top_source: Object.entries(sourceCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || null,
+      action_counts: actionCounts,
+      source_counts: sourceCounts,
+      token_cost: 0,
+    },
     lastEvent,
     cap: MAX_EVENTS,
     token_cost: 0,
