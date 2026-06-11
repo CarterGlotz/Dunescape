@@ -67,3 +67,4 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - backend readiness now exports a public-safe runbook for `PG_CONNECTION_SOLARA` without exposing connection material
 - local Studio protocol shims are explicit no-ops for public-repo boundaries and do not read private cargo or credentials
 - local validation passed: 56 unit tests, production build, smoke runtime, startup-brief render, and brief-format validation
+- closeout continuation revalidated the same public-safe surfaces, added `docs/CLOSEOUT_BRIEF_2026-06-11.md` and `audits/2026-06-11.json`, and confirmed the closeout board format gate passes

@@ -1,40 +1,36 @@
 <!-- generated-by: scripts/compact-handoff.mjs v3.1 -->
-<!-- source-hash: fb4355a6f097 -->
-<!-- generated-at: 2026-06-11T01:28:21.887Z -->
+<!-- source-hash: 3ed7ec8ba030 -->
+<!-- generated-at: 2026-06-11T03:26:45.528Z -->
 
 # LATEST_HANDOFF (compact)
 
-SESSION 64 HANDOFF SUMMARY
+SESSION 65 HANDOFF SUMMARY
 
-Shipped This Session
-- PG_CONNECTION_SOLARA truth gate across backend contracts, workflow preflight, tests, docs, and generated public status/chronicle JSON
-- Deterministic Daily Rite consequence engine (entry, clear, failure, share, reward, urgency, next-action copy)
-- Daily Rite run-session extraction into src/game/dailyRunSession.js, reducing src/App.jsx inline responsibility (combat state not moved)
-- Zero-token feedback next-action digest on front door, exported through public chronicle/status surfaces
+Shipped (Session 65)
+- Deterministic Daily Rite stakes ledger on run creation, shown in sidebar and exported via public chronicle/status JSON
+- Zero-token feedback action/source attribution with capped sanitized aggregates and front-door/share markers
+- Structured backend readiness runbook fields for PG_CONNECTION_SOLARA (blocked_by, workflow, verification_command, scale_posture)
+- Public-safe no-op shims for missing Studio protocol scripts
+- Daily Rite status presentation extracted to src/components/DailyRiteStatus.jsx
 
-Test Status
-- 56 unit tests passing
-- Production build passing
-- Smoke runtime passing
+Test/Build State
+- 56 unit tests passing; production build, smoke runtime, startup-brief render, brief-format validation passing
+- Public closeout brief/audit record added; closeout board rendered and validated
 
 Current Intent
-- Run full /start to /closeout cycle with net-new personalized audit; implement all repo-feasible items at quality; keep repo deployable
+- Run full /start to /audit to /implement to /closeout cycle with project-specific audit; implement all repo-feasible items; keep repo deployable
 
-Now Bucket (Top 3)
-- Convert consequence receipts into actual reward/modifier effects
-- Continue App.jsx extraction around Daily Rite presentation/combat boundaries
-- Deploy and verify Supabase RPC/RLS hardening once project-scoped connection lands
+Now Bucket (top 3)
+- Make Daily Rite stakes affect actual reward/risk mechanics (convert receipts into real reward/modifier effects)
+- Add browser-level validation for extracted DailyRiteStatus panel
+- Deploy/verify Supabase RPC/RLS hardening once project-scoped connection lands
 
-Blockers (Top 3)
+Blockers (top 3)
 - Supabase production hardening blocked: needs project-scoped PG_CONNECTION_SOLARA for cloud project fjnpzjjyhnpmunfoycrp before scaled public traffic
-- Hardened RPCs not deployed (PGRST202); only anon read probe works
-- Private ops secrets lack a full Postgres connection string / DB password for the hardening workflow
+- Hardened RPCs not yet deployed (PGRST202 from anon probe); verify:supabase captures non-mutating state
+- No full Postgres connection string / DB password in private ops secrets suitable for hardening workflow
 
-Human-Blocked Items
-- Add project-scoped Postgres connection as PG_CONNECTION_SOLARA for fjnpzjjyhnpmunfoycrp, then rerun manual Supabase Hardening workflow. Alternative: deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql via SQL Editor with owner credentials, then rerun npm run verify:supabase. Age: outstanding since at least 2026-06-03 (Session ~60+).
+Human-Blocked (with age)
+- Add project-scoped Postgres connection as PG_CONNECTION_SOLARA (project fjnpzjjyhnpmunfoycrp) then rerun Supabase Hardening workflow; alternative: deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql via SQL Editor and rerun verify:supabase. Open since ~2026-06-07 (Session 62-era), ongoing through Session 65 (~4 days)
 
-Key Decision
-- Keep Solara on current cloud Supabase project rather than repointing to Hetzner/Vorn shared DB; avoids cross-project drift.
-
-Next Session Pointer
-- Start by wiring consequence receipts to real reward/modifier effects, then resume App.jsx combat-boundary extraction; Supabase hardening remains human-blocked on PG_CONNECTION_SOLARA.
+Next session: start by wiring Daily Rite stakes into real reward/risk mechanics, then chase the Supabase hardening gate if the scoped connection arrives.

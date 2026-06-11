@@ -86,3 +86,4 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - implemented the full plan: deterministic Daily Rite stakes ledger, zero-token feedback action/source attribution, structured `PG_CONNECTION_SOLARA` backend readiness runbook fields, public-safe protocol no-op shims, and extracted Daily Rite status presentation
 - regenerated public chronicle/status JSON so Studio integrations can read `daily_rite_stakes`, feedback attribution, and the stronger backend readiness contract
 - verified 56 unit tests, production build, smoke runtime, startup-brief render, and brief-format validation
+- closeout continuation added `docs/CLOSEOUT_BRIEF_2026-06-11.md`, `audits/2026-06-11.json`, regenerated the closeout board, and revalidated tests/build/smoke/startup-brief gates

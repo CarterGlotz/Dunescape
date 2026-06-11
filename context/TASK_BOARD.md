@@ -148,6 +148,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - latest local validation: 56 unit tests passing, production build passing, smoke flow passing
 - 2026-06-11 pass shipped Daily Rite stakes ledger, feedback action/source attribution, structured backend readiness runbook fields, local Studio protocol drift shims, and extracted Daily Rite status presentation
 - latest local validation: 56 unit tests passing, production build passing, smoke flow passing, startup-brief render passing, brief-format validation passing
+- 2026-06-11 closeout continuation added the public closeout brief/audit record and revalidated tests, build, smoke, startup brief, and closeout board
 
 ## Deferred to Project Agents
 

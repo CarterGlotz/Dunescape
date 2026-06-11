@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "1.3",
+  "project": "solara",
+  "date": "2026-06-11",
+  "session": 65,
+  "sessionType": "implementation",
+  "label": "audit-driven daily-rite-stakes and public-contract pass",
+  "calibration": false,
+  "silRubricVersion": "3.0",
+  "scores": {
+    "devHealth": 90,
+    "creativeAlignment": 91,
+    "momentum": 92,
+    "engagement": 91,
+    "processQuality": 89,
+    "crossRepoCoherence": 91,
+    "securityPosture": 95,
+    "ecosystemIntegration": 93,
+    "capitalEfficiency": 87,
+    "automationCoverage": 98
+  },
+  "total": 897,
+  "maxScore": 1000,
+  "previousTotal": 881,
+  "delta": 16,
+  "velocity": 16,
+  "debt": "->",
+  "shipped": [
+    "daily-rite-stakes-ledger",
+    "feedback-action-attribution",
+    "backend-readiness-runbook",
+    "studio-protocol-drift-shims",
+    "daily-rite-status-component"
+  ],
+  "verifiedPreexisting": [],
+  "blocked": [],
+  "humanActionRequired": [
+    "Add project-scoped PG_CONNECTION_SOLARA for Supabase project fjnpzjjyhnpmunfoycrp, then rerun the manual Supabase Hardening workflow. Alternative: deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql through Supabase SQL Editor with owner credentials, then rerun npm run verify:supabase."
+  ],
+  "evidence": {
+    "tests": "56/56 unit tests passing",
+    "build": "vite production build passing",
+    "smoke": "smoke runtime passing",
+    "startupBrief": "startup brief render and format validation passing",
+    "notable": "Daily Rite stakes, feedback attribution, and backend readiness fields are exported through public chronicle/status with zero browser token cost."
+  }
+}

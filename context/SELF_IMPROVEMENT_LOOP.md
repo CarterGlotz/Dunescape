@@ -17,6 +17,7 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 - 2026-06-07: Closeout repair achieved. Clarified Solara's long-term Supabase path, kept it on cloud project `fjnpzjjyhnpmunfoycrp` instead of the Hetzner/Vorn shared database, normalized project-ref URLs before client creation, and added a regression test. Local validation passed: 51 unit tests, production build, and smoke runtime.
 - 2026-06-10: Intent achieved. Ran /start, wrote a fresh four-item Solara-specific audit, and implemented the full tranche: Director-aware Daily Rite room weaving, front-door Almanac/Myth planning, capped public-safe local feedback ledger, public feedback summary exports, and updated smoke/unit coverage. Local validation passed: 54 unit tests, production build, and smoke runtime.
 - 2026-06-10: Closeout continuation achieved. Deferred propagation refreshed AGENTS/protocol scripts; the missing shared-policy helper was added so startup-brief rendering is healthy again. Local validation passed: 54 unit tests, production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board render.
+- 2026-06-11: Closeout continuation achieved. Verified the Session 65 audit implementation evidence, added the public closeout brief and audit JSON, regenerated public status/chronicle JSON, and validated the closeout board. Local validation passed: 56 unit tests, production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board validation.
 
 ## 2026-06-10 — Session 63 — Total: 868/1000
 

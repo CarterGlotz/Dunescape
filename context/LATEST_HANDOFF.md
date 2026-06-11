@@ -9,6 +9,7 @@ This repo now keeps only a public-safe handoff summary. Detailed handoff history
 - Shipped: public-safe no-op shims for missing Studio protocol scripts observed during `/start`
 - Shipped: Daily Rite status presentation extracted into `src/components/DailyRiteStatus.jsx`
 - Tests: 56 passing unit tests plus production build, smoke runtime, startup-brief render, and brief-format validation passing
+- Closeout continuation: public closeout brief/audit record added; closeout board rendered and validated
 - Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
 - Next best work: make Daily Rite stakes affect reward/risk mechanics, add browser-level validation for the extracted Daily Rite status panel, and deploy/verify Supabase RPC/RLS hardening once the project-scoped connection lands
 
