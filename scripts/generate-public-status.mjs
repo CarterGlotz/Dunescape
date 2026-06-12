@@ -38,6 +38,7 @@ const status = {
     daily_rite_policy: chronicle.shared_world.daily_rite_policy,
     daily_rite_outcomes: chronicle.shared_world.daily_rite_outcomes,
     daily_rite_route_choices: chronicle.shared_world.daily_rite_route_choices,
+    daily_rite_shrine_bargains: chronicle.shared_world.daily_rite_shrine_bargains,
     backend_readiness: chronicle.shared_world.backend_readiness,
     backend_contract: chronicle.shared_world.backend_contract,
     sundial_queue: chronicle.shared_world.sundial_queue,

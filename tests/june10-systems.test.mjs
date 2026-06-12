@@ -14,6 +14,7 @@ import { buildDailyRiteOutcomeDigest, getDailyRiteRoomOutcome } from "../src/gam
 import { applyDailyRiteRoomOutcome, summarizeDailyRiteOutcomeRewards } from "../src/game/dailyRiteRoomRuntime.js";
 import { buildDailyRiteRouteChoiceDigest, buildDailyRiteRouteChoicePrompt } from "../src/game/dailyRiteRouteChoices.js";
 import { applyDailyRiteRouteCommitment, buildDailyRiteRouteCommitment } from "../src/game/dailyRiteRouteCommitments.js";
+import { buildDailyRiteShrineBargain, buildDailyRiteShrineBargainDigest } from "../src/game/dailyRiteShrineBargains.js";
 import { getDailyRiteStatusContract } from "../src/game/dailyRiteStatusContract.js";
 import { getDailyRitePlan } from "../src/game/directorMechanics.js";
 import { FEEDBACK_ACTION_ROUTES, clearFeedbackLedger, getFeedbackNextActionDigest, loadFeedbackLedger, recordFeedbackEvent, summarizeFeedbackLedger } from "../src/game/feedbackLedger.js";
@@ -74,6 +75,7 @@ test("Daily Rite consequence engine and run factory share deterministic segment 
   assert.equal(run.outcomePolicy.token_cost, 0);
   assert.equal(run.outcomePolicy.segment_count, run.stakes.segment_count);
   assert.equal(run.routeChoices.token_cost, 0);
+  assert.equal(run.shrineBargains.token_cost, 0);
   assert.equal(run.routeChoices.prompt_count, run.outcomePolicy.decision_windows.length);
   assert.equal(run.latestOutcome.token_cost, 0);
   assert.equal(run.latestRouteChoice.token_cost, 0);
@@ -282,6 +284,80 @@ test("Daily Rite route commitments tune the next room outcome deterministically"
   assert.doesNotMatch(JSON.stringify({ tunedOutcome, activeContract }), /<script>|`|\.\.\/bad/);
 });
 
+test("Daily Rite shrine bargains turn committed Sunstone choices into bounded receipts", () => {
+  const prompt = buildDailyRiteRouteChoicePrompt({
+    outcome: {
+      wave: 6,
+      segment_id: "shrine<script>",
+      segment_label: "Cinder Shrine<script>",
+      reward_bias: "sunstone",
+      next_action: "Choose before the route cools.",
+      rewards: {
+        coins: 36,
+        heal: 0,
+        prayer: 0,
+        items: [{ id: "sunstone_shard", count: 1, label: "Sunstone Shard" }],
+      },
+    },
+    outcomeDigest: {
+      decision_windows: [{
+        wave: 6,
+        segment_id: "shrine<script>",
+        segment_label: "Cinder Shrine<script>",
+        kind: "shrine_bargain",
+        next_action: "Save, spend, or swear on the shard.",
+      }],
+    },
+  });
+  const run = {
+    wave: 6,
+    latestRouteChoice: prompt,
+    rooms: [0],
+    modifiers: {
+      policy: {
+        segments: [{
+          id: "shrine_script",
+          label: "Cinder Shrine",
+          risk: 4,
+          reward_bias: "sunstone",
+          drop_multiplier: 1.2,
+          recovery_room_chance: 0.05,
+          recovery_pressure: "scarce",
+          shrine_bargain: "Sunstone bargain opened.",
+        }],
+      },
+    },
+    roomWeave: { segmentByWave: Array.from({ length: 30 }, () => ({ id: "shrine_script" })) },
+  };
+  const banked = applyDailyRiteRouteCommitment({ run, choiceId: "bank_shard", now: Date.UTC(2026, 5, 12) });
+  const outcome = getDailyRiteRoomOutcome({ run, wave: 6, roomIndex: 0, daySeed: "shrine-bargain" });
+  const contract = getDailyRiteStatusContract({ dailyRun: { ...run, latestOutcome: outcome } });
+  const manual = buildDailyRiteShrineBargain({ commitment: banked, outcome });
+
+  assert.equal(banked.kind, "shrine_bargain");
+  assert.equal(manual.token_cost, 0);
+  assert.equal(outcome.shrine_bargain.token_cost, 0);
+  assert.equal(outcome.shrine_bargain.posture, "banked");
+  assert.equal(outcome.shrine_bargain.shard_delta, 1);
+  assert.equal(contract.latest_outcome.shrine_bargain.choice_id, "bank_shard");
+  assert.equal(contract.latest_outcome.shrine_bargain.token_cost, 0);
+  assert.doesNotMatch(JSON.stringify({ outcome, contract }), /<script>|`|\.\.\/bad/);
+
+  run.latestRouteChoice = prompt;
+  const spent = applyDailyRiteRouteCommitment({ run, choiceId: "spend_shard", now: Date.UTC(2026, 5, 12) });
+  const spentOutcome = getDailyRiteRoomOutcome({ run, wave: 6, roomIndex: 0, daySeed: "shrine-bargain" });
+  assert.equal(spent.choice.id, "spend_shard");
+  assert.equal(spentOutcome.shrine_bargain.posture, "spent");
+  assert.ok(spentOutcome.rewards.heal >= outcome.rewards.heal);
+
+  run.latestRouteChoice = prompt;
+  const oath = applyDailyRiteRouteCommitment({ run, choiceId: "press_oath", now: Date.UTC(2026, 5, 12) });
+  const oathOutcome = getDailyRiteRoomOutcome({ run, wave: 6, roomIndex: 0, daySeed: "shrine-bargain" });
+  assert.equal(oath.choice.id, "press_oath");
+  assert.equal(oathOutcome.shrine_bargain.posture, "oath");
+  assert.ok(oathOutcome.rewards.coins >= outcome.rewards.coins);
+});
+
 test("Daily Rite room runtime applies bounded public-safe rewards", () => {
   const player = {
     hp: 9,
@@ -392,11 +468,13 @@ test("public chronicle exports a zero-token feedback summary", () => {
   assert.equal(chronicle.shared_world.daily_rite_policy.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_outcomes.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_route_choices.token_cost, 0);
+  assert.equal(chronicle.shared_world.daily_rite_shrine_bargains.token_cost, 0);
   assert.ok(chronicle.shared_world.daily_rite_outcomes.decision_windows.length >= 1);
   assert.equal(chronicle.shared_world.daily_rite_route_choices.prompt_count, chronicle.shared_world.daily_rite_outcomes.decision_windows.length);
   assert.equal(chronicle.shared_world.daily_rite_outcomes.decision_windows[0].token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_route_choices.token_cost, 0);
   assert.equal(chronicle.integrations.daily_rite_route_choices.token_cost, 0);
+  assert.equal(chronicle.integrations.daily_rite_shrine_bargains.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_stakes.segment_count, chronicle.shared_world.daily_rite_plan.route.length);
   assert.equal(chronicle.shared_world.daily_rite_modifiers.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
   assert.equal(chronicle.shared_world.daily_rite_policy.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
@@ -404,6 +482,10 @@ test("public chronicle exports a zero-token feedback summary", () => {
   assert.ok(chronicle.integrations.daily_rite_policy.strongest_reward_segment.drop_multiplier >= 1);
   assert.ok(chronicle.integrations.daily_rite_outcomes.richest_cache.rewards.coins > 0);
   assert.equal(chronicle.integrations.daily_rite_route_choices.token_cost, 0);
+  assert.deepEqual(
+    chronicle.shared_world.daily_rite_shrine_bargains,
+    buildDailyRiteShrineBargainDigest({ routeChoiceDigest: chronicle.shared_world.daily_rite_route_choices }),
+  );
   assert.doesNotMatch(JSON.stringify(chronicle.integrations.daily_rite_policy), /<script>|`/);
   assert.ok(chronicle.shared_world.daily_rite_stakes.summary.includes("stakes"));
   assert.equal(chronicle.shared_world.feedback_summary.counts.daily_rite_end, 1);

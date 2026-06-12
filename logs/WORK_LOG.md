@@ -145,3 +145,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - extended the Daily Rite status contract/component to render recommended and alternate route choices
 - exported `daily_rite_route_choices` through public chronicle/status shared-world and integration surfaces
 - verified 61 unit tests, production build, and smoke runtime
+
+## 2026-06-12 — Session 73
+
+- ran /start gates, then wrote docs/AUDIT_2026-06-12-S73.md / .json with three Daily Rite shrine-bargain items
+- added `src/game/dailyRiteShrineBargains.js` for deterministic zero-token bank/spend/oath bargain receipt synthesis and public digest generation
+- wired Daily Rite room outcomes, active status contracts, and UI to expose applied `shrine_bargain` receipts
+- exported `daily_rite_shrine_bargains` through public chronicle/status shared-world and integration surfaces
+- extended unit and smoke coverage so shrine bargain receipts, status export, generated public JSON, and zero-token guarantees are validated
+- verified 64 unit tests, production build, and smoke runtime

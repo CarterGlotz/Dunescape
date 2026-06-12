@@ -1,11 +1,11 @@
-# Implement Plan — 2026-06-12 S72
+# Implement Plan — 2026-06-12 S73
 
-Source: `docs/AUDIT_2026-06-12-S72.json`
+Source: `docs/AUDIT_2026-06-12-S73.json`
 
-## Wave 1 — Daily Rite Route Agency
+## Wave 1 — Daily Rite Shrine Bargain Agency
 
-1. `route-choice-room-tuning` — Add deterministic zero-token tuning from committed route choices into Daily Rite room outcomes.
-2. `route-choice-outcome-contract` — Surface the applied route-choice adjustment in active status and public status/chronicle exports.
-3. `route-choice-tuning-tests` — Add unit coverage for bounded/sanitized tuning and zero-token export contracts.
+1. `shrine-bargain-commitments` — Add deterministic zero-token shrine bargain receipts for bank, spend, and oath choices.
+2. `shrine-bargain-status-contract` — Surface applied shrine bargains in active Daily Rite status and public chronicle/status exports.
+3. `shrine-bargain-zero-token-tests` — Add unit and smoke coverage for bounded/sanitized shrine bargain contracts.
 
 Quality gates: browser runtime token cost stays zero, public strings are sanitized, generated status remains public-safe, and `npm test`, `npm run build`, and `npm run smoke` pass.

@@ -174,3 +174,18 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 | 8 | Ecosystem Integration | 100 | 0 | Public status now exposes route-choice prompts in addition to chronicle integration surfaces. |
 | 9 | Capital Efficiency | 95 | +1 | Tuning intelligence remains deterministic and browser runtime token cost stays zero. |
 | 10 | Automation Coverage | 100 | 0 | Tests prove deterministic tuning, status export, sanitizer bounds, generated JSON, build, and smoke. |
+
+## 2026-06-12 — Session 73 — Total: 985/1000
+
+| # | Category | Score | Delta | Public-safe notes |
+|---|---|---:|---:|---|
+| 1 | Dev Health | 99 | +1 | 64 tests, production build, and smoke runtime pass after shrine-bargain receipt wiring. |
+| 2 | Creative Alignment | 100 | +1 | Bank, spend, and oath bargains deepen Solara-owned Sunstone ritual choices without borrowed naming. |
+| 3 | Momentum | 100 | 0 | Fresh Session 73 audit was fully implemented and evidenced in one pass. |
+| 4 | Engagement | 100 | 0 | Daily Rite players can now see shrine choices resolve into concrete bargain receipts. |
+| 5 | Process Quality | 99 | +1 | Audit sidecar, implementation plan, execution log, generated public JSON, and validation evidence are aligned. |
+| 6 | Cross-Repo Coherence | 95 | 0 | Public repo surfaces remain public-safe; unrelated untracked `obelisk-passport/` files were left untouched. |
+| 7 | Security Posture | 99 | +1 | Shrine bargain ids, labels, rewards, and public exports are bounded, sanitized, and explicit `token_cost: 0`. |
+| 8 | Ecosystem Integration | 100 | 0 | Public status/chronicle now expose shrine bargain windows beside Daily Rite route choices. |
+| 9 | Capital Efficiency | 95 | 0 | Shrine bargain intelligence remains deterministic and browser runtime token cost stays zero. |
+| 10 | Automation Coverage | 100 | 0 | Tests prove bank/spend/oath receipts, status export, generated JSON, build, and smoke. |

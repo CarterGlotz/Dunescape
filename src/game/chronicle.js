@@ -17,6 +17,7 @@ import { buildDailyRiteStakes } from "./dailyRiteStakes.js";
 import { buildDailyRiteModifiers } from "./dailyRiteModifiers.js";
 import { buildDailyRiteOutcomeDigest } from "./dailyRiteRoomOutcome.js";
 import { buildDailyRiteRouteChoiceDigest } from "./dailyRiteRouteChoices.js";
+import { buildDailyRiteShrineBargainDigest } from "./dailyRiteShrineBargains.js";
 
 function sortByWave(entries = []) {
   return [...entries].sort((a, b) => Number(b?.wave_reached || 0) - Number(a?.wave_reached || 0));
@@ -128,6 +129,7 @@ export function buildPublicChronicle({
   const dailyRitePolicy = dailyRiteModifiers.policy;
   const dailyRiteOutcomes = buildDailyRiteOutcomeDigest({ modifiers: dailyRiteModifiers, daySeed: `season-${season}-day-${dayNumber}` });
   const dailyRiteRouteChoices = buildDailyRiteRouteChoiceDigest({ outcomeDigest: dailyRiteOutcomes });
+  const dailyRiteShrineBargains = buildDailyRiteShrineBargainDigest({ routeChoiceDigest: dailyRiteRouteChoices });
   const constellationObjectives = buildConstellationObjectives({ sharedWorld, hasSunstoneShard: false });
   const backendReadiness = buildBackendReadiness({
     backendConnected: true,
@@ -195,6 +197,7 @@ export function buildPublicChronicle({
       daily_rite_policy: dailyRitePolicy,
       daily_rite_outcomes: dailyRiteOutcomes,
       daily_rite_route_choices: dailyRiteRouteChoices,
+      daily_rite_shrine_bargains: dailyRiteShrineBargains,
       constellation_objectives: constellationObjectives.slice(0, 5),
       backend_readiness: backendReadiness,
       backend_contract: backendContract,
@@ -248,6 +251,7 @@ export function buildPublicChronicle({
       daily_rite_policy: dailyRitePolicy,
       daily_rite_outcomes: dailyRiteOutcomes,
       daily_rite_route_choices: dailyRiteRouteChoices,
+      daily_rite_shrine_bargains: dailyRiteShrineBargains,
       daily_rite_stakes: dailyRiteStakes,
       backend_readiness: backendReadiness,
       backend_contract: backendContract,

@@ -106,3 +106,10 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - active Daily Rite status surfaces show applied route tuning without storing raw private player payloads, credentials, private Studio context, or paid generation output
 - public status now includes `daily_rite_route_choices` in addition to chronicle integration surfaces; generated outcome samples expose `route_choice_adjustment: null` when no local run choice exists
 - local validation passed: 63 unit tests, production build, smoke runtime, syntax checks, and public status route-choice export presence
+
+## 2026-06-12 Session 73 Public-Safe Check
+
+- Daily Rite shrine bargains are deterministic from committed local route choices and bounded to sanitized choice id, label, posture, shard/relief/oath/reward deltas, receipt, and next action
+- active Daily Rite status surfaces show applied shrine bargains without storing raw private player payloads, credentials, private Studio context, or paid generation output
+- public chronicle/status now includes `daily_rite_shrine_bargains` beside `daily_rite_route_choices`; generated digest entries expose only sanitized deterministic bargain windows and `token_cost: 0`
+- local validation passed: 64 unit tests, production build, and smoke runtime

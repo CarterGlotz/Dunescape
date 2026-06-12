@@ -1,4 +1,5 @@
 import { getDailyRiteSegmentPolicyForWave } from "./dailyRiteModifiers.js";
+import { applyShrineBargainToOutcome, buildDailyRiteShrineBargain } from "./dailyRiteShrineBargains.js";
 
 function clampNumber(value, min, max, fallback = min) {
   const number = Number(value);
@@ -29,8 +30,8 @@ function buildRouteChoiceAdjustment(commitment = null, { wave = 0, segmentId = n
   const commitmentWave = Math.max(0, Math.min(30, Math.floor(Number(commitment.wave || 0))));
   const committedSegment = clean(commitment.segment_id, "").slice(0, 48);
   const activeSegment = clean(segmentId, "").slice(0, 48);
-  const appliesToWave = commitmentWave === safeWave || commitmentWave === safeWave + 1;
-  const appliesToSegment = !!committedSegment && !!activeSegment && committedSegment === activeSegment && Math.abs(commitmentWave - safeWave) <= 1;
+  const appliesToWave = Math.abs(commitmentWave - safeWave) <= 1;
+  const appliesToSegment = !!committedSegment && !!activeSegment && committedSegment === activeSegment && Math.abs(commitmentWave - safeWave) <= 2;
   if (!appliesToWave && !appliesToSegment) return null;
 
   const posture = clean(commitment.effect?.posture, "balanced").slice(0, 32);
@@ -93,7 +94,8 @@ function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomI
     reward_bias: rewardBias,
     recovery_pressure: clean(policy.recovery_pressure, "open"),
     recovery_room_chance: recoveryChance,
-    shrine_bargain: clean(policy.shrine_bargain, "Shrine bargains remain open if you keep tempo clean."),
+    shrine_bargain: null,
+    shrine_bargain_hint: clean(policy.shrine_bargain, "Shrine bargains remain open if you keep tempo clean."),
     rewards: {
       coins,
       heal,
@@ -109,9 +111,24 @@ function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomI
       : adjustment
         ? `${adjustment.next_room_bias}; preserve the route result.`
         : risk >= 4
-          ? "Preserve food; this segment is starving recovery."
-          : "Keep tempo clean and bank the route pressure.",
+        ? "Preserve food; this segment is starving recovery."
+        : "Keep tempo clean and bank the route pressure.",
   };
+  const shrineCommitment = rewardBias === "sunstone" && adjustment?.choice_id
+    ? {
+      committed: true,
+      wave: safeWave,
+      segment_id: policy.id,
+      kind: "shrine_bargain",
+      headline: "Shrine bargain opened",
+      choice: {
+        id: adjustment.choice_id,
+        label: adjustment.choice_label,
+      },
+    }
+    : commitment;
+  const shrineBargain = buildDailyRiteShrineBargain({ commitment: shrineCommitment, outcome: baseOutcome });
+  return applyShrineBargainToOutcome(baseOutcome, shrineBargain);
 }
 
 function buildDecisionWindows(samples = []) {
@@ -164,18 +181,21 @@ export function getDailyRiteRoomOutcome({ run = null, wave = null, roomIndex = n
       reward_bias: "unknown",
       recovery_pressure: "unknown",
       recovery_room_chance: 0,
-      shrine_bargain: "Daily Rite policy is waiting for today's route.",
+      shrine_bargain: null,
+      shrine_bargain_hint: "Daily Rite policy is waiting for today's route.",
       rewards: { coins: 0, heal: 0, prayer: 0, items: [] },
       receipt: "Daily Rite clear recorded without an active segment policy.",
       next_action: "Build today's route policy before applying room outcomes.",
     };
   }
-  return outcomeForPolicy(policy, {
+  const outcome = outcomeForPolicy(policy, {
     wave: safeWave,
     daySeed,
     roomIndex: roomIndex ?? run?.rooms?.[safeWave] ?? 0,
     commitment: run?.routeChoiceCommitment,
   });
+  const explicitBargain = buildDailyRiteShrineBargain({ commitment: run?.routeChoiceCommitment, outcome });
+  return applyShrineBargainToOutcome(outcome, explicitBargain);
 }
 
 export function buildDailyRiteOutcomeDigest({ modifiers = null, daySeed = "solara-day" } = {}) {

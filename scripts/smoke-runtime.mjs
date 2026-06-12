@@ -389,6 +389,7 @@ async function runScenario(Component, buttonLabel, expectedRefPredicate) {
     assert(runRef.current.modifiers?.policy?.token_cost === 0, "Active Daily Rite run did not expose a zero-token segment policy.");
     assert(runRef.current.outcomePolicy?.token_cost === 0, "Active Daily Rite run did not expose a zero-token outcome policy.");
     assert(runRef.current.routeChoices?.token_cost === 0, "Active Daily Rite run did not expose zero-token route choices.");
+    assert(runRef.current.shrineBargains?.token_cost === 0, "Active Daily Rite run did not expose zero-token shrine bargains.");
     assert(runRef.current.latestOutcome?.token_cost === 0, "Active Daily Rite run did not expose a zero-token room outcome receipt.");
     assert(runRef.current.latestRouteChoice?.token_cost === 0, "Active Daily Rite run did not expose a zero-token route-choice prompt.");
     assert(
@@ -445,6 +446,7 @@ async function runSaveScenario(Component) {
   assert(handlers.dailyRunRef?.current?.stakes?.token_cost === 0 || handlers.dailyRitePlan?.route?.length === 6, "Daily Rite stakes surface was not deterministic.");
   assert(!handlers.dailyRunRef?.current || handlers.dailyRunRef.current.outcomePolicy?.token_cost === 0, "Daily Rite outcome surface was not deterministic.");
   assert(!handlers.dailyRunRef?.current || handlers.dailyRunRef.current.routeChoices?.token_cost === 0, "Daily Rite route-choice surface was not deterministic.");
+  assert(!handlers.dailyRunRef?.current || handlers.dailyRunRef.current.shrineBargains?.token_cost === 0, "Daily Rite shrine-bargain surface was not deterministic.");
   assert(
     !handlers.dailyRunRef?.current || handlers.dailyRunRef.current.outcomePolicy?.decision_windows?.every((window) => window.token_cost === 0),
     "Daily Rite decision windows were not zero-token.",

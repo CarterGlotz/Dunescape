@@ -6,6 +6,7 @@ import { buildDailyRiteStakes } from "./dailyRiteStakes.js";
 import { buildDailyRiteModifiers } from "./dailyRiteModifiers.js";
 import { buildDailyRiteOutcomeDigest, getDailyRiteRoomOutcome } from "./dailyRiteRoomOutcome.js";
 import { buildDailyRiteRouteChoiceDigest, buildDailyRiteRouteChoicePrompt } from "./dailyRiteRouteChoices.js";
+import { buildDailyRiteShrineBargainDigest } from "./dailyRiteShrineBargains.js";
 
 export function createDailyRiteRun({
   dailyRitePlan,
@@ -23,6 +24,7 @@ export function createDailyRiteRun({
   const outcomePolicy = buildDailyRiteOutcomeDigest({ modifiers, daySeed });
   const latestOutcome = getDailyRiteRoomOutcome({ run: { modifiers, roomWeave }, wave: 0, daySeed });
   const routeChoices = buildDailyRiteRouteChoiceDigest({ outcomeDigest: outcomePolicy });
+  const shrineBargains = buildDailyRiteShrineBargainDigest({ routeChoiceDigest: routeChoices });
 
   return {
     wave: 0,
@@ -43,6 +45,7 @@ export function createDailyRiteRun({
     modifiers,
     outcomePolicy,
     routeChoices,
+    shrineBargains,
     latestOutcome,
     latestRouteChoice: buildDailyRiteRouteChoicePrompt({ outcome: latestOutcome, outcomeDigest: outcomePolicy }),
   };

@@ -1,28 +1,28 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-12 (Session 72 closeout) -->
+<!-- generated-at: 2026-06-12 (Session 73 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S72 ═════════════════════════════╗
-║  Date: 2026-06-12  ·  SIL: 983/1000  ·  Velocity: 4 ->           ║
+╔══ SESSION CLOSEOUT · Solara · S73 ═════════════════════════════╗
+║  Date: 2026-06-12  ·  SIL: 985/1000  ·  Velocity: 2 ->           ║
 ║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: committed Daily Rite route-choice postures now tune  ║
-║  ✓ Shipped: active Daily Rite status now shows when the last cl  ║
-║  ✓ Shipped: generated public status JSON now includes `daily_ri  ║
-║  ✓ Tests: 63 passing unit tests plus production build and smoke  ║
+║  ✓ Shipped: committed Daily Rite shrine-bargain choices now res  ║
+║  ✓ Shipped: active Daily Rite status now shows the applied shri  ║
+║  ✓ Shipped: generated public chronicle/status JSON now includes  ║
+║  ✓ Tests: 64 passing unit tests plus production build and smoke  ║
 ║  ✓ Remaining gate: Supabase production hardening still needs pr  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 983/1000 ═══════════════════════════════════════╗
-║    Dev Health         98   ██████████                            ║
-║    Alignment          99   ██████████                            ║
+╔══ SCORES · SIL 985/1000 ═══════════════════════════════════════╗
+║    Dev Health         99   ██████████                            ║
+║    Alignment          100  ██████████                            ║
 ║    Momentum           100  ██████████                            ║
 ║    Engagement         100  ██████████                            ║
-║    Process Qual       98   ██████████                            ║
+║    Process Qual       99   ██████████                            ║
 ║    Coherence          95   ██████████                            ║
-║    Security           98   ██████████                            ║
+║    Security           99   ██████████                            ║
 ║    Ecosystem          100  ██████████                            ║
 ║    Capital            95   ██████████                            ║
 ║    Automation         100  ██████████                            ║
@@ -40,14 +40,14 @@
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 19 files  ·  M:16 A:0 D:0 ?:3                          ║
+║  Changes: 27 files  ·  M:21 A:0 D:0 ?:6                          ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
 ║  Doctor:        —                                                ║
 ║  Compliance:    —                                                ║
-║  Tests:         63/63                                            ║
+║  Tests:         64/64                                            ║
 ║  IGNIS:         7d ago                                           ║
 ║  Truth:         green                                            ║
 ║  Sanitization:  —                                                ║

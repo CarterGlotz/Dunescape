@@ -107,3 +107,7 @@ Public-safe summary:
 - Daily Rite room outcomes now carry a public-safe zero-token `route_choice_adjustment` showing the selected choice, posture, bounded risk/reward deltas, and next-room bias
 - active Daily Rite status now tells players when the last clear was route-tuned, and generated public status now includes `daily_rite_route_choices` alongside chronicle exports
 - latest local validation: 63 unit tests passing, production build passing, smoke flow passing
+- 2026-06-12 Session 73 audit/implement pass turned shrine-bargain route choices into deterministic zero-token bank/spend/oath receipts
+- Daily Rite room outcomes now carry a structured `shrine_bargain` receipt when Sunstone-backed route commitments resolve, and active Daily Rite status renders the bargain posture
+- public chronicle/status exports now include `daily_rite_shrine_bargains` so Studio surfaces can inspect shrine bargain windows without browser token cost
+- latest local validation: 64 unit tests passing, production build passing, smoke flow passing

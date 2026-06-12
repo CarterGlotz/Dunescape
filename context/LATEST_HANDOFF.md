@@ -2,6 +2,14 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 73)
+- Shipped: committed Daily Rite shrine-bargain choices now resolve into deterministic zero-token bank, spend, or oath receipts
+- Shipped: active Daily Rite status now shows the applied shrine bargain posture on the latest clear
+- Shipped: generated public chronicle/status JSON now includes `daily_rite_shrine_bargains` beside route-choice intelligence
+- Tests: 64 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: deepen shrine bargain receipts into actual shrine offering inventory/economy choices, then extract Daily Rite room entry/auto-advance spawning into a pure runtime contract
+
 ## Where We Left Off (2026-06-12 · Session 72)
 - Shipped: committed Daily Rite route-choice postures now tune the next room outcome through bounded deterministic `route_choice_adjustment` data
 - Shipped: active Daily Rite status now shows when the last clear was route-tuned, including selected choice and posture

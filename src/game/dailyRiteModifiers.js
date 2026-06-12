@@ -107,9 +107,13 @@ export function getDailyRiteModifierForWave({ modifiers = null, roomWeave = null
 }
 
 export function getDailyRiteSegmentPolicyForWave({ modifiers = null, roomWeave = null, wave = 0 } = {}) {
+  const index = Math.max(0, Math.min(29, Math.floor(Number(wave) || 0)));
   const modifier = getDailyRiteModifierForWave({ modifiers, roomWeave, wave });
   const list = Array.isArray(modifiers?.policy?.segments) ? modifiers.policy.segments : [];
-  return list.find((item) => item.id === modifier?.id) || (modifier ? policyForModifier(modifier) : null);
+  return list.find((item) => item.id === modifier?.id)
+    || (modifier ? policyForModifier(modifier) : null)
+    || list[Math.min(list.length - 1, Math.floor(index / 5))]
+    || null;
 }
 
 function applyDropPolicy(drops = [], modifier = null) {

@@ -1,0 +1,65 @@
+{
+  "generated_by": "/audit skill v1.0",
+  "generated_at": "2026-06-12",
+  "project": "solara",
+  "type": "game",
+  "headline": "Turn Daily Rite shrine bargains from reward hints into committed zero-token route decisions with visible consequence.",
+  "items": [
+    {
+      "id": 1,
+      "slug": "shrine-bargain-commitments",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 9,
+      "priority": 51.1,
+      "title": "Committed shrine bargain decisions",
+      "why": "Solara already opens shrine bargain prompts when a Sunstone window appears, but the player choice is still interpreted as generic route posture. Make shrine-specific choices produce a real bargain receipt so bank, spend, and oath routes feel like mythic commitments instead of tactical labels.",
+      "recipe": "Add a pure zero-token shrine bargain helper that derives a bounded bargain receipt from a route commitment, then attach it to the next Daily Rite outcome when the committed prompt kind is `shrine_bargain`."
+    },
+    {
+      "id": 2,
+      "slug": "shrine-bargain-status-contract",
+      "tier": "high",
+      "axis": "UI / UX / user-experience",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 40.38,
+      "title": "Visible shrine bargain status contract",
+      "why": "Players and Studio surfaces need to see exactly what the shrine bargain did: protected a shard, spent it for relief, or carried an oath forward. Exposing the receipt through the active status contract and public chronicle/status JSON makes the consequence inspectable without tokens or private state.",
+      "recipe": "Normalize `shrine_bargain` on room outcomes, render it in `DailyRiteStatus`, and add a deterministic public digest beside `daily_rite_route_choices` in chronicle/status output."
+    },
+    {
+      "id": 3,
+      "slug": "shrine-bargain-zero-token-tests",
+      "tier": "high",
+      "axis": "security",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 35.34,
+      "title": "Shrine bargain zero-token tests",
+      "why": "Shrine bargains consume player-controlled choices and influence rewards, so the boundary has to stay deterministic, bounded, and sanitized. Tests should prove the bargain cannot leak unsafe text, cannot create unbounded rewards, and remains visible in public exports at zero token cost.",
+      "recipe": "Extend the Daily Rite tests to cover bank/spend/oath bargain receipts, status-contract sanitization, and generated public chronicle/status `daily_rite_shrine_bargains` export shape."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "shrine-bargain-commitments",
+      "status": "shipped",
+      "evidence": "Added src/game/dailyRiteShrineBargains.js and wired Daily Rite room outcomes so committed bank/spend/oath shrine choices produce bounded zero-token bargain receipts."
+    },
+    {
+      "slug": "shrine-bargain-status-contract",
+      "status": "shipped",
+      "evidence": "Daily Rite status contracts and UI now surface shrine bargain receipts; public chronicle/status exports include daily_rite_shrine_bargains beside route choices."
+    },
+    {
+      "slug": "shrine-bargain-zero-token-tests",
+      "status": "shipped",
+      "evidence": "npm test passes 64/64, npm run smoke passes, and npm run build passes with shrine bargain sanitization, zero-token, and public export assertions."
+    }
+  ]
+}

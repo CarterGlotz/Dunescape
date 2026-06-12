@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-12T04:31:05.190Z",
+  "generated_at": "2026-06-12T10:35:40.113Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -476,7 +476,8 @@
         "reward_bias": "coins",
         "recovery_pressure": "open",
         "recovery_room_chance": 0.21,
-        "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+        "shrine_bargain": null,
+        "shrine_bargain_hint": "Shrine bargains remain open if you keep tempo clean.",
         "rewards": {
           "coins": 55,
           "heal": 8,
@@ -496,7 +497,8 @@
         "reward_bias": "coins",
         "recovery_pressure": "guarded",
         "recovery_room_chance": 0.175,
-        "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+        "shrine_bargain": null,
+        "shrine_bargain_hint": "Shrine bargains remain open if you keep tempo clean.",
         "rewards": {
           "coins": 81,
           "heal": 0,
@@ -592,7 +594,8 @@
           "reward_bias": "xp",
           "recovery_pressure": "open",
           "recovery_room_chance": 0.245,
-          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "shrine_bargain": null,
+          "shrine_bargain_hint": "Shrine bargains remain open if you keep tempo clean.",
           "rewards": {
             "coins": 19,
             "heal": 7,
@@ -612,7 +615,8 @@
           "reward_bias": "relic",
           "recovery_pressure": "open",
           "recovery_room_chance": 0.21,
-          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "shrine_bargain": null,
+          "shrine_bargain_hint": "Shrine bargains remain open if you keep tempo clean.",
           "rewards": {
             "coins": 38,
             "heal": 0,
@@ -632,7 +636,8 @@
           "reward_bias": "coins",
           "recovery_pressure": "open",
           "recovery_room_chance": 0.21,
-          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "shrine_bargain": null,
+          "shrine_bargain_hint": "Shrine bargains remain open if you keep tempo clean.",
           "rewards": {
             "coins": 55,
             "heal": 8,
@@ -652,7 +657,8 @@
           "reward_bias": "xp",
           "recovery_pressure": "open",
           "recovery_room_chance": 0.21,
-          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "shrine_bargain": null,
+          "shrine_bargain_hint": "Shrine bargains remain open if you keep tempo clean.",
           "rewards": {
             "coins": 42,
             "heal": 0,
@@ -672,7 +678,8 @@
           "reward_bias": "relic",
           "recovery_pressure": "open",
           "recovery_room_chance": 0.21,
-          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "shrine_bargain": null,
+          "shrine_bargain_hint": "Shrine bargains remain open if you keep tempo clean.",
           "rewards": {
             "coins": 54,
             "heal": 8,
@@ -692,7 +699,8 @@
           "reward_bias": "coins",
           "recovery_pressure": "guarded",
           "recovery_room_chance": 0.175,
-          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "shrine_bargain": null,
+          "shrine_bargain_hint": "Shrine bargains remain open if you keep tempo clean.",
           "rewards": {
             "coins": 81,
             "heal": 0,
@@ -915,6 +923,13 @@
           ]
         }
       ]
+    },
+    "daily_rite_shrine_bargains": {
+      "version": 1,
+      "token_cost": 0,
+      "bargain_count": 0,
+      "recommended": null,
+      "bargains": []
     },
     "backend_readiness": {
       "version": 1,

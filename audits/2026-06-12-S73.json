@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "1.3",
+  "project": "solara",
+  "session": "S73",
+  "date": "2026-06-12",
+  "agent": "codex",
+  "summary": "Daily Rite shrine bargains now resolve as deterministic zero-token bank, spend, or oath receipts with active status and public export coverage.",
+  "shipped": [
+    "Added pure shrine bargain receipt helper for bank/spend/oath commitments.",
+    "Attached shrine bargain receipts to Daily Rite room outcomes and active status contracts.",
+    "Exported daily_rite_shrine_bargains through public chronicle/status JSON.",
+    "Extended unit and smoke coverage for zero-token, sanitized shrine bargain contracts."
+  ],
+  "validation": {
+    "npm_test": "64/64 passing",
+    "npm_run_smoke": "passing",
+    "npm_run_build": "passing"
+  },
+  "sil": {
+    "total": 985,
+    "delta": 2
+  },
+  "remainingGates": [
+    "Supabase production hardening still needs PG_CONNECTION_SOLARA for cloud project fjnpzjjyhnpmunfoycrp."
+  ]
+}

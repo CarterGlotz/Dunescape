@@ -29,6 +29,20 @@ function buildLatestOutcome(outcome = null) {
     next_action: cleanText(outcome.next_action, "").slice(0, 140),
     rewards: rewardSummary,
     route_choice_adjustment: adjustment,
+    shrine_bargain: outcome.shrine_bargain?.applied
+      ? {
+        version: 1,
+        token_cost: 0,
+        choice_id: cleanText(outcome.shrine_bargain.choice_id, "choice").slice(0, 48),
+        choice_label: cleanText(outcome.shrine_bargain.choice_label, "Shrine bargain").slice(0, 64),
+        posture: cleanText(outcome.shrine_bargain.posture, "banked").slice(0, 32),
+        shard_delta: Math.max(-1, Math.min(1, Math.floor(Number(outcome.shrine_bargain.shard_delta || 0)))),
+        relief_delta: Math.max(-1, Math.min(2, Math.floor(Number(outcome.shrine_bargain.relief_delta || 0)))),
+        oath_delta: Math.max(0, Math.min(2, Math.floor(Number(outcome.shrine_bargain.oath_delta || 0)))),
+        receipt: cleanText(outcome.shrine_bargain.receipt, "Shrine bargain recorded.").slice(0, 160),
+        next_action: cleanText(outcome.shrine_bargain.next_action, "").slice(0, 140),
+      }
+      : null,
   };
 }
 
