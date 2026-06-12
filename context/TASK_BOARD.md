@@ -24,6 +24,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - keep the new Daily Rite room outcome receipts, runtime reward application, public outcome digest, and smoke assertions aligned with public chronicle/status exports
 - keep the new Daily Rite room runtime contract, visible latest-receipt status, decision-window digest, route-choice prompts, and smoke/unit assertions aligned with public chronicle/status exports
 - keep the new Daily Rite route-choice commitment contract, active status controls, feedback attribution, and zero-token assertions aligned with future room-tuning work
+- keep the new Daily Rite route-choice tuning contract, visible adjustment status, public `daily_rite_route_choices` status export, and zero-token assertions aligned with deeper shrine bargain work
 
 ## Next
 
@@ -59,7 +60,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - rerun Supabase Hardening workflow after `PG_CONNECTION_SOLARA` is present; prior run `24579847516` confirmed the old required-secret preflight worked before the project-scoped gate was adopted
 - extend the new deterministic outcome receipts into visible post-action UI surfaces for offerings, echo reactions, and run-end share flows
 - use the Director route consequence fields to tune actual Daily Rite reward payout and room modifier behavior beyond public JSON/contracts
-- let committed Daily Rite route-choice postures influence next-room tuning, including route-specific shrine bargain decisions
+- deepen committed Daily Rite route-choice postures into route-specific shrine bargain decisions now that next-room tuning is deterministic
 - add browser-level validation for the extracted Daily Rite status component and full mechanical modifier effects once a browser runner exists
 - extract Daily Rite dungeon room entry/auto-advance spawning into a pure room-runtime contract now that spawn, policy, and outcome receipts are modular
 - deepen shrine bargains from receipt rewards into actual route choice prompts once the next Daily Rite presentation extraction starts
@@ -162,6 +163,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-12 Session 69 pass shipped a pure Daily Rite room runtime application contract, visible latest clear receipts in the active status panel, public zero-token outcome decision windows, and bounded reward validation
 - 2026-06-12 Session 70 pass shipped deterministic Daily Rite route-choice prompts, active status-panel route recommendations, public zero-token `daily_rite_route_choices` exports, and validation for prompt sanitization/segment alignment
 - 2026-06-12 Session 71 pass shipped committed Daily Rite route-choice decisions, active status-panel commit controls, public-safe route-choice feedback attribution, and validation for commitment sanitization/status export
+- 2026-06-12 Session 72 pass shipped committed route-choice next-room tuning, visible route-tuned outcome status, public `daily_rite_route_choices` status export, and validation for deterministic zero-token adjustment contracts
 
 ## Deferred to Project Agents
 

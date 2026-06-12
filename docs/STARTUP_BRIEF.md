@@ -1,11 +1,11 @@
 <!-- generated-by: scripts/render-startup-brief.mjs v3.1 -->
-<!-- generated-at: 2026-06-11 (Session 66 closeout) -->
+<!-- generated-at: 2026-06-12 (Session 72 closeout) -->
 <!-- fast-boot-valid-until: next session if within 24h -->
 <!-- brief-coherent: true -->
 
 # Startup Brief — Solara
 
-> **Fast-boot brief** — generated at Session 66 closeout · 2026-06-11.
+> **Fast-boot brief** — generated at Session 72 closeout · 2026-06-12.
 > Valid for next session if started within 24h. For sessions >24h later, load context files fresh (start.md §3).
 
 ---
@@ -14,7 +14,7 @@
 ╔════════════════════════════════════════════════════════════════╗
 ║  🚀 SOLARA                                                       ║
 ║  project · building/internal · FORGE                             ║
-║  Session 67 · 2026-06-11 · FOUNDER MODE                          ║
+║  Session 73 · 2026-06-12 · FOUNDER MODE                          ║
 ║  Owner: VaultSpark Studios                                       ║
 ╚════════════════════════════════════════════════════════════════╝
 
@@ -24,44 +24,44 @@
 
 ╔══ SCORE ═══════════════════════════════════════════════════════╗
 ║                                                                  ║
-║    914/1000   █████████████████████░░░   91%                     ║
+║    983/1000   ███████████████████████░   98%                     ║
 ║    SIL v3.0  ·  Avg3: ?  ·  Velocity 0→                          ║
 ║    Last active: 0d  ·  Last closeout: ?d  ·  (active = newest o  ║
 ║    Trend    →  (last 5 sessions)                                 ║
 ║                                                                  ║
 ║    Category         Score  Bar        Spark   Δ                  ║
 ║    ─────────────── ────── ────────── ──────── ─                  ║
-║    Dev Health        91    █████████░  ▁▄▇█     →                ║
-║    Alignment         93    █████████░  ▁▃▆█     →                ║
-║    Momentum          93    █████████░  ▁▄▇█     →                ║
-║    Engagement        94    █████████░  ▁▃▅█     →                ║
-║    Process Qual      90    █████████░  ▁▃▇█     →                ║
-║    Coherence         91    █████████░  ········ →                ║
-║    Security          95    ██████████  ········ →                ║
-║    Ecosystem         95    ██████████  ········ →                ║
-║    Capital           88    █████████░  ········ →                ║
-║    Automation        99    ██████████  ········ →                ║
+║    Dev Health        98    ██████████  ▅▅▆▇█    →                ║
+║    Alignment         99    ██████████  ▅▆▇██    →                ║
+║    Momentum         100    ██████████  ▅▅▆▇█    →                ║
+║    Engagement       100    ██████████  ▆▇███    →                ║
+║    Process Qual      98    ██████████  ▅▆▆▇█    →                ║
+║    Coherence         95    ██████████  ········ →                ║
+║    Security          98    ██████████  ········ →                ║
+║    Ecosystem        100    ██████████  ········ →                ║
+║    Capital           95    ██████████  ········ →                ║
+║    Automation       100    ██████████  ········ →                ║
 ║                                                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 
-╔══ WHERE WE LEFT OFF  ·  Session 66 ════════════════════════════╗
-║  Shipped:  Daily Rite stakes now produce deterministic mechanic  ║
-║  Tests:    57 passing  ·  Deploy: N/A                            ║
+╔══ WHERE WE LEFT OFF  ·  Session 72 ════════════════════════════╗
+║  Shipped:  committed Daily Rite route-choice postures now tune   ║
+║  Tests:    63 passing  ·  Deploy: N/A                            ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ╔══ CONTEXT METER ═══════════════════════════════════════════════╗
-║  ✓  ░░░░░░░░░░░░░░░░░░░░░░░░    1% used                          ║
-║     14,342 / 1,000,000 tok  ·  codex/codex-1m  ·  measured+heur  ║
-║     ~7,171 tok/turn  ·  cache 50%  ·  126 turns to compact       ║
+║  ✓  ░░░░░░░░░░░░░░░░░░░░░░░░    2% used                          ║
+║     16,983 / 1,000,000 tok  ·  codex/codex-1m  ·  measured+heur  ║
+║     ~8,492 tok/turn  ·  cache 50%  ·  106 turns to compact       ║
 ║     Verdict: CONTINUE                                            ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ╔══ SIGNALS ═════════════════════════════════════════════════════╗
-║  ✓  Tests         57/57 passing                                  ║
+║  ✓  Tests         63/63 passing                                  ║
 ║  ⛔  Velocity      0   ·  Debt: →                                 ║
 ║  ✓  Runway        unknown                                        ║
 ║  ⛔  Context age   ?d                                             ║
-║  ✓  IGNIS         47156 FORGE  ·  6d old                         ║
+║  ⚠  IGNIS         47156 FORGE  ·  7d old                         ║
 ║  ✓  Truth         green  ·  Genome: ?                            ║
 ║  ⚠  Compliance   not tracked — run: node scripts/ops.mjs compli  ║
 ║  ✓  Genome dims   all stable  (0/25)                             ║
@@ -105,5 +105,5 @@
 
 ---
 
-*Generated by `scripts/render-startup-brief.mjs v3.1` · Session 66 closeout · 2026-06-11*
+*Generated by `scripts/render-startup-brief.mjs v3.1` · Session 72 closeout · 2026-06-12*
 *Run `node scripts/ops.mjs doctor` for live health check · `node scripts/ops.mjs genius-list` to refresh hit list*

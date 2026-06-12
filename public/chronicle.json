@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-12T03:34:47.822Z",
+  "generated_at": "2026-06-12T04:31:05.190Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -747,6 +747,7 @@
           "prayer": 0,
           "items": []
         },
+        "route_choice_adjustment": null,
         "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
         "next_action": "Use the recovery window before the next pressure spike."
       },
@@ -766,6 +767,7 @@
           "prayer": 0,
           "items": []
         },
+        "route_choice_adjustment": null,
         "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
         "next_action": "Keep tempo clean and bank the route pressure."
       },
@@ -861,6 +863,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 1-5 clear: light cache paid 19 coins, restored 7 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -880,6 +883,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 6-10 clear: relic ash paid 38 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         },
@@ -899,6 +903,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -918,6 +923,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 16-20 clear: light cache paid 42 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         },
@@ -937,6 +943,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 21-25 clear: relic ash paid 54 coins, restored 8 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -956,6 +963,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         }
@@ -1989,6 +1997,7 @@
           "prayer": 0,
           "items": []
         },
+        "route_choice_adjustment": null,
         "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
         "next_action": "Use the recovery window before the next pressure spike."
       },
@@ -2008,6 +2017,7 @@
           "prayer": 0,
           "items": []
         },
+        "route_choice_adjustment": null,
         "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
         "next_action": "Keep tempo clean and bank the route pressure."
       },
@@ -2103,6 +2113,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 1-5 clear: light cache paid 19 coins, restored 7 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -2122,6 +2133,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 6-10 clear: relic ash paid 38 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         },
@@ -2141,6 +2153,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -2160,6 +2173,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 16-20 clear: light cache paid 42 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         },
@@ -2179,6 +2193,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 21-25 clear: relic ash paid 54 coins, restored 8 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -2198,6 +2213,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         }

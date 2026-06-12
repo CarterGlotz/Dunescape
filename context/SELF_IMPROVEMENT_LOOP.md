@@ -23,6 +23,7 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 - 2026-06-12: Session 69 achieved. Ran /start, wrote a fresh four-item Solara-specific audit after confirming Session 68 was exhausted, and implemented Daily Rite outcome application extraction, visible latest-receipt UI, public zero-token decision windows, and bounded reward validation. Local validation passed: 60 unit tests, production build, and smoke runtime.
 - 2026-06-12: Session 70 achieved. Ran /start, wrote a fresh four-item Solara-specific audit after confirming Session 69 was exhausted, and implemented deterministic Daily Rite route-choice prompts, active status-panel route recommendations, public zero-token route-choice exports, and prompt validation. Local validation passed: 61 unit tests, production build, and smoke runtime.
 - 2026-06-12: Session 71 achieved. Ran /start, wrote a fresh three-item Solara-specific audit, and implemented committed Daily Rite route-choice decisions, active status-panel commit controls, public-safe route-choice feedback attribution, and commitment validation. Local validation passed: 62 unit tests, production build, and smoke runtime.
+- 2026-06-12: Session 72 achieved. Ran /start, wrote a fresh three-item Solara-specific audit, and implemented committed route-choice next-room tuning, visible route-tuned outcome status, public status route-choice exports, and deterministic adjustment validation. Local validation passed: 63 unit tests, production build, and smoke runtime.
 
 ## 2026-06-10 — Session 63 — Total: 868/1000
 
@@ -158,3 +159,18 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 | 8 | Ecosystem Integration | 100 | 0 | Studio-facing public JSON remains stable while local run decisions feed public-safe aggregate signals. |
 | 9 | Capital Efficiency | 94 | +1 | Commitment intelligence remains deterministic and browser runtime token cost stays zero. |
 | 10 | Automation Coverage | 100 | 0 | Tests now prove prompt generation, commitment selection/fallback, status exposure, build, and smoke. |
+
+## 2026-06-12 — Session 72 — Total: 983/1000
+
+| # | Category | Score | Delta | Public-safe notes |
+|---|---|---:|---:|---|
+| 1 | Dev Health | 98 | +1 | 63 tests, production build, smoke runtime, and syntax checks pass after route-choice tuning. |
+| 2 | Creative Alignment | 99 | 0 | Committed route postures now alter Solara-owned recovery, tempo, and shrine-bargain pressure without borrowed naming. |
+| 3 | Momentum | 100 | +1 | Fresh Session 72 audit was fully implemented and evidenced in one pass. |
+| 4 | Engagement | 100 | 0 | Players can now see committed route posture affect the next Daily Rite clear instead of only the status text. |
+| 5 | Process Quality | 98 | +1 | Audit sidecar, implementation plan, execution log, generated public JSON, and validation evidence are aligned. |
+| 6 | Cross-Repo Coherence | 95 | 0 | Public repo surfaces remain public-safe; unrelated untracked `obelisk-passport/` files were left untouched. |
+| 7 | Security Posture | 98 | 0 | Route-choice adjustment fields are bounded, sanitized, and exported with explicit `token_cost: 0`. |
+| 8 | Ecosystem Integration | 100 | 0 | Public status now exposes route-choice prompts in addition to chronicle integration surfaces. |
+| 9 | Capital Efficiency | 95 | +1 | Tuning intelligence remains deterministic and browser runtime token cost stays zero. |
+| 10 | Automation Coverage | 100 | 0 | Tests prove deterministic tuning, status export, sanitizer bounds, generated JSON, build, and smoke. |

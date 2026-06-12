@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-12T03:34:47.822Z",
+  "generated_at": "2026-06-12T04:31:05.190Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -483,6 +483,7 @@
           "prayer": 0,
           "items": []
         },
+        "route_choice_adjustment": null,
         "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
         "next_action": "Use the recovery window before the next pressure spike."
       },
@@ -502,6 +503,7 @@
           "prayer": 0,
           "items": []
         },
+        "route_choice_adjustment": null,
         "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
         "next_action": "Keep tempo clean and bank the route pressure."
       },
@@ -597,6 +599,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 1-5 clear: light cache paid 19 coins, restored 7 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -616,6 +619,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 6-10 clear: relic ash paid 38 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         },
@@ -635,6 +639,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -654,6 +659,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 16-20 clear: light cache paid 42 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         },
@@ -673,6 +679,7 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 21-25 clear: relic ash paid 54 coins, restored 8 HP.",
           "next_action": "Use the recovery window before the next pressure spike."
         },
@@ -692,11 +699,222 @@
             "prayer": 0,
             "items": []
           },
+          "route_choice_adjustment": null,
           "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
           "next_action": "Keep tempo clean and bank the route pressure."
         }
       ],
       "summary": "Waves 26-30 carries the richest room cache; Waves 11-15 is the safest recovery window."
+    },
+    "daily_rite_route_choices": {
+      "version": 1,
+      "token_cost": 0,
+      "prompt_count": 6,
+      "recommended": {
+        "version": 1,
+        "token_cost": 0,
+        "kind": "recovery_window",
+        "wave": 0,
+        "segment_id": "segment_1",
+        "segment_label": "Waves 1-5",
+        "headline": "Recovery window opened",
+        "recommended_choice_id": "stabilize",
+        "reason": "Spend food before this clear, then use the receipt to reset tempo.",
+        "choices": [
+          {
+            "id": "stabilize",
+            "label": "Stabilize",
+            "detail": "Use the recovery from Waves 1-5 before the next spike.",
+            "payoff": "Best survival line; preserves food and Prayer.",
+            "cost": "Lower immediate tempo.",
+            "token_cost": 0
+          },
+          {
+            "id": "overheal_tempo",
+            "label": "Push while restored",
+            "detail": "Treat the recovery receipt as permission to take the next fight faster.",
+            "payoff": "Best score line when HP and Prayer are capped.",
+            "cost": "Punishes missed attacks harder.",
+            "token_cost": 0
+          }
+        ]
+      },
+      "prompts": [
+        {
+          "version": 1,
+          "token_cost": 0,
+          "kind": "recovery_window",
+          "wave": 0,
+          "segment_id": "segment_1",
+          "segment_label": "Waves 1-5",
+          "headline": "Recovery window opened",
+          "recommended_choice_id": "stabilize",
+          "reason": "Spend food before this clear, then use the receipt to reset tempo.",
+          "choices": [
+            {
+              "id": "stabilize",
+              "label": "Stabilize",
+              "detail": "Use the recovery from Waves 1-5 before the next spike.",
+              "payoff": "Best survival line; preserves food and Prayer.",
+              "cost": "Lower immediate tempo.",
+              "token_cost": 0
+            },
+            {
+              "id": "overheal_tempo",
+              "label": "Push while restored",
+              "detail": "Treat the recovery receipt as permission to take the next fight faster.",
+              "payoff": "Best score line when HP and Prayer are capped.",
+              "cost": "Punishes missed attacks harder.",
+              "token_cost": 0
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "kind": "tempo_window",
+          "wave": 5,
+          "segment_id": "segment_2",
+          "segment_label": "Waves 6-10",
+          "headline": "Tempo choice opened",
+          "recommended_choice_id": "hold_tempo",
+          "reason": "Preserve supplies and keep the route clock clean.",
+          "choices": [
+            {
+              "id": "hold_tempo",
+              "label": "Hold tempo",
+              "detail": "Keep Waves 6-10 clean and preserve supplies.",
+              "payoff": "Best default line when the route offers no special bargain.",
+              "cost": "No burst payout.",
+              "token_cost": 0
+            },
+            {
+              "id": "fish_for_window",
+              "label": "Fish for the next window",
+              "detail": "Play conservatively until a recovery, cache, or shrine prompt appears.",
+              "payoff": "Best long-run line for uncertain builds.",
+              "cost": "Slower wave progression.",
+              "token_cost": 0
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "kind": "recovery_window",
+          "wave": 10,
+          "segment_id": "segment_3",
+          "segment_label": "Waves 11-15",
+          "headline": "Recovery window opened",
+          "recommended_choice_id": "stabilize",
+          "reason": "Spend food before this clear, then use the receipt to reset tempo.",
+          "choices": [
+            {
+              "id": "stabilize",
+              "label": "Stabilize",
+              "detail": "Use the recovery from Waves 11-15 before the next spike.",
+              "payoff": "Best survival line; preserves food and Prayer.",
+              "cost": "Lower immediate tempo.",
+              "token_cost": 0
+            },
+            {
+              "id": "overheal_tempo",
+              "label": "Push while restored",
+              "detail": "Treat the recovery receipt as permission to take the next fight faster.",
+              "payoff": "Best score line when HP and Prayer are capped.",
+              "cost": "Punishes missed attacks harder.",
+              "token_cost": 0
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "kind": "cache_window",
+          "wave": 15,
+          "segment_id": "segment_4",
+          "segment_label": "Waves 16-20",
+          "headline": "Cache window opened",
+          "recommended_choice_id": "claim_cache",
+          "reason": "Push this segment if you need coin to stabilize the run.",
+          "choices": [
+            {
+              "id": "claim_cache",
+              "label": "Claim the cache",
+              "detail": "Route around Waves 16-20's coin pressure and bank the payout.",
+              "payoff": "Best economy line; stabilizes future merchant choices.",
+              "cost": "May lose a cleaner shrine setup.",
+              "token_cost": 0
+            },
+            {
+              "id": "trade_for_tempo",
+              "label": "Trade for tempo",
+              "detail": "Use the cache as fuel for a faster next room.",
+              "payoff": "Best clear-speed line for challenge-link attempts.",
+              "cost": "Leaves less room for recovery mistakes.",
+              "token_cost": 0
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "kind": "recovery_window",
+          "wave": 20,
+          "segment_id": "segment_5",
+          "segment_label": "Waves 21-25",
+          "headline": "Recovery window opened",
+          "recommended_choice_id": "stabilize",
+          "reason": "Spend food before this clear, then use the receipt to reset tempo.",
+          "choices": [
+            {
+              "id": "stabilize",
+              "label": "Stabilize",
+              "detail": "Use the recovery from Waves 21-25 before the next spike.",
+              "payoff": "Best survival line; preserves food and Prayer.",
+              "cost": "Lower immediate tempo.",
+              "token_cost": 0
+            },
+            {
+              "id": "overheal_tempo",
+              "label": "Push while restored",
+              "detail": "Treat the recovery receipt as permission to take the next fight faster.",
+              "payoff": "Best score line when HP and Prayer are capped.",
+              "cost": "Punishes missed attacks harder.",
+              "token_cost": 0
+            }
+          ]
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "kind": "cache_window",
+          "wave": 25,
+          "segment_id": "segment_6",
+          "segment_label": "Waves 26-30",
+          "headline": "Cache window opened",
+          "recommended_choice_id": "claim_cache",
+          "reason": "Push this segment if you need coin to stabilize the run.",
+          "choices": [
+            {
+              "id": "claim_cache",
+              "label": "Claim the cache",
+              "detail": "Route around Waves 26-30's coin pressure and bank the payout.",
+              "payoff": "Best economy line; stabilizes future merchant choices.",
+              "cost": "May lose a cleaner shrine setup.",
+              "token_cost": 0
+            },
+            {
+              "id": "trade_for_tempo",
+              "label": "Trade for tempo",
+              "detail": "Use the cache as fuel for a faster next room.",
+              "payoff": "Best clear-speed line for challenge-link attempts.",
+              "cost": "Leaves less room for recovery mistakes.",
+              "token_cost": 0
+            }
+          ]
+        }
+      ]
     },
     "backend_readiness": {
       "version": 1,

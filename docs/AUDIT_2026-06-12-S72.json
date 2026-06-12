@@ -1,0 +1,65 @@
+{
+  "generated_by": "/audit skill v1.0",
+  "generated_at": "2026-06-12",
+  "project": "solara",
+  "type": "game",
+  "headline": "Make committed Daily Rite route choices change the next room's deterministic risk and reward without adding browser token cost.",
+  "items": [
+    {
+      "id": 1,
+      "slug": "route-choice-room-tuning",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 8,
+      "priority": 45.43,
+      "title": "Route-choice next-room tuning",
+      "why": "Solara now lets players commit a route posture, but the next room still resolves from the base segment policy. Let survival, tempo, and long-game commitments visibly bend the next clear so the choice becomes a real tactical lever instead of confirmation copy.",
+      "recipe": "Add a pure zero-token commitment adjustment helper and apply it inside Daily Rite room outcome generation when the commitment belongs to the current segment or next wave."
+    },
+    {
+      "id": 2,
+      "slug": "route-choice-outcome-contract",
+      "tier": "high",
+      "axis": "UI / UX / user-experience",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 35.34,
+      "title": "Visible route-choice outcome contract",
+      "why": "Players need proof that a committed route changed the next room, and Studio surfaces need the same zero-token evidence. Export the applied posture, risk/reward deltas, and next-room bias through the active status contract and public chronicle/status JSON.",
+      "recipe": "Carry `route_choice_adjustment` on room outcomes, render it in the Daily Rite status panel, and include the route-choice digest in generated `status.json`."
+    },
+    {
+      "id": 3,
+      "slug": "route-choice-tuning-tests",
+      "tier": "high",
+      "axis": "security",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 6,
+      "priority": 30.28,
+      "title": "Route-choice tuning contract tests",
+      "why": "The new tuning path consumes player-selected posture data and then influences rewards. Tests need to prove it stays deterministic, bounded, sanitized, and zero-token before deeper shrine-bargain work builds on it.",
+      "recipe": "Extend the Daily Rite test suite to compare survival/tempo/long-game outcomes, validate public-safe adjustment export, and assert generated chronicle/status route-choice surfaces remain zero-token."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "route-choice-room-tuning",
+      "status": "shipped",
+      "evidence": "Added bounded zero-token route_choice_adjustment tuning inside src/game/dailyRiteRoomOutcome.js so committed survival, tempo, and long-game postures alter next-room risk, reward, recovery, and receipt copy deterministically."
+    },
+    {
+      "slug": "route-choice-outcome-contract",
+      "status": "shipped",
+      "evidence": "Daily Rite status contracts and the active status panel now expose the applied route-choice adjustment; generated public/status.json now includes daily_rite_route_choices alongside public chronicle exports."
+    },
+    {
+      "slug": "route-choice-tuning-tests",
+      "status": "shipped",
+      "evidence": "npm test passes 63/63, including deterministic next-room tuning, sanitizer, zero-token, and public chronicle/status route-choice export assertions."
+    }
+  ]
+}

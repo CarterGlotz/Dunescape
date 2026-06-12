@@ -7,6 +7,18 @@ function cleanText(value, fallback = "") {
 function buildLatestOutcome(outcome = null) {
   if (!outcome) return null;
   const rewardSummary = summarizeDailyRiteOutcomeRewards(outcome);
+  const adjustment = outcome.route_choice_adjustment?.applied
+    ? {
+      version: 1,
+      token_cost: 0,
+      choice_id: cleanText(outcome.route_choice_adjustment.choice_id, "choice").slice(0, 48),
+      choice_label: cleanText(outcome.route_choice_adjustment.choice_label, "Route choice").slice(0, 64),
+      posture: cleanText(outcome.route_choice_adjustment.posture, "balanced").slice(0, 32),
+      risk_delta: Math.max(-2, Math.min(2, Math.floor(Number(outcome.route_choice_adjustment.risk_delta || 0)))),
+      reward_delta: Math.max(-1, Math.min(3, Math.floor(Number(outcome.route_choice_adjustment.reward_delta || 0)))),
+      next_room_bias: cleanText(outcome.route_choice_adjustment.next_room_bias, "balanced route pressure").slice(0, 100),
+    }
+    : null;
   return {
     version: 1,
     token_cost: 0,
@@ -16,6 +28,7 @@ function buildLatestOutcome(outcome = null) {
     receipt: cleanText(outcome.receipt, "Daily Rite clear recorded.").slice(0, 180),
     next_action: cleanText(outcome.next_action, "").slice(0, 140),
     rewards: rewardSummary,
+    route_choice_adjustment: adjustment,
   };
 }
 

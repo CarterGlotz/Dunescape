@@ -250,6 +250,38 @@ test("Daily Rite route choices can be committed as public-safe zero-token run de
   assert.doesNotMatch(JSON.stringify({ commitment, fallback, activeContract }), /<script>|`|\.\.\/bad/);
 });
 
+test("Daily Rite route commitments tune the next room outcome deterministically", () => {
+  const sharedWorld = getSharedWorldSnapshot({
+    sunBrightness: 7,
+    totalDeaths: 8200,
+    leaderboard: [{ faction: "eclipser", wave_reached: 25 }],
+    echoes: [{ player_name: "Ash", kind: "daily", wave_reached: 22, heed_count: 4 }],
+    graves: Array.from({ length: 9 }, (_, index) => ({ x: 14 + index, y: 22, sunstone_offerings: 65, epitaph: "route" })),
+    dayNumber: 109,
+  });
+  const plan = getDailyRitePlan({ sharedWorld, dayNumber: 109 });
+  const baseRun = createDailyRiteRun({ dailyRitePlan: plan, mechanics: { enemyScale: 1.25 }, daySeed: "route-tuning" });
+  const tunedRun = createDailyRiteRun({ dailyRitePlan: plan, mechanics: { enemyScale: 1.25 }, daySeed: "route-tuning" });
+  const tempoChoice = tunedRun.latestRouteChoice.choices.find((choice) => /tempo|spend|trade|push|fish|oath/.test(choice.id))
+    || tunedRun.latestRouteChoice.choices[1]
+    || tunedRun.latestRouteChoice.choices[0];
+
+  const baseOutcome = getDailyRiteRoomOutcome({ run: baseRun, wave: 0, roomIndex: baseRun.rooms[0], daySeed: "route-tuning" });
+  const commitment = applyDailyRiteRouteCommitment({ run: tunedRun, choiceId: tempoChoice.id, now: Date.UTC(2026, 5, 12) });
+  const tunedOutcome = getDailyRiteRoomOutcome({ run: tunedRun, wave: commitment.wave, roomIndex: tunedRun.rooms[commitment.wave], daySeed: "route-tuning" });
+  const activeContract = getDailyRiteStatusContract({ dailyRun: { ...tunedRun, latestOutcome: tunedOutcome } });
+
+  assert.equal(commitment.token_cost, 0);
+  assert.equal(tunedOutcome.token_cost, 0);
+  assert.equal(tunedOutcome.route_choice_adjustment.token_cost, 0);
+  assert.equal(tunedOutcome.route_choice_adjustment.choice_id, tempoChoice.id);
+  assert.ok(tunedOutcome.rewards.coins !== baseOutcome.rewards.coins || tunedOutcome.recovery_room_chance !== baseOutcome.recovery_room_chance);
+  assert.ok(tunedOutcome.rewards.coins >= 0);
+  assert.equal(activeContract.latest_outcome.route_choice_adjustment.token_cost, 0);
+  assert.equal(activeContract.latest_outcome.route_choice_adjustment.choice_id, tempoChoice.id);
+  assert.doesNotMatch(JSON.stringify({ tunedOutcome, activeContract }), /<script>|`|\.\.\/bad/);
+});
+
 test("Daily Rite room runtime applies bounded public-safe rewards", () => {
   const player = {
     hp: 9,
@@ -363,6 +395,8 @@ test("public chronicle exports a zero-token feedback summary", () => {
   assert.ok(chronicle.shared_world.daily_rite_outcomes.decision_windows.length >= 1);
   assert.equal(chronicle.shared_world.daily_rite_route_choices.prompt_count, chronicle.shared_world.daily_rite_outcomes.decision_windows.length);
   assert.equal(chronicle.shared_world.daily_rite_outcomes.decision_windows[0].token_cost, 0);
+  assert.equal(chronicle.shared_world.daily_rite_route_choices.token_cost, 0);
+  assert.equal(chronicle.integrations.daily_rite_route_choices.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_stakes.segment_count, chronicle.shared_world.daily_rite_plan.route.length);
   assert.equal(chronicle.shared_world.daily_rite_modifiers.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
   assert.equal(chronicle.shared_world.daily_rite_policy.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);

@@ -86,6 +86,11 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - wired active Daily Rite status controls so players can commit to a route choice directly from the panel
 - expanded Daily Rite tests for commitment selection, hostile id fallback, status-contract export, feedback payload shape, and token-cost invariants
 - verified 62 unit tests, production build, and smoke runtime
+- ran /start gates and wrote docs/AUDIT_2026-06-12-S72.md / .json for the Daily Rite route-choice tuning tranche
+- implemented bounded deterministic `route_choice_adjustment` tuning so committed survival, tempo, and long-game postures influence next-room risk, reward, recovery, receipts, and next-action copy
+- surfaced applied route tuning in the Daily Rite status contract/component and regenerated public chronicle/status JSON with `daily_rite_route_choices` in status output
+- expanded tests for next-room tuning, public-safe status export, sanitizer bounds, and zero-token route-choice contracts
+- verified 63 unit tests, production build, smoke runtime, syntax checks, and public status route-choice export presence
 
 ## 2026-06-11
 

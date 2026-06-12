@@ -23,12 +23,43 @@ function seededChance(seed) {
   return (hashText(seed) % 1000) / 1000;
 }
 
-function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomIndex = 0 } = {}) {
+function buildRouteChoiceAdjustment(commitment = null, { wave = 0, segmentId = null } = {}) {
+  if (!commitment?.committed) return null;
   const safeWave = Math.max(0, Math.min(29, Math.floor(Number(wave) || 0)));
-  const risk = clampNumber(policy.risk, 1, 5, 1);
+  const commitmentWave = Math.max(0, Math.min(30, Math.floor(Number(commitment.wave || 0))));
+  const committedSegment = clean(commitment.segment_id, "").slice(0, 48);
+  const activeSegment = clean(segmentId, "").slice(0, 48);
+  const appliesToWave = commitmentWave === safeWave || commitmentWave === safeWave + 1;
+  const appliesToSegment = !!committedSegment && !!activeSegment && committedSegment === activeSegment && Math.abs(commitmentWave - safeWave) <= 1;
+  if (!appliesToWave && !appliesToSegment) return null;
+
+  const posture = clean(commitment.effect?.posture, "balanced").slice(0, 32);
+  const riskDelta = Math.max(-2, Math.min(2, Math.floor(Number(commitment.effect?.risk_delta || 0))));
+  const rewardDelta = Math.max(-1, Math.min(3, Math.floor(Number(commitment.effect?.reward_delta || 0))));
+  const recoveryDelta = posture === "survival" ? 0.14 : posture === "tempo" ? -0.06 : posture === "long_game" ? -0.03 : 0;
+  return {
+    version: 1,
+    token_cost: 0,
+    applied: true,
+    wave: safeWave,
+    segment_id: activeSegment || committedSegment || null,
+    choice_id: clean(commitment.choice?.id, "choice").slice(0, 48),
+    choice_label: clean(commitment.choice?.label, "Route choice").slice(0, 64),
+    posture,
+    risk_delta: riskDelta,
+    reward_delta: rewardDelta,
+    recovery_delta: recoveryDelta,
+    next_room_bias: clean(commitment.effect?.next_room_bias, "balanced route pressure").slice(0, 100),
+  };
+}
+
+function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomIndex = 0, commitment = null } = {}) {
+  const safeWave = Math.max(0, Math.min(29, Math.floor(Number(wave) || 0)));
+  const adjustment = buildRouteChoiceAdjustment(commitment, { wave: safeWave, segmentId: policy.id });
+  const risk = clampNumber(Number(policy.risk || 1) + Number(adjustment?.risk_delta || 0), 1, 5, 1);
   const rewardBias = clean(policy.reward_bias, "xp");
-  const dropMultiplier = clampNumber(policy.drop_multiplier, 1, 1.6, 1);
-  const recoveryChance = clampNumber(policy.recovery_room_chance, 0, 1, 0);
+  const dropMultiplier = clampNumber(Number(policy.drop_multiplier || 1) + Number(adjustment?.reward_delta || 0) * 0.12, 1, 1.9, 1);
+  const recoveryChance = clampNumber(Number(policy.recovery_room_chance || 0) + Number(adjustment?.recovery_delta || 0), 0, 1, 0);
   const seed = `${daySeed}:${policy.id || "segment"}:${safeWave}:${roomIndex}:${rewardBias}`;
   const cacheRoll = seededChance(`${seed}:cache`);
   const recoveryRoll = seededChance(`${seed}:recovery`);
@@ -39,7 +70,7 @@ function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomI
   const heal = recoveryHit ? Math.max(2, Math.round(3 + risk + recoveryChance * 12)) : 0;
   const prayer = recoveryHit && risk >= 3 ? Math.max(1, Math.round(1 + risk / 2)) : 0;
   const sunstone =
-    rewardBias === "sunstone" || (risk >= 4 && shrineRoll < 0.18)
+    rewardBias === "sunstone" || (risk >= 4 && shrineRoll < 0.18 + Math.max(0, Number(adjustment?.reward_delta || 0)) * 0.03)
       ? 1
       : 0;
   const cacheLabel =
@@ -69,12 +100,17 @@ function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomI
       prayer,
       items: sunstone ? [{ id: "sunstone_shard", count: sunstone, label: "Sunstone Shard" }] : [],
     },
-    receipt: `${clean(policy.label, "Daily Rite")} clear: ${cacheLabel} paid ${coins} coins${heal ? `, restored ${heal} HP` : ""}${prayer ? ` and ${prayer} Prayer` : ""}${sunstone ? ", and exposed a Sunstone Shard" : ""}.`,
+    route_choice_adjustment: adjustment,
+    receipt: `${clean(policy.label, "Daily Rite")} clear: ${cacheLabel} paid ${coins} coins${heal ? `, restored ${heal} HP` : ""}${prayer ? ` and ${prayer} Prayer` : ""}${sunstone ? ", and exposed a Sunstone Shard" : ""}${adjustment ? ` after ${adjustment.choice_label}` : ""}.`,
     next_action: recoveryHit
-      ? "Use the recovery window before the next pressure spike."
-      : risk >= 4
-        ? "Preserve food; this segment is starving recovery."
-        : "Keep tempo clean and bank the route pressure.",
+      ? adjustment
+        ? `${adjustment.next_room_bias}; use the recovery window before the next pressure spike.`
+        : "Use the recovery window before the next pressure spike."
+      : adjustment
+        ? `${adjustment.next_room_bias}; preserve the route result.`
+        : risk >= 4
+          ? "Preserve food; this segment is starving recovery."
+          : "Keep tempo clean and bank the route pressure.",
   };
 }
 
@@ -138,6 +174,7 @@ export function getDailyRiteRoomOutcome({ run = null, wave = null, roomIndex = n
     wave: safeWave,
     daySeed,
     roomIndex: roomIndex ?? run?.rooms?.[safeWave] ?? 0,
+    commitment: run?.routeChoiceCommitment,
   });
 }
 

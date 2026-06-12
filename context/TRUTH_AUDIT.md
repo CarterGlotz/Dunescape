@@ -99,3 +99,10 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - active Daily Rite status surfaces show route-choice guidance without storing raw private player payloads, credentials, private Studio context, or paid generation output
 - public chronicle/status exports include `daily_rite_route_choices` for Studio surfaces while preserving deterministic zero-token behavior
 - local validation passed: 61 unit tests, production build, and smoke runtime
+
+## 2026-06-12 Session 72 Public-Safe Check
+
+- Daily Rite route-choice adjustments are deterministic from committed local run choices and bounded to sanitized choice id, label, posture, risk/reward deltas, recovery delta, and next-room bias
+- active Daily Rite status surfaces show applied route tuning without storing raw private player payloads, credentials, private Studio context, or paid generation output
+- public status now includes `daily_rite_route_choices` in addition to chronicle integration surfaces; generated outcome samples expose `route_choice_adjustment: null` when no local run choice exists
+- local validation passed: 63 unit tests, production build, smoke runtime, syntax checks, and public status route-choice export presence

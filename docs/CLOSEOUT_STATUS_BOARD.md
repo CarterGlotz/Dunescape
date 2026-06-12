@@ -1,30 +1,30 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-12 (Session 71 closeout) -->
+<!-- generated-at: 2026-06-12 (Session 72 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S71 ═════════════════════════════╗
-║  Date: 2026-06-12  ·  SIL: 979/1000  ·  Velocity: 6 ->           ║
+╔══ SESSION CLOSEOUT · Solara · S72 ═════════════════════════════╗
+║  Date: 2026-06-12  ·  SIL: 983/1000  ·  Velocity: 4 ->           ║
 ║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: Daily Rite route-choice prompts now become committe  ║
-║  ✓ Shipped: active Daily Rite runs now store `routeChoiceCommit  ║
-║  ✓ Shipped: route-choice commits now emit capped public-safe `d  ║
-║  ✓ Tests: 62 passing unit tests plus production build and smoke  ║
+║  ✓ Shipped: committed Daily Rite route-choice postures now tune  ║
+║  ✓ Shipped: active Daily Rite status now shows when the last cl  ║
+║  ✓ Shipped: generated public status JSON now includes `daily_ri  ║
+║  ✓ Tests: 63 passing unit tests plus production build and smoke  ║
 ║  ✓ Remaining gate: Supabase production hardening still needs pr  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 979/1000 ═══════════════════════════════════════╗
-║    Dev Health         97   ██████████                            ║
+╔══ SCORES · SIL 983/1000 ═══════════════════════════════════════╗
+║    Dev Health         98   ██████████                            ║
 ║    Alignment          99   ██████████                            ║
-║    Momentum           99   ██████████                            ║
+║    Momentum           100  ██████████                            ║
 ║    Engagement         100  ██████████                            ║
-║    Process Qual       97   ██████████                            ║
+║    Process Qual       98   ██████████                            ║
 ║    Coherence          95   ██████████                            ║
 ║    Security           98   ██████████                            ║
 ║    Ecosystem          100  ██████████                            ║
-║    Capital            94   █████████░                            ║
+║    Capital            95   ██████████                            ║
 ║    Automation         100  ██████████                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
@@ -35,19 +35,19 @@
 ║  · context/DECISIONS.md                                          ║
 ║  ✓ context/SELF_IMPROVEMENT_LOOP.md                              ║
 ║  · docs/CREATIVE_DIRECTION_RECORD.md                             ║
-║  · context/TRUTH_AUDIT.md                                        ║
+║  ✓ context/TRUTH_AUDIT.md                                        ║
 ║  ✓ context/PROJECT_STATUS.json                                   ║
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 18 files  ·  M:14 A:0 D:0 ?:4                          ║
+║  Changes: 19 files  ·  M:16 A:0 D:0 ?:3                          ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
 ║  Doctor:        —                                                ║
 ║  Compliance:    —                                                ║
-║  Tests:         62/62                                            ║
+║  Tests:         63/63                                            ║
 ║  IGNIS:         7d ago                                           ║
 ║  Truth:         green                                            ║
 ║  Sanitization:  —                                                ║

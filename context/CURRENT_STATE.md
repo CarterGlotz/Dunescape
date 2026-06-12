@@ -103,3 +103,7 @@ Public-safe summary:
 - active Daily Rite runs now store `routeChoiceCommitment` and `routeChoiceHistory`, and the status panel renders commit controls plus the selected next-room posture
 - route-choice commits now emit capped public-safe `daily_rite_route_choice` feedback events with route/source attribution
 - latest local validation: 62 unit tests passing, production build passing, smoke flow passing
+- 2026-06-12 Session 72 audit/implement pass turned committed Daily Rite route-choice postures into deterministic next-room tuning
+- Daily Rite room outcomes now carry a public-safe zero-token `route_choice_adjustment` showing the selected choice, posture, bounded risk/reward deltas, and next-room bias
+- active Daily Rite status now tells players when the last clear was route-tuned, and generated public status now includes `daily_rite_route_choices` alongside chronicle exports
+- latest local validation: 63 unit tests passing, production build passing, smoke flow passing

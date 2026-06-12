@@ -2,6 +2,14 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 72)
+- Shipped: committed Daily Rite route-choice postures now tune the next room outcome through bounded deterministic `route_choice_adjustment` data
+- Shipped: active Daily Rite status now shows when the last clear was route-tuned, including selected choice and posture
+- Shipped: generated public status JSON now includes `daily_rite_route_choices` alongside the chronicle route-choice export
+- Tests: 63 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: extract Daily Rite room entry/auto-advance spawning into a pure runtime contract, then deepen route-specific shrine bargain decisions
+
 ## Where We Left Off (2026-06-12 · Session 71)
 - Shipped: Daily Rite route-choice prompts now become committed zero-token player decisions through `src/game/dailyRiteRouteCommitments.js`
 - Shipped: active Daily Rite runs now store `routeChoiceCommitment` and `routeChoiceHistory`, and the Daily Rite status panel renders commit controls plus the selected next-room posture
