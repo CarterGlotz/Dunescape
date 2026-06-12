@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "1.3",
+  "date": "2026-06-12",
+  "session": 76,
+  "agent": "codex",
+  "repo": "solara",
+  "summary": "Shipped deterministic Daily Rite offering intents so banked shrine bargains become a visible next action instead of a dead-end receipt.",
+  "shipped": [
+    {
+      "slug": "shrine-offering-intent",
+      "title": "Shrine offering intent contract",
+      "impact": 9,
+      "evidence": "Added `src/game/dailyRiteOfferingIntent.js`; banked shrine bargains attach a sanitized zero-token offering intent targeted at the Living Map, while spend/oath postures produce no offering target."
+    },
+    {
+      "slug": "shrine-offering-status",
+      "title": "Visible shrine offering status",
+      "impact": 8,
+      "evidence": "Daily Rite status contracts normalize offering intent, `DailyRiteStatus` renders offering-opened guidance, and public shrine bargain digests include offering-intent previews."
+    },
+    {
+      "slug": "shrine-offering-tests",
+      "title": "Shrine offering zero-token tests",
+      "impact": 8,
+      "evidence": "Tests cover bank/spend/oath offering-intent behavior, status-contract normalization, public export previews, and sanitization."
+    }
+  ],
+  "validation": {
+    "unit": "npm test: 64/64 passing",
+    "smoke": "npm run smoke: passing",
+    "build": "npm run build: passing",
+    "contextMeter": "CONTINUE at 0.7% used before closeout"
+  },
+  "sil": {
+    "total": 991,
+    "max": 1000,
+    "delta": 2,
+    "categories": {
+      "devHealth": 99,
+      "creativeAlignment": 100,
+      "momentum": 100,
+      "engagement": 100,
+      "processQuality": 100,
+      "crossRepoCoherence": 96,
+      "securityPosture": 100,
+      "ecosystemIntegration": 100,
+      "capitalEfficiency": 96,
+      "automationCoverage": 100
+    }
+  },
+  "impactScore": 8.7,
+  "blockers": [
+    "Supabase production hardening still needs project-specific PG_CONNECTION_SOLARA for cloud project fjnpzjjyhnpmunfoycrp, or owner SQL-editor action before scaled public traffic."
+  ],
+  "next": [
+    "Turn offering intents into a one-click Living Map route/highlight once browser-level validation exists.",
+    "Extract Daily Rite room entry/auto-advance spawning into a pure runtime contract."
+  ]
+}

@@ -127,3 +127,10 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - public chronicle/status generation still succeeds and only changed generated timestamps during the verifier build.
 - unrelated untracked `obelisk-passport/` files were inspected as worktree context and left untouched.
 - local validation passed: 64 unit tests, production build, and smoke runtime.
+
+## 2026-06-12 Session 76 Public-Safe Check
+
+- Daily Rite offering intents are deterministic from banked shrine bargain receipts and expose only sanitized source choice, item, segment, target, summary, next action, and `token_cost: 0` fields.
+- active/completed Daily Rite status surfaces show offering-opened guidance without storing raw private player payloads, credentials, private Studio context, or paid generation output.
+- public shrine bargain digests include offering-intent previews only for deterministic shrine windows; spend/oath bargain postures intentionally do not create offering targets.
+- local validation passed: 64 unit tests, production build, and smoke runtime.

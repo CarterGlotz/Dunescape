@@ -170,3 +170,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - verified the latest audit sidecar `docs/AUDIT_2026-06-12-S74.json` and Markdown execution log; all three shrine economy items were already marked shipped with concrete evidence
 - reran validation against the current tree: `npm test` passed 64/64, `npm run smoke` passed, and `npm run build` passed
 - recorded closeout as a verification/state-integrity pass rather than a new product-code pass; unrelated untracked `obelisk-passport/` files were inspected and left untouched
+
+## 2026-06-12 — Session 76
+
+- ran `/start` with the Solara game overlay, noted missing local protocol helpers, and loaded the fresh startup brief with context-meter `CONTINUE`
+- wrote `docs/AUDIT_2026-06-12-S76.md` / `.json` with three Daily Rite shrine offering items
+- added `src/game/dailyRiteOfferingIntent.js` for deterministic zero-token offering intents from banked shrine bargains
+- wired banked shrine bargains, Daily Rite status contracts/UI, and public shrine bargain digests to expose offering guidance while keeping spend/oath postures non-offering
+- extended unit coverage for bank/spend/oath offering intent behavior, status-contract normalization, and public export shape
+- verified 64 unit tests, production build, and smoke runtime

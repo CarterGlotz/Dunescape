@@ -219,3 +219,18 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 | 8 | Ecosystem Integration | 100 | 0 | Public status/chronicle generation still succeeds and keeps the shrine bargain integration contract available. |
 | 9 | Capital Efficiency | 95 | 0 | Verification preserved the deterministic zero-browser-token posture. |
 | 10 | Automation Coverage | 100 | 0 | Tests, smoke, and build were rerun as closeout evidence for the already-executed audit. |
+
+## 2026-06-12 — Session 76 — Total: 991/1000
+
+| # | Category | Score | Delta | Public-safe notes |
+|---|---|---:|---:|---|
+| 1 | Dev Health | 99 | 0 | 64 tests, production build, smoke runtime, and syntax checks pass after offering-intent wiring. |
+| 2 | Creative Alignment | 100 | 0 | Banked Sunstone bargains now route into Solara-owned grave-shrine offering language without borrowed naming. |
+| 3 | Momentum | 100 | 0 | Fresh Session 76 audit was fully implemented and evidenced in one pass. |
+| 4 | Engagement | 100 | 0 | Daily Rite players can now see the next offering verb after banking a shrine shard. |
+| 5 | Process Quality | 100 | 0 | Audit sidecar, implementation plan, execution log, generated public JSON, and validation evidence are aligned. |
+| 6 | Cross-Repo Coherence | 96 | +1 | Public status contracts expose offering intent without private Studio process data. |
+| 7 | Security Posture | 100 | 0 | Offering intent fields are bounded, sanitized, deterministic, and explicit `token_cost: 0`. |
+| 8 | Ecosystem Integration | 100 | 0 | Public shrine bargain digests now include offering-intent previews for Studio surfaces. |
+| 9 | Capital Efficiency | 96 | +1 | Offering guidance remains deterministic and browser runtime token cost stays zero. |
+| 10 | Automation Coverage | 100 | 0 | Tests prove bank/spend/oath offering-intent behavior, public export shape, build, and smoke. |

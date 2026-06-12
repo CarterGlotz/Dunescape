@@ -2,6 +2,15 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 76)
+- Shipped: Daily Rite shrine bargains now create deterministic offering intents when the player banks a Sunstone Shard
+- Shipped: banked shrine bargains expose a zero-token `offering_intent` pointing players to the Living Map / nearest grave-shrine offering loop; spend and oath choices intentionally do not create offering targets
+- Shipped: active and completed Daily Rite status now render offering-opened guidance, and public shrine bargain digests include offering-intent previews when shrine windows exist
+- Verified: `npm test` passes 64/64, `npm run smoke` passes, and `npm run build` passes
+- Preserved: unrelated modified `context/PROJECT_STATUS.json` baseline was updated in place for closeout, and unrelated untracked `obelisk-passport/` remains untouched
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: turn offering intents into a one-click Living Map route/highlight, then extract Daily Rite room entry/auto-advance spawning into a pure runtime contract
+
 ## Where We Left Off (2026-06-12 · Session 75)
 - Completed: resumed the founder-requested `/start -> /audit -> /implement -> /closeout` sequence and verified the current repo state against the latest audit artifacts
 - Verified: `docs/AUDIT_2026-06-12-S74.json` and `.md` already mark all three shrine economy items shipped with matching execution evidence

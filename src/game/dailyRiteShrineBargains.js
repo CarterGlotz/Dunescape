@@ -1,3 +1,5 @@
+import { buildDailyRiteOfferingIntent } from "./dailyRiteOfferingIntent.js";
+
 function cleanText(value, fallback = "") {
   return String(value || fallback).replace(/[<>`]/g, "").replace(/\s+/g, " ").trim();
 }
@@ -65,7 +67,7 @@ export function buildDailyRiteShrineBargain({ commitment = null, outcome = null 
   const choiceLabel = cleanText(commitment.choice?.label || profile.label, profile.label).slice(0, 64);
   const segmentLabel = cleanText(outcome?.segment_label, `Wave ${wave + 1}`).slice(0, 80);
 
-  return {
+  const bargain = {
     version: 1,
     token_cost: 0,
     applied: true,
@@ -104,6 +106,8 @@ export function buildDailyRiteShrineBargain({ commitment = null, outcome = null 
           ? "Survive the oath route to turn danger into a stronger Last Light card."
           : "Carry the protected shard toward the next shrine offering.",
   };
+  const offeringIntent = buildDailyRiteOfferingIntent({ shrineBargain: bargain });
+  return offeringIntent ? { ...bargain, offering_intent: offeringIntent } : bargain;
 }
 
 export function applyShrineBargainToOutcome(outcome = {}, bargain = null) {
@@ -174,6 +178,21 @@ export function buildDailyRiteShrineBargainDigest({ routeChoiceDigest = null } =
         spend_shard: bargainForChoice("spend_shard").effect_line,
         press_oath: bargainForChoice("press_oath").effect_line,
       },
+      offering_intent_preview: buildDailyRiteOfferingIntent({
+        shrineBargain: {
+          applied: true,
+          posture: "banked",
+          wave: prompt.wave,
+          segment_id: prompt.segment_id,
+          segment_label: prompt.segment_label,
+          choice_id: "bank_shard",
+          economy: {
+            item_id: "sunstone_shard",
+            item_delta: 1,
+            offering_credit: 1,
+          },
+        },
+      }),
       choices: Array.isArray(prompt.choices)
         ? prompt.choices.slice(0, 3).map((choice) => ({
           id: cleanId(choice.id, "choice"),

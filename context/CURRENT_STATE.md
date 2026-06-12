@@ -117,3 +117,7 @@ Public-safe summary:
 - `src/game/dailyRiteRoomOutcome.js` no longer carries the stale unreachable shrine-bargain branch left after the previous extraction
 - latest local validation: 64 unit tests passing, production build passing, smoke flow passing, syntax checks passing
 - 2026-06-12 Session 75 closeout continuation verified the active `/start -> /audit -> /implement -> /closeout` goal against the current tree: latest audit execution evidence is complete, 64 unit tests pass, smoke runtime passes, and production build passes
+- 2026-06-12 Session 76 audit/implement pass shipped deterministic Daily Rite offering intents for banked shrine bargains
+- banked Sunstone shrine bargains now expose a sanitized zero-token `offering_intent` targeted at the Living Map / grave-shrine offering loop, while spend/oath postures intentionally do not create offering targets
+- active/completed Daily Rite status now renders offering-opened guidance, and public shrine bargain digests include zero-token offering-intent previews for Studio surfaces
+- latest local validation: 64 unit tests passing, production build passing, smoke flow passing

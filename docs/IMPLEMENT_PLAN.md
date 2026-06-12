@@ -1,11 +1,20 @@
-# Implement Plan — 2026-06-12 S74
+# Implement Plan — 2026-06-12 S76
 
-Source: `docs/AUDIT_2026-06-12-S74.json`
+Source: `docs/AUDIT_2026-06-12-S76.json`
 
-## Wave 1 — Daily Rite Shrine Economy
+## Wave 1 — Shared Shrine Offering Surface
 
-1. `shrine-offering-economy` — Make bank, spend, and oath choices own the Sunstone item economy and remove stale unreachable outcome code.
-2. `shrine-economy-status-contract` — Surface the shrine economy delta in active/completed Daily Rite status and public shrine bargain digests.
-3. `shrine-economy-tests` — Add unit coverage for bounded item deltas, sanitized status, and zero-token public exports.
+1. `shrine-offering-intent`
+   - Add a pure zero-token offering intent helper.
+   - Attach banked shrine bargains to actionable grave/shrine offering guidance.
+   - Keep spend/oath postures intentionally non-offering.
 
-Quality gates: browser runtime token cost stays zero, public strings are sanitized, generated status remains public-safe, and `npm test`, `npm run build`, and `npm run smoke` pass.
+2. `shrine-offering-status`
+   - Normalize offering intent in the Daily Rite status contract.
+   - Render concise offering copy in `DailyRiteStatus`.
+   - Export offering previews through public shrine bargain digests.
+
+3. `shrine-offering-tests`
+   - Extend Daily Rite system tests for bank/spend/oath intent behavior.
+   - Verify public chronicle/export token cost and sanitization.
+   - Run unit tests, smoke runtime, and production build.

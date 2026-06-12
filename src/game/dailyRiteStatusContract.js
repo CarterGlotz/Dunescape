@@ -1,4 +1,5 @@
 import { summarizeDailyRiteOutcomeRewards } from "./dailyRiteRoomRuntime.js";
+import { normalizeDailyRiteOfferingIntent } from "./dailyRiteOfferingIntent.js";
 
 function cleanText(value, fallback = "") {
   return String(value || fallback).replace(/[<>`]/g, "").replace(/\s+/g, " ").trim();
@@ -50,6 +51,7 @@ function buildLatestOutcome(outcome = null) {
             summary: cleanText(outcome.shrine_bargain.economy.summary, "Shrine economy recorded.").slice(0, 140),
           }
           : null,
+        offering_intent: normalizeDailyRiteOfferingIntent(outcome.shrine_bargain.offering_intent),
         relief_delta: Math.max(-1, Math.min(2, Math.floor(Number(outcome.shrine_bargain.relief_delta || 0)))),
         oath_delta: Math.max(0, Math.min(2, Math.floor(Number(outcome.shrine_bargain.oath_delta || 0)))),
         receipt: cleanText(outcome.shrine_bargain.receipt, "Shrine bargain recorded.").slice(0, 160),

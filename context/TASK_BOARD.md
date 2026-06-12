@@ -28,6 +28,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - keep the new Daily Rite shrine-bargain receipt contract, active status presentation, public `daily_rite_shrine_bargains` export, and zero-token assertions aligned with future shrine offering mechanics
 - keep the new Daily Rite shrine economy contract, active status summary, public digest shape, and bank/spend/oath item-delta assertions aligned with future offering UI
 - preserve the Session 75 verification baseline: latest audit sidecar is fully executed, validation is green, and unrelated untracked `obelisk-passport/` remains intentionally untouched until separately assigned
+- keep the new Daily Rite offering-intent contract, active status copy, public shrine bargain preview, and zero-token assertions aligned with future grave-shrine offering UI
 
 ## Next
 
@@ -65,6 +66,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - use the Director route consequence fields to tune actual Daily Rite reward payout and room modifier behavior beyond public JSON/contracts
 - deepen committed Daily Rite route-choice postures into route-specific shrine bargain decisions now that next-room tuning is deterministic
 - deepen the shrine economy contract into a dedicated shrine offering UI once browser-level validation exists
+- turn Daily Rite offering intents into a one-click Living Map route/highlight once browser-level validation exists
 - add browser-level validation for the extracted Daily Rite status component and full mechanical modifier effects once a browser runner exists
 - extract Daily Rite dungeon room entry/auto-advance spawning into a pure room-runtime contract now that spawn, policy, and outcome receipts are modular
 - deepen shrine bargains from receipt rewards into actual route choice prompts once the next Daily Rite presentation extraction starts
@@ -171,6 +173,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-12 Session 73 pass shipped deterministic shrine bargain receipts for committed bank/spend/oath choices, active status presentation, public `daily_rite_shrine_bargains` exports, and validation for bounded zero-token bargain contracts
 - 2026-06-12 Session 74 pass shipped deterministic shrine economy item deltas for bank/spend/oath choices, active status economy summaries, public digest guards, and validation for zero-token bounded reward inventory
 - 2026-06-12 Session 75 verification pass completed the requested start/audit/implement/closeout loop against current evidence, reran tests/smoke/build, and preserved unrelated untracked `obelisk-passport/` work
+- 2026-06-12 Session 76 pass shipped deterministic Daily Rite offering intents for banked shrine bargains, active/completed status rendering, public shrine bargain preview exports, and validation for zero-token bank/spend/oath behavior
 
 ## Deferred to Project Agents
 

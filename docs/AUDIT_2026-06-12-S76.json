@@ -1,0 +1,65 @@
+{
+  "generated_by": "/audit skill v1.0",
+  "generated_at": "2026-06-12",
+  "project": "solara",
+  "type": "game",
+  "headline": "Turn banked shrine shards into a visible next offering instead of a dead-end receipt.",
+  "items": [
+    {
+      "id": 1,
+      "slug": "shrine-offering-intent",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 9,
+      "priority": 51.1,
+      "title": "Shrine offering intent contract",
+      "why": "The banked Sunstone path now has real economy semantics, but the next verb is still implicit. A deterministic offering-intent contract turns a banked shard into an actionable route target without adding browser token cost or backend assumptions.",
+      "recipe": "Add a pure `dailyRiteOfferingIntent` helper that derives a sanitized zero-token offering intent from banked shrine bargains, attach it to shrine bargain receipts, and keep spend/oath postures intentionally non-offering."
+    },
+    {
+      "id": 2,
+      "slug": "shrine-offering-status",
+      "tier": "high",
+      "axis": "UI / UX / user-experience",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 40.38,
+      "title": "Visible shrine offering status",
+      "why": "Players should immediately know when the Daily Rite created a shard they can carry to a grave or shrine. The active Daily Rite panel and public chronicle digest should expose that next action in the same zero-token contract family as route choices and shrine bargains.",
+      "recipe": "Normalize offering intent fields in `getDailyRiteStatusContract`, render concise offering copy in `DailyRiteStatus`, and include offering-intent previews in the public shrine bargain digest."
+    },
+    {
+      "id": 3,
+      "slug": "shrine-offering-tests",
+      "tier": "high",
+      "axis": "security",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 35.34,
+      "title": "Shrine offering zero-token tests",
+      "why": "Offering intent feeds UI and public JSON, so it must be bounded, sanitized, and deterministic before browser-level coverage exists. Tests should prove only banked bargains create offering targets, public exports stay token-free, and hostile labels cannot leak markup.",
+      "recipe": "Extend the Daily Rite system tests for bank/spend/oath offering intent behavior, status-contract sanitization, public `daily_rite_shrine_bargains` export shape, and full local validation."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "shrine-offering-intent",
+      "status": "shipped",
+      "evidence": "Added `src/game/dailyRiteOfferingIntent.js`; banked shrine bargains now attach a sanitized zero-token offering intent targeted at the Living Map, while spend/oath postures intentionally produce no offering intent."
+    },
+    {
+      "slug": "shrine-offering-status",
+      "status": "shipped",
+      "evidence": "Daily Rite status contracts normalize `offering_intent`, `DailyRiteStatus` renders offering-opened copy, and public shrine bargain digests include a zero-token offering-intent preview."
+    },
+    {
+      "slug": "shrine-offering-tests",
+      "status": "shipped",
+      "evidence": "`npm test` passed 64/64, `npm run smoke` passed, and `npm run build` passed after adding bank/spend/oath offering-intent assertions and public export checks."
+    }
+  ]
+}
