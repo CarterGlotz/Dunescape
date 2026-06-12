@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-11T22:09:34.530Z",
+  "generated_at": "2026-06-12T01:10:18.036Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -82,73 +82,73 @@
       "primary_stake": {
         "id": "segment_6",
         "label": "Waves 26-30",
-        "encounter": "Scout pack",
-        "reward": "food",
+        "encounter": "Low ambush",
+        "reward": "coins",
         "risk": 3,
-        "goal": "Use Scout pack pacing to secure food.",
+        "goal": "Use Low ambush pacing to secure coins.",
         "pledge": "Take one clean reward, then reset tempo.",
-        "consequence": "Waves 26-30 can turn Scout pack into food; Take one clean reward, then reset tempo."
+        "consequence": "Waves 26-30 can turn Low ambush into coins; Take one clean reward, then reset tempo."
       },
       "segments": [
         {
           "id": "segment_1",
           "label": "Waves 1-5",
-          "encounter": "Low ambush",
-          "reward": "starter relic",
+          "encounter": "Recovery room",
+          "reward": "food",
           "risk": 1,
-          "goal": "Use Low ambush pacing to secure starter relic.",
+          "goal": "Use Recovery room pacing to secure food.",
           "pledge": "Bank light efficiently and preserve options.",
-          "consequence": "Waves 1-5 can turn Low ambush into starter relic; Bank light efficiently and preserve options."
+          "consequence": "Waves 1-5 can turn Recovery room into food; Bank light efficiently and preserve options."
         },
         {
           "id": "segment_2",
           "label": "Waves 6-10",
-          "encounter": "Recovery room",
-          "reward": "coins",
+          "encounter": "Scout pack",
+          "reward": "starter relic",
           "risk": 2,
-          "goal": "Use Recovery room pacing to secure coins.",
+          "goal": "Use Scout pack pacing to secure starter relic.",
           "pledge": "Bank light efficiently and preserve options.",
-          "consequence": "Waves 6-10 can turn Recovery room into coins; Bank light efficiently and preserve options."
+          "consequence": "Waves 6-10 can turn Scout pack into starter relic; Bank light efficiently and preserve options."
         },
         {
           "id": "segment_3",
           "label": "Waves 11-15",
-          "encounter": "Scout pack",
-          "reward": "food",
+          "encounter": "Low ambush",
+          "reward": "coins",
           "risk": 2,
-          "goal": "Use Scout pack pacing to secure food.",
+          "goal": "Use Low ambush pacing to secure coins.",
           "pledge": "Bank light efficiently and preserve options.",
-          "consequence": "Waves 11-15 can turn Scout pack into food; Bank light efficiently and preserve options."
+          "consequence": "Waves 11-15 can turn Low ambush into coins; Bank light efficiently and preserve options."
         },
         {
           "id": "segment_4",
           "label": "Waves 16-20",
-          "encounter": "Low ambush",
-          "reward": "starter relic",
+          "encounter": "Recovery room",
+          "reward": "food",
           "risk": 2,
-          "goal": "Use Low ambush pacing to secure starter relic.",
+          "goal": "Use Recovery room pacing to secure food.",
           "pledge": "Bank light efficiently and preserve options.",
-          "consequence": "Waves 16-20 can turn Low ambush into starter relic; Bank light efficiently and preserve options."
+          "consequence": "Waves 16-20 can turn Recovery room into food; Bank light efficiently and preserve options."
         },
         {
           "id": "segment_5",
           "label": "Waves 21-25",
-          "encounter": "Recovery room",
-          "reward": "coins",
+          "encounter": "Scout pack",
+          "reward": "starter relic",
           "risk": 2,
-          "goal": "Use Recovery room pacing to secure coins.",
+          "goal": "Use Scout pack pacing to secure starter relic.",
           "pledge": "Bank light efficiently and preserve options.",
-          "consequence": "Waves 21-25 can turn Recovery room into coins; Bank light efficiently and preserve options."
+          "consequence": "Waves 21-25 can turn Scout pack into starter relic; Bank light efficiently and preserve options."
         },
         {
           "id": "segment_6",
           "label": "Waves 26-30",
-          "encounter": "Scout pack",
-          "reward": "food",
+          "encounter": "Low ambush",
+          "reward": "coins",
           "risk": 3,
-          "goal": "Use Scout pack pacing to secure food.",
+          "goal": "Use Low ambush pacing to secure coins.",
           "pledge": "Take one clean reward, then reset tempo.",
-          "consequence": "Waves 26-30 can turn Scout pack into food; Take one clean reward, then reset tempo."
+          "consequence": "Waves 26-30 can turn Low ambush into coins; Take one clean reward, then reset tempo."
         }
       ],
       "summary": "Clear Routes stakes: Waves 26-30 is the pressure point; Take one clean reward, then reset tempo.",
@@ -281,6 +281,6 @@
       "fallback": "deterministic_chronicle",
       "input_policy": "structured_public_state_only"
     },
-    "cache_key": "season:1:day:77:sun:100:deaths:0:runs:0:graves:0:echoes:0"
+    "cache_key": "season:1:day:78:sun:100:deaths:0:runs:0:graves:0:echoes:0"
   }
 }
