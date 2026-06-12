@@ -32,6 +32,8 @@ test("public chronicle exports deterministic public-safe shared-world status", (
   assert.match(chronicle.shared_world.daily_rite_plan.route[0].goal, /secure|Route|Prepare/);
   assert.match(chronicle.shared_world.daily_rite_plan.routeSummary, /:/);
   assert.equal(chronicle.shared_world.daily_rite_plan.boss.wave, 30);
+  assert.ok(chronicle.shared_world.daily_rite_outcomes.decision_windows.length >= 1);
+  assert.equal(chronicle.shared_world.daily_rite_outcomes.decision_windows[0].token_cost, 0);
   assert.equal(chronicle.shared_world.backend_readiness.mode, "live-read-table-fallback");
   assert.equal(chronicle.shared_world.backend_readiness.safe_to_scale_public_traffic, false);
   assert.equal(chronicle.shared_world.backend_readiness.scale_posture, "do-not-scale-public-writes");

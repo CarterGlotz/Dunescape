@@ -2,6 +2,15 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 69)
+- Shipped: Daily Rite room-clear reward application now lives in `src/game/dailyRiteRoomRuntime.js`, bounding HP/Prayer restoration and sanitizing item grants/log lines outside `src/App.jsx`
+- Shipped: active and completed Daily Rite status surfaces now show the latest room-clear receipt, reward summary, and next action
+- Shipped: public chronicle/status JSON now exports zero-token `decision_windows` for recovery, cache, tempo, and shrine-bargain route behavior
+- Shipped: room clears now emit capped public-safe `daily_rite_room_clear` feedback events with route/source attribution
+- Tests: 60 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: turn shrine-bargain windows into actual route choice prompts, extract Daily Rite room entry/auto-advance spawning into a pure runtime contract, and deploy/verify RPC/RLS hardening when `PG_CONNECTION_SOLARA` lands
+
 ## Where We Left Off (2026-06-12 · Session 68)
 - Shipped: Daily Rite segment policy now produces deterministic zero-token room-clear outcome receipts for recovery, coin caches, shrine bargains, and next-action guidance
 - Shipped: active Daily Rite wave clears now apply bounded HP, Prayer, coin, and Sunstone rewards from the outcome receipt before spawning the next room

@@ -114,3 +114,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - exported `daily_rite_outcomes` through public chronicle/status shared-world and integration surfaces
 - extended unit and smoke coverage so active Daily Rite runs expose zero-token outcome policy and latest room outcome receipts
 - verified 59 unit tests, production build, and smoke runtime
+
+## 2026-06-12 — Session 69
+
+- ran /start gates, confirmed the S68 audit was fully executed, then wrote docs/AUDIT_2026-06-12-S69.md / .json with four next-wave Daily Rite decision-window and receipt-visibility items
+- added `src/game/dailyRiteRoomRuntime.js` for bounded Daily Rite room outcome application, sanitized reward summaries, log lines, and public-safe feedback event metadata
+- wired active Daily Rite clears through the new runtime helper and recorded capped `daily_rite_room_clear` feedback events
+- extended the Daily Rite status contract/component so active and completed states show the latest clear receipt, reward summary, and next action
+- exported zero-token Daily Rite outcome `decision_windows` through public chronicle/status JSON
+- verified 60 unit tests, production build, and smoke runtime

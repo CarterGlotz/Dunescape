@@ -1,3 +1,24 @@
+import { summarizeDailyRiteOutcomeRewards } from "./dailyRiteRoomRuntime.js";
+
+function cleanText(value, fallback = "") {
+  return String(value || fallback).replace(/[<>`]/g, "").replace(/\s+/g, " ").trim();
+}
+
+function buildLatestOutcome(outcome = null) {
+  if (!outcome) return null;
+  const rewardSummary = summarizeDailyRiteOutcomeRewards(outcome);
+  return {
+    version: 1,
+    token_cost: 0,
+    wave: Math.max(0, Math.min(30, Math.floor(Number(outcome.wave || 0)))),
+    segment_label: cleanText(outcome.segment_label, `Wave ${Number(outcome.wave || 0) + 1}`).slice(0, 80),
+    reward_bias: cleanText(outcome.reward_bias, "unknown").slice(0, 48),
+    receipt: cleanText(outcome.receipt, "Daily Rite clear recorded.").slice(0, 180),
+    next_action: cleanText(outcome.next_action, "").slice(0, 140),
+    rewards: rewardSummary,
+  };
+}
+
 export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday = false } = {}) {
   if (!dailyRun) {
     return {
@@ -22,6 +43,7 @@ export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday =
       stake_label: primaryStake?.label || null,
       risk_label: primaryStake ? `risk ${primaryStake.risk}/5` : null,
       modifier_label: dailyRun.modifiers?.highest_risk_segment?.rule || null,
+      latest_outcome: buildLatestOutcome(dailyRun.latestOutcome),
       actions: [],
       token_cost: 0,
     };
@@ -36,6 +58,7 @@ export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday =
     stake_label: dailyRun.stakes?.primary_stake?.label || null,
     risk_label: dailyRun.stakes?.primary_stake ? `risk ${dailyRun.stakes.primary_stake.risk}/5` : null,
     modifier_label: dailyRun.modifiers?.highest_risk_segment?.rule || null,
+    latest_outcome: buildLatestOutcome(dailyRun.latestOutcome),
     actions: [
       dailyRun.shareCard ? "copy_share" : null,
       dailyRun.shareCard ? "download_scroll" : null,

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-12T02:28:05.118Z",
+  "generated_at": "2026-06-12T02:43:42.058Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -506,6 +506,80 @@
         "next_action": "Keep tempo clean and bank the route pressure."
       },
       "shrine_bargain": null,
+      "decision_windows": [
+        {
+          "version": 1,
+          "token_cost": 0,
+          "id": "recovery_window_1",
+          "kind": "recovery_window",
+          "wave": 0,
+          "segment_id": "segment_1",
+          "segment_label": "Waves 1-5",
+          "reward_bias": "xp",
+          "reward_line": "Waves 1-5 clear: light cache paid 19 coins, restored 7 HP.",
+          "next_action": "Spend food before this clear, then use the receipt to reset tempo."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "id": "tempo_window_2",
+          "kind": "tempo_window",
+          "wave": 5,
+          "segment_id": "segment_2",
+          "segment_label": "Waves 6-10",
+          "reward_bias": "relic",
+          "reward_line": "Waves 6-10 clear: relic ash paid 38 coins.",
+          "next_action": "Preserve supplies and keep the route clock clean."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "id": "recovery_window_3",
+          "kind": "recovery_window",
+          "wave": 10,
+          "segment_id": "segment_3",
+          "segment_label": "Waves 11-15",
+          "reward_bias": "coins",
+          "reward_line": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
+          "next_action": "Spend food before this clear, then use the receipt to reset tempo."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "id": "cache_window_4",
+          "kind": "cache_window",
+          "wave": 15,
+          "segment_id": "segment_4",
+          "segment_label": "Waves 16-20",
+          "reward_bias": "xp",
+          "reward_line": "Waves 16-20 clear: light cache paid 42 coins.",
+          "next_action": "Push this segment if you need coin to stabilize the run."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "id": "recovery_window_5",
+          "kind": "recovery_window",
+          "wave": 20,
+          "segment_id": "segment_5",
+          "segment_label": "Waves 21-25",
+          "reward_bias": "relic",
+          "reward_line": "Waves 21-25 clear: relic ash paid 54 coins, restored 8 HP.",
+          "next_action": "Spend food before this clear, then use the receipt to reset tempo."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "id": "cache_window_6",
+          "kind": "cache_window",
+          "wave": 25,
+          "segment_id": "segment_6",
+          "segment_label": "Waves 26-30",
+          "reward_bias": "coins",
+          "reward_line": "Waves 26-30 clear: coin cache paid 81 coins.",
+          "next_action": "Push this segment if you need coin to stabilize the run."
+        }
+      ],
       "samples": [
         {
           "version": 1,

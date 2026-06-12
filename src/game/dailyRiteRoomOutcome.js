@@ -78,6 +78,39 @@ function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomI
   };
 }
 
+function buildDecisionWindows(samples = []) {
+  return samples.map((item, index) => {
+    const rewardItems = Array.isArray(item.rewards?.items) ? item.rewards.items : [];
+    const kind = rewardItems.some((reward) => reward.id === "sunstone_shard")
+      ? "shrine_bargain"
+      : item.rewards?.heal > 0 || item.rewards?.prayer > 0
+        ? "recovery_window"
+        : item.rewards?.coins >= 40
+          ? "cache_window"
+          : "tempo_window";
+    const action =
+      kind === "shrine_bargain"
+        ? "Save a Sunstone Shard or route this segment toward shrine progress."
+        : kind === "recovery_window"
+          ? "Spend food before this clear, then use the receipt to reset tempo."
+          : kind === "cache_window"
+            ? "Push this segment if you need coin to stabilize the run."
+            : "Preserve supplies and keep the route clock clean.";
+    return {
+      version: 1,
+      token_cost: 0,
+      id: `${kind}_${index + 1}`,
+      kind,
+      wave: item.wave,
+      segment_id: item.segment_id,
+      segment_label: clean(item.segment_label, `Segment ${index + 1}`),
+      reward_bias: item.reward_bias,
+      reward_line: clean(item.receipt, "Daily Rite clear recorded."),
+      next_action: action,
+    };
+  });
+}
+
 export function getDailyRiteRoomOutcome({ run = null, wave = null, roomIndex = null, daySeed = "solara-day" } = {}) {
   const safeWave = Math.max(0, Math.min(29, Math.floor(Number(wave ?? run?.wave ?? 0) || 0)));
   const policy = getDailyRiteSegmentPolicyForWave({
@@ -125,6 +158,7 @@ export function buildDailyRiteOutcomeDigest({ modifiers = null, daySeed = "solar
     strongest_recovery: strongestRecovery,
     richest_cache: richestCache,
     shrine_bargain: shrineBargain,
+    decision_windows: buildDecisionWindows(samples),
     samples,
     summary: richestCache
       ? `${richestCache.segment_label} carries the richest room cache; ${strongestRecovery?.segment_label || richestCache.segment_label} is the safest recovery window.`

@@ -1,15 +1,15 @@
-# Implement Plan — AUDIT_2026-06-12-S68
+# Implement Plan — 2026-06-12 S69
 
-Source: `docs/AUDIT_2026-06-12-S68.json`
+Source: `docs/AUDIT_2026-06-12-S69.json`
 
-## Wave Plan
+## Wave Order
 
-1. `daily-rite-room-outcome-policy` — create the pure deterministic room-clear outcome contract first because the runtime and public surfaces depend on it.
-2. `daily-rite-policy-runtime-wiring` — apply the contract inside active Daily Rite wave-clear handling with bounded player rewards and receipt copy.
-3. `daily-rite-outcome-public-digest` — expose the same contract in public chronicle/status JSON for Studio surfaces.
-4. `daily-rite-outcome-smoke-contract` — prove the contract through unit tests and smoke validation.
+1. `daily-rite-outcome-runtime-contract` — Extract outcome application into `src/game/dailyRiteRoomRuntime.js` and wire `src/App.jsx`.
+2. `daily-rite-receipt-ui` — Surface latest room receipt/reward/next-action data through the Daily Rite status contract and component.
+3. `daily-rite-decision-window-digest` — Add deterministic decision windows to the public Daily Rite outcome digest and generated status surfaces.
+4. `daily-rite-outcome-validation` — Extend unit and smoke checks to prove bounded application, UI contract, and zero-token public digest behavior.
 
-## Verification Plan
+## Gates
 
 - `npm test`
 - `npm run build`

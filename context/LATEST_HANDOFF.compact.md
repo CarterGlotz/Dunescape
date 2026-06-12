@@ -1,44 +1,36 @@
 <!-- generated-by: scripts/compact-handoff.mjs v3.1 -->
-<!-- source-hash: 982776bed9ba -->
-<!-- generated-at: 2026-06-12T02:20:00.583Z -->
+<!-- source-hash: 0b39c88fbfab -->
+<!-- generated-at: 2026-06-12T02:43:03.749Z -->
 
 # LATEST_HANDOFF (compact)
 
-SESSION HANDOFF SUMMARY
+# Handoff Summary
 
-Session
-- Session 67 (2026-06-11)
+Session: 69 (2026-06-12)
 
-Shipped This Session
-- Daily Rite route modifiers now include deterministic segment policy: reward pressure, drop multipliers, recovery-room odds, shrine bargain posture
-- Daily Rite spawn mutation extracted to src/game/dailyRiteSpawn.js as a pure contract applying world state and active route policy outside React
-- Public chronicle/status JSON exports daily_rite_policy with token_cost 0
-- Smoke runtime proves active runs expose stakes, modifiers, segment policy, and 30-wave segment mapping after startup
+## Shipped This Session
+- Daily Rite room-clear reward application extracted to `src/game/dailyRiteRoomRuntime.js`; bounds HP/Prayer restore, sanitizes item grants and log lines outside `src/App.jsx`
+- Active and completed Daily Rite status surfaces now show latest room-clear receipt, reward summary, and next action
+- Public chronicle/status JSON exports zero-token `decision_windows` (recovery, cache, tempo, shrine-bargain routes)
+- Room clears emit capped public-safe `daily_rite_room_clear` events with route/source attribution
 
-Current Intent
+## Test/Build State
+- 60 unit tests passing; production build and smoke runtime passing
+
+## Current Intent
 - Run full /start -> /audit -> /implement -> /closeout cycle with project-specific audit; implement all repo-feasible items at quality; keep repo deployable
 
-Tests/Build State
-- 58 passing unit tests; production build and smoke runtime passing
+## Now Bucket (Top 3)
+- Convert shrine-bargain windows into actual route choice prompts
+- Extract Daily Rite room entry/auto-advance spawning into a pure runtime contract
+- Deploy/verify Supabase RPC/RLS hardening once `PG_CONNECTION_SOLARA` lands
 
-Now Bucket (Top 3)
-- Turn segment policy into richer authored room choices and visible recovery decisions
-- Continue extracting combat/run-spawn logic out of src/App.jsx
-- Deploy/verify Supabase RPC/RLS hardening once PG_CONNECTION_SOLARA lands
+## Blockers (Top 3)
+- Supabase production hardening blocked: needs project-scoped `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp` before scaled public traffic
+- Hardened RPCs not yet deployed (live probe returns PGRST202)
+- Prior workflow runs failed on blank/missing Supabase DB secrets
 
-Blockers (Top 3)
-- Supabase production hardening blocked: needs project-scoped PG_CONNECTION_SOLARA for cloud project fjnpzjjyhnpmunfoycrp, or owner SQL-editor action, before scaled public traffic
-- Hardened RPCs not yet deployed (PGRST202 observed on live anon probe)
-- Private ops secrets lack a full Postgres connection string / DB password suitable for the hardening workflow
+## Human-Blocked Items
+- Add project-scoped Postgres connection as `PG_CONNECTION_SOLARA` for project `fjnpzjjyhnpmunfoycrp`, then rerun Supabase Hardening workflow; or deploy `docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql` via SQL Editor with owner credentials and rerun `npm run verify:supabase`. Open since Session 64 (~5 sessions).
 
-Human-Blocked Items
-- Add PG_CONNECTION_SOLARA (project fjnpzjjyhnpmunfoycrp) then rerun manual Supabase Hardening workflow; alternative: deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql via SQL Editor with owner creds and rerun npm run verify:supabase. Open/recurring since ~Session 64 (2026-06-10); related secret gaps noted earlier (2026-06-03).
-
-Key Files
-- src/game/dailyRiteSpawn.js (new spawn contract)
-- src/game/dailyRunSession.js (run-session extraction)
-- src/App.jsx (still holds combat/run-spawn logic to extract)
-- src/components/DailyRiteStatus.jsx
-
-Next Session Pointer
-- Start by authoring richer Daily Rite room/recovery choices on top of segment policy, then resume App.jsx combat extraction; deploy Supabase hardening if PG_CONNECTION_SOLARA has landed.
+Next session: extract Daily Rite room spawning into a pure runtime contract and turn shrine-bargain windows into visible route choices.

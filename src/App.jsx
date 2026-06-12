@@ -51,6 +51,7 @@ import { getDailyRiteConsequence } from "./game/dailyRiteConsequences.js";
 import { completeDailyRiteRun, createDailyRiteRun } from "./game/dailyRunSession.js";
 import { applyDailyRiteSpawnState } from "./game/dailyRiteSpawn.js";
 import { getDailyRiteRoomOutcome } from "./game/dailyRiteRoomOutcome.js";
+import { applyDailyRiteRoomOutcome } from "./game/dailyRiteRoomRuntime.js";
 import { recordFeedbackEvent, summarizeFeedbackLedger } from "./game/feedbackLedger.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
@@ -2416,14 +2417,11 @@ export default function DS(){
           const clearedWave=Math.max(0,Math.min(29,run.wave-1));
           const roomOutcome=getDailyRiteRoomOutcome({run,wave:clearedWave,roomIndex:run.rooms?.[clearedWave],daySeed:getDailySeed()});
           run.latestOutcome=roomOutcome;
-          if(roomOutcome?.rewards){
-            if(roomOutcome.rewards.heal){p.hp=Math.min(p.mhp,p.hp+roomOutcome.rewards.heal);}
-            if(roomOutcome.rewards.prayer){p.prayer=Math.min(p.maxPrayer,p.prayer+roomOutcome.rewards.prayer);}
-            if(roomOutcome.rewards.coins)addI("coins",roomOutcome.rewards.coins);
-            (roomOutcome.rewards.items||[]).forEach(item=>addI(item.id,item.count||1));
-          }
-          if(roomOutcome?.receipt)addC("☀️ "+roomOutcome.receipt);
-          if(roomOutcome?.next_action)addC("🧭 "+roomOutcome.next_action);
+          const roomApplication=applyDailyRiteRoomOutcome({player:p,outcome:roomOutcome});
+          if(roomApplication.coin_grant)addI("coins",roomApplication.coin_grant);
+          roomApplication.item_grants.forEach(item=>addI(item.id,item.count));
+          roomApplication.log_lines.forEach(line=>addC(line));
+          recordFeedbackEvent(roomApplication.feedback_event.type,{phase:getWorldSnapshot().phase?.id,pressure:getWorldSnapshot().director?.pressure,modifier:getWorldSnapshot().director?.dailyModifier?.id,wave:roomApplication.feedback_event.wave,outcome:roomApplication.feedback_event.outcome,action_id:roomApplication.feedback_event.action_id,source:roomApplication.feedback_event.source});
           if(run.wave>=30){
             run.done=true;run.deathWave=30;
             run.vowResult=run.vow?evaluateVow(run.vow,{wave:30,completed:true,durationMs:Date.now()-run.startTime}):null;

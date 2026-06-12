@@ -90,3 +90,8 @@ Public-safe summary:
 - public chronicle/status exports now include `daily_rite_outcomes` so Studio surfaces can preview recovery windows, richest caches, and shrine-bargain posture without browser token cost
 - smoke coverage now verifies active Daily Rite runs expose zero-token outcome policy and latest room outcome receipts alongside stakes/modifiers/policy
 - latest local validation: 59 unit tests passing, production build passing, smoke flow passing
+- 2026-06-12 Session 69 audit/implement pass extracted Daily Rite room-clear reward application into `src/game/dailyRiteRoomRuntime.js`
+- active Daily Rite status now surfaces the latest room-clear receipt, reward summary, and next action instead of relying only on combat-log scrollback
+- public chronicle/status exports now include zero-token Daily Rite outcome `decision_windows` for recovery, cache, tempo, and shrine-bargain route choices
+- Daily Rite room-clear feedback now records a capped public-safe `daily_rite_room_clear` aggregate event with route/source attribution
+- latest local validation: 60 unit tests passing, production build passing, smoke flow passing

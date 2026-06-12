@@ -22,6 +22,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - keep the new Daily Rite mechanical modifiers, status render contract, and feedback route targets aligned with public chronicle/status exports
 - keep the new Daily Rite segment policy, spawn contract, public policy digest, and active-run smoke assertions aligned with public chronicle/status exports
 - keep the new Daily Rite room outcome receipts, runtime reward application, public outcome digest, and smoke assertions aligned with public chronicle/status exports
+- keep the new Daily Rite room runtime contract, visible latest-receipt status, decision-window digest, and smoke/unit assertions aligned with public chronicle/status exports
 
 ## Next
 
@@ -157,6 +158,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-11 Session 66 pass shipped Daily Rite mechanical modifiers, public `daily_rite_modifiers` exports, deterministic Daily Rite status contracts, and feedback route targets
 - 2026-06-11 Session 67 pass shipped Daily Rite segment economy policy, a pure Daily Rite spawn contract, public `daily_rite_policy` exports, and active-run smoke assertions
 - 2026-06-12 Session 68 pass shipped deterministic Daily Rite room outcome receipts, runtime clear rewards, public `daily_rite_outcomes` exports, and active-run smoke assertions
+- 2026-06-12 Session 69 pass shipped a pure Daily Rite room runtime application contract, visible latest clear receipts in the active status panel, public zero-token outcome decision windows, and bounded reward validation
 
 ## Deferred to Project Agents
 

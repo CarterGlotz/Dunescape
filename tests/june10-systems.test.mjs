@@ -11,6 +11,7 @@ import {
 } from "../src/game/dailyRiteModifiers.js";
 import { applyDailyRiteSpawnState } from "../src/game/dailyRiteSpawn.js";
 import { buildDailyRiteOutcomeDigest, getDailyRiteRoomOutcome } from "../src/game/dailyRiteRoomOutcome.js";
+import { applyDailyRiteRoomOutcome, summarizeDailyRiteOutcomeRewards } from "../src/game/dailyRiteRoomRuntime.js";
 import { getDailyRiteStatusContract } from "../src/game/dailyRiteStatusContract.js";
 import { getDailyRitePlan } from "../src/game/directorMechanics.js";
 import { FEEDBACK_ACTION_ROUTES, clearFeedbackLedger, getFeedbackNextActionDigest, loadFeedbackLedger, recordFeedbackEvent, summarizeFeedbackLedger } from "../src/game/feedbackLedger.js";
@@ -127,6 +128,8 @@ test("Daily Rite stakes produce mechanical modifiers and status contracts", () =
   assert.equal(activeContract.state, "active");
   assert.ok(activeContract.stake_label);
   assert.match(activeContract.modifier_label, /Risk/);
+  assert.equal(activeContract.latest_outcome.token_cost, 0);
+  assert.ok(activeContract.latest_outcome.receipt);
   run.shareCard = "SOLARA: LAST LIGHT";
   completeDailyRiteRun({ run, wave: 30, completed: true, playerName: "Mara", phase: "Dawn", dateSeed: "mechanical-stakes" });
   const completeContract = getDailyRiteStatusContract({ dailyRun: run });
@@ -176,10 +179,51 @@ test("Daily Rite room outcome policy produces deterministic zero-token clear rec
   assert.equal(first.token_cost, 0);
   assert.equal(digest.token_cost, 0);
   assert.equal(digest.segment_count, run.stakes.segment_count);
+  assert.equal(digest.decision_windows.length, digest.segment_count);
+  assert.ok(digest.decision_windows.every((window) => window.token_cost === 0));
   assert.ok(first.rewards.coins > 0);
   assert.ok(first.receipt.includes("clear"));
   assert.ok(digest.richest_cache.rewards.coins >= first.rewards.coins || digest.samples.length > 1);
   assert.doesNotMatch(JSON.stringify(digest), /<script>|`/);
+});
+
+test("Daily Rite room runtime applies bounded public-safe rewards", () => {
+  const player = {
+    hp: 9,
+    mhp: 12,
+    prayer: 1,
+    maxPrayer: 4,
+  };
+  const outcome = {
+    wave: 3,
+    segment_id: "route<script>",
+    reward_bias: "sunstone",
+    receipt: "Safe clear <script>",
+    next_action: "Bank the shard `now`.",
+    rewards: {
+      coins: 12000,
+      heal: 999,
+      prayer: 999,
+      items: [
+        { id: "sunstone_shard", count: 2, label: "Sunstone Shard" },
+        { id: "../bad", count: 99, label: "<bad>" },
+      ],
+    },
+  };
+  const summary = summarizeDailyRiteOutcomeRewards(outcome);
+  const applied = applyDailyRiteRoomOutcome({ player, outcome });
+
+  assert.equal(summary.token_cost, 0);
+  assert.equal(summary.coins, 9999);
+  assert.equal(player.hp, 12);
+  assert.equal(player.prayer, 4);
+  assert.equal(applied.heal_applied, 3);
+  assert.equal(applied.prayer_applied, 3);
+  assert.equal(applied.coin_grant, 9999);
+  assert.deepEqual(applied.item_grants, [{ id: "sunstone_shard", count: 2, label: "Sunstone Shard" }]);
+  assert.equal(applied.feedback_event.type, "daily_rite_room_clear");
+  assert.equal(applied.token_cost, 0);
+  assert.doesNotMatch(JSON.stringify(applied), /<script>|`|\.\.\/bad/);
 });
 
 test("feedback ledger stores capped public-safe aggregate events", () => {
@@ -252,6 +296,8 @@ test("public chronicle exports a zero-token feedback summary", () => {
   assert.equal(chronicle.shared_world.daily_rite_modifiers.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_policy.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_outcomes.token_cost, 0);
+  assert.ok(chronicle.shared_world.daily_rite_outcomes.decision_windows.length >= 1);
+  assert.equal(chronicle.shared_world.daily_rite_outcomes.decision_windows[0].token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_stakes.segment_count, chronicle.shared_world.daily_rite_plan.route.length);
   assert.equal(chronicle.shared_world.daily_rite_modifiers.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
   assert.equal(chronicle.shared_world.daily_rite_policy.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);

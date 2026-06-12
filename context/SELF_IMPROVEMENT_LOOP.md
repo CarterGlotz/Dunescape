@@ -20,6 +20,7 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 - 2026-06-11: Closeout continuation achieved. Verified the Session 65 audit implementation evidence, added the public closeout brief and audit JSON, regenerated public status/chronicle JSON, and validated the closeout board. Local validation passed: 56 unit tests, production build, smoke runtime, startup-brief render, brief-format validation, and closeout-board validation.
 - 2026-06-11: Session 66 achieved. Ran a fresh /start -> /audit -> /implement pass and shipped mechanical Daily Rite stakes, public zero-token modifier exports, Daily Rite status contracts, and feedback route targets. Local validation passed: 57 unit tests, production build, and smoke runtime.
 - 2026-06-12: Session 68 achieved. Ran /start, wrote a fresh four-item Solara-specific audit after confirming the prior audit was exhausted, and implemented deterministic Daily Rite room outcome receipts, runtime clear rewards, public `daily_rite_outcomes` exports, and active-run smoke coverage. Local validation passed: 59 unit tests, production build, and smoke runtime.
+- 2026-06-12: Session 69 achieved. Ran /start, wrote a fresh four-item Solara-specific audit after confirming Session 68 was exhausted, and implemented Daily Rite outcome application extraction, visible latest-receipt UI, public zero-token decision windows, and bounded reward validation. Local validation passed: 60 unit tests, production build, and smoke runtime.
 
 ## 2026-06-10 — Session 63 — Total: 868/1000
 
@@ -110,3 +111,18 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 | 8 | Ecosystem Integration | 98 | +2 | Studio surfaces can now read Daily Rite outcome previews separately from stakes, modifiers, and segment policy. |
 | 9 | Capital Efficiency | 91 | +2 | Outcome intelligence is deterministic and keeps browser runtime token cost at zero. |
 | 10 | Automation Coverage | 100 | 0 | Smoke now proves active outcome policy and latest outcome receipts; coverage stays at the category cap. |
+
+## 2026-06-12 — Session 69 — Total: 965/1000
+
+| # | Category | Score | Delta | Public-safe notes |
+|---|---|---:|---:|---|
+| 1 | Dev Health | 95 | +1 | 60 tests, production build, and smoke runtime pass after extracting room outcome application into a pure runtime contract. |
+| 2 | Creative Alignment | 97 | +1 | Daily Rite route pressure now stays Solara-owned while surfacing recovery, cache, tempo, and shrine-bargain decisions. |
+| 3 | Momentum | 97 | +1 | Fresh Session 69 audit was fully implemented and evidenced in one pass. |
+| 4 | Engagement | 99 | +1 | The active Daily Rite panel now preserves the latest clear receipt, reward summary, and next action for the player. |
+| 5 | Process Quality | 95 | +1 | Audit sidecar, implementation plan, execution log, generated public JSON, and validation evidence are aligned. |
+| 6 | Cross-Repo Coherence | 94 | +1 | Public status/chronicle exports expose decision windows without private Studio data. |
+| 7 | Security Posture | 96 | +1 | Reward application now clamps HP/Prayer and sanitizes item/log outputs before runtime/UI exposure. |
+| 8 | Ecosystem Integration | 99 | +1 | Studio surfaces can read zero-token Daily Rite decision windows in addition to outcome samples. |
+| 9 | Capital Efficiency | 92 | +1 | Decision intelligence remains deterministic and keeps browser runtime token cost at zero. |
+| 10 | Automation Coverage | 100 | 0 | Unit and smoke coverage now prove bounded application, visible receipt contracts, and decision-window exports. |

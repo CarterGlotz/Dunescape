@@ -28,6 +28,11 @@ export default function DailyRiteStatus({
         <div style={{fontSize:8,color:"#888",marginTop:2}}>{contract.progress_label}</div>
         {contract.stake_label&&<div style={{fontSize:7,color:"#d8a86a",lineHeight:1.4,marginTop:4}}>Stake: {contract.stake_label} · {contract.risk_label}</div>}
         {contract.modifier_label&&<div style={{fontSize:7,color:"#9fc6a0",lineHeight:1.4,marginTop:3}}>{contract.modifier_label}</div>}
+        {contract.latest_outcome&&<div style={{marginTop:5,padding:"5px 6px",background:"rgba(5,12,10,0.58)",border:"1px solid rgba(127,211,166,0.22)",borderRadius:4,textAlign:"left"}}>
+          <div style={{fontSize:7,color:"#7fd3a6",fontWeight:800,marginBottom:2}}>Last clear · {contract.latest_outcome.segment_label}</div>
+          <div style={{fontSize:7,color:"#d8c38a",lineHeight:1.35}}>{contract.latest_outcome.rewards.label||contract.latest_outcome.receipt}</div>
+          {contract.latest_outcome.next_action&&<div style={{fontSize:7,color:"#8fb7d8",lineHeight:1.35,marginTop:2}}>🧭 {contract.latest_outcome.next_action}</div>}
+        </div>}
         <div style={{height:4,background:"#120604",borderRadius:2,marginTop:4}}><div style={{height:"100%",background:"#c8a84e",borderRadius:2,width:((dailyRun.wave/30)*100)+"%"}}/></div>
       </div>
     );
@@ -41,6 +46,7 @@ export default function DailyRiteStatus({
       </div>
       {contract.progress_label&&<div style={{fontSize:7,color:"#d8a86a",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>☀️ {contract.progress_label}</div>}
       {contract.modifier_label&&<div style={{fontSize:7,color:"#9fc6a0",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{contract.modifier_label}</div>}
+      {contract.latest_outcome&&<div style={{fontSize:7,color:"#d8c38a",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>Last clear: {contract.latest_outcome.rewards.label||contract.latest_outcome.segment_label}</div>}
       {dailyRun.vowResult&&<div style={{fontSize:7,color:dailyRun.vowResult.kept?"#e0b050":"#a06050",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{dailyRun.vowResult.kept?"⚜️":"🕯️"} {dailyRun.vowResult.debriefLine}</div>}
       {dailyRun.challengeResult&&<div style={{fontSize:7,color:dailyRun.challengeResult.beaten?"#6c4":"#c86",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🔥 {dailyRun.challengeResult.line}</div>}
       {dailyRun.pacingCoach&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🧭 {dailyRun.pacingCoach.next_action}</div>}

@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-12",
+  "project": "solara",
+  "projectName": "Solara: Sunfall",
+  "type": "game",
+  "session": 69,
+  "topLine": {
+    "totalItems": 4,
+    "combinedPriority": 44.8,
+    "top3": [
+      "daily-rite-outcome-runtime-contract",
+      "daily-rite-receipt-ui",
+      "daily-rite-decision-window-digest"
+    ]
+  },
+  "items": [
+    {
+      "id": 1,
+      "slug": "daily-rite-outcome-runtime-contract",
+      "tier": "🔥",
+      "axis": "speed / organization / efficiency",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 8,
+      "priority": 13.1,
+      "title": "Extract Daily Rite room outcome application out of App.jsx",
+      "why": "S68 made room-clear receipts deterministic, but the runtime still applies HP, Prayer, coin, item, and log effects inline inside the main React loop. A pure application contract keeps App.jsx from becoming the mechanics source of truth and gives tests a stable target for reward safety.",
+      "recipe": "Add `src/game/dailyRiteRoomRuntime.js` that converts a room outcome receipt into bounded player mutations, item grants, sanitized log lines, and a feedback event shape; wire `App.jsx` to use it."
+    },
+    {
+      "id": 2,
+      "slug": "daily-rite-receipt-ui",
+      "tier": "⚡",
+      "axis": "UI / UX / user-experience",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 10.2,
+      "title": "Show the latest Daily Rite receipt in the active run panel",
+      "why": "Room outcomes currently flash through the combat log, which is easy to miss while the player is fighting. The Daily Rite status panel should carry the latest receipt, reward bundle, and next action so the run explains its consequence without requiring scrollback.",
+      "recipe": "Extend `getDailyRiteStatusContract` and `DailyRiteStatus.jsx` to expose/render `latest_outcome` with coins, recovery, item, and next-action fields while preserving compact layout."
+    },
+    {
+      "id": 3,
+      "slug": "daily-rite-decision-window-digest",
+      "tier": "🔥",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 9,
+      "priority": 11.7,
+      "title": "Publish deterministic Daily Rite decision windows",
+      "why": "The public outcome digest says which segment is richest or safest, but not where a player should actively change behavior. Solara can make the route feel authored by surfacing recovery windows, cache windows, and shrine bargain windows as zero-token decision points for the browser and Studio surfaces.",
+      "recipe": "Add a sanitized decision-window list to the Daily Rite outcome digest and export it through `chronicle.json` / `status.json` with `token_cost: 0`."
+    },
+    {
+      "id": 4,
+      "slug": "daily-rite-outcome-validation",
+      "tier": "⚡",
+      "axis": "security",
+      "effort": "30m",
+      "impact": 7,
+      "innovation": 7,
+      "priority": 9.8,
+      "title": "Prove outcome application stays bounded and public-safe",
+      "why": "Reward receipts now affect player resources, so the safety bar should cover more than deterministic generation. Tests should prove the runtime application clamps HP/Prayer, grants only sanitized item ids/counts, emits no unsafe log text, and keeps browser token cost at zero.",
+      "recipe": "Add unit/smoke assertions for the new runtime contract, visible active receipt contract, and public decision-window digest."
+    }
+  ],
+  "innovationReserve": [
+    "daily-rite-outcome-runtime-contract",
+    "daily-rite-decision-window-digest"
+  ],
+  "skipped": [
+    {
+      "slug": "browser-playwright-daily-rite-receipt-flow",
+      "reason": "Still valuable, but this repo does not yet carry a browser runner; keep this pass dependency-free."
+    },
+    {
+      "slug": "generative-room-narration",
+      "reason": "Rejected by deterministic-first policy and zero browser token cost."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "daily-rite-outcome-runtime-contract",
+      "status": "shipped",
+      "evidence": "Added `src/game/dailyRiteRoomRuntime.js` to bound HP/Prayer mutations, sanitize item grants/log lines, emit zero-token reward summaries, and return a public-safe `daily_rite_room_clear` feedback event; `src/App.jsx` now uses it for room clears."
+    },
+    {
+      "slug": "daily-rite-receipt-ui",
+      "status": "shipped",
+      "evidence": "`getDailyRiteStatusContract` now exposes `latest_outcome`, and `DailyRiteStatus.jsx` renders the latest clear receipt, reward summary, and next action during active/completed Daily Rite states."
+    },
+    {
+      "slug": "daily-rite-decision-window-digest",
+      "status": "shipped",
+      "evidence": "`buildDailyRiteOutcomeDigest` now publishes zero-token `decision_windows`; regenerated `public/chronicle.json` and `public/status.json` include recovery/cache/tempo windows."
+    },
+    {
+      "slug": "daily-rite-outcome-validation",
+      "status": "shipped",
+      "evidence": "Added unit and smoke assertions for bounded outcome application, visible active receipt contracts, public decision windows, and zero-token guarantees. Validation passed: 60 unit tests, production build, smoke."
+    }
+  ]
+}

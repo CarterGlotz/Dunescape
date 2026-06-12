@@ -1,30 +1,30 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-12 (Session 68 closeout) -->
+<!-- generated-at: 2026-06-12 (Session 69 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S68 ═════════════════════════════╗
-║  Date: 2026-06-12  ·  SIL: 955/1000  ·  Velocity: 14 ->          ║
+╔══ SESSION CLOSEOUT · Solara · S69 ═════════════════════════════╗
+║  Date: 2026-06-12  ·  SIL: 965/1000  ·  Velocity: 14 ->          ║
 ║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: Daily Rite segment policy now produces deterministi  ║
-║  ✓ Shipped: active Daily Rite wave clears now apply bounded HP,  ║
-║  ✓ Shipped: public chronicle/status JSON now exports `daily_rit  ║
-║  ✓ Shipped: smoke runtime now proves active Daily Rite runs exp  ║
-║  ✓ Tests: 59 passing unit tests plus production build and smoke  ║
+║  ✓ Shipped: Daily Rite room-clear reward application now lives   ║
+║  ✓ Shipped: active and completed Daily Rite status surfaces now  ║
+║  ✓ Shipped: public chronicle/status JSON now exports zero-token  ║
+║  ✓ Shipped: room clears now emit capped public-safe `daily_rite  ║
+║  ✓ Tests: 60 passing unit tests plus production build and smoke  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 955/1000 ═══════════════════════════════════════╗
-║    Dev Health         94   █████████░                            ║
-║    Alignment          96   ██████████                            ║
-║    Momentum           96   ██████████                            ║
-║    Engagement         98   ██████████                            ║
-║    Process Qual       94   █████████░                            ║
-║    Coherence          93   █████████░                            ║
-║    Security           95   ██████████                            ║
-║    Ecosystem          98   ██████████                            ║
-║    Capital            91   █████████░                            ║
+╔══ SCORES · SIL 965/1000 ═══════════════════════════════════════╗
+║    Dev Health         95   ██████████                            ║
+║    Alignment          97   ██████████                            ║
+║    Momentum           97   ██████████                            ║
+║    Engagement         99   ██████████                            ║
+║    Process Qual       95   ██████████                            ║
+║    Coherence          94   █████████░                            ║
+║    Security           96   ██████████                            ║
+║    Ecosystem          99   ██████████                            ║
+║    Capital            92   █████████░                            ║
 ║    Automation         100  ██████████                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
@@ -35,19 +35,19 @@
 ║  · context/DECISIONS.md                                          ║
 ║  ✓ context/SELF_IMPROVEMENT_LOOP.md                              ║
 ║  · docs/CREATIVE_DIRECTION_RECORD.md                             ║
-║  ✓ context/TRUTH_AUDIT.md                                        ║
+║  · context/TRUTH_AUDIT.md                                        ║
 ║  ✓ context/PROJECT_STATUS.json                                   ║
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 22 files  ·  M:17 A:0 D:0 ?:5                          ║
+║  Changes: 22 files  ·  M:17 A:1 D:0 ?:4                          ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
 ║  Doctor:        —                                                ║
 ║  Compliance:    —                                                ║
-║  Tests:         59/59                                            ║
+║  Tests:         60/60                                            ║
 ║  IGNIS:         7d ago                                           ║
 ║  Truth:         green                                            ║
 ║  Sanitization:  —                                                ║
