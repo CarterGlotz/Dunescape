@@ -131,4 +131,6 @@ Public-safe summary:
 - inventory item names, bestiary/prayer/upgrade/settings descriptions enlarged and brightened; default UI scale moved from 1.0 to 1.15
 - integration check: no TODO/FIXME/placeholder markers in `src/`; all React components and `content.js` exports wired; a few `src/game/*` exports are internal-only over-exports (benign)
 - documented in `docs/AUDIT_2026-06-12-visual-playability.md`; recommended next big lever is a sprite-sheet asset layer plus mobile/touch controls and DPR-scaling the minimap
-- latest local validation: 64 unit tests passing, production build passing, smoke flow passing
+- Session 77 follow-up shipped the recommended-next items: a terrain tile atlas asset layer (`src/game/sprites.js`, pre-rendered textured tiles blitted via `drawImage` with procedural fallback, covered by `tests/sprites.test.mjs`), DPR-scaled full-screen world map canvas, and a responsive grave popup that no longer overflows narrow screens
+- Session 77 also untracked the unassigned `obelisk-passport/` surface (gitignored, preserved on disk) and added a public-safe `scripts/gmail-closeout-digest.mjs` no-op shim so the closeout autopilot's optional digest step no longer errors
+- latest local validation: 67 unit tests passing, production build passing, smoke flow passing

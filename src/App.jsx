@@ -30,6 +30,7 @@ import {
 } from "./game/sharedWorldService.js";
 import { getSunAlmanac } from "./game/almanac.js";
 import { buildChronicleScenes } from "./game/chronicleScenes.js";
+import { buildTileAtlas } from "./game/sprites.js";
 import { getDailyRitePlan } from "./game/directorMechanics.js";
 import { getRitePacingCoach } from "./game/riteCoach.js";
 import { applyVowToEpitaph, evaluateVow, getVowById, getVowOffers } from "./game/vows.js";
@@ -826,6 +827,7 @@ const QUEST_TEMPLATES=[
 
 function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
   const size=Math.min(500,Math.floor(Math.min(window.innerWidth,window.innerHeight)*0.7));
+  const dpr=typeof window!=="undefined"?Math.min(3,Math.max(1,window.devicePixelRatio||1)):1;
   useEffect(()=>{
     const cv=mapCvR.current,g2=gR.current;if(!cv||!g2)return;
     const c=cv.getContext("2d"),sc=cv.width/MW;
@@ -904,7 +906,7 @@ function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
     const hit=graves.find(gr=>Math.abs(gr.x-mx)<hitR&&Math.abs(gr.y-my)<hitR);
     if(hit)onGraveClick(hit);
   },[graves,onGraveClick,mapCvR]);
-  return <canvas ref={mapCvR} width={size} height={size} onClick={handleMapClick} style={{display:"block",imageRendering:"pixelated",cursor:"crosshair"}}/>;
+  return <canvas ref={mapCvR} width={size*dpr} height={size*dpr} onClick={handleMapClick} style={{display:"block",width:size,height:size,imageRendering:"pixelated",cursor:"crosshair"}}/>;
 }
 
 export default function DS(){
@@ -1593,6 +1595,8 @@ export default function DS(){
     {const month=new Date().getMonth()+1;const ev=SEASONAL_EVENTS.find(e=>e.months.includes(month));if(ev&&ev.monsters.length>0){ev.monsters.forEach(md=>{const m={...md,id:Math.random(),at:0,dead:false,temp:true};g.mons.push(m);});addC(ev.icon+" "+ev.name+" is active! Special creatures roam the world.");g.seasonalEvent=ev;}}
 
     const cv=cvR.current,c=cv.getContext("2d");
+    // Pre-render textured terrain tiles once into an offscreen atlas (asset layer).
+    try{const atlas=buildTileAtlas(TILE,T,TC);if(atlas)g.tileAtlas=atlas;}catch(e){g.tileAtlas=null;}
     const syncCanvasSize=()=>{
       const host=viewportHostR.current;
       if(!host||!cv)return;
@@ -2547,7 +2551,9 @@ export default function DS(){
         const mx=cx+tx,my=cy+ty;
         const drawX=offX+tx*TILE,drawY=offY+ty*TILE;
         if(mx<0||mx>=MW||my<0||my>=MH){c.fillStyle="#0d0403";c.fillRect(drawX,drawY,TILE,TILE);continue;}
-        const t=map[my][mx],cols=TC[t]||["#333"];c.fillStyle=cols[(mx*7+my*13)%cols.length];c.fillRect(drawX,drawY,TILE,TILE);
+        const t=map[my][mx],cols=TC[t]||["#333"];const variant=(mx*7+my*13)%cols.length;
+        if(g.tileAtlas)c.drawImage(g.tileAtlas.canvas,variant*TILE,t*TILE,TILE,TILE,drawX,drawY,TILE,TILE);
+        else{c.fillStyle=cols[variant];c.fillRect(drawX,drawY,TILE,TILE);}
         // Rocky ground details (pebbles + cracks)
         if(t===T.G&&((mx*11+my*7)%17===0)){c.fillStyle="rgba(140,50,15,0.55)";c.beginPath();c.arc(drawX+10,drawY+18,3,0,6.28);c.fill();c.beginPath();c.arc(drawX+22,drawY+12,2,0,6.28);c.fill();c.beginPath();c.arc(drawX+16,drawY+24,2.5,0,6.28);c.fill();}
         if(t===T.G&&((mx*13+my*11)%23===0)){c.strokeStyle="rgba(60,15,5,0.45)";c.lineWidth=1;c.beginPath();c.moveTo(drawX+8,drawY+10);c.lineTo(drawX+18,drawY+20);c.stroke();c.beginPath();c.moveTo(drawX+20,drawY+8);c.lineTo(drawX+26,drawY+16);c.stroke();}
@@ -4136,7 +4142,7 @@ export default function DS(){
             {supabase&&<span style={{marginLeft:"auto",color:"#444"}}>{gravesRef.current.length} grave{gravesRef.current.length!==1?"s":""}</span>}
           </div>
           {/* Phase 2: Grave popup */}
-          {gravePopup&&<div style={{position:"absolute",bottom:60,left:"50%",transform:"translateX(-50%)",background:"rgba(12,4,2,0.97)",border:"1px solid #7a4090",borderRadius:6,padding:"8px 12px",minWidth:200,maxWidth:280,zIndex:10}} onClick={e=>e.stopPropagation()}>
+          {gravePopup&&<div style={{position:"absolute",bottom:60,left:"50%",transform:"translateX(-50%)",background:"rgba(12,4,2,0.97)",border:"1px solid #7a4090",borderRadius:6,padding:"8px 12px",width:"min(280px,86vw)",maxWidth:"86vw",boxSizing:"border-box",maxHeight:"60vh",overflowY:"auto",zIndex:10}} onClick={e=>e.stopPropagation()}>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
               <span style={{color:"#b4a0dc",fontSize:11,fontWeight:700}}>✝ {gravePopup.player_name}</span>
               <button onClick={()=>setGravePopup(null)} style={{background:"transparent",border:"none",color:"#666",fontSize:12,cursor:"pointer",padding:0,lineHeight:1}}>✕</button>

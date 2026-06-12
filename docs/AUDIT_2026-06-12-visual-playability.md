@@ -28,16 +28,24 @@ covered by tests. A handful of `src/game/*` exports are only used internally
 (`getVowLegacyValue`, `feedbackLedger` load/clear helpers, several `sharedWorld`
 internals) — benign over-exports, not missing features.
 
-## Remaining / recommended next (not blocking)
+## Follow-up pass — recommended-next items shipped
 
-- **Mobile/touch**: world uses click-to-move; no on-screen joystick or pinch zoom.
-  Grave popup on the map (`maxWidth:280`) can overflow < 320px viewports.
-- **Asset pipeline**: all art is procedural canvas primitives. A sprite-sheet
-  layer (player, monsters, tiles) would raise visual quality more than any single
-  tweak — biggest lever for "render better". Consider a small `assets/` atlas +
-  `drawImage` path while keeping the procedural fallback.
-- **Minimap** (`MapCanvas`) is not DPR-scaled — minor blur on its own canvas.
-- **Floating combat text** can stack/overlap during dense fights; could add
-  vertical jitter or pooling.
-- Consider a global readable-baseline (min 11px) sweep for the remaining 7–8px
-  labels in deep settings/quest panels.
+- **Asset pipeline (terrain atlas)**: added `src/game/sprites.js` (`buildTileAtlas`,
+  `shadeHex`). At setup the renderer pre-renders every terrain type/variant into a
+  single offscreen atlas (gradient depth + deterministic grain + water/lava/sand
+  accents) and blits each visible tile with `drawImage` instead of a flat fill —
+  richer texture and a draw-call win, with a procedural fallback when no DOM/atlas.
+  Covered by `tests/sprites.test.mjs`.
+- **Map canvas DPR**: `WorldMapCanvas` now renders at `devicePixelRatio` (backing
+  store ×dpr, CSS size unchanged) so the full-screen map is crisp.
+- **Mobile**: grave popup is now `width:min(280px,86vw)` with `maxHeight:60vh`
+  scroll so it never overflows narrow screens. (Touch already supported tap=move /
+  long-press=context-menu via synthesized events.)
+
+## Still open (not blocking)
+
+- **Entity sprites**: player/monsters/objects are still procedural; extending the
+  atlas pipeline to them is the next visual lever (kept out of this pass to avoid
+  destabilizing the per-subtype color logic in the draw loop).
+- **Pinch-to-zoom / on-screen joystick** for touch; floating combat text pooling
+  during dense fights; a global ≥11px sweep for the deepest settings/quest labels.
