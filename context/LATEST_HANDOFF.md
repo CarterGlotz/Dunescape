@@ -2,6 +2,14 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 71)
+- Shipped: Daily Rite route-choice prompts now become committed zero-token player decisions through `src/game/dailyRiteRouteCommitments.js`
+- Shipped: active Daily Rite runs now store `routeChoiceCommitment` and `routeChoiceHistory`, and the Daily Rite status panel renders commit controls plus the selected next-room posture
+- Shipped: route-choice commits now emit capped public-safe `daily_rite_route_choice` feedback events with route/source attribution
+- Tests: 62 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: extract Daily Rite room entry/auto-advance spawning into a pure runtime contract, then let committed route postures influence next-room tuning
+
 ## Where We Left Off (2026-06-12 · Session 70)
 - Shipped: Daily Rite outcome decision windows now become deterministic zero-token route-choice prompts in `src/game/dailyRiteRouteChoices.js`
 - Shipped: active Daily Rite runs now store `latestRouteChoice`, and the Daily Rite status panel shows the recommended route choice plus alternate postures

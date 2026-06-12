@@ -1,0 +1,65 @@
+{
+  "generated_by": "/audit skill v1.0",
+  "generated_at": "2026-06-12",
+  "project": "solara",
+  "type": "game",
+  "headline": "Turn Daily Rite route-choice intelligence from readable advice into committed player agency without adding browser token cost.",
+  "items": [
+    {
+      "id": 1,
+      "slug": "route-choice-commitments",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 8,
+      "priority": 45.43,
+      "title": "Daily Rite route-choice commitments",
+      "why": "Solara already opens route-choice prompts, but the player cannot yet commit to a route posture. Make the prompt a lightweight decision loop so every clear can become an authored survival, tempo, or shrine bargain choice.",
+      "recipe": "Add a pure zero-token commitment builder, store the selected commitment on the active Daily Rite run, and render route-choice buttons in the Daily Rite status panel."
+    },
+    {
+      "id": 2,
+      "slug": "route-choice-feedback-ledger",
+      "tier": "high",
+      "axis": "user feedback loop",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 35.34,
+      "title": "Route-choice feedback attribution",
+      "why": "The local feedback ledger sees starts, ends, shares, imports, and room clears, but not player route posture. Recording the selected route choice gives future balancing a public-safe signal for ignored prompts, popular bargains, and confusing recommendations.",
+      "recipe": "Emit a capped `daily_rite_route_choice` feedback event with route/source attribution when a choice is committed."
+    },
+    {
+      "id": 3,
+      "slug": "route-choice-contract-tests",
+      "tier": "high",
+      "axis": "security",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 6,
+      "priority": 30.28,
+      "title": "Route-choice commitment contract tests",
+      "why": "The commitment surface accepts prompt data and choice ids that may eventually be hydrated from shared-world state. Add sanitizer, bounds, and status-contract tests now so the interaction remains public-safe as it becomes richer.",
+      "recipe": "Cover commitment creation, invalid-choice fallback, status contract export, and feedback payload sanitization in the existing Daily Rite test suite."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "route-choice-commitments",
+      "status": "shipped",
+      "evidence": "Added src/game/dailyRiteRouteCommitments.js, wired DailyRiteStatus commit controls, and persisted routeChoiceCommitment/routeChoiceHistory on active Daily Rite runs."
+    },
+    {
+      "slug": "route-choice-feedback-ledger",
+      "status": "shipped",
+      "evidence": "Route-choice commits emit capped public-safe daily_rite_route_choice feedback events with wave, action_id, source, and outcome attribution."
+    },
+    {
+      "slug": "route-choice-contract-tests",
+      "status": "shipped",
+      "evidence": "npm test passes 62/62, including commitment sanitizer, invalid-choice fallback, status contract export, and zero-token assertions."
+    }
+  ]
+}

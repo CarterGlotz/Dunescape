@@ -1,30 +1,30 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-12 (Session 70 closeout) -->
+<!-- generated-at: 2026-06-12 (Session 71 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S70 ═════════════════════════════╗
-║  Date: 2026-06-12  ·  SIL: 973/1000  ·  Velocity: 8 ->           ║
+╔══ SESSION CLOSEOUT · Solara · S71 ═════════════════════════════╗
+║  Date: 2026-06-12  ·  SIL: 979/1000  ·  Velocity: 6 ->           ║
 ║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: Daily Rite outcome decision windows now become dete  ║
-║  ✓ Shipped: active Daily Rite runs now store `latestRouteChoice  ║
-║  ✓ Shipped: public chronicle/status JSON now exports `daily_rit  ║
-║  ✓ Tests: 61 passing unit tests plus production build and smoke  ║
+║  ✓ Shipped: Daily Rite route-choice prompts now become committe  ║
+║  ✓ Shipped: active Daily Rite runs now store `routeChoiceCommit  ║
+║  ✓ Shipped: route-choice commits now emit capped public-safe `d  ║
+║  ✓ Tests: 62 passing unit tests plus production build and smoke  ║
 ║  ✓ Remaining gate: Supabase production hardening still needs pr  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 973/1000 ═══════════════════════════════════════╗
-║    Dev Health         96   ██████████                            ║
-║    Alignment          98   ██████████                            ║
-║    Momentum           98   ██████████                            ║
+╔══ SCORES · SIL 979/1000 ═══════════════════════════════════════╗
+║    Dev Health         97   ██████████                            ║
+║    Alignment          99   ██████████                            ║
+║    Momentum           99   ██████████                            ║
 ║    Engagement         100  ██████████                            ║
-║    Process Qual       96   ██████████                            ║
+║    Process Qual       97   ██████████                            ║
 ║    Coherence          95   ██████████                            ║
-║    Security           97   ██████████                            ║
+║    Security           98   ██████████                            ║
 ║    Ecosystem          100  ██████████                            ║
-║    Capital            93   █████████░                            ║
+║    Capital            94   █████████░                            ║
 ║    Automation         100  ██████████                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
@@ -35,19 +35,19 @@
 ║  · context/DECISIONS.md                                          ║
 ║  ✓ context/SELF_IMPROVEMENT_LOOP.md                              ║
 ║  · docs/CREATIVE_DIRECTION_RECORD.md                             ║
-║  ✓ context/TRUTH_AUDIT.md                                        ║
+║  · context/TRUTH_AUDIT.md                                        ║
 ║  ✓ context/PROJECT_STATUS.json                                   ║
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 22 files  ·  M:17 A:0 D:0 ?:5                          ║
+║  Changes: 18 files  ·  M:14 A:0 D:0 ?:4                          ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
 ║  Doctor:        —                                                ║
 ║  Compliance:    —                                                ║
-║  Tests:         61/61                                            ║
+║  Tests:         62/62                                            ║
 ║  IGNIS:         7d ago                                           ║
 ║  Truth:         green                                            ║
 ║  Sanitization:  —                                                ║

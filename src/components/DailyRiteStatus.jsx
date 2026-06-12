@@ -10,6 +10,7 @@ export default function DailyRiteStatus({
   onCopyShare,
   onDownloadScroll,
   onCopyChallenge,
+  onCommitRouteChoice,
 }) {
   const contract = getDailyRiteStatusContract({ dailyRun, playedDailyToday });
   if (!dailyRun) {
@@ -35,8 +36,10 @@ export default function DailyRiteStatus({
         </div>}
         {contract.route_choice?.choices?.length>0&&<div style={{marginTop:5,padding:"5px 6px",background:"rgba(18,10,26,0.56)",border:"1px solid rgba(190,140,255,0.22)",borderRadius:4,textAlign:"left"}}>
           <div style={{fontSize:7,color:"#c8a0ff",fontWeight:800,marginBottom:2}}>{contract.route_choice.headline}</div>
+          {contract.route_commitment&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.32,marginBottom:3}}>Committed: {contract.route_commitment.choice_label} · {contract.route_commitment.next_room_bias}</div>}
           {contract.route_choice.choices.slice(0,3).map(choice=><div key={choice.id} style={{fontSize:7,color:choice.id===contract.route_choice.recommended_choice_id?"#f0d8ff":"#9f8bb8",lineHeight:1.32,marginTop:2}}>
             {choice.id===contract.route_choice.recommended_choice_id?"◆ ":"◇ "}{choice.label} — {choice.payoff}
+            {onCommitRouteChoice&&(!contract.route_commitment||contract.route_commitment.choice_id!==choice.id)&&<button onClick={()=>onCommitRouteChoice(choice.id)} style={{marginLeft:4,background:"rgba(40,18,52,0.78)",border:"1px solid rgba(200,160,255,0.35)",color:"#f0d8ff",fontSize:7,padding:"1px 4px",borderRadius:3,cursor:"pointer"}}>Commit</button>}
           </div>)}
         </div>}
         <div style={{height:4,background:"#120604",borderRadius:2,marginTop:4}}><div style={{height:"100%",background:"#c8a84e",borderRadius:2,width:((dailyRun.wave/30)*100)+"%"}}/></div>
@@ -54,6 +57,7 @@ export default function DailyRiteStatus({
       {contract.modifier_label&&<div style={{fontSize:7,color:"#9fc6a0",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{contract.modifier_label}</div>}
       {contract.latest_outcome&&<div style={{fontSize:7,color:"#d8c38a",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>Last clear: {contract.latest_outcome.rewards.label||contract.latest_outcome.segment_label}</div>}
       {contract.route_choice?.choices?.length>0&&<div style={{fontSize:7,color:"#c8a0ff",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{contract.route_choice.headline}: {contract.route_choice.choices.find(choice=>choice.id===contract.route_choice.recommended_choice_id)?.label||contract.route_choice.choices[0].label}</div>}
+      {contract.route_commitment&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>Committed: {contract.route_commitment.choice_label} · {contract.route_commitment.posture}</div>}
       {dailyRun.vowResult&&<div style={{fontSize:7,color:dailyRun.vowResult.kept?"#e0b050":"#a06050",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{dailyRun.vowResult.kept?"⚜️":"🕯️"} {dailyRun.vowResult.debriefLine}</div>}
       {dailyRun.challengeResult&&<div style={{fontSize:7,color:dailyRun.challengeResult.beaten?"#6c4":"#c86",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🔥 {dailyRun.challengeResult.line}</div>}
       {dailyRun.pacingCoach&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🧭 {dailyRun.pacingCoach.next_action}</div>}

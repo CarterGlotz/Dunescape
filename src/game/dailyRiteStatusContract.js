@@ -42,6 +42,22 @@ function buildRouteChoice(choice = null) {
   };
 }
 
+function buildRouteCommitment(commitment = null) {
+  if (!commitment?.committed) return null;
+  return {
+    version: 1,
+    token_cost: 0,
+    wave: Math.max(0, Math.min(30, Math.floor(Number(commitment.wave || 0)))),
+    segment_id: cleanText(commitment.segment_id, "unknown").slice(0, 48),
+    headline: cleanText(commitment.headline, "Route choice committed").slice(0, 80),
+    choice_id: cleanText(commitment.choice?.id, "choice").slice(0, 48),
+    choice_label: cleanText(commitment.choice?.label, "Choose route").slice(0, 64),
+    posture: cleanText(commitment.effect?.posture, "balanced").slice(0, 32),
+    next_room_bias: cleanText(commitment.effect?.next_room_bias, "balanced route pressure").slice(0, 100),
+    receipt: cleanText(commitment.receipt, "Route choice committed.").slice(0, 160),
+  };
+}
+
 export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday = false } = {}) {
   if (!dailyRun) {
     return {
@@ -68,6 +84,7 @@ export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday =
       modifier_label: dailyRun.modifiers?.highest_risk_segment?.rule || null,
       latest_outcome: buildLatestOutcome(dailyRun.latestOutcome),
       route_choice: buildRouteChoice(dailyRun.latestRouteChoice),
+      route_commitment: buildRouteCommitment(dailyRun.routeChoiceCommitment),
       actions: [],
       token_cost: 0,
     };
@@ -84,6 +101,7 @@ export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday =
     modifier_label: dailyRun.modifiers?.highest_risk_segment?.rule || null,
     latest_outcome: buildLatestOutcome(dailyRun.latestOutcome),
     route_choice: buildRouteChoice(dailyRun.latestRouteChoice),
+    route_commitment: buildRouteCommitment(dailyRun.routeChoiceCommitment),
     actions: [
       dailyRun.shareCard ? "copy_share" : null,
       dailyRun.shareCard ? "download_scroll" : null,

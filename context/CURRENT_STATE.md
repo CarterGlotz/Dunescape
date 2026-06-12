@@ -99,3 +99,7 @@ Public-safe summary:
 - active Daily Rite runs now carry `latestRouteChoice`, and the Daily Rite status panel renders the recommended choice plus alternate route postures
 - public chronicle/status exports now include `daily_rite_route_choices` so Studio surfaces can read route-choice intelligence without browser token cost
 - latest local validation: 61 unit tests passing, production build passing, smoke flow passing
+- 2026-06-12 Session 71 audit/implement pass turned Daily Rite route-choice prompts into committed zero-token player decisions
+- active Daily Rite runs now store `routeChoiceCommitment` and `routeChoiceHistory`, and the status panel renders commit controls plus the selected next-room posture
+- route-choice commits now emit capped public-safe `daily_rite_route_choice` feedback events with route/source attribution
+- latest local validation: 62 unit tests passing, production build passing, smoke flow passing

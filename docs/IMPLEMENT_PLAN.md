@@ -1,13 +1,12 @@
-# Implement Plan — 2026-06-12 S70
+# Implement Plan — 2026-06-12 S71
 
-Source: `docs/AUDIT_2026-06-12-S70.json`
+Source: `docs/AUDIT_2026-06-12-S71.json`
 
 ## Wave Order
 
-1. `daily-rite-route-choice-contract` — Convert outcome decision windows into deterministic zero-token route-choice prompts.
-2. `daily-rite-choice-ui` — Surface latest route-choice prompts in active and completed Daily Rite status surfaces.
-3. `daily-rite-choice-public-digest` — Export route-choice intelligence through public chronicle/status integration surfaces.
-4. `daily-rite-choice-validation` — Prove prompts are bounded, sanitized, deterministic, and token-free.
+1. `route-choice-commitments` — add a pure zero-token commitment builder, store selected commitments on active Daily Rite runs, and render commit controls in the status panel.
+2. `route-choice-feedback-ledger` — emit public-safe `daily_rite_route_choice` feedback events on commitment.
+3. `route-choice-contract-tests` — verify sanitization, invalid-choice fallback, status-contract export, and token-cost invariants.
 
 ## Gates
 

@@ -13,6 +13,7 @@ import { applyDailyRiteSpawnState } from "../src/game/dailyRiteSpawn.js";
 import { buildDailyRiteOutcomeDigest, getDailyRiteRoomOutcome } from "../src/game/dailyRiteRoomOutcome.js";
 import { applyDailyRiteRoomOutcome, summarizeDailyRiteOutcomeRewards } from "../src/game/dailyRiteRoomRuntime.js";
 import { buildDailyRiteRouteChoiceDigest, buildDailyRiteRouteChoicePrompt } from "../src/game/dailyRiteRouteChoices.js";
+import { applyDailyRiteRouteCommitment, buildDailyRiteRouteCommitment } from "../src/game/dailyRiteRouteCommitments.js";
 import { getDailyRiteStatusContract } from "../src/game/dailyRiteStatusContract.js";
 import { getDailyRitePlan } from "../src/game/directorMechanics.js";
 import { FEEDBACK_ACTION_ROUTES, clearFeedbackLedger, getFeedbackNextActionDigest, loadFeedbackLedger, recordFeedbackEvent, summarizeFeedbackLedger } from "../src/game/feedbackLedger.js";
@@ -217,6 +218,36 @@ test("Daily Rite route choices turn outcome windows into bounded zero-token prom
   assert.equal(digest.prompt_count, run.outcomePolicy.decision_windows.length);
   assert.equal(digest.prompts.every((item) => item.token_cost === 0), true);
   assert.doesNotMatch(JSON.stringify({ prompt, digest }), /<script>|`/);
+});
+
+test("Daily Rite route choices can be committed as public-safe zero-token run decisions", () => {
+  const sharedWorld = getSharedWorldSnapshot({
+    sunBrightness: 9,
+    totalDeaths: 7100,
+    leaderboard: [{ faction: "sunkeeper", wave_reached: 24 }],
+    echoes: [{ player_name: "Sol", kind: "daily", wave_reached: 20, commend_count: 5 }],
+    graves: Array.from({ length: 9 }, (_, index) => ({ x: 9 + index, y: 20, sunstone_offerings: 55, epitaph: "hold" })),
+    dayNumber: 103,
+  });
+  const plan = getDailyRitePlan({ sharedWorld, dayNumber: 103 });
+  const run = createDailyRiteRun({ dailyRitePlan: plan, mechanics: { enemyScale: 1.25 }, daySeed: "route-choice-commitment" });
+  const alternate = run.latestRouteChoice.choices[1]?.id || run.latestRouteChoice.recommended_choice_id;
+  const commitment = applyDailyRiteRouteCommitment({ run, choiceId: alternate, now: Date.UTC(2026, 5, 12) });
+  const fallback = buildDailyRiteRouteCommitment({ prompt: run.latestRouteChoice, choiceId: `${alternate}<script>`, now: Date.UTC(2026, 5, 12) });
+  const activeContract = getDailyRiteStatusContract({ dailyRun: run });
+
+  assert.equal(commitment.token_cost, 0);
+  assert.equal(commitment.committed, true);
+  assert.equal(run.routeChoiceHistory.length, 1);
+  assert.equal(run.routeChoiceCommitment.choice.id, alternate);
+  assert.equal(commitment.feedback_event.type, "daily_rite_route_choice");
+  assert.equal(commitment.feedback_event.token_cost, 0);
+  assert.equal(fallback.committed, true);
+  assert.equal(fallback.choice.id, run.latestRouteChoice.recommended_choice_id);
+  assert.equal(activeContract.route_commitment.token_cost, 0);
+  assert.equal(activeContract.route_commitment.choice_id, alternate);
+  assert.ok(["survival", "tempo", "long_game", "recovery_window", "cache_window", "shrine_bargain", "tempo_window"].includes(commitment.effect.posture));
+  assert.doesNotMatch(JSON.stringify({ commitment, fallback, activeContract }), /<script>|`|\.\.\/bad/);
 });
 
 test("Daily Rite room runtime applies bounded public-safe rewards", () => {

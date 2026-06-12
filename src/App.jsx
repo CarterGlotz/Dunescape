@@ -53,6 +53,7 @@ import { applyDailyRiteSpawnState } from "./game/dailyRiteSpawn.js";
 import { getDailyRiteRoomOutcome } from "./game/dailyRiteRoomOutcome.js";
 import { applyDailyRiteRoomOutcome } from "./game/dailyRiteRoomRuntime.js";
 import { buildDailyRiteRouteChoicePrompt } from "./game/dailyRiteRouteChoices.js";
+import { applyDailyRiteRouteCommitment } from "./game/dailyRiteRouteCommitments.js";
 import { recordFeedbackEvent, summarizeFeedbackLedger } from "./game/feedbackLedger.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
@@ -2863,6 +2864,18 @@ export default function DS(){
   const riteCoach=dailyRunRef.current&&!dailyRunRef.current.done
     ? getRitePacingCoach({dailyRitePlan:dailyRunRef.current.dailyPlan||dailyRitePlan,wave:dailyRunRef.current.wave,vow:dailyRunRef.current.vow,challenge:challengeRef.current&&!challengeRef.current.expired?challengeRef.current:null})
     : null;
+  const commitDailyRouteChoice=useCallback((choiceId)=>{
+    const run=dailyRunRef.current;
+    if(!run||run.done||!run.latestRouteChoice)return;
+    const commitment=applyDailyRiteRouteCommitment({run,choiceId});
+    if(!commitment.committed){addC(commitment.receipt);return;}
+    const snapshot=getWorldSnapshot();
+    addC("🧭 "+commitment.receipt+" "+commitment.effect.next_room_bias+".");
+    if(commitment.feedback_event){
+      recordFeedbackEvent(commitment.feedback_event.type,{phase:snapshot.phase?.id,pressure:snapshot.director?.pressure,modifier:snapshot.director?.dailyModifier?.id,wave:commitment.feedback_event.wave,outcome:commitment.feedback_event.outcome,action_id:commitment.feedback_event.action_id,source:commitment.feedback_event.source});
+    }
+    fr(n=>n+1);
+  },[]);
   const feedbackSummary=summarizeFeedbackLedger();
   const activeChallengeBanner=challengeRef.current&&!challengeRef.current.expired?getChallengeBanner(challengeRef.current):null;
   const handleWorldFeedAction=useCallback((item)=>{
@@ -3615,6 +3628,7 @@ export default function DS(){
                 onCopyShare={async()=>{const t=dailyRunRef.current.shareCard;if(navigator.share){try{await navigator.share({text:t});recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current.deathWave||0,outcome:"daily_native_share",action_id:"daily_share_card",source:"daily_rite_status"});}catch(e){}}else{try{await navigator.clipboard.writeText(t);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:dailyRunRef.current.deathWave||0,outcome:"daily_score_card",action_id:"daily_share_card",source:"daily_rite_status"});addC("📋 Score copied to clipboard!");}catch(e){addC("Copy failed — see above for your score card.");}};}}
                 onDownloadScroll={()=>{const p2=gR.current?.p;const run=dailyRunRef.current;const url=generateProphecyScrollPNG({playerName:p2?.playerName||travelerNameDraft,sigil:p2?.travelerSigil||travelerSigilDraft,waveReached:run.deathWave||0,faction:getPlayerFaction(p2),sunBrightness:sunBrightnessRef.current,type:'daily',dayNumber:getDayNumber()});if(url)shareProphecyScroll(url,'daily');}}
                 onCopyChallenge={async()=>{const run=dailyRunRef.current;const p2=gR.current?.p;const token=encodeChallengeToken({dateSeed:getDailySeed(),wave:run.deathWave||0,playerName:p2?.playerName||travelerNameDraft||"Adventurer",vowId:run.vow?.id||null});const url=buildChallengeUrl({baseUrl:window.location.href,token});if(!url){addC("Challenge link could not be created.");return;}try{await navigator.clipboard.writeText(url);recordFeedbackEvent("share_copy",{phase:sharedWorld?.phase?.id,pressure:sharedWorld?.director?.pressure,modifier:sharedWorld?.director?.dailyModifier?.id,wave:run.deathWave||0,outcome:"daily_challenge_link",action_id:"daily_challenge_link",source:"daily_rite_status"});addC("🔗 Challenge link copied — dare a rival to beat your light on today's route.");}catch(e){addC("Copy failed — challenge link: "+url);}}}
+                onCommitRouteChoice={commitDailyRouteChoice}
               />
               {/* Phase 4: Roguelite Run */}
               <div style={{borderTop:"1px solid rgba(200,168,78,0.08)",paddingTop:6,marginTop:4}}>

@@ -79,6 +79,14 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - repaired the smoke harness so successful assertions exit cleanly instead of hanging behind app timers
 - verified 56 unit tests, production build, and smoke runtime
 
+## 2026-06-12
+
+- ran /start gates and wrote docs/AUDIT_2026-06-12-S71.md / .json for the Daily Rite route-choice commitment tranche
+- implemented deterministic zero-token Daily Rite route-choice commitments with selected posture, next-room bias, run history, and public-safe feedback event payloads
+- wired active Daily Rite status controls so players can commit to a route choice directly from the panel
+- expanded Daily Rite tests for commitment selection, hostile id fallback, status-contract export, feedback payload shape, and token-cost invariants
+- verified 62 unit tests, production build, and smoke runtime
+
 ## 2026-06-11
 
 - ran /start gates, generated and validated the startup brief, and recorded local protocol-script drift found during the preflight
