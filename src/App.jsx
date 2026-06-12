@@ -52,6 +52,7 @@ import { completeDailyRiteRun, createDailyRiteRun } from "./game/dailyRunSession
 import { applyDailyRiteSpawnState } from "./game/dailyRiteSpawn.js";
 import { getDailyRiteRoomOutcome } from "./game/dailyRiteRoomOutcome.js";
 import { applyDailyRiteRoomOutcome } from "./game/dailyRiteRoomRuntime.js";
+import { buildDailyRiteRouteChoicePrompt } from "./game/dailyRiteRouteChoices.js";
 import { recordFeedbackEvent, summarizeFeedbackLedger } from "./game/feedbackLedger.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
@@ -2417,10 +2418,15 @@ export default function DS(){
           const clearedWave=Math.max(0,Math.min(29,run.wave-1));
           const roomOutcome=getDailyRiteRoomOutcome({run,wave:clearedWave,roomIndex:run.rooms?.[clearedWave],daySeed:getDailySeed()});
           run.latestOutcome=roomOutcome;
+          run.latestRouteChoice=buildDailyRiteRouteChoicePrompt({outcome:roomOutcome,outcomeDigest:run.outcomePolicy});
           const roomApplication=applyDailyRiteRoomOutcome({player:p,outcome:roomOutcome});
           if(roomApplication.coin_grant)addI("coins",roomApplication.coin_grant);
           roomApplication.item_grants.forEach(item=>addI(item.id,item.count));
           roomApplication.log_lines.forEach(line=>addC(line));
+          if(run.latestRouteChoice?.choices?.length){
+            const recommended=run.latestRouteChoice.choices.find(choice=>choice.id===run.latestRouteChoice.recommended_choice_id)||run.latestRouteChoice.choices[0];
+            addC("🧭 Route choice: "+run.latestRouteChoice.headline+" — "+recommended.label+".");
+          }
           recordFeedbackEvent(roomApplication.feedback_event.type,{phase:getWorldSnapshot().phase?.id,pressure:getWorldSnapshot().director?.pressure,modifier:getWorldSnapshot().director?.dailyModifier?.id,wave:roomApplication.feedback_event.wave,outcome:roomApplication.feedback_event.outcome,action_id:roomApplication.feedback_event.action_id,source:roomApplication.feedback_event.source});
           if(run.wave>=30){
             run.done=true;run.deathWave=30;

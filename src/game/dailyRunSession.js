@@ -5,6 +5,7 @@ import { buildLastLightResultCard } from "./resultCard.js";
 import { buildDailyRiteStakes } from "./dailyRiteStakes.js";
 import { buildDailyRiteModifiers } from "./dailyRiteModifiers.js";
 import { buildDailyRiteOutcomeDigest, getDailyRiteRoomOutcome } from "./dailyRiteRoomOutcome.js";
+import { buildDailyRiteRouteChoiceDigest, buildDailyRiteRouteChoicePrompt } from "./dailyRiteRouteChoices.js";
 
 export function createDailyRiteRun({
   dailyRitePlan,
@@ -20,6 +21,8 @@ export function createDailyRiteRun({
   const stakes = buildDailyRiteStakes({ dailyRitePlan });
   const modifiers = buildDailyRiteModifiers({ stakes });
   const outcomePolicy = buildDailyRiteOutcomeDigest({ modifiers, daySeed });
+  const latestOutcome = getDailyRiteRoomOutcome({ run: { modifiers, roomWeave }, wave: 0, daySeed });
+  const routeChoices = buildDailyRiteRouteChoiceDigest({ outcomeDigest: outcomePolicy });
 
   return {
     wave: 0,
@@ -39,7 +42,9 @@ export function createDailyRiteRun({
     stakes,
     modifiers,
     outcomePolicy,
-    latestOutcome: getDailyRiteRoomOutcome({ run: { modifiers, roomWeave }, wave: 0, daySeed }),
+    routeChoices,
+    latestOutcome,
+    latestRouteChoice: buildDailyRiteRouteChoicePrompt({ outcome: latestOutcome, outcomeDigest: outcomePolicy }),
   };
 }
 

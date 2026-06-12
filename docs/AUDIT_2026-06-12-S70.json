@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-12",
+  "project": "solara",
+  "projectName": "Solara: Sunfall",
+  "type": "game",
+  "session": 70,
+  "topLine": {
+    "totalItems": 4,
+    "combinedPriority": 47.2,
+    "top3": [
+      "daily-rite-route-choice-contract",
+      "daily-rite-choice-ui",
+      "daily-rite-choice-public-digest"
+    ]
+  },
+  "items": [
+    {
+      "id": 1,
+      "slug": "daily-rite-route-choice-contract",
+      "tier": "🔥",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 9,
+      "priority": 14.8,
+      "title": "Turn Daily Rite decision windows into route-choice prompts",
+      "why": "S69 made recovery, cache, tempo, and shrine windows visible in public data, but the player still receives them as passive advice. A pure route-choice contract lets every room clear expose a deterministic choice prompt with explicit payoff, cost, and tactical intent without adding paid generation.",
+      "recipe": "Add `src/game/dailyRiteRouteChoices.js` that converts a room outcome plus the current outcome digest into a sanitized zero-token prompt with 2-3 choices and a recommended choice."
+    },
+    {
+      "id": 2,
+      "slug": "daily-rite-choice-ui",
+      "tier": "⚡",
+      "axis": "UI / UX / user-experience",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 11.6,
+      "title": "Surface the next route choice in the Daily Rite status panel",
+      "why": "The latest receipt now explains what happened, but not what the player should choose next. Showing a compact route-choice prompt in the active panel makes the run feel authored and reduces reliance on combat-log scrollback.",
+      "recipe": "Store the latest route-choice prompt on the active Daily Rite run, expose it through `getDailyRiteStatusContract`, and render the recommended choice plus alternatives in `DailyRiteStatus.jsx`."
+    },
+    {
+      "id": 3,
+      "slug": "daily-rite-choice-public-digest",
+      "tier": "🔥",
+      "axis": "AI / intelligence integration",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 9,
+      "priority": 11.7,
+      "title": "Publish deterministic route-choice intelligence for Studio surfaces",
+      "why": "Solara can give Studio Hub, social surfaces, and future Discord/Twitch panels a readable tactical layer without browser tokens. Exporting sanitized choice prompts turns the Daily Rite into a strategic public object rather than a private local run state.",
+      "recipe": "Add a `choice_prompts` digest beside `daily_rite_outcomes.decision_windows` and regenerate `chronicle.json` / `status.json` with `token_cost: 0`."
+    },
+    {
+      "id": 4,
+      "slug": "daily-rite-choice-validation",
+      "tier": "⚡",
+      "axis": "security",
+      "effort": "30m",
+      "impact": 7,
+      "innovation": 7,
+      "priority": 9.1,
+      "title": "Prove route-choice prompts stay bounded, deterministic, and public-safe",
+      "why": "Choice prompts will become player-visible and public-exported, so they need the same safety bar as room receipts. Tests should prove the prompts sanitize text, cap list sizes, keep token cost at zero, and line up with Daily Rite segment counts.",
+      "recipe": "Add unit and smoke assertions for route-choice prompt generation, status-contract exposure, public digest export, and zero-token guarantees."
+    }
+  ],
+  "innovationReserve": [
+    "daily-rite-route-choice-contract",
+    "daily-rite-choice-public-digest"
+  ],
+  "skipped": [
+    {
+      "slug": "interactive-choice-buttons",
+      "reason": "Worth doing after the pure contract lands; full click-to-apply choices require more UI state and browser validation than this bounded pass should absorb."
+    },
+    {
+      "slug": "ai-narrated-choice-dialogue",
+      "reason": "Rejected by deterministic-first policy and zero browser token cost."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "daily-rite-route-choice-contract",
+      "status": "shipped",
+      "evidence": "Added `src/game/dailyRiteRouteChoices.js` to convert Daily Rite outcome windows into bounded, sanitized, zero-token route-choice prompts and prompt digests."
+    },
+    {
+      "slug": "daily-rite-choice-ui",
+      "status": "shipped",
+      "evidence": "`createDailyRiteRun` and room-clear runtime now store `latestRouteChoice`; `getDailyRiteStatusContract` exposes it and `DailyRiteStatus.jsx` renders recommended/alternate choices."
+    },
+    {
+      "slug": "daily-rite-choice-public-digest",
+      "status": "shipped",
+      "evidence": "`buildPublicChronicle` now exports `daily_rite_route_choices` under shared-world and integration contracts; regenerated `public/chronicle.json` and `public/status.json` include the zero-token prompt digest."
+    },
+    {
+      "slug": "daily-rite-choice-validation",
+      "status": "shipped",
+      "evidence": "Added unit and smoke assertions for route-choice prompt generation, status exposure, public digest export, sanitization, segment alignment, and token-cost guarantees. Validation passed: 61 unit tests, production build, smoke."
+    }
+  ]
+}

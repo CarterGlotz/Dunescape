@@ -95,3 +95,7 @@ Public-safe summary:
 - public chronicle/status exports now include zero-token Daily Rite outcome `decision_windows` for recovery, cache, tempo, and shrine-bargain route choices
 - Daily Rite room-clear feedback now records a capped public-safe `daily_rite_room_clear` aggregate event with route/source attribution
 - latest local validation: 60 unit tests passing, production build passing, smoke flow passing
+- 2026-06-12 Session 70 audit/implement pass turned Daily Rite outcome decision windows into deterministic zero-token route-choice prompts
+- active Daily Rite runs now carry `latestRouteChoice`, and the Daily Rite status panel renders the recommended choice plus alternate route postures
+- public chronicle/status exports now include `daily_rite_route_choices` so Studio surfaces can read route-choice intelligence without browser token cost
+- latest local validation: 61 unit tests passing, production build passing, smoke flow passing

@@ -2,6 +2,14 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 70)
+- Shipped: Daily Rite outcome decision windows now become deterministic zero-token route-choice prompts in `src/game/dailyRiteRouteChoices.js`
+- Shipped: active Daily Rite runs now store `latestRouteChoice`, and the Daily Rite status panel shows the recommended route choice plus alternate postures
+- Shipped: public chronicle/status JSON now exports `daily_rite_route_choices` for Studio surfaces, alongside stakes, modifiers, policy, outcomes, and decision windows
+- Tests: 61 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: extract Daily Rite room entry/auto-advance spawning into a pure runtime contract, then make route-choice prompts interactive once browser-level validation exists
+
 ## Where We Left Off (2026-06-12 · Session 69)
 - Shipped: Daily Rite room-clear reward application now lives in `src/game/dailyRiteRoomRuntime.js`, bounding HP/Prayer restoration and sanitizing item grants/log lines outside `src/App.jsx`
 - Shipped: active and completed Daily Rite status surfaces now show the latest room-clear receipt, reward summary, and next action

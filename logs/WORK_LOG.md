@@ -123,3 +123,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - extended the Daily Rite status contract/component so active and completed states show the latest clear receipt, reward summary, and next action
 - exported zero-token Daily Rite outcome `decision_windows` through public chronicle/status JSON
 - verified 60 unit tests, production build, and smoke runtime
+
+## 2026-06-12 — Session 70
+
+- ran /start gates, confirmed the Session 69 audit was fully executed, then wrote docs/AUDIT_2026-06-12-S70.md / .json with four next-wave Daily Rite route-choice items
+- added `src/game/dailyRiteRouteChoices.js` for deterministic zero-token choice prompts and route-choice digest synthesis from outcome decision windows
+- wired active Daily Rite runs and room clears to store `latestRouteChoice`
+- extended the Daily Rite status contract/component to render recommended and alternate route choices
+- exported `daily_rite_route_choices` through public chronicle/status shared-world and integration surfaces
+- verified 61 unit tests, production build, and smoke runtime

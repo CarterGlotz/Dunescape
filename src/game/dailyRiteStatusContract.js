@@ -19,6 +19,29 @@ function buildLatestOutcome(outcome = null) {
   };
 }
 
+function buildRouteChoice(choice = null) {
+  if (!choice) return null;
+  const choices = Array.isArray(choice.choices)
+    ? choice.choices.slice(0, 3).map((item) => ({
+      id: cleanText(item.id, "choice").slice(0, 48),
+      label: cleanText(item.label, "Choose route").slice(0, 64),
+      detail: cleanText(item.detail, "").slice(0, 140),
+      payoff: cleanText(item.payoff, "").slice(0, 120),
+      cost: cleanText(item.cost, "").slice(0, 100),
+      token_cost: 0,
+    }))
+    : [];
+  return {
+    version: 1,
+    token_cost: 0,
+    kind: cleanText(choice.kind, "tempo_window").slice(0, 48),
+    headline: cleanText(choice.headline, "Route choice opened").slice(0, 80),
+    reason: cleanText(choice.reason, "").slice(0, 140),
+    recommended_choice_id: cleanText(choice.recommended_choice_id, "").slice(0, 48),
+    choices,
+  };
+}
+
 export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday = false } = {}) {
   if (!dailyRun) {
     return {
@@ -44,6 +67,7 @@ export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday =
       risk_label: primaryStake ? `risk ${primaryStake.risk}/5` : null,
       modifier_label: dailyRun.modifiers?.highest_risk_segment?.rule || null,
       latest_outcome: buildLatestOutcome(dailyRun.latestOutcome),
+      route_choice: buildRouteChoice(dailyRun.latestRouteChoice),
       actions: [],
       token_cost: 0,
     };
@@ -59,6 +83,7 @@ export function getDailyRiteStatusContract({ dailyRun = null, playedDailyToday =
     risk_label: dailyRun.stakes?.primary_stake ? `risk ${dailyRun.stakes.primary_stake.risk}/5` : null,
     modifier_label: dailyRun.modifiers?.highest_risk_segment?.rule || null,
     latest_outcome: buildLatestOutcome(dailyRun.latestOutcome),
+    route_choice: buildRouteChoice(dailyRun.latestRouteChoice),
     actions: [
       dailyRun.shareCard ? "copy_share" : null,
       dailyRun.shareCard ? "download_scroll" : null,

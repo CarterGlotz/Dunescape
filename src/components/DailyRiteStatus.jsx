@@ -33,6 +33,12 @@ export default function DailyRiteStatus({
           <div style={{fontSize:7,color:"#d8c38a",lineHeight:1.35}}>{contract.latest_outcome.rewards.label||contract.latest_outcome.receipt}</div>
           {contract.latest_outcome.next_action&&<div style={{fontSize:7,color:"#8fb7d8",lineHeight:1.35,marginTop:2}}>🧭 {contract.latest_outcome.next_action}</div>}
         </div>}
+        {contract.route_choice?.choices?.length>0&&<div style={{marginTop:5,padding:"5px 6px",background:"rgba(18,10,26,0.56)",border:"1px solid rgba(190,140,255,0.22)",borderRadius:4,textAlign:"left"}}>
+          <div style={{fontSize:7,color:"#c8a0ff",fontWeight:800,marginBottom:2}}>{contract.route_choice.headline}</div>
+          {contract.route_choice.choices.slice(0,3).map(choice=><div key={choice.id} style={{fontSize:7,color:choice.id===contract.route_choice.recommended_choice_id?"#f0d8ff":"#9f8bb8",lineHeight:1.32,marginTop:2}}>
+            {choice.id===contract.route_choice.recommended_choice_id?"◆ ":"◇ "}{choice.label} — {choice.payoff}
+          </div>)}
+        </div>}
         <div style={{height:4,background:"#120604",borderRadius:2,marginTop:4}}><div style={{height:"100%",background:"#c8a84e",borderRadius:2,width:((dailyRun.wave/30)*100)+"%"}}/></div>
       </div>
     );
@@ -47,6 +53,7 @@ export default function DailyRiteStatus({
       {contract.progress_label&&<div style={{fontSize:7,color:"#d8a86a",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>☀️ {contract.progress_label}</div>}
       {contract.modifier_label&&<div style={{fontSize:7,color:"#9fc6a0",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{contract.modifier_label}</div>}
       {contract.latest_outcome&&<div style={{fontSize:7,color:"#d8c38a",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>Last clear: {contract.latest_outcome.rewards.label||contract.latest_outcome.segment_label}</div>}
+      {contract.route_choice?.choices?.length>0&&<div style={{fontSize:7,color:"#c8a0ff",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{contract.route_choice.headline}: {contract.route_choice.choices.find(choice=>choice.id===contract.route_choice.recommended_choice_id)?.label||contract.route_choice.choices[0].label}</div>}
       {dailyRun.vowResult&&<div style={{fontSize:7,color:dailyRun.vowResult.kept?"#e0b050":"#a06050",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>{dailyRun.vowResult.kept?"⚜️":"🕯️"} {dailyRun.vowResult.debriefLine}</div>}
       {dailyRun.challengeResult&&<div style={{fontSize:7,color:dailyRun.challengeResult.beaten?"#6c4":"#c86",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🔥 {dailyRun.challengeResult.line}</div>}
       {dailyRun.pacingCoach&&<div style={{fontSize:7,color:"#7fd3a6",lineHeight:1.4,marginBottom:3,textAlign:"center"}}>🧭 {dailyRun.pacingCoach.next_action}</div>}

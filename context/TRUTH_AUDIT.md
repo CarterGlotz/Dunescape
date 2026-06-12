@@ -92,3 +92,10 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - public chronicle/status exports include `daily_rite_outcomes` for Studio surfaces while preserving deterministic zero-token behavior
 - active-run smoke coverage now verifies stakes, modifiers, segment policy, outcome policy, latest outcome receipts, and 30-wave segment mapping after Daily Rite start
 - local validation passed: 59 unit tests, production build, and smoke runtime
+
+## 2026-06-12 Session 70 Public-Safe Check
+
+- Daily Rite route-choice prompts are deterministic from outcome decision windows and expose only sanitized labels, payoff/cost copy, recommended choice ids, and `token_cost: 0`
+- active Daily Rite status surfaces show route-choice guidance without storing raw private player payloads, credentials, private Studio context, or paid generation output
+- public chronicle/status exports include `daily_rite_route_choices` for Studio surfaces while preserving deterministic zero-token behavior
+- local validation passed: 61 unit tests, production build, and smoke runtime
