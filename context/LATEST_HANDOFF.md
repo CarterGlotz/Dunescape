@@ -2,6 +2,14 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 75)
+- Completed: resumed the founder-requested `/start -> /audit -> /implement -> /closeout` sequence and verified the current repo state against the latest audit artifacts
+- Verified: `docs/AUDIT_2026-06-12-S74.json` and `.md` already mark all three shrine economy items shipped with matching execution evidence
+- Verified: `npm test` passes 64/64, `npm run smoke` passes, and `npm run build` passes; build regenerated public chronicle/status timestamps only
+- Preserved: unrelated untracked `obelisk-passport/` directory was inspected and left untouched
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: extract Daily Rite room entry/auto-advance spawning into a pure runtime contract, then deepen the shrine economy into dedicated offering UI with browser-level validation
+
 ## Where We Left Off (2026-06-12 · Session 74)
 - Shipped: Daily Rite shrine-bargain receipts now own the Sunstone reward economy instead of only narrating it
 - Shipped: bank grants one Sunstone Shard for later offerings, spend burns the shard into immediate relief, and oath converts it into oath/reward pressure without leaving an unintended shard grant

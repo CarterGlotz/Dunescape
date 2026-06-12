@@ -120,3 +120,10 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - active Daily Rite status surfaces show shrine economy summaries without storing raw private player payloads, credentials, private Studio context, or paid generation output
 - public chronicle/status keeps `daily_rite_shrine_bargains` deterministic and zero-token; generated digest entries expose only sanitized bargain windows and economy previews when shrine windows exist
 - local validation passed: 64 unit tests, production build, smoke runtime, and syntax checks
+
+## 2026-06-12 Session 75 Public-Safe Check
+
+- Session 75 made no new product-facing runtime changes; it verified the already-executed Session 74 audit against the current tree.
+- public chronicle/status generation still succeeds and only changed generated timestamps during the verifier build.
+- unrelated untracked `obelisk-passport/` files were inspected as worktree context and left untouched.
+- local validation passed: 64 unit tests, production build, and smoke runtime.

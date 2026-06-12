@@ -27,6 +27,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - keep the new Daily Rite route-choice tuning contract, visible adjustment status, public `daily_rite_route_choices` status export, and zero-token assertions aligned with deeper shrine bargain work
 - keep the new Daily Rite shrine-bargain receipt contract, active status presentation, public `daily_rite_shrine_bargains` export, and zero-token assertions aligned with future shrine offering mechanics
 - keep the new Daily Rite shrine economy contract, active status summary, public digest shape, and bank/spend/oath item-delta assertions aligned with future offering UI
+- preserve the Session 75 verification baseline: latest audit sidecar is fully executed, validation is green, and unrelated untracked `obelisk-passport/` remains intentionally untouched until separately assigned
 
 ## Next
 
@@ -169,6 +170,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-12 Session 72 pass shipped committed route-choice next-room tuning, visible route-tuned outcome status, public `daily_rite_route_choices` status export, and validation for deterministic zero-token adjustment contracts
 - 2026-06-12 Session 73 pass shipped deterministic shrine bargain receipts for committed bank/spend/oath choices, active status presentation, public `daily_rite_shrine_bargains` exports, and validation for bounded zero-token bargain contracts
 - 2026-06-12 Session 74 pass shipped deterministic shrine economy item deltas for bank/spend/oath choices, active status economy summaries, public digest guards, and validation for zero-token bounded reward inventory
+- 2026-06-12 Session 75 verification pass completed the requested start/audit/implement/closeout loop against current evidence, reran tests/smoke/build, and preserved unrelated untracked `obelisk-passport/` work
 
 ## Deferred to Project Agents
 
