@@ -1,53 +1,53 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-12 (Session 67 closeout) -->
+<!-- generated-at: 2026-06-12 (Session 68 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S67 ═════════════════════════════╗
-║  Date: 2026-06-12  ·  SIL: 941/1000  ·  Velocity: 27 ->          ║
+╔══ SESSION CLOSEOUT · Solara · S68 ═════════════════════════════╗
+║  Date: 2026-06-12  ·  SIL: 955/1000  ·  Velocity: 14 ->          ║
 ║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: Daily Rite route modifiers now include deterministi  ║
-║  ✓ Shipped: Daily Rite spawn mutation now lives in `src/game/da  ║
+║  ✓ Shipped: Daily Rite segment policy now produces deterministi  ║
+║  ✓ Shipped: active Daily Rite wave clears now apply bounded HP,  ║
 ║  ✓ Shipped: public chronicle/status JSON now exports `daily_rit  ║
 ║  ✓ Shipped: smoke runtime now proves active Daily Rite runs exp  ║
-║  ✓ Tests: 58 passing unit tests plus production build and smoke  ║
+║  ✓ Tests: 59 passing unit tests plus production build and smoke  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 941/1000 ═══════════════════════════════════════╗
-║    Dev Health         92   █████████░                            ║
-║    Alignment          94   █████████░                            ║
-║    Momentum           95   ██████████                            ║
-║    Engagement         96   ██████████                            ║
-║    Process Qual       92   █████████░                            ║
-║    Coherence          92   █████████░                            ║
+╔══ SCORES · SIL 955/1000 ═══════════════════════════════════════╗
+║    Dev Health         94   █████████░                            ║
+║    Alignment          96   ██████████                            ║
+║    Momentum           96   ██████████                            ║
+║    Engagement         98   ██████████                            ║
+║    Process Qual       94   █████████░                            ║
+║    Coherence          93   █████████░                            ║
 ║    Security           95   ██████████                            ║
-║    Ecosystem          96   ██████████                            ║
-║    Capital            89   █████████░                            ║
+║    Ecosystem          98   ██████████                            ║
+║    Capital            91   █████████░                            ║
 ║    Automation         100  ██████████                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
-║  · context/CURRENT_STATE.md                                      ║
-║  · context/TASK_BOARD.md                                         ║
-║  · context/LATEST_HANDOFF.md                                     ║
-║  · logs/WORK_LOG.md                                              ║
+║  ✓ context/CURRENT_STATE.md                                      ║
+║  ✓ context/TASK_BOARD.md                                         ║
+║  ✓ context/LATEST_HANDOFF.md                                     ║
+║  ✓ logs/WORK_LOG.md                                              ║
 ║  · context/DECISIONS.md                                          ║
-║  · context/SELF_IMPROVEMENT_LOOP.md                              ║
+║  ✓ context/SELF_IMPROVEMENT_LOOP.md                              ║
 ║  · docs/CREATIVE_DIRECTION_RECORD.md                             ║
-║  · context/TRUTH_AUDIT.md                                        ║
+║  ✓ context/TRUTH_AUDIT.md                                        ║
 ║  ✓ context/PROJECT_STATUS.json                                   ║
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 5 files  ·  M:5 A:0 D:0 ?:0                            ║
+║  Changes: 22 files  ·  M:17 A:0 D:0 ?:5                          ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
 ║  Doctor:        —                                                ║
 ║  Compliance:    —                                                ║
-║  Tests:         58/58                                            ║
+║  Tests:         59/59                                            ║
 ║  IGNIS:         7d ago                                           ║
 ║  Truth:         green                                            ║
 ║  Sanitization:  —                                                ║

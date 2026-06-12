@@ -1,17 +1,16 @@
-# Implement Plan — Session 67
+# Implement Plan — AUDIT_2026-06-12-S68
 
-Source: `docs/AUDIT_2026-06-11-S67.json`
+Source: `docs/AUDIT_2026-06-12-S68.json`
 
 ## Wave Plan
 
-1. `daily-rite-segment-economy` — Extend Daily Rite modifiers into reward, recovery, and shrine bargain policy, then make monster drops carry that policy.
-2. `daily-rite-spawn-contract` — Move Daily Rite spawn mutation into a pure helper consumed by `src/App.jsx`.
-3. `daily-rite-policy-public-digest` — Export the new policy through public chronicle/status integration surfaces.
-4. `active-daily-smoke-contract` — Assert active Daily Rite stakes, modifiers, segment policy, and wave mapping in the smoke harness.
+1. `daily-rite-room-outcome-policy` — create the pure deterministic room-clear outcome contract first because the runtime and public surfaces depend on it.
+2. `daily-rite-policy-runtime-wiring` — apply the contract inside active Daily Rite wave-clear handling with bounded player rewards and receipt copy.
+3. `daily-rite-outcome-public-digest` — expose the same contract in public chronicle/status JSON for Studio surfaces.
+4. `daily-rite-outcome-smoke-contract` — prove the contract through unit tests and smoke validation.
 
-## Quality Gates
+## Verification Plan
 
-- Browser runtime token cost remains zero.
-- Public repo boundary remains public-safe; no private Studio OS procedures or secrets are added.
-- Solara-owned naming/mythology is preserved.
-- Validation target: `npm test`, `npm run build`, `npm run smoke`.
+- `npm test`
+- `npm run build`
+- `npm run smoke`

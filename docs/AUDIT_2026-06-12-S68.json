@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-12",
+  "project": "solara",
+  "projectName": "Solara: Sunfall",
+  "type": "game",
+  "session": 68,
+  "topLine": {
+    "totalItems": 4,
+    "combinedPriority": 42.9,
+    "top3": [
+      "daily-rite-room-outcome-policy",
+      "daily-rite-policy-runtime-wiring",
+      "daily-rite-outcome-public-digest"
+    ]
+  },
+  "items": [
+    {
+      "id": 1,
+      "slug": "daily-rite-room-outcome-policy",
+      "tier": "🔥",
+      "axis": "gamification",
+      "effort": "2h",
+      "impact": 10,
+      "innovation": 9,
+      "priority": 14.9,
+      "title": "Turn Daily Rite segment policy into deterministic room-clear outcomes",
+      "why": "The S67 policy changes monster drops and public status, but clearing a room still mostly advances the wave with copy. Solara should make route pressure physically legible: scarce recovery, coin caches, sunstone bargains, and rival-risk rooms need a shared zero-token outcome contract.",
+      "recipe": "Add `src/game/dailyRiteRoomOutcome.js` that derives deterministic heal/prayer/coin/sunstone outcome receipts from the active segment policy, room weave, wave, and day seed; cover it with Node tests."
+    },
+    {
+      "id": 2,
+      "slug": "daily-rite-policy-runtime-wiring",
+      "tier": "⚡",
+      "axis": "feature depth & refinement",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 7,
+      "priority": 11.5,
+      "title": "Wire room-clear outcome receipts into the active Daily Rite loop",
+      "why": "The player should not have to infer policy from status JSON. Applying a pure outcome receipt in `App.jsx` lets the browser loop grant bounded resources, print segment-specific receipts, and keep `App.jsx` from becoming the policy source of truth.",
+      "recipe": "Use the new outcome contract when a Daily Rite wave clears; apply bounded HP/prayer/coin/item rewards and append sanitized receipt lines before spawning the next room."
+    },
+    {
+      "id": 3,
+      "slug": "daily-rite-outcome-public-digest",
+      "tier": "⚡",
+      "axis": "AI / intelligence integration",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 8,
+      "priority": 10.2,
+      "title": "Expose a public Daily Rite outcome policy digest for Studio surfaces",
+      "why": "Studio integrations can see the segment policy, but not what a clear actually pays or restores. A compact digest lets public surfaces preview today's recovery/caches/shrine bargain posture without paid generation or leaking private planning.",
+      "recipe": "Export a sanitized `daily_rite_outcomes` digest through chronicle/status integrations with `token_cost: 0`, strongest recovery, richest cache, and shrine-bargain posture."
+    },
+    {
+      "id": 4,
+      "slug": "daily-rite-outcome-smoke-contract",
+      "tier": "⚡",
+      "axis": "UI / UX / user-experience",
+      "effort": "1h",
+      "impact": 7,
+      "innovation": 7,
+      "priority": 8.2,
+      "title": "Make validation prove active Daily Rite room outcomes exist",
+      "why": "The current smoke contract proves active stakes, modifiers, policy, and segment mapping. It should also prove a started run exposes deterministic outcome receipts so runtime reward/recovery wiring cannot silently regress.",
+      "recipe": "Extend tests and smoke validation to assert active Daily Rite runs carry zero-token outcome policy and room-clear receipts derived from the same segment policy."
+    }
+  ],
+  "innovationReserve": [
+    "daily-rite-room-outcome-policy",
+    "daily-rite-outcome-public-digest"
+  ],
+  "skipped": [
+    {
+      "slug": "browser-playwright-daily-rite-full-run",
+      "reason": "Still valuable, but this repo does not yet carry a browser runner; keep this pass dependency-free and preserve zero browser token cost."
+    },
+    {
+      "slug": "paid-route-narrator",
+      "reason": "Rejected by Solara's deterministic-first policy; route intelligence remains structured and generated locally."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "daily-rite-room-outcome-policy",
+      "status": "shipped",
+      "evidence": "Added `src/game/dailyRiteRoomOutcome.js` with deterministic zero-token room-clear receipts, bounded heal/prayer/coin/sunstone rewards, and a public digest builder."
+    },
+    {
+      "slug": "daily-rite-policy-runtime-wiring",
+      "status": "shipped",
+      "evidence": "`src/App.jsx` now applies the Daily Rite room outcome receipt after each cleared wave, mutating only bounded HP/prayer/inventory rewards and printing receipt/next-action lines."
+    },
+    {
+      "slug": "daily-rite-outcome-public-digest",
+      "status": "shipped",
+      "evidence": "`buildPublicChronicle` and `generate-public-status` now export `daily_rite_outcomes` through shared-world, integration, and status surfaces with `token_cost: 0`."
+    },
+    {
+      "slug": "daily-rite-outcome-smoke-contract",
+      "status": "shipped",
+      "evidence": "Unit tests now cover deterministic outcome receipts and public digest sanitization; smoke validation asserts active Daily Rite runs expose zero-token outcome policy and latest room outcome."
+    }
+  ]
+}

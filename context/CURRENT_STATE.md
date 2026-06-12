@@ -85,3 +85,8 @@ Public-safe summary:
 - public chronicle/status exports now include `daily_rite_policy` so Studio surfaces can distinguish reward pressure, recovery scarcity, and shrine bargaining without browser token cost
 - smoke coverage now verifies active Daily Rite runs expose zero-token stakes, modifiers, segment policy, and 30-wave route mapping after startup
 - latest local validation: 58 unit tests passing, production build passing, smoke flow passing
+- 2026-06-12 Session 68 audit/implement pass turned Daily Rite segment policy into deterministic room-clear outcome receipts with bounded HP, Prayer, coin, and Sunstone rewards
+- active Daily Rite wave clears now apply the zero-token room outcome receipt in the runtime loop and print the receipt plus next action before the next wave
+- public chronicle/status exports now include `daily_rite_outcomes` so Studio surfaces can preview recovery windows, richest caches, and shrine-bargain posture without browser token cost
+- smoke coverage now verifies active Daily Rite runs expose zero-token outcome policy and latest room outcome receipts alongside stakes/modifiers/policy
+- latest local validation: 59 unit tests passing, production build passing, smoke flow passing

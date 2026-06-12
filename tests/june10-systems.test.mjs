@@ -10,6 +10,7 @@ import {
   getDailyRiteSegmentPolicyForWave,
 } from "../src/game/dailyRiteModifiers.js";
 import { applyDailyRiteSpawnState } from "../src/game/dailyRiteSpawn.js";
+import { buildDailyRiteOutcomeDigest, getDailyRiteRoomOutcome } from "../src/game/dailyRiteRoomOutcome.js";
 import { getDailyRiteStatusContract } from "../src/game/dailyRiteStatusContract.js";
 import { getDailyRitePlan } from "../src/game/directorMechanics.js";
 import { FEEDBACK_ACTION_ROUTES, clearFeedbackLedger, getFeedbackNextActionDigest, loadFeedbackLedger, recordFeedbackEvent, summarizeFeedbackLedger } from "../src/game/feedbackLedger.js";
@@ -67,6 +68,9 @@ test("Daily Rite consequence engine and run factory share deterministic segment 
   assert.equal(run.modifiers.token_cost, 0);
   assert.equal(run.stakes.segment_count, plan.route.length);
   assert.equal(run.modifiers.segment_count, run.stakes.segment_count);
+  assert.equal(run.outcomePolicy.token_cost, 0);
+  assert.equal(run.outcomePolicy.segment_count, run.stakes.segment_count);
+  assert.equal(run.latestOutcome.token_cost, 0);
   assert.ok(run.stakes.primary_stake.risk >= 1);
   assert.ok(run.modifiers.highest_risk_segment.enemy_scale >= 1);
   assert.ok(run.pacingCoach.next_action);
@@ -153,6 +157,31 @@ test("Daily Rite spawn contract applies world, modifier, and economy policy toge
   assert.ok(monster.drops.find((drop) => drop.i === "coins").a[0] >= 10);
 });
 
+test("Daily Rite room outcome policy produces deterministic zero-token clear receipts", () => {
+  const sharedWorld = getSharedWorldSnapshot({
+    sunBrightness: 11,
+    totalDeaths: 6100,
+    leaderboard: [{ faction: "eclipser", wave_reached: 22 }],
+    echoes: [{ player_name: "Rook", kind: "daily", wave_reached: 21, heed_count: 3 }],
+    graves: Array.from({ length: 7 }, (_, index) => ({ x: 8 + index, y: 20, sunstone_offerings: 42, epitaph: "hold" })),
+    dayNumber: 98,
+  });
+  const plan = getDailyRitePlan({ sharedWorld, dayNumber: 98 });
+  const run = createDailyRiteRun({ dailyRitePlan: plan, mechanics: { enemyScale: 1.25 }, daySeed: "outcome-policy" });
+  const first = getDailyRiteRoomOutcome({ run, wave: 0, roomIndex: run.rooms[0], daySeed: "outcome-policy" });
+  const second = getDailyRiteRoomOutcome({ run, wave: 0, roomIndex: run.rooms[0], daySeed: "outcome-policy" });
+  const digest = buildDailyRiteOutcomeDigest({ modifiers: run.modifiers, daySeed: "outcome-policy" });
+
+  assert.deepEqual(first, second);
+  assert.equal(first.token_cost, 0);
+  assert.equal(digest.token_cost, 0);
+  assert.equal(digest.segment_count, run.stakes.segment_count);
+  assert.ok(first.rewards.coins > 0);
+  assert.ok(first.receipt.includes("clear"));
+  assert.ok(digest.richest_cache.rewards.coins >= first.rewards.coins || digest.samples.length > 1);
+  assert.doesNotMatch(JSON.stringify(digest), /<script>|`/);
+});
+
 test("feedback ledger stores capped public-safe aggregate events", () => {
   clearFeedbackLedger();
   recordFeedbackEvent("daily_rite_start<script>", {
@@ -222,11 +251,13 @@ test("public chronicle exports a zero-token feedback summary", () => {
   assert.equal(chronicle.shared_world.daily_rite_stakes.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_modifiers.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_policy.token_cost, 0);
+  assert.equal(chronicle.shared_world.daily_rite_outcomes.token_cost, 0);
   assert.equal(chronicle.shared_world.daily_rite_stakes.segment_count, chronicle.shared_world.daily_rite_plan.route.length);
   assert.equal(chronicle.shared_world.daily_rite_modifiers.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
   assert.equal(chronicle.shared_world.daily_rite_policy.segment_count, chronicle.shared_world.daily_rite_stakes.segment_count);
   assert.ok(chronicle.integrations.daily_rite_modifiers.highest_risk_segment.enemy_scale >= 1);
   assert.ok(chronicle.integrations.daily_rite_policy.strongest_reward_segment.drop_multiplier >= 1);
+  assert.ok(chronicle.integrations.daily_rite_outcomes.richest_cache.rewards.coins > 0);
   assert.doesNotMatch(JSON.stringify(chronicle.integrations.daily_rite_policy), /<script>|`/);
   assert.ok(chronicle.shared_world.daily_rite_stakes.summary.includes("stakes"));
   assert.equal(chronicle.shared_world.feedback_summary.counts.daily_rite_end, 1);

@@ -4,6 +4,7 @@ import { getRitePacingCoach } from "./riteCoach.js";
 import { buildLastLightResultCard } from "./resultCard.js";
 import { buildDailyRiteStakes } from "./dailyRiteStakes.js";
 import { buildDailyRiteModifiers } from "./dailyRiteModifiers.js";
+import { buildDailyRiteOutcomeDigest, getDailyRiteRoomOutcome } from "./dailyRiteRoomOutcome.js";
 
 export function createDailyRiteRun({
   dailyRitePlan,
@@ -18,6 +19,7 @@ export function createDailyRiteRun({
   const consequence = getDailyRiteConsequence({ dailyRitePlan, roomWeave, wave: 0, outcome: "entry" });
   const stakes = buildDailyRiteStakes({ dailyRitePlan });
   const modifiers = buildDailyRiteModifiers({ stakes });
+  const outcomePolicy = buildDailyRiteOutcomeDigest({ modifiers, daySeed });
 
   return {
     wave: 0,
@@ -36,6 +38,8 @@ export function createDailyRiteRun({
     consequence,
     stakes,
     modifiers,
+    outcomePolicy,
+    latestOutcome: getDailyRiteRoomOutcome({ run: { modifiers, roomWeave }, wave: 0, daySeed }),
   };
 }
 

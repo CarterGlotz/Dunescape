@@ -50,6 +50,7 @@ import { getSundialQueueBriefing, getSundialQueueSummary } from "./game/sundialQ
 import { getDailyRiteConsequence } from "./game/dailyRiteConsequences.js";
 import { completeDailyRiteRun, createDailyRiteRun } from "./game/dailyRunSession.js";
 import { applyDailyRiteSpawnState } from "./game/dailyRiteSpawn.js";
+import { getDailyRiteRoomOutcome } from "./game/dailyRiteRoomOutcome.js";
 import { recordFeedbackEvent, summarizeFeedbackLedger } from "./game/feedbackLedger.js";
 import { buildSavePayload, createSaveSanitizer } from "./game/save.js";
 import { getRunDebrief, getSessionDelta, getSharedWorldBriefing } from "./game/feedback.js";
@@ -2412,6 +2413,17 @@ export default function DS(){
           g.mons=g.mons.filter(m=>!m.dailyRun);
           g.dungeon.monsters=[];
           run.wave++;
+          const clearedWave=Math.max(0,Math.min(29,run.wave-1));
+          const roomOutcome=getDailyRiteRoomOutcome({run,wave:clearedWave,roomIndex:run.rooms?.[clearedWave],daySeed:getDailySeed()});
+          run.latestOutcome=roomOutcome;
+          if(roomOutcome?.rewards){
+            if(roomOutcome.rewards.heal){p.hp=Math.min(p.mhp,p.hp+roomOutcome.rewards.heal);}
+            if(roomOutcome.rewards.prayer){p.prayer=Math.min(p.maxPrayer,p.prayer+roomOutcome.rewards.prayer);}
+            if(roomOutcome.rewards.coins)addI("coins",roomOutcome.rewards.coins);
+            (roomOutcome.rewards.items||[]).forEach(item=>addI(item.id,item.count||1));
+          }
+          if(roomOutcome?.receipt)addC("☀️ "+roomOutcome.receipt);
+          if(roomOutcome?.next_action)addC("🧭 "+roomOutcome.next_action);
           if(run.wave>=30){
             run.done=true;run.deathWave=30;
             run.vowResult=run.vow?evaluateVow(run.vow,{wave:30,completed:true,durationMs:Date.now()-run.startTime}):null;

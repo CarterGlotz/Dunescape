@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "1.3",
+  "project": "solara",
+  "date": "2026-06-12",
+  "session": 68,
+  "sessionType": "implementation",
+  "label": "audit-driven daily-rite-room-outcomes pass",
+  "calibration": false,
+  "silRubricVersion": "3.0",
+  "scores": {
+    "devHealth": 94,
+    "creativeAlignment": 96,
+    "momentum": 96,
+    "engagement": 98,
+    "processQuality": 94,
+    "crossRepoCoherence": 93,
+    "securityPosture": 95,
+    "ecosystemIntegration": 98,
+    "capitalEfficiency": 91,
+    "automationCoverage": 100
+  },
+  "total": 955,
+  "maxScore": 1000,
+  "previousTotal": 941,
+  "delta": 14,
+  "velocity": 14,
+  "debt": "->",
+  "shipped": [
+    "daily-rite-room-outcome-policy",
+    "daily-rite-policy-runtime-wiring",
+    "daily-rite-outcome-public-digest",
+    "daily-rite-outcome-smoke-contract"
+  ],
+  "verifiedPreexisting": [],
+  "blocked": [],
+  "humanActionRequired": [
+    "Add project-scoped PG_CONNECTION_SOLARA for Supabase project fjnpzjjyhnpmunfoycrp, then rerun the manual Supabase Hardening workflow. Alternative: deploy docs/SUPABASE_PUBLIC_WRITE_HARDENING.sql through Supabase SQL Editor with owner credentials, then rerun npm run verify:supabase."
+  ],
+  "evidence": {
+    "tests": "59/59 unit tests passing",
+    "build": "vite production build passing",
+    "smoke": "smoke runtime passing",
+    "notable": "Daily Rite room-clear outcome receipts now drive bounded runtime rewards and are exported through public chronicle/status with zero browser token cost."
+  }
+}

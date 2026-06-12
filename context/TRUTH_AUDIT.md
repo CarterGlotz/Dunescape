@@ -84,3 +84,11 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - public chronicle/status exports include `daily_rite_policy` for Studio surfaces while preserving deterministic zero-token behavior
 - active-run smoke coverage now verifies stakes, modifiers, policy, and 30-wave segment mapping after Daily Rite start
 - local validation passed: 58 unit tests, production build, and smoke runtime
+
+## 2026-06-12 Session 68 Public-Safe Check
+
+- Daily Rite room outcome receipts are deterministic from public segment policy and expose only bounded recovery, coin, Sunstone, shrine-bargain, and next-action fields with `token_cost: 0`
+- active Daily Rite wave clears apply the receipt locally in the browser loop without reading credentials, private Studio context, or paid generation
+- public chronicle/status exports include `daily_rite_outcomes` for Studio surfaces while preserving deterministic zero-token behavior
+- active-run smoke coverage now verifies stakes, modifiers, segment policy, outcome policy, latest outcome receipts, and 30-wave segment mapping after Daily Rite start
+- local validation passed: 59 unit tests, production build, and smoke runtime

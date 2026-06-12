@@ -15,6 +15,7 @@ import { buildLastLightResultCard } from "./resultCard.js";
 import { summarizeFeedbackLedger } from "./feedbackLedger.js";
 import { buildDailyRiteStakes } from "./dailyRiteStakes.js";
 import { buildDailyRiteModifiers } from "./dailyRiteModifiers.js";
+import { buildDailyRiteOutcomeDigest } from "./dailyRiteRoomOutcome.js";
 
 function sortByWave(entries = []) {
   return [...entries].sort((a, b) => Number(b?.wave_reached || 0) - Number(a?.wave_reached || 0));
@@ -124,6 +125,7 @@ export function buildPublicChronicle({
   const dailyRiteStakes = buildDailyRiteStakes({ dailyRitePlan });
   const dailyRiteModifiers = buildDailyRiteModifiers({ stakes: dailyRiteStakes });
   const dailyRitePolicy = dailyRiteModifiers.policy;
+  const dailyRiteOutcomes = buildDailyRiteOutcomeDigest({ modifiers: dailyRiteModifiers, daySeed: `season-${season}-day-${dayNumber}` });
   const constellationObjectives = buildConstellationObjectives({ sharedWorld, hasSunstoneShard: false });
   const backendReadiness = buildBackendReadiness({
     backendConnected: true,
@@ -189,6 +191,7 @@ export function buildPublicChronicle({
       daily_rite_stakes: dailyRiteStakes,
       daily_rite_modifiers: dailyRiteModifiers,
       daily_rite_policy: dailyRitePolicy,
+      daily_rite_outcomes: dailyRiteOutcomes,
       constellation_objectives: constellationObjectives.slice(0, 5),
       backend_readiness: backendReadiness,
       backend_contract: backendContract,
@@ -240,6 +243,7 @@ export function buildPublicChronicle({
       feedback_summary: feedbackSummary,
       daily_rite_modifiers: dailyRiteModifiers,
       daily_rite_policy: dailyRitePolicy,
+      daily_rite_outcomes: dailyRiteOutcomes,
       daily_rite_stakes: dailyRiteStakes,
       backend_readiness: backendReadiness,
       backend_contract: backendContract,

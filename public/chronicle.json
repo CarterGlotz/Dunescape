@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-12T01:10:18.036Z",
+  "generated_at": "2026-06-12T02:28:05.118Z",
   "season": 1,
   "season_name": "The Wandering Comet",
   "status": {
@@ -726,6 +726,167 @@
         }
       ],
       "summary": "Waves 26-30 carries the richest coins pressure; Waves 26-30 has the tightest recovery window."
+    },
+    "daily_rite_outcomes": {
+      "version": 1,
+      "token_cost": 0,
+      "segment_count": 6,
+      "strongest_recovery": {
+        "version": 1,
+        "token_cost": 0,
+        "wave": 10,
+        "segment_id": "segment_3",
+        "segment_label": "Waves 11-15",
+        "reward_bias": "coins",
+        "recovery_pressure": "open",
+        "recovery_room_chance": 0.21,
+        "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+        "rewards": {
+          "coins": 55,
+          "heal": 8,
+          "prayer": 0,
+          "items": []
+        },
+        "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
+        "next_action": "Use the recovery window before the next pressure spike."
+      },
+      "richest_cache": {
+        "version": 1,
+        "token_cost": 0,
+        "wave": 25,
+        "segment_id": "segment_6",
+        "segment_label": "Waves 26-30",
+        "reward_bias": "coins",
+        "recovery_pressure": "guarded",
+        "recovery_room_chance": 0.175,
+        "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+        "rewards": {
+          "coins": 81,
+          "heal": 0,
+          "prayer": 0,
+          "items": []
+        },
+        "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
+        "next_action": "Keep tempo clean and bank the route pressure."
+      },
+      "shrine_bargain": null,
+      "samples": [
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 0,
+          "segment_id": "segment_1",
+          "segment_label": "Waves 1-5",
+          "reward_bias": "xp",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.245,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 19,
+            "heal": 7,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 1-5 clear: light cache paid 19 coins, restored 7 HP.",
+          "next_action": "Use the recovery window before the next pressure spike."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 5,
+          "segment_id": "segment_2",
+          "segment_label": "Waves 6-10",
+          "reward_bias": "relic",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.21,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 38,
+            "heal": 0,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 6-10 clear: relic ash paid 38 coins.",
+          "next_action": "Keep tempo clean and bank the route pressure."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 10,
+          "segment_id": "segment_3",
+          "segment_label": "Waves 11-15",
+          "reward_bias": "coins",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.21,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 55,
+            "heal": 8,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
+          "next_action": "Use the recovery window before the next pressure spike."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 15,
+          "segment_id": "segment_4",
+          "segment_label": "Waves 16-20",
+          "reward_bias": "xp",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.21,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 42,
+            "heal": 0,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 16-20 clear: light cache paid 42 coins.",
+          "next_action": "Keep tempo clean and bank the route pressure."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 20,
+          "segment_id": "segment_5",
+          "segment_label": "Waves 21-25",
+          "reward_bias": "relic",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.21,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 54,
+            "heal": 8,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 21-25 clear: relic ash paid 54 coins, restored 8 HP.",
+          "next_action": "Use the recovery window before the next pressure spike."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 25,
+          "segment_id": "segment_6",
+          "segment_label": "Waves 26-30",
+          "reward_bias": "coins",
+          "recovery_pressure": "guarded",
+          "recovery_room_chance": 0.175,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 81,
+            "heal": 0,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
+          "next_action": "Keep tempo clean and bank the route pressure."
+        }
+      ],
+      "summary": "Waves 26-30 carries the richest room cache; Waves 11-15 is the safest recovery window."
     },
     "constellation_objectives": [],
     "backend_readiness": {
@@ -1523,6 +1684,167 @@
         }
       ],
       "summary": "Waves 26-30 carries the richest coins pressure; Waves 26-30 has the tightest recovery window."
+    },
+    "daily_rite_outcomes": {
+      "version": 1,
+      "token_cost": 0,
+      "segment_count": 6,
+      "strongest_recovery": {
+        "version": 1,
+        "token_cost": 0,
+        "wave": 10,
+        "segment_id": "segment_3",
+        "segment_label": "Waves 11-15",
+        "reward_bias": "coins",
+        "recovery_pressure": "open",
+        "recovery_room_chance": 0.21,
+        "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+        "rewards": {
+          "coins": 55,
+          "heal": 8,
+          "prayer": 0,
+          "items": []
+        },
+        "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
+        "next_action": "Use the recovery window before the next pressure spike."
+      },
+      "richest_cache": {
+        "version": 1,
+        "token_cost": 0,
+        "wave": 25,
+        "segment_id": "segment_6",
+        "segment_label": "Waves 26-30",
+        "reward_bias": "coins",
+        "recovery_pressure": "guarded",
+        "recovery_room_chance": 0.175,
+        "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+        "rewards": {
+          "coins": 81,
+          "heal": 0,
+          "prayer": 0,
+          "items": []
+        },
+        "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
+        "next_action": "Keep tempo clean and bank the route pressure."
+      },
+      "shrine_bargain": null,
+      "samples": [
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 0,
+          "segment_id": "segment_1",
+          "segment_label": "Waves 1-5",
+          "reward_bias": "xp",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.245,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 19,
+            "heal": 7,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 1-5 clear: light cache paid 19 coins, restored 7 HP.",
+          "next_action": "Use the recovery window before the next pressure spike."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 5,
+          "segment_id": "segment_2",
+          "segment_label": "Waves 6-10",
+          "reward_bias": "relic",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.21,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 38,
+            "heal": 0,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 6-10 clear: relic ash paid 38 coins.",
+          "next_action": "Keep tempo clean and bank the route pressure."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 10,
+          "segment_id": "segment_3",
+          "segment_label": "Waves 11-15",
+          "reward_bias": "coins",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.21,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 55,
+            "heal": 8,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 11-15 clear: coin cache paid 55 coins, restored 8 HP.",
+          "next_action": "Use the recovery window before the next pressure spike."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 15,
+          "segment_id": "segment_4",
+          "segment_label": "Waves 16-20",
+          "reward_bias": "xp",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.21,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 42,
+            "heal": 0,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 16-20 clear: light cache paid 42 coins.",
+          "next_action": "Keep tempo clean and bank the route pressure."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 20,
+          "segment_id": "segment_5",
+          "segment_label": "Waves 21-25",
+          "reward_bias": "relic",
+          "recovery_pressure": "open",
+          "recovery_room_chance": 0.21,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 54,
+            "heal": 8,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 21-25 clear: relic ash paid 54 coins, restored 8 HP.",
+          "next_action": "Use the recovery window before the next pressure spike."
+        },
+        {
+          "version": 1,
+          "token_cost": 0,
+          "wave": 25,
+          "segment_id": "segment_6",
+          "segment_label": "Waves 26-30",
+          "reward_bias": "coins",
+          "recovery_pressure": "guarded",
+          "recovery_room_chance": 0.175,
+          "shrine_bargain": "Shrine bargains remain open if you keep tempo clean.",
+          "rewards": {
+            "coins": 81,
+            "heal": 0,
+            "prayer": 0,
+            "items": []
+          },
+          "receipt": "Waves 26-30 clear: coin cache paid 81 coins.",
+          "next_action": "Keep tempo clean and bank the route pressure."
+        }
+      ],
+      "summary": "Waves 26-30 carries the richest room cache; Waves 11-15 is the safest recovery window."
     },
     "daily_rite_stakes": {
       "version": 1,

@@ -105,3 +105,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - exported `daily_rite_policy` through public chronicle/status shared-world and integration surfaces
 - extended smoke coverage so an active Daily Rite run must expose zero-token stakes, modifiers, segment policy, and 30-wave segment mapping
 - verified 58 unit tests, production build, and smoke runtime
+
+## 2026-06-12 — Session 68
+
+- ran /start gates, confirmed the S67 audit was already fully executed, then wrote docs/AUDIT_2026-06-12-S68.md / .json with four next-wave Daily Rite outcome items
+- added `src/game/dailyRiteRoomOutcome.js` for deterministic zero-token room-clear receipts and public outcome digest synthesis
+- wired active Daily Rite wave clears to apply bounded HP, Prayer, coin, and Sunstone rewards from the receipt and print the receipt plus next-action guidance
+- exported `daily_rite_outcomes` through public chronicle/status shared-world and integration surfaces
+- extended unit and smoke coverage so active Daily Rite runs expose zero-token outcome policy and latest room outcome receipts
+- verified 59 unit tests, production build, and smoke runtime

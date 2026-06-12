@@ -2,6 +2,15 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 68)
+- Shipped: Daily Rite segment policy now produces deterministic zero-token room-clear outcome receipts for recovery, coin caches, shrine bargains, and next-action guidance
+- Shipped: active Daily Rite wave clears now apply bounded HP, Prayer, coin, and Sunstone rewards from the outcome receipt before spawning the next room
+- Shipped: public chronicle/status JSON now exports `daily_rite_outcomes` with strongest recovery, richest cache, shrine-bargain posture, samples, and `token_cost: 0`
+- Shipped: smoke runtime now proves active Daily Rite runs expose outcome policy and latest outcome receipts alongside stakes, modifiers, segment policy, and 30-wave mapping
+- Tests: 59 passing unit tests plus production build and smoke runtime passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: extract Daily Rite room entry/auto-advance spawning into a pure runtime contract, turn shrine bargains into visible route choices, and deploy/verify RPC/RLS hardening when `PG_CONNECTION_SOLARA` lands
+
 ## Where We Left Off (2026-06-11 · Session 67)
 - Shipped: Daily Rite route modifiers now include deterministic segment policy for reward pressure, drop multipliers, recovery-room odds, and shrine bargain posture
 - Shipped: Daily Rite spawn mutation now lives in `src/game/dailyRiteSpawn.js`, applying world state and active route policy through a pure contract outside React
