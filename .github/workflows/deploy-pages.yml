@@ -33,7 +33,7 @@ jobs:
       VITE_APP_BASE_PATH: /solara/
       VITE_CANONICAL_URL: https://vaultsparkstudios.github.io/solara/
       VITE_OG_IMAGE_URL: https://vaultsparkstudios.github.io/solara/images/cover.png
-      VITE_DOMAIN: vaultsparkstudios.com
+      VITE_DOMAIN: vaultsparkstudios.github.io
       GAME_ENV: prod
     steps:
       - uses: actions/checkout@v4

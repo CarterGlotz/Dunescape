@@ -29,7 +29,7 @@ Supabase is optional. When not configured, the game stays playable locally and s
 
 ## Public surfaces
 
-- Main game: `https://vaultsparkstudios.com/solara/`
+- Main game: `https://vaultsparkstudios.github.io/solara/`
 - Archive of the Fallen: `public/archive.html`
 - Sun Observatory widget: `public/sun-widget.html`
 - Discord bot: `discord-bot/index.js`
