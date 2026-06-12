@@ -174,6 +174,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-12 Session 74 pass shipped deterministic shrine economy item deltas for bank/spend/oath choices, active status economy summaries, public digest guards, and validation for zero-token bounded reward inventory
 - 2026-06-12 Session 75 verification pass completed the requested start/audit/implement/closeout loop against current evidence, reran tests/smoke/build, and preserved unrelated untracked `obelisk-passport/` work
 - 2026-06-12 Session 76 pass shipped deterministic Daily Rite offering intents for banked shrine bargains, active/completed status rendering, public shrine bargain preview exports, and validation for zero-token bank/spend/oath behavior
+- 2026-06-12 Session 77 founder-directed playability/visual pass fixed camera follow, made Set Camp create a real persistent camp (chest + fire, recreated on load), added DPR-aware crisp canvas rendering, root-caused and fixed off-screen panels/menus under CSS `zoom` UI scale, and raised HUD/menu/log/context-menu size + contrast; recommended next lever is a sprite-sheet asset layer (`docs/AUDIT_2026-06-12-visual-playability.md`)
 
 ## Deferred to Project Agents
 

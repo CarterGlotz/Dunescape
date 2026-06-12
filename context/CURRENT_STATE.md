@@ -121,3 +121,14 @@ Public-safe summary:
 - banked Sunstone shrine bargains now expose a sanitized zero-token `offering_intent` targeted at the Living Map / grave-shrine offering loop, while spend/oath postures intentionally do not create offering targets
 - active/completed Daily Rite status now renders offering-opened guidance, and public shrine bargain digests include zero-token offering-intent previews for Studio surfaces
 - latest local validation: 64 unit tests passing, production build passing, smoke flow passing
+- 2026-06-12 Session 77 founder-directed playability/visual pass fixed the highest-friction in-game issues reported by the owner
+- camera now centers on the player with smooth follow (and centers the map when the viewport exceeds map bounds), replacing the wide dead-zone that made the view feel anchored near spawn
+- "Set camp" now creates a real persistent camp (a `camp_chest` object plus a non-expiring campfire), validates the tile, renders a tent+chest sprite, and is recreated from the save on load instead of only storing unreachable coordinates
+- canvas now scales its backing store by `devicePixelRatio` (capped 3x) with a DPR-aware draw transform and click math, fixing blur on HiDPI/Windows-scaled displays
+- off-screen text/panels root-caused to the CSS `zoom` UI scale: objective/ghost panel defaults, drag clamps, and the right-click context menu are now divided by `uiScale` so they stay on-screen and aligned to the cursor
+- the right-click context menu now clamps inside the viewport and is larger/higher-contrast; the dialogue box is centered, enlarged, and word-wrapped so long lines no longer overflow
+- HUD legibility raised: location label auto-sizes, player nameplate/health bars and NPC chatter are larger with solid backgrounds, and the combat log box is taller with bright white->cream text instead of grey-on-transparent
+- inventory item names, bestiary/prayer/upgrade/settings descriptions enlarged and brightened; default UI scale moved from 1.0 to 1.15
+- integration check: no TODO/FIXME/placeholder markers in `src/`; all React components and `content.js` exports wired; a few `src/game/*` exports are internal-only over-exports (benign)
+- documented in `docs/AUDIT_2026-06-12-visual-playability.md`; recommended next big lever is a sprite-sheet asset layer plus mobile/touch controls and DPR-scaling the minimap
+- latest local validation: 64 unit tests passing, production build passing, smoke flow passing

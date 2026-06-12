@@ -2,6 +2,16 @@
 
 Public-safe decisions only. Detailed internal decision history is maintained privately.
 
+## 2026-06-12 — Canvas renders in logical pixels; the backing store carries DPI
+
+**Decision:** The world canvas keeps all drawing/click math in logical (CSS) pixels and scales only the backing store by `devicePixelRatio` (capped at 3×), re-applying the scale via `setTransform` each frame. UI absolute-positioning that lives under the root CSS `zoom:uiScale` must divide window coordinates by `uiScale` (panels, drag clamps, context menu) so nothing renders off-screen at scale > 1.
+
+**Applies to this project:** Yes — `src/App.jsx` (`syncCanvasSize`, `getViewportMetrics`, `draw`, click handlers, panel/menu positioning).
+
+**Rationale:** Owner reported blur and off-screen text/menus. Logical-pixel rendering keeps the existing tile/camera math intact while delivering HiDPI crispness, and the zoom-aware positioning fixes the real root cause of panels drifting past the viewport edge.
+
+---
+
 ## 2026-04-06 — CANON-008: All VaultSpark IP is proprietary by default
 
 **Decision:** All code, content, assets, and designs created by VaultSpark Studios are proprietary and all rights are reserved by VaultSpark Studios LLC unless an open-source license is explicitly declared and approved by the Studio Owner. No agent may apply or imply an open-source license without Studio Owner direction.

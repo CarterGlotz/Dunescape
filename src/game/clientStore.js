@@ -1,4 +1,4 @@
-export const DEFAULT_UI_SCALE = 1;
+export const DEFAULT_UI_SCALE = 1.15;
 
 export function readJson(key, fallback) {
   try {

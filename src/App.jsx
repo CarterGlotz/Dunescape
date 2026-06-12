@@ -83,8 +83,9 @@ const MenuLorePanels = React.lazy(() => import("./components/MenuLorePanels.jsx"
 const TILE=32,MW=100,MH=100,BASE_VTX=17,BASE_VTY=14,CW=BASE_VTX*TILE,CH=BASE_VTY*TILE;
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
 const getViewportMetrics=cv=>{
-  const width=cv?.width||CW;
-  const height=cv?.height||CH;
+  // Logical (CSS-pixel) size — the backing store may be larger for HiDPI crispness.
+  const width=cv?._lw||cv?.width||CW;
+  const height=cv?._lh||cv?.height||CH;
   const spanX=Math.max(BASE_VTX,width/TILE);
   const spanY=Math.max(BASE_VTY,height/TILE);
   return{
@@ -105,20 +106,18 @@ const getCenteredCam=(x,y,cv)=>{
 };
 const followCamera=(camX,camY,px,py,cv)=>{
   const {spanX,spanY}=getViewportMetrics(cv);
-  const deadZoneX=Math.max(2,Math.floor(spanX*0.2));
-  const deadZoneY=Math.max(2,Math.floor(spanY*0.2));
-  let nextX=camX;
-  let nextY=camY;
-  const localX=px-camX;
-  const localY=py-camY;
-  if(localX<deadZoneX)nextX=px-deadZoneX;
-  else if(localX>spanX-deadZoneX-1)nextX=px-(spanX-deadZoneX-1);
-  if(localY<deadZoneY)nextY=py-deadZoneY;
-  else if(localY>spanY-deadZoneY-1)nextY=py-(spanY-deadZoneY-1);
-  return{
-    x:clamp(nextX,0,Math.max(0,MW-spanX)),
-    y:clamp(nextY,0,Math.max(0,MH-spanY)),
-  };
+  // Center the camera on the player. When the map is smaller than the
+  // viewport on an axis, center the map instead of locking to a corner.
+  const targetX=MW<=spanX?-(spanX-MW)/2:clamp(px+0.5-spanX/2,0,MW-spanX);
+  const targetY=MH<=spanY?-(spanY-MH)/2:clamp(py+0.5-spanY/2,0,MH-spanY);
+  // Smooth follow so movement feels fluid but always tracks the player.
+  const lerp=0.2;
+  let nextX=camX+(targetX-camX)*lerp;
+  let nextY=camY+(targetY-camY)*lerp;
+  // Snap when essentially arrived to avoid endless sub-pixel drift.
+  if(Math.abs(targetX-nextX)<0.01)nextX=targetX;
+  if(Math.abs(targetY-nextY)<0.01)nextY=targetY;
+  return{x:nextX,y:nextY};
 };
 const T={G:0,D:1,W:2,S:3,SA:4,WF:5,WA:6,BR:7,PA:8,DG:9,LAVA:10,DESERT:11};
 const TC={
@@ -1587,6 +1586,9 @@ export default function DS(){
     // Side quests init (Task 18)
     {const p2=g.p;if(!p2.sideQuests||p2.sideQuests.length===0){p2.sideQuests=QUEST_TEMPLATES.map((t,i)=>{const opts=t.monsters||t.resources||t.items||["item"];const pick=Math.floor(Math.random()*opts.length);return {id:"side_"+i,type:t.type,target:opts[pick],count:t.counts?.[pick]||10,progress:0,done:false,reward:t.rewards,npcId:t.npcId,npcNm:t.npcNm};});}}
 
+    // Recreate camp structures from save (Task 24 fix)
+    {const cp=g.p.camp;if(cp&&!g.objects.some(o=>o.t==="camp_chest")){g.objects.push({t:"camp_chest",x:cp.x,y:cp.y,hp:1});const fx=cp.x+1<MW?cp.x+1:cp.x-1;g.fires.push({x:fx,y:cp.y,time:Infinity,camp:true});}}
+
     // Seasonal events init (Task 29)
     {const month=new Date().getMonth()+1;const ev=SEASONAL_EVENTS.find(e=>e.months.includes(month));if(ev&&ev.monsters.length>0){ev.monsters.forEach(md=>{const m={...md,id:Math.random(),at:0,dead:false,temp:true};g.mons.push(m);});addC(ev.icon+" "+ev.name+" is active! Special creatures roam the world.");g.seasonalEvent=ev;}}
 
@@ -1594,11 +1596,16 @@ export default function DS(){
     const syncCanvasSize=()=>{
       const host=viewportHostR.current;
       if(!host||!cv)return;
-      const nextW=Math.max(CW,Math.floor(host.clientWidth));
-      const nextH=Math.max(CH,Math.floor(host.clientHeight));
-      if(cv.width!==nextW||cv.height!==nextH){
-        cv.width=nextW;
-        cv.height=nextH;
+      const dpr=Math.min(3,Math.max(1,window.devicePixelRatio||1));
+      const cssW=Math.max(CW,Math.floor(host.clientWidth));
+      const cssH=Math.max(CH,Math.floor(host.clientHeight));
+      const backW=Math.round(cssW*dpr),backH=Math.round(cssH*dpr);
+      if(cv.width!==backW||cv.height!==backH||cv._lw!==cssW||cv._lh!==cssH){
+        cv.width=backW;
+        cv.height=backH;
+        // CSS width/height stay at 100% (set in JSX) so the canvas fills the host;
+        // the larger backing store is what delivers HiDPI crispness.
+        cv._lw=cssW;cv._lh=cssH;cv._dpr=dpr;
         dirtyR.current=true;
       }
     };
@@ -1767,7 +1774,7 @@ export default function DS(){
 
     function handleClick(e){
       if(e.button===2)return;setCtx(null);
-      const rect=cv.getBoundingClientRect(),sx=cv.width/rect.width,sy=cv.height/rect.height;
+      const rect=cv.getBoundingClientRect(),sx=(cv._lw||cv.width)/rect.width,sy=(cv._lh||cv.height)/rect.height;
       const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;
       const tx=Math.floor(mx/TILE)+Math.floor(g.cam.x),ty=Math.floor(my/TILE)+Math.floor(g.cam.y);
       if(g.dlg){g.dlgL++;if(g.dlgL>=g.dlg.dlg.length){g.dlg=null;g.dlgL=0;}return;}
@@ -1793,7 +1800,7 @@ export default function DS(){
 
     function handleRClick(e){
       e.preventDefault();
-      const rect=cv.getBoundingClientRect(),sx=cv.width/rect.width,sy=cv.height/rect.height;
+      const rect=cv.getBoundingClientRect(),sx=(cv._lw||cv.width)/rect.width,sy=(cv._lh||cv.height)/rect.height;
       const mx=(e.clientX-rect.left)*sx,my=(e.clientY-rect.top)*sy;
       const tx=Math.floor(mx/TILE)+Math.floor(g.cam.x),ty=Math.floor(my/TILE)+Math.floor(g.cam.y);
       const opts=[];
@@ -1841,9 +1848,20 @@ export default function DS(){
         if(o.t==="camp_chest")opts.push({label:"Open camp chest",color:"#c8a84e",action:()=>doAction("camp_bank",o)});
       }
       opts.push({label:"Walk here",color:"#ff0",action:()=>doAction("walk",{x:tx,y:ty})});
-      opts.push({label:"Set camp here",color:"#a08020",action:()=>{const p2=g.p;p2.camp={x:tx,y:ty};addC("Camp set at ("+tx+","+ty+").");dirtyR.current=true;}});
+      opts.push({label:p.camp?"Move camp here":"Set camp here",color:"#a08020",action:()=>{const p2=g.p;
+        const t=map[ty]?.[tx];
+        if(t===undefined||t===T.W||t===T.WA||t===T.LAVA){addC("You can't make camp there.");return;}
+        if(g.objects.some(o=>o.x===tx&&o.y===ty&&o.hp>0&&o.t!=="camp_chest")){addC("That spot is occupied.");return;}
+        // Remove any prior camp structures, then plant a fresh camp here.
+        g.objects=g.objects.filter(o=>o.t!=="camp_chest");
+        g.fires=g.fires.filter(f=>!f.camp);
+        g.objects.push({t:"camp_chest",x:tx,y:ty,hp:1});
+        const fx=tx+1<MW&&map[ty]?.[tx+1]!==T.W&&map[ty]?.[tx+1]!==T.WA?tx+1:tx-1;
+        g.fires.push({x:fx,y:ty,time:Infinity,camp:true});
+        p2.camp={x:tx,y:ty};
+        addC("⛺ Camp set at ("+tx+","+ty+"). A chest and campfire stand ready.");dirtyR.current=true;}});
       opts.push({label:"Cancel",color:"#888",action:()=>setCtx(null)});
-      setCtx({x:e.clientX-rect.left,y:e.clientY-rect.top,opts});
+      setCtx({cx:e.clientX,cy:e.clientY,rl:rect.left,rt:rect.top,rw:rect.width,rh:rect.height,opts});
     }
 
     // === UPDATE ===
@@ -2480,7 +2498,7 @@ export default function DS(){
       // Clean ground items
       g.groundItems=g.groundItems.filter(gi=>gi.time>now);
       // Clean fires
-      g.fires=g.fires.filter(f=>f.time>now);
+      g.fires=g.fires.filter(f=>f.camp||f.time>now);
       // HP regen triggers dirty
       if(Math.floor(g.tk/6000)!==Math.floor((g.tk-dt)/6000)&&p.hp<p.mhp){dirtyR.current=true;}
       // Track coins for rich achievement
@@ -2519,6 +2537,8 @@ export default function DS(){
     function draw(){
       const p=g.p;
       const {width,height,tilesX,tilesY}=getViewportMetrics(cv);
+      // Render in logical (CSS) pixels; scale the backing store up for HiDPI crispness.
+      c.setTransform(cv._dpr||1,0,0,cv._dpr||1,0,0);
       const cx=Math.floor(g.cam.x),cy=Math.floor(g.cam.y);
       const offX=-Math.round((g.cam.x-cx)*TILE),offY=-Math.round((g.cam.y-cy)*TILE);
       c.clearRect(0,0,width,height);
@@ -2630,6 +2650,16 @@ export default function DS(){
           const arenaG=gR.current;if(arenaG?.arena?.active){c.fillStyle="#f44";c.font="bold 7px sans-serif";c.fillText("Wave "+arenaG.arena.wave,sx+16,sy+32);}
           else{c.fillStyle="#c8a84e";c.font="bold 7px sans-serif";c.fillText("ARENA",sx+16,sy+32);}
         }
+        if(o.t==="camp_chest"){
+          // Tent backdrop
+          c.fillStyle="#6a4a28";c.beginPath();c.moveTo(sx+4,sy+28);c.lineTo(sx+16,sy+6);c.lineTo(sx+28,sy+28);c.closePath();c.fill();
+          c.fillStyle="#7a5630";c.beginPath();c.moveTo(sx+16,sy+6);c.lineTo(sx+28,sy+28);c.lineTo(sx+20,sy+28);c.closePath();c.fill();
+          c.fillStyle="#2a1808";c.beginPath();c.moveTo(sx+13,sy+28);c.lineTo(sx+16,sy+16);c.lineTo(sx+19,sy+28);c.closePath();c.fill();
+          // Chest in front
+          c.fillStyle="#caa14e";c.fillRect(sx+9,sy+24,14,8);c.fillStyle="#8a6a28";c.fillRect(sx+9,sy+24,14,3);
+          c.fillStyle="#3a2810";c.fillRect(sx+15,sy+26,2,4);
+          c.fillStyle="#f0d890";c.font="bold 8px sans-serif";c.textAlign="center";c.fillText("CAMP",sx+16,sy+40);
+        }
       }
       // Monsters
       for(const m of g.mons){if(m.dead)continue;const sx=Math.round((m.x-g.cam.x)*TILE),sy=Math.round((m.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;
@@ -2680,9 +2710,12 @@ export default function DS(){
         c.strokeStyle="#b07030";c.lineWidth=2.5;c.beginPath();c.moveTo(px+26+ed[0]*3,py+12+swing);c.lineTo(px+26+ed[0]*10,py+4+swing);c.stroke();}
       if(p.eq.shield){c.fillStyle="#7a5a20";c.beginPath();c.arc(px+4,py+18-swing,5,0,6.28);c.fill();c.fillStyle="#9a7a30";c.beginPath();c.arc(px+4,py+18-swing,3,0,6.28);c.fill();}
       const playerLabel=p.playerName||"You";
-      c.fillStyle="#0f0";c.font="bold 9px sans-serif";c.textAlign="center";c.fillText(playerLabel,px+16,py-12);
-      c.fillStyle="#300";c.fillRect(px+4,py-9,24,5);c.fillStyle="#0c0";c.fillRect(px+4,py-9,24*p.hp/p.mhp,5);
-      if(p.prayer>0){c.fillStyle="#114";c.fillRect(px+4,py-4,24,2);c.fillStyle="#48c";c.fillRect(px+4,py-4,24*p.prayer/p.maxPrayer,2);}
+      c.font="bold 11px 'Segoe UI',sans-serif";c.textAlign="center";
+      c.fillStyle="rgba(0,0,0,0.85)";c.fillText(playerLabel,px+16+1,py-13+1);
+      c.fillStyle="#5cff5c";c.fillText(playerLabel,px+16,py-13);
+      c.fillStyle="#1a0606";c.fillRect(px+1,py-9,30,6);c.fillStyle="#16d016";c.fillRect(px+1,py-9,30*Math.max(0,p.hp/p.mhp),6);
+      c.strokeStyle="rgba(0,0,0,0.6)";c.lineWidth=1;c.strokeRect(px+1,py-9,30,6);
+      if(p.prayer>0){c.fillStyle="#06122a";c.fillRect(px+1,py-3,30,3);c.fillStyle="#54a8f0";c.fillRect(px+1,py-3,30*p.prayer/p.maxPrayer,3);}
       // Combo meter dots (Task 25)
       if((p.comboMeter||0)>0){for(let ci=0;ci<3;ci++){c.fillStyle=ci<p.comboMeter?"#ff8000":"rgba(255,128,0,0.2)";c.beginPath();c.arc(px+10+ci*6,py-22,3,0,6.28);c.fill();}}
       // Action bar
@@ -2727,7 +2760,7 @@ export default function DS(){
         }
       }
       // NPC chatter bubbles
-      for(const ch of g.npcChatter){const n=g.npcs.find(n2=>n2.id===ch.npcId);if(!n)continue;const sx=Math.round((n.x-g.cam.x)*TILE),sy=Math.round((n.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;const alpha=Math.min(1,(ch.time-Date.now())/1000);c.globalAlpha=alpha;c.fillStyle="rgba(255,255,220,0.95)";const tw=c.measureText(ch.text).width+12;c.fillRect(sx+16-tw/2,sy-28,tw,16);c.fillStyle="#333";c.font="bold 8px sans-serif";c.textAlign="center";c.fillText(ch.text,sx+16,sy-17);c.globalAlpha=1;}
+      for(const ch of g.npcChatter){const n=g.npcs.find(n2=>n2.id===ch.npcId);if(!n)continue;const sx=Math.round((n.x-g.cam.x)*TILE),sy=Math.round((n.y-g.cam.y)*TILE);if(sx<-TILE||sx>width+TILE||sy<-TILE||sy>height+TILE)continue;const alpha=Math.min(1,(ch.time-Date.now())/1000);c.globalAlpha=alpha;c.font="bold 11px 'Segoe UI',sans-serif";c.textAlign="center";const tw=c.measureText(ch.text).width+16;const bx=clamp(sx+16-tw/2,4,width-tw-4);c.fillStyle="rgba(252,248,228,0.96)";c.fillRect(bx,sy-32,tw,20);c.strokeStyle="rgba(120,90,40,0.6)";c.lineWidth=1;c.strokeRect(bx,sy-32,tw,20);c.fillStyle="#2a1c08";c.fillText(ch.text,bx+tw/2,sy-18);c.globalAlpha=1;}
       // Temp merchant
       if(g.tempMerchant){const tm=g.tempMerchant;const sx=Math.round((tm.x-g.cam.x)*TILE),sy=Math.round((tm.y-g.cam.y)*TILE);if(sx>=-TILE&&sx<=width+TILE&&sy>=-TILE&&sy<=height+TILE){c.fillStyle="#a0c060";c.beginPath();c.arc(sx+16,sy+16,10,0,6.28);c.fill();c.fillStyle="#da0";c.font="bold 9px sans-serif";c.textAlign="center";c.fillText("Merchant",sx+16,sy-2);}}
       // Sandstorm overlay
@@ -2744,11 +2777,17 @@ export default function DS(){
       }
       // Dialogue
       if(g.dlg){const n=g.dlg;
-        c.fillStyle="rgba(8,8,6,0.93)";c.fillRect(16,height-110,width-32,94);
-        c.strokeStyle="#c8a84e";c.lineWidth=2;c.strokeRect(16,height-110,width-32,94);
-        c.fillStyle="#ff0";c.font="bold 13px sans-serif";c.textAlign="left";c.fillText(n.nm+":",30,height-90);
-        c.fillStyle="#ddd";c.font="12px sans-serif";c.fillText(n.dlg[Math.min(g.dlgL,n.dlg.length-1)],30,height-68);
-        c.fillStyle="#888";c.font="10px sans-serif";c.fillText("Click to continue...",30,height-38);
+        const boxW=Math.min(width-32,760),boxX=Math.round((width-boxW)/2),boxH=128,boxY=height-boxH-14;
+        c.fillStyle="rgba(6,6,4,0.96)";c.fillRect(boxX,boxY,boxW,boxH);
+        c.strokeStyle="#c8a84e";c.lineWidth=2;c.strokeRect(boxX,boxY,boxW,boxH);
+        c.fillStyle="#ffd24a";c.font="bold 18px 'Segoe UI',sans-serif";c.textAlign="left";c.fillText(n.nm+":",boxX+18,boxY+30);
+        // Word-wrapped body so long lines never run off-screen
+        c.fillStyle="#f2ece0";c.font="16px 'Segoe UI',sans-serif";
+        const words=String(n.dlg[Math.min(g.dlgL,n.dlg.length-1)]).split(" ");
+        const maxW=boxW-36;let line="",ly=boxY+58;
+        for(const w of words){const test=line?line+" "+w:w;if(c.measureText(test).width>maxW&&line){c.fillText(line,boxX+18,ly);line=w;ly+=22;}else line=test;}
+        if(line)c.fillText(line,boxX+18,ly);
+        c.fillStyle="#b8a994";c.font="13px 'Segoe UI',sans-serif";c.fillText("Click to continue ▸",boxX+18,boxY+boxH-14);
       }
       // Location
       let loc="Ashlands";
@@ -2766,8 +2805,11 @@ export default function DS(){
       else if(p.y>=70&&p.x>=30&&p.x<45)loc="Agility Course";
       else if(p.y>=35&&p.y<50&&p.x>=35&&p.x<50)loc="Fields";
       else if(p.y<7)loc="⚠️ The Ashlands";
-      c.fillStyle="rgba(0,0,0,0.6)";c.fillRect(2,2,100,18);
-      c.fillStyle=loc.includes("Ashlands")?"#f44":"#ff0";c.font="bold 10px sans-serif";c.textAlign="left";c.fillText(loc,6,14);
+      c.font="bold 14px 'Segoe UI',sans-serif";c.textAlign="left";
+      const locW=c.measureText(loc).width+18;
+      c.fillStyle="rgba(0,0,0,0.82)";c.fillRect(4,4,locW,24);
+      c.strokeStyle="rgba(200,168,78,0.4)";c.lineWidth=1;c.strokeRect(4,4,locW,24);
+      c.fillStyle=loc.includes("Ashlands")?"#ff7a5a":"#ffe066";c.fillText(loc,13,21);
       // Minimap
       const ms=88,mmx=width-ms-4,mmy=4;
       c.fillStyle="rgba(0,0,0,0.8)";c.fillRect(mmx-2,mmy-2,ms+4,ms+4);c.strokeStyle="#5a4a30";c.lineWidth=1;c.strokeRect(mmx-2,mmy-2,ms+4,ms+4);
@@ -2900,18 +2942,20 @@ export default function DS(){
 
   useEffect(()=>{
     const onMove=e=>{
+      const s=uiScale||1;
+      const vw=window.innerWidth/s,vh=window.innerHeight/s;
       if(objectiveDragRef.current){
         const width=340;
         const height=126;
-        const nextX=clamp(e.clientX-objectiveDragRef.current.offsetX,12,Math.max(12,window.innerWidth-width-12));
-        const nextY=clamp(e.clientY-objectiveDragRef.current.offsetY,hudHeight+12,Math.max(hudHeight+12,window.innerHeight-height-104));
+        const nextX=clamp(e.clientX/s-objectiveDragRef.current.offsetX,12,Math.max(12,vw-width-12));
+        const nextY=clamp(e.clientY/s-objectiveDragRef.current.offsetY,hudHeight+12,Math.max(hudHeight+12,vh-height-104));
         setObjectivePosition({x:nextX,y:nextY});
       }
       if(ghostDragRef.current){
         const width=220;
         const height=Math.min(240,Math.max(90,recentEchoGhosts.length*82));
-        const nextX=clamp(e.clientX-ghostDragRef.current.offsetX,12,Math.max(12,window.innerWidth-width-12));
-        const nextY=clamp(e.clientY-ghostDragRef.current.offsetY,hudHeight+12,Math.max(hudHeight+12,window.innerHeight-height-104));
+        const nextX=clamp(e.clientX/s-ghostDragRef.current.offsetX,12,Math.max(12,vw-width-12));
+        const nextY=clamp(e.clientY/s-ghostDragRef.current.offsetY,hudHeight+12,Math.max(hudHeight+12,vh-height-104));
         setGhostPosition({x:nextX,y:nextY});
       }
     };
@@ -2922,7 +2966,7 @@ export default function DS(){
       window.removeEventListener("pointermove",onMove);
       window.removeEventListener("pointerup",stopDrag);
     };
-  },[hudHeight,recentEchoGhosts.length]);
+  },[hudHeight,recentEchoGhosts.length,uiScale]);
 
   useEffect(()=>{
     const state={showGuide,showObjectiveTracker,showGhostHud,tooltipsOn,compactHud,panelOpen,showMenuReference,objectivePosition,ghostPosition};
@@ -3133,7 +3177,7 @@ export default function DS(){
         if(d.buff||d.heal)eat(i);else if(d.slot)equip(i);else if(s.i==="bones"||s.i==="big_bones"||s.i==="dragon_bones")bury(i);else if(isLog&&p?.inv.some(x=>x.i==="knife"))setFletchOpen(true);else if(isLog)firemaking(i);else if(s.i==="herb"||s.i==="clean_herb"||s.i==="grimy_tarromin"||s.i==="grimy_harralander"||s.i==="grimy_kwuarm"||s.i==="tarromin"||s.i==="harralander"||s.i==="kwuarm")useHerblore(i);}}
       onContextMenu={e=>{e.preventDefault();if(!s)return;if(bankOpen){bankDeposit(i,e);return;}drop(i);}}
     >{s&&<span>{d.i}</span>}{s&&d.s&&s.c>1&&<span style={{position:"absolute",top:0,left:2,fontSize:8,color:"#ff0",fontWeight:700}}>{s.c>99999?"99k+":s.c}</span>}
-      {s&&<span style={{position:"absolute",bottom:0,right:1,fontSize:6,color:"#aa9",maxWidth:34,overflow:"hidden",whiteSpace:"nowrap"}}>{d.n}</span>}
+      {s&&<span style={{position:"absolute",bottom:0,right:1,left:1,fontSize:8,color:"#e8dcc0",textShadow:"0 1px 2px #000",textAlign:"right",overflow:"hidden",whiteSpace:"nowrap",textOverflow:"ellipsis"}}>{d.n}</span>}
     </div>);}
 
   const guideStepLabel=getGuideStepLabel({
@@ -3145,10 +3189,14 @@ export default function DS(){
     hasSunstoneShard,
   });
   const sidePanelWidth=panelOpen?210:0;
-  const defaultObjectivePosition=typeof window==="undefined"?{x:12,y:96}:{x:window.innerWidth>900?window.innerWidth-372:12,y:window.innerHeight>760?window.innerHeight-176:96};
+  // Viewport in zoom-units: the root container uses CSS `zoom:uiScale`, so absolute
+  // positions must be divided by the scale or they land off-screen at scale>1.
+  const vpW=typeof window==="undefined"?1024:window.innerWidth/(uiScale||1);
+  const vpH=typeof window==="undefined"?768:window.innerHeight/(uiScale||1);
+  const defaultObjectivePosition=typeof window==="undefined"?{x:12,y:96}:{x:vpW>900?vpW-372:12,y:vpH>760?vpH-176:96};
   const objectiveStyle=objectivePosition?{left:objectivePosition.x,top:objectivePosition.y}:{left:defaultObjectivePosition.x,top:defaultObjectivePosition.y};
   const resetObjectivePosition=()=>setObjectivePosition(null);
-  const defaultGhostPosition=typeof window==="undefined"?{x:12,y:96}:{x:window.innerWidth>900?window.innerWidth-244:12,y:Math.max(hudHeight+18,96)};
+  const defaultGhostPosition=typeof window==="undefined"?{x:12,y:96}:{x:vpW>900?vpW-244:12,y:Math.max(hudHeight+18,96)};
   const ghostStyle=ghostPosition?{left:ghostPosition.x,top:ghostPosition.y}:{left:defaultGhostPosition.x,top:defaultGhostPosition.y};
   const resetGhostPosition=()=>setGhostPosition(null);
   const captureLayoutConfig=useCallback(()=>({
@@ -3238,13 +3286,15 @@ export default function DS(){
   const startObjectiveDrag=e=>{
     if(e.target.closest("button"))return;
     const base=objectivePosition||defaultObjectivePosition;
-    objectiveDragRef.current={offsetX:e.clientX-base.x,offsetY:e.clientY-base.y};
+    const s=uiScale||1;
+    objectiveDragRef.current={offsetX:e.clientX/s-base.x,offsetY:e.clientY/s-base.y};
     e.preventDefault();
   };
   const startGhostDrag=e=>{
     if(e.target.closest("button"))return;
     const base=ghostPosition||defaultGhostPosition;
-    ghostDragRef.current={offsetX:e.clientX-base.x,offsetY:e.clientY-base.y};
+    const s=uiScale||1;
+    ghostDragRef.current={offsetX:e.clientX/s-base.x,offsetY:e.clientY/s-base.y};
     e.preventDefault();
   };
   const hudButtonStyle={
@@ -3376,11 +3426,16 @@ export default function DS(){
             {[["",null],["▲","n","ArrowUp"],["",null],["◄","w","ArrowLeft"],["·",null,null],["►","e","ArrowRight"],["",null],["▼","s","ArrowDown"],["",null]].map(([lbl,dir,key],i)=>dir?<button key={i} onTouchStart={e=>{e.preventDefault();if(key){const synth=new KeyboardEvent("keydown",{key,bubbles:true});window.dispatchEvent(synth);}}} onTouchEnd={e=>{e.preventDefault();if(key){const synth=new KeyboardEvent("keyup",{key,bubbles:true});window.dispatchEvent(synth);}}}
               style={{background:"rgba(30,10,5,0.85)",border:"1px solid #5a1808",color:"#c8a84e",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",borderRadius:4,touchAction:"none"}}>{lbl}</button>:<div key={i}/>)}
           </div>}
-          {ctx_menu&&<div style={{position:"absolute",left:ctx_menu.x,top:ctx_menu.y,background:"rgba(12,4,2,0.97)",border:"1px solid #7a2010",borderRadius:4,minWidth:150,zIndex:50,boxShadow:"0 4px 24px rgba(0,0,0,0.8)"}}>
-            <div style={{background:"#280e06",padding:"3px 8px",fontSize:8,color:"#888",letterSpacing:1}}>Choose Option</div>
-            {ctx_menu.opts.map((o,i)=><div key={i} onClick={()=>{o.action();setCtx(null);}} style={{padding:"4px 10px",fontSize:11,color:o.color||"#ddd",cursor:"pointer",borderBottom:"1px solid rgba(90,74,48,0.2)"}}
-              onMouseEnter={e=>e.currentTarget.style.background="rgba(200,168,78,0.12)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>{o.label}</div>)}
-          </div>}
+          {ctx_menu&&(()=>{
+            // Convert from screen px to zoom-units and clamp inside the viewport so the menu never opens off-screen.
+            const s=uiScale||1;const menuW=180;const menuH=Math.min((ctx_menu.opts.length*28)+26,(ctx_menu.rh/s)-12);
+            const mx=clamp((ctx_menu.cx-ctx_menu.rl)/s,4,Math.max(4,(ctx_menu.rw/s)-menuW-4));
+            const my=clamp((ctx_menu.cy-ctx_menu.rt)/s,4,Math.max(4,(ctx_menu.rh/s)-menuH-4));
+            return <div style={{position:"absolute",left:mx,top:my,background:"rgba(12,4,2,0.98)",border:"1px solid #9a3214",borderRadius:5,minWidth:menuW,maxHeight:(ctx_menu.rh/s)-12,overflowY:"auto",zIndex:50,boxShadow:"0 6px 28px rgba(0,0,0,0.85)"}}>
+            <div style={{background:"#34140a",padding:"5px 10px",fontSize:11,color:"#e0c98a",letterSpacing:1,fontWeight:600}}>Choose Option</div>
+            {ctx_menu.opts.map((o,i)=><div key={i} onClick={()=>{o.action();setCtx(null);}} style={{padding:"7px 12px",fontSize:13,color:o.color||"#eee",cursor:"pointer",borderBottom:"1px solid rgba(90,74,48,0.25)",fontWeight:500}}
+              onMouseEnter={e=>e.currentTarget.style.background="rgba(200,168,78,0.16)"} onMouseLeave={e=>e.currentTarget.style.background="transparent"}>{o.label}</div>)}
+          </div>;})()}
         </div>
         {/* Side panel */}
         <div style={{width:sidePanelWidth,background:"linear-gradient(180deg,#1e0a06,#180804)",borderLeft:panelOpen?"2px solid #5a1808":"none",display:"flex",flexDirection:"column",flexShrink:0,transition:"width 0.2s ease",overflow:"hidden"}}>
@@ -3471,7 +3526,7 @@ export default function DS(){
               <div style={{color:"#c8a84e",fontSize:10,fontWeight:700,letterSpacing:1,marginTop:8,marginBottom:4}}>ACHIEVEMENTS ({(p.achievements||[]).length}/{ACHIEVEMENTS.length})</div>
               {ACHIEVEMENTS.map(a=>{const done=(p.achievements||[]).includes(a.id);return <div key={a.id} style={{background:"rgba(70,20,5,0.45)",padding:"3px 6px",borderRadius:3,marginBottom:2,border:"1px solid rgba(200,168,78,0.06)",opacity:done?1:0.4}}>
                 <div style={{fontSize:9,color:done?"#da0":"#666",fontWeight:600}}>{a.icon} {a.name}</div>
-                <div style={{fontSize:7,color:"#666"}}>{a.desc}</div>
+                <div style={{fontSize:9,color:"#b3a896"}}>{a.desc}</div>
               </div>;})}
               {/* Daily Challenge */}
               {(()=>{const dc=gR.current?.dailyChallenge;if(!dc)return null;
@@ -3523,7 +3578,7 @@ export default function DS(){
                   <span style={{fontSize:12}}>{pr.icon}</span>
                   <div style={{flex:1}}>
                     <div style={{fontSize:8,color:active?"#8af":"#c8a84e",fontWeight:600}}>{pr.name}</div>
-                    <div style={{fontSize:7,color:"#666"}}>{pr.desc} · Lvl {pr.lvl} · {pr.drain}/30s</div>
+                    <div style={{fontSize:9,color:"#b3a896"}}>{pr.desc} · Lvl {pr.lvl} · {pr.drain}/30s</div>
                   </div>
                   {active&&<span style={{fontSize:8,color:"#4af"}}>ON</span>}
                 </div>;})}
@@ -3543,9 +3598,9 @@ export default function DS(){
                       <span style={{fontSize:10,color:kc>0?m.c:"#555",fontWeight:700}}>{kc>0?m.nm:"???"}</span>
                       <span style={{fontSize:8,color:"#888"}}>Lvl {m.lvl} · {kc>0?<span style={{color:"#da0"}}>{kc} kills</span>:"unseen"}</span>
                     </div>
-                    {kc>0&&<div style={{fontSize:7,color:"#777",marginTop:1}}>HP:{m.mhp} Atk:{m.atk} Def:{m.def} Str:{m.str} · Weak: {m.weak||"none"}</div>}
+                    {kc>0&&<div style={{fontSize:9,color:"#bdb09c",marginTop:1}}>HP:{m.mhp} Atk:{m.atk} Def:{m.def} Str:{m.str} · Weak: {m.weak||"none"}</div>}
                     {kc>0&&m.examine&&<div style={{fontSize:7,color:"#888",marginTop:1,fontStyle:"italic"}}>{m.examine}</div>}
-                    {kc>0&&<div style={{fontSize:7,color:"#666",marginTop:1}}>Drops: {m.drops.slice(0,4).map(d=>{const it=ITEMS[d.i];const rate=d.c>=1?"always":d.c>=0.1?"common":d.c>=0.02?"uncommon":"rare";return (it?.n||d.i)+" ("+rate+")";}).join(", ")}{m.drops.length>4&&", ..."}</div>}
+                    {kc>0&&<div style={{fontSize:9,color:"#b3a896",marginTop:1}}>Drops: {m.drops.slice(0,4).map(d=>{const it=ITEMS[d.i];const rate=d.c>=1?"always":d.c>=0.1?"common":d.c>=0.02?"uncommon":"rare";return (it?.n||d.i)+" ("+rate+")";}).join(", ")}{m.drops.length>4&&", ..."}</div>}
                   </div>;
                 });
               })()}
@@ -3574,7 +3629,7 @@ export default function DS(){
                 <div style={{fontSize:8,color:"#9090e0",fontWeight:700,letterSpacing:1}}>🕰️ SUNDIAL QUEUE</div>
                 <div style={{fontSize:7,color:"#8a86a8",lineHeight:1.4,marginTop:1}}>{sundialBriefing?.line||sundialSummary.line}</div>
                 {sundialBriefing?.groups?.length>0&&<div style={{fontSize:7,color:"#b6a6df",lineHeight:1.35}}>{sundialBriefing.groups.map(group=>`${group.count} ${group.label}`).join(" · ")}</div>}
-                <div style={{fontSize:6,color:"#6d688a",lineHeight:1.35}}>{sundialBriefing?.next_sync||"They sync automatically when the live link returns."}</div>
+                <div style={{fontSize:8,color:"#9c96bc",lineHeight:1.35}}>{sundialBriefing?.next_sync||"They sync automatically when the live link returns."}</div>
               </div>}
               <div style={{background:"rgba(18,10,4,0.55)",border:"1px solid rgba(200,168,78,0.12)",borderRadius:4,padding:6,display:"grid",gap:3}}>
                 <div style={{fontSize:8,color:"#c8a84e",fontWeight:700,letterSpacing:1}}>📅 SUN ALMANAC — 7-DAY FORECAST</div>
@@ -3706,7 +3761,7 @@ export default function DS(){
               <div style={{borderTop:"1px solid rgba(200,168,78,0.08)",paddingTop:6,marginTop:4}}>
                 <div style={{color:"#c8a84e",fontSize:9,fontWeight:700,marginBottom:3}}>🔔 ORACLE ALERTS</div>
                 {oracleSubbed?<div style={{fontSize:7,color:"#4a0",textAlign:"center",padding:"3px 0"}}>✓ Subscribed. The Oracle will call when the sun crosses a threshold.</div>:<div>
-                  <div style={{fontSize:7,color:"#666",marginBottom:3,lineHeight:1.4}}>Get notified when the Oracle broadcasts (60%, 40%, 20% sun).</div>
+                  <div style={{fontSize:9,color:"#b3a896",marginBottom:3,lineHeight:1.4}}>Get notified when the Oracle broadcasts (60%, 40%, 20% sun).</div>
                   <input type="email" value={oracleSubEmail} onChange={e=>setOracleSubEmail(e.target.value)} placeholder="your@email.com" style={{width:"100%",boxSizing:"border-box",background:"#120604",color:"#ddd",border:"1px solid #5a2010",fontSize:8,padding:"3px 5px",borderRadius:3,marginBottom:3,outline:"none"}}/>
                   <button onClick={()=>{if(!oracleSubEmail.includes('@')){addC("Enter a valid email for Oracle alerts.");return;}localStorage.setItem('solara_oracle_sub',oracleSubEmail);setOracleSubbed(true);addC("🔔 Oracle alerts registered. The Oracle will find you.");}} style={{width:"100%",background:"#2a1040",border:"1px solid #7a4090",color:"#c8a0ff",fontSize:8,padding:"3px 0",cursor:"pointer",borderRadius:3,fontWeight:600}}>Subscribe to Oracle Broadcasts</button>
                 </div>}
@@ -3739,7 +3794,7 @@ export default function DS(){
                 <input type="checkbox" checked={ambientMotion} onChange={e=>setAmbientMotion(e.target.checked)}/>
                 Dynamic Music Swell
               </label>
-              <div style={{fontSize:7,color:"#666",lineHeight:1.4}}>The soundtrack shifts with the global sun phase. Muting music keeps effects available if you still want combat feedback.</div>
+              <div style={{fontSize:9,color:"#b3a896",lineHeight:1.4}}>The soundtrack shifts with the global sun phase. Muting music keeps effects available if you still want combat feedback.</div>
               <div style={{fontSize:9,color:"#c8a84e",fontWeight:700,marginTop:2}}>INTERFACE</div>
               <div style={{background:"rgba(20,10,5,0.6)",padding:"6px 7px",borderRadius:4,border:"1px solid rgba(200,168,78,0.08)"}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,marginBottom:4}}>
@@ -3828,7 +3883,7 @@ export default function DS(){
                 <span style={{fontSize:11}}>{u.icon}</span>
                 <div style={{flex:1}}>
                   <div style={{fontSize:8,color:owned?"#da0":"#ddd",fontWeight:600}}>{u.name}</div>
-                  <div style={{fontSize:7,color:"#666"}}>{u.desc} · {u.cost} QP</div>
+                  <div style={{fontSize:9,color:"#b3a896"}}>{u.desc} · {u.cost} QP</div>
                 </div>
                 {!owned&&<button onClick={()=>{if((p.questPoints||0)>=u.cost){p.questPoints-=u.cost;p.unlocks=p.unlocks||[];p.unlocks.push(u.id);addC("Unlocked: "+u.name);fr(n=>n+1);}else addC("Need "+u.cost+" QP.");}} style={{background:"#3a1808",border:"1px solid #7a2010",color:"#c8a84e",fontSize:7,padding:"1px 4px",cursor:"pointer",borderRadius:2}}>Buy</button>}
                 {owned&&<span style={{fontSize:8,color:"#0c0"}}>✓</span>}
@@ -3850,7 +3905,7 @@ export default function DS(){
               <div style={{display:"grid",gap:3}}>
                 {echoes.slice(0,3).map(e=><div key={e.id} style={{background:"rgba(20,10,5,0.6)",padding:"4px 6px",borderRadius:3,border:"1px solid rgba(200,168,78,0.06)"}}>
                   <div style={{fontSize:8,color:"#ddd"}}>{e.headline}</div>
-                  <div style={{fontSize:7,color:"#666",marginTop:1}}>{e.player_name} · {e.traveler_sigil||"no-sigil"}</div>
+                  <div style={{fontSize:9,color:"#b3a896",marginTop:1}}>{e.player_name} · {e.traveler_sigil||"no-sigil"}</div>
                 </div>)}
                 {echoes.length===0&&<div style={{fontSize:8,color:"#555"}}>No echoes yet. Deaths and runs will begin filling this feed.</div>}
               </div>
@@ -4249,8 +4304,8 @@ export default function DS(){
         </div>
       </div>}
       {/* Chat */}
-      <div style={{height:88,background:"linear-gradient(180deg,#160804,#120604)",borderTop:"2px solid #5a1808",padding:"2px 8px",overflow:"auto",flexShrink:0}}>
-        {chat.slice(-16).map((m,i)=><div key={i} style={{fontSize:11,color:i===chat.slice(-16).length-1?"#ddd":i>chat.slice(-16).length-4?"#999":"#666",lineHeight:1.35}}>{m}</div>)}
+      <div style={{height:118,background:"linear-gradient(180deg,#0c0402,#080302)",borderTop:"2px solid #7a2410",padding:"6px 12px",overflow:"auto",flexShrink:0}}>
+        {chat.slice(-16).map((m,i)=>{const n=chat.slice(-16).length;const col=i===n-1?"#fff":i>n-4?"#e6ddcf":i>n-9?"#c2b6a4":"#9a8e7e";return <div key={i} style={{fontSize:13,color:col,lineHeight:1.45,fontWeight:i===n-1?600:400,textShadow:"0 1px 1px rgba(0,0,0,0.8)"}}>{m}</div>;})}
       </div>
     </div>
   );

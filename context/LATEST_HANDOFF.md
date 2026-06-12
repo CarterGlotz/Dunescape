@@ -2,6 +2,19 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 77)
+- Context: founder-directed pass on concrete in-game complaints (off-screen text, camera not following, broken Set Camp, small/low-contrast UI, blurry render)
+- Shipped: `followCamera` now centers on the player with smooth lerp and centers the map when the viewport exceeds map bounds — replaces the wide dead-zone that felt anchored near spawn
+- Shipped: Set/Move Camp creates a real persistent camp (`camp_chest` + non-expiring campfire), validates the tile, renders a tent+chest sprite, and is recreated from save on load (was only storing unreachable coordinates)
+- Shipped: HiDPI crispness — canvas backing store scales by `devicePixelRatio` (cap 3x) with a DPR-aware draw transform + click math
+- Shipped: off-screen panels root-caused to CSS `zoom:uiScale`; objective/ghost defaults, drag clamps, and the right-click context menu now divide by `uiScale` and clamp inside the viewport
+- Shipped: larger/higher-contrast dialogue (centered + word-wrapped), location label (auto-size), nameplate/health bars, NPC chatter, combat log (white->cream), inventory names, and bestiary/prayer/settings text; default UI scale 1.0 -> 1.15
+- Verified: `npm test` 64/64, `npm run smoke`, and `npm run build` all pass
+- Audit: `docs/AUDIT_2026-06-12-visual-playability.md` records changes + remaining items; integration check found no TODO/placeholder markers and all components/content wired
+- Preserved: untracked `obelisk-passport/` left untouched
+- Next best work: add a sprite-sheet asset layer (player/monsters/tiles via `drawImage`) over the procedural fallback — biggest visual-quality lever — then mobile/touch controls and DPR-scaling the minimap
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+
 ## Where We Left Off (2026-06-12 · Session 76)
 - Shipped: Daily Rite shrine bargains now create deterministic offering intents when the player banks a Sunstone Shard
 - Shipped: banked shrine bargains expose a zero-token `offering_intent` pointing players to the Living Map / nearest grave-shrine offering loop; spend and oath choices intentionally do not create offering targets
