@@ -85,7 +85,7 @@ function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomI
             ? "relic ash"
             : "light cache";
 
-  return {
+  const baseOutcome = {
     version: 1,
     token_cost: 0,
     wave: safeWave,
@@ -109,8 +109,8 @@ function outcomeForPolicy(policy = {}, { wave = 0, daySeed = "solara-day", roomI
         ? `${adjustment.next_room_bias}; use the recovery window before the next pressure spike.`
         : "Use the recovery window before the next pressure spike."
       : adjustment
-        ? `${adjustment.next_room_bias}; preserve the route result.`
-        : risk >= 4
+      ? `${adjustment.next_room_bias}; preserve the route result.`
+      : risk >= 4
         ? "Preserve food; this segment is starving recovery."
         : "Keep tempo clean and bank the route pressure.",
   };

@@ -111,3 +111,8 @@ Public-safe summary:
 - Daily Rite room outcomes now carry a structured `shrine_bargain` receipt when Sunstone-backed route commitments resolve, and active Daily Rite status renders the bargain posture
 - public chronicle/status exports now include `daily_rite_shrine_bargains` so Studio surfaces can inspect shrine bargain windows without browser token cost
 - latest local validation: 64 unit tests passing, production build passing, smoke flow passing
+- 2026-06-12 Session 74 audit/implement pass turned shrine-bargain receipts into an explicit deterministic Sunstone economy contract
+- bank/spend/oath shrine bargains now control reward inventory: bank grants one Sunstone Shard for later offerings, spend burns the shard into relief, and oath converts the shard into oath/reward pressure without leaving an unintended item grant
+- active Daily Rite status now renders the shrine bargain economy summary, and public chronicle/status generation keeps the `daily_rite_shrine_bargains` contract deterministic and zero-token
+- `src/game/dailyRiteRoomOutcome.js` no longer carries the stale unreachable shrine-bargain branch left after the previous extraction
+- latest local validation: 64 unit tests passing, production build passing, smoke flow passing, syntax checks passing

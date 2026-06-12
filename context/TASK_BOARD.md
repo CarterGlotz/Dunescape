@@ -26,6 +26,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - keep the new Daily Rite route-choice commitment contract, active status controls, feedback attribution, and zero-token assertions aligned with future room-tuning work
 - keep the new Daily Rite route-choice tuning contract, visible adjustment status, public `daily_rite_route_choices` status export, and zero-token assertions aligned with deeper shrine bargain work
 - keep the new Daily Rite shrine-bargain receipt contract, active status presentation, public `daily_rite_shrine_bargains` export, and zero-token assertions aligned with future shrine offering mechanics
+- keep the new Daily Rite shrine economy contract, active status summary, public digest shape, and bank/spend/oath item-delta assertions aligned with future offering UI
 
 ## Next
 
@@ -62,7 +63,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - extend the new deterministic outcome receipts into visible post-action UI surfaces for offerings, echo reactions, and run-end share flows
 - use the Director route consequence fields to tune actual Daily Rite reward payout and room modifier behavior beyond public JSON/contracts
 - deepen committed Daily Rite route-choice postures into route-specific shrine bargain decisions now that next-room tuning is deterministic
-- deepen shrine bargain receipts into actual shrine offering inventory/economy choices now that bank/spend/oath bargain posture is deterministic
+- deepen the shrine economy contract into a dedicated shrine offering UI once browser-level validation exists
 - add browser-level validation for the extracted Daily Rite status component and full mechanical modifier effects once a browser runner exists
 - extract Daily Rite dungeon room entry/auto-advance spawning into a pure room-runtime contract now that spawn, policy, and outcome receipts are modular
 - deepen shrine bargains from receipt rewards into actual route choice prompts once the next Daily Rite presentation extraction starts
@@ -167,6 +168,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-12 Session 71 pass shipped committed Daily Rite route-choice decisions, active status-panel commit controls, public-safe route-choice feedback attribution, and validation for commitment sanitization/status export
 - 2026-06-12 Session 72 pass shipped committed route-choice next-room tuning, visible route-tuned outcome status, public `daily_rite_route_choices` status export, and validation for deterministic zero-token adjustment contracts
 - 2026-06-12 Session 73 pass shipped deterministic shrine bargain receipts for committed bank/spend/oath choices, active status presentation, public `daily_rite_shrine_bargains` exports, and validation for bounded zero-token bargain contracts
+- 2026-06-12 Session 74 pass shipped deterministic shrine economy item deltas for bank/spend/oath choices, active status economy summaries, public digest guards, and validation for zero-token bounded reward inventory
 
 ## Deferred to Project Agents
 

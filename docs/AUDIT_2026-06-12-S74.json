@@ -1,0 +1,65 @@
+{
+  "generated_by": "/audit skill v1.0",
+  "generated_at": "2026-06-12",
+  "project": "solara",
+  "type": "game",
+  "headline": "Make Daily Rite shrine bargains own the Sunstone economy instead of only narrating it.",
+  "items": [
+    {
+      "id": 1,
+      "slug": "shrine-offering-economy",
+      "tier": "fire",
+      "axis": "gamification",
+      "effort": "1h",
+      "impact": 9,
+      "innovation": 9,
+      "priority": 51.1,
+      "title": "Shrine bargain inventory economy",
+      "why": "The last pass gave shrine bargains a receipt, but the item economy still treated bank, spend, and oath too similarly. Make each posture produce a bounded zero-token economy result so spending a shard actually burns the reward, banking preserves it, and oath routes trade inventory for forward pressure.",
+      "recipe": "Move Sunstone item grant/removal into the shrine bargain helper, add a sanitized `economy` contract to the receipt, and remove the stale unreachable code in the outcome helper."
+    },
+    {
+      "id": 2,
+      "slug": "shrine-economy-status-contract",
+      "tier": "high",
+      "axis": "UI / UX / user-experience",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 8,
+      "priority": 40.38,
+      "title": "Visible shrine economy status",
+      "why": "Players should not have to infer whether a bargain banked, burned, or pledged the shard from reward text alone. The active Daily Rite status contract and public chronicle digest should expose the economy deltas plainly while keeping browser token cost at zero.",
+      "recipe": "Normalize shrine bargain economy fields in `getDailyRiteStatusContract`, render concise economy copy in `DailyRiteStatus`, and include economy posture in the public shrine bargain digest."
+    },
+    {
+      "id": 3,
+      "slug": "shrine-economy-tests",
+      "tier": "high",
+      "axis": "security",
+      "effort": "30m",
+      "impact": 8,
+      "innovation": 7,
+      "priority": 35.34,
+      "title": "Shrine economy zero-token tests",
+      "why": "The bargain path is driven by player choice and feeds public integration JSON, so it needs deterministic guardrails. Tests should prove bank, spend, and oath choices produce bounded inventory results, sanitized status data, and zero-token public exports.",
+      "recipe": "Extend Daily Rite unit coverage for bank/spend/oath reward item deltas, status-contract economy sanitization, and public `daily_rite_shrine_bargains` export shape."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "shrine-offering-economy",
+      "status": "shipped",
+      "evidence": "Shrine bargain receipts now carry a bounded zero-token economy contract; bank grants one Sunstone Shard, spend burns the shard into relief, oath converts it into oath/reward pressure, and the stale unreachable outcome branch was removed."
+    },
+    {
+      "slug": "shrine-economy-status-contract",
+      "status": "shipped",
+      "evidence": "Daily Rite status contracts and UI now surface shrine bargain economy summaries; generated public chronicle/status JSON keeps the shrine bargain contract zero-token and public-safe."
+    },
+    {
+      "slug": "shrine-economy-tests",
+      "status": "shipped",
+      "evidence": "npm test passes 64/64, npm run smoke passes, and npm run build passes with bank/spend/oath item-delta assertions and public export checks."
+    }
+  ]
+}

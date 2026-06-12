@@ -2,6 +2,14 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-12 · Session 74)
+- Shipped: Daily Rite shrine-bargain receipts now own the Sunstone reward economy instead of only narrating it
+- Shipped: bank grants one Sunstone Shard for later offerings, spend burns the shard into immediate relief, and oath converts it into oath/reward pressure without leaving an unintended shard grant
+- Shipped: active Daily Rite status now shows the shrine economy summary, and public chronicle/status contracts remain deterministic with `token_cost: 0`
+- Tests: 64 passing unit tests plus production build, smoke runtime, and syntax checks passing
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+- Next best work: extract Daily Rite room entry/auto-advance spawning into a pure runtime contract, then deepen the shrine economy into dedicated offering UI with browser-level validation
+
 ## Where We Left Off (2026-06-12 · Session 73)
 - Shipped: committed Daily Rite shrine-bargain choices now resolve into deterministic zero-token bank, spend, or oath receipts
 - Shipped: active Daily Rite status now shows the applied shrine bargain posture on the latest clear

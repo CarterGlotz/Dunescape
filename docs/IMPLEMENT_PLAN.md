@@ -1,11 +1,11 @@
-# Implement Plan — 2026-06-12 S73
+# Implement Plan — 2026-06-12 S74
 
-Source: `docs/AUDIT_2026-06-12-S73.json`
+Source: `docs/AUDIT_2026-06-12-S74.json`
 
-## Wave 1 — Daily Rite Shrine Bargain Agency
+## Wave 1 — Daily Rite Shrine Economy
 
-1. `shrine-bargain-commitments` — Add deterministic zero-token shrine bargain receipts for bank, spend, and oath choices.
-2. `shrine-bargain-status-contract` — Surface applied shrine bargains in active Daily Rite status and public chronicle/status exports.
-3. `shrine-bargain-zero-token-tests` — Add unit and smoke coverage for bounded/sanitized shrine bargain contracts.
+1. `shrine-offering-economy` — Make bank, spend, and oath choices own the Sunstone item economy and remove stale unreachable outcome code.
+2. `shrine-economy-status-contract` — Surface the shrine economy delta in active/completed Daily Rite status and public shrine bargain digests.
+3. `shrine-economy-tests` — Add unit coverage for bounded item deltas, sanitized status, and zero-token public exports.
 
 Quality gates: browser runtime token cost stays zero, public strings are sanitized, generated status remains public-safe, and `npm test`, `npm run build`, and `npm run smoke` pass.

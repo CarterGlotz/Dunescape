@@ -1,28 +1,28 @@
 <!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-12 (Session 73 closeout) -->
+<!-- generated-at: 2026-06-12 (Session 74 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S73 ═════════════════════════════╗
-║  Date: 2026-06-12  ·  SIL: 985/1000  ·  Velocity: 2 ->           ║
+╔══ SESSION CLOSEOUT · Solara · S74 ═════════════════════════════╗
+║  Date: 2026-06-12  ·  SIL: 989/1000  ·  Velocity: 3 ->           ║
 ║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Shipped: committed Daily Rite shrine-bargain choices now res  ║
-║  ✓ Shipped: active Daily Rite status now shows the applied shri  ║
-║  ✓ Shipped: generated public chronicle/status JSON now includes  ║
-║  ✓ Tests: 64 passing unit tests plus production build and smoke  ║
+║  ✓ Shipped: Daily Rite shrine-bargain receipts now own the Suns  ║
+║  ✓ Shipped: bank grants one Sunstone Shard for later offerings,  ║
+║  ✓ Shipped: active Daily Rite status now shows the shrine econo  ║
+║  ✓ Tests: 64 passing unit tests plus production build, smoke ru  ║
 ║  ✓ Remaining gate: Supabase production hardening still needs pr  ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 985/1000 ═══════════════════════════════════════╗
+╔══ SCORES · SIL 989/1000 ═══════════════════════════════════════╗
 ║    Dev Health         99   ██████████                            ║
 ║    Alignment          100  ██████████                            ║
 ║    Momentum           100  ██████████                            ║
 ║    Engagement         100  ██████████                            ║
-║    Process Qual       99   ██████████                            ║
+║    Process Qual       100  ██████████                            ║
 ║    Coherence          95   ██████████                            ║
-║    Security           99   ██████████                            ║
+║    Security           100  ██████████                            ║
 ║    Ecosystem          100  ██████████                            ║
 ║    Capital            95   ██████████                            ║
 ║    Automation         100  ██████████                            ║
@@ -40,7 +40,7 @@
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 27 files  ·  M:21 A:0 D:0 ?:6                          ║
+║  Changes: 21 files  ·  M:16 A:0 D:0 ?:5                          ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝

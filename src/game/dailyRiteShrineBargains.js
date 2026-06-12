@@ -19,6 +19,7 @@ function bargainForChoice(choiceId) {
       label: "Spend it now",
       effect_line: "The shard is burned into immediate route relief.",
       shard_delta: -1,
+      item_delta: 0,
       relief_delta: 2,
       oath_delta: 0,
       reward_delta: 0,
@@ -30,6 +31,7 @@ function bargainForChoice(choiceId) {
       label: "Press the oath",
       effect_line: "The shard is carried forward as a sharper vow.",
       shard_delta: 0,
+      item_delta: 0,
       relief_delta: -1,
       oath_delta: 2,
       reward_delta: 2,
@@ -40,6 +42,7 @@ function bargainForChoice(choiceId) {
     label: "Bank the shard",
     effect_line: "The shard is protected for later shrine offerings.",
     shard_delta: 1,
+    item_delta: 1,
     relief_delta: 0,
     oath_delta: 0,
     reward_delta: 0,
@@ -73,6 +76,22 @@ export function buildDailyRiteShrineBargain({ commitment = null, outcome = null 
     choice_label: choiceLabel,
     posture: profile.posture,
     shard_delta: profile.shard_delta,
+    economy: {
+      version: 1,
+      token_cost: 0,
+      item_id: "sunstone_shard",
+      item_delta: profile.item_delta,
+      offering_credit: profile.posture === "banked" ? 1 : 0,
+      relief_credit: Math.max(0, profile.relief_delta),
+      oath_charge: Math.max(0, profile.oath_delta),
+      reward_credit: Math.max(0, profile.reward_delta),
+      summary:
+        profile.posture === "spent"
+          ? "Sunstone Shard burned for immediate relief."
+          : profile.posture === "oath"
+            ? "Sunstone Shard pledged into an oath charge instead of inventory."
+            : "Sunstone Shard banked for a later grave or shrine offering.",
+    },
     relief_delta: profile.relief_delta,
     oath_delta: profile.oath_delta,
     reward_delta: profile.reward_delta,
@@ -88,6 +107,7 @@ export function buildDailyRiteShrineBargain({ commitment = null, outcome = null 
 }
 
 export function applyShrineBargainToOutcome(outcome = {}, bargain = null) {
+  if (outcome?.shrine_bargain?.applied) return outcome;
   let inferredBargain = bargain?.applied ? bargain : null;
   const choiceId = cleanId(outcome.route_choice_adjustment?.choice_id, "");
   const isShrineOutcome = /sunstone|shrine/i.test(`${outcome.reward_bias || ""} ${outcome.shrine_bargain_hint || ""}`);
@@ -111,10 +131,10 @@ export function applyShrineBargainToOutcome(outcome = {}, bargain = null) {
   if (!inferredBargain?.applied) return outcome;
   const rewards = outcome.rewards || {};
   const items = Array.isArray(rewards.items) ? rewards.items : [];
-  const hasShard = items.some((item) => cleanId(item?.id, "") === "sunstone_shard");
-  const nextItems = hasShard || inferredBargain.shard_delta <= 0
-    ? items
-    : [...items, { id: "sunstone_shard", count: 1, label: "Sunstone Shard" }];
+  const nonShardItems = items.filter((item) => cleanId(item?.id, "") !== "sunstone_shard");
+  const nextItems = inferredBargain.economy?.item_delta > 0
+    ? [...nonShardItems, { id: "sunstone_shard", count: inferredBargain.economy.item_delta, label: "Sunstone Shard" }]
+    : nonShardItems;
   const reliefHeal = Math.max(0, Number(inferredBargain.relief_delta || 0)) * 2;
   const reliefPrayer = Math.max(0, Number(inferredBargain.relief_delta || 0));
   const oathReward = Math.max(0, Number(inferredBargain.reward_delta || 0));
@@ -147,6 +167,13 @@ export function buildDailyRiteShrineBargainDigest({ routeChoiceDigest = null } =
       segment_id: cleanId(prompt.segment_id, "unknown"),
       segment_label: cleanText(prompt.segment_label, `Segment ${index + 1}`).slice(0, 80),
       recommended_choice_id: cleanId(prompt.recommended_choice_id, "bank_shard"),
+      economy_preview: {
+        version: 1,
+        token_cost: 0,
+        bank_shard: bargainForChoice("bank_shard").effect_line,
+        spend_shard: bargainForChoice("spend_shard").effect_line,
+        press_oath: bargainForChoice("press_oath").effect_line,
+      },
       choices: Array.isArray(prompt.choices)
         ? prompt.choices.slice(0, 3).map((choice) => ({
           id: cleanId(choice.id, "choice"),

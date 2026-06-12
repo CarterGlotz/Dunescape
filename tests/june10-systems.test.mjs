@@ -339,8 +339,13 @@ test("Daily Rite shrine bargains turn committed Sunstone choices into bounded re
   assert.equal(outcome.shrine_bargain.token_cost, 0);
   assert.equal(outcome.shrine_bargain.posture, "banked");
   assert.equal(outcome.shrine_bargain.shard_delta, 1);
+  assert.equal(outcome.shrine_bargain.economy.item_delta, 1);
+  assert.equal(outcome.shrine_bargain.economy.offering_credit, 1);
+  assert.equal(outcome.rewards.items.filter((item) => item.id === "sunstone_shard").length, 1);
   assert.equal(contract.latest_outcome.shrine_bargain.choice_id, "bank_shard");
   assert.equal(contract.latest_outcome.shrine_bargain.token_cost, 0);
+  assert.equal(contract.latest_outcome.shrine_bargain.economy.token_cost, 0);
+  assert.match(contract.latest_outcome.shrine_bargain.economy.summary, /banked/i);
   assert.doesNotMatch(JSON.stringify({ outcome, contract }), /<script>|`|\.\.\/bad/);
 
   run.latestRouteChoice = prompt;
@@ -348,6 +353,8 @@ test("Daily Rite shrine bargains turn committed Sunstone choices into bounded re
   const spentOutcome = getDailyRiteRoomOutcome({ run, wave: 6, roomIndex: 0, daySeed: "shrine-bargain" });
   assert.equal(spent.choice.id, "spend_shard");
   assert.equal(spentOutcome.shrine_bargain.posture, "spent");
+  assert.equal(spentOutcome.shrine_bargain.economy.item_delta, 0);
+  assert.equal(spentOutcome.rewards.items.some((item) => item.id === "sunstone_shard"), false);
   assert.ok(spentOutcome.rewards.heal >= outcome.rewards.heal);
 
   run.latestRouteChoice = prompt;
@@ -355,6 +362,8 @@ test("Daily Rite shrine bargains turn committed Sunstone choices into bounded re
   const oathOutcome = getDailyRiteRoomOutcome({ run, wave: 6, roomIndex: 0, daySeed: "shrine-bargain" });
   assert.equal(oath.choice.id, "press_oath");
   assert.equal(oathOutcome.shrine_bargain.posture, "oath");
+  assert.equal(oathOutcome.shrine_bargain.economy.oath_charge, 2);
+  assert.equal(oathOutcome.rewards.items.some((item) => item.id === "sunstone_shard"), false);
   assert.ok(oathOutcome.rewards.coins >= outcome.rewards.coins);
 });
 
@@ -486,6 +495,7 @@ test("public chronicle exports a zero-token feedback summary", () => {
     chronicle.shared_world.daily_rite_shrine_bargains,
     buildDailyRiteShrineBargainDigest({ routeChoiceDigest: chronicle.shared_world.daily_rite_route_choices }),
   );
+  assert.equal(chronicle.shared_world.daily_rite_shrine_bargains.bargains[0]?.economy_preview?.token_cost, 0);
   assert.doesNotMatch(JSON.stringify(chronicle.integrations.daily_rite_policy), /<script>|`/);
   assert.ok(chronicle.shared_world.daily_rite_stakes.summary.includes("stakes"));
   assert.equal(chronicle.shared_world.feedback_summary.counts.daily_rite_end, 1);

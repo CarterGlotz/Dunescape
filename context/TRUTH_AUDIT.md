@@ -113,3 +113,10 @@ Public-safe summary only. Sensitive verification notes are maintained privately.
 - active Daily Rite status surfaces show applied shrine bargains without storing raw private player payloads, credentials, private Studio context, or paid generation output
 - public chronicle/status now includes `daily_rite_shrine_bargains` beside `daily_rite_route_choices`; generated digest entries expose only sanitized deterministic bargain windows and `token_cost: 0`
 - local validation passed: 64 unit tests, production build, and smoke runtime
+
+## 2026-06-12 Session 74 Public-Safe Check
+
+- Daily Rite shrine economy is deterministic from committed local route choices and bounded to sanitized posture, item delta, offering credit, relief credit, oath charge, reward credit, receipt, and next action
+- active Daily Rite status surfaces show shrine economy summaries without storing raw private player payloads, credentials, private Studio context, or paid generation output
+- public chronicle/status keeps `daily_rite_shrine_bargains` deterministic and zero-token; generated digest entries expose only sanitized bargain windows and economy previews when shrine windows exist
+- local validation passed: 64 unit tests, production build, smoke runtime, and syntax checks

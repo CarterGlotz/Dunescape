@@ -37,6 +37,19 @@ function buildLatestOutcome(outcome = null) {
         choice_label: cleanText(outcome.shrine_bargain.choice_label, "Shrine bargain").slice(0, 64),
         posture: cleanText(outcome.shrine_bargain.posture, "banked").slice(0, 32),
         shard_delta: Math.max(-1, Math.min(1, Math.floor(Number(outcome.shrine_bargain.shard_delta || 0)))),
+        economy: outcome.shrine_bargain.economy
+          ? {
+            version: 1,
+            token_cost: 0,
+            item_id: cleanText(outcome.shrine_bargain.economy.item_id, "sunstone_shard").slice(0, 48),
+            item_delta: Math.max(0, Math.min(1, Math.floor(Number(outcome.shrine_bargain.economy.item_delta || 0)))),
+            offering_credit: Math.max(0, Math.min(1, Math.floor(Number(outcome.shrine_bargain.economy.offering_credit || 0)))),
+            relief_credit: Math.max(0, Math.min(2, Math.floor(Number(outcome.shrine_bargain.economy.relief_credit || 0)))),
+            oath_charge: Math.max(0, Math.min(2, Math.floor(Number(outcome.shrine_bargain.economy.oath_charge || 0)))),
+            reward_credit: Math.max(0, Math.min(2, Math.floor(Number(outcome.shrine_bargain.economy.reward_credit || 0)))),
+            summary: cleanText(outcome.shrine_bargain.economy.summary, "Shrine economy recorded.").slice(0, 140),
+          }
+          : null,
         relief_delta: Math.max(-1, Math.min(2, Math.floor(Number(outcome.shrine_bargain.relief_delta || 0)))),
         oath_delta: Math.max(0, Math.min(2, Math.floor(Number(outcome.shrine_bargain.oath_delta || 0)))),
         receipt: cleanText(outcome.shrine_bargain.receipt, "Shrine bargain recorded.").slice(0, 160),

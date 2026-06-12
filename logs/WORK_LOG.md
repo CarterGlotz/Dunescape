@@ -154,3 +154,12 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - exported `daily_rite_shrine_bargains` through public chronicle/status shared-world and integration surfaces
 - extended unit and smoke coverage so shrine bargain receipts, status export, generated public JSON, and zero-token guarantees are validated
 - verified 64 unit tests, production build, and smoke runtime
+
+## 2026-06-12 — Session 74
+
+- ran /start gates, then wrote docs/AUDIT_2026-06-12-S74.md / .json with three Daily Rite shrine economy items
+- made shrine bargain receipts own the Sunstone reward economy: bank grants one shard, spend burns it into relief, and oath converts it into oath/reward pressure without an unintended item grant
+- removed the stale unreachable shrine-bargain branch in `src/game/dailyRiteRoomOutcome.js`
+- surfaced the shrine economy summary through the Daily Rite status contract/component and kept generated public chronicle/status JSON deterministic and zero-token
+- extended unit coverage for bank/spend/oath item deltas, status-contract economy sanitization, and public export shape
+- verified 64 unit tests, production build, smoke runtime, and syntax checks
