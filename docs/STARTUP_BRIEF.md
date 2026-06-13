@@ -1,11 +1,11 @@
 <!-- generated-by: scripts/render-startup-brief.mjs v3.1 -->
-<!-- generated-at: 2026-06-12 (Session 74 closeout) -->
+<!-- generated-at: 2026-06-13 (Session 77 closeout) -->
 <!-- fast-boot-valid-until: next session if within 24h -->
 <!-- brief-coherent: true -->
 
 # Startup Brief — Solara
 
-> **Fast-boot brief** — generated at Session 74 closeout · 2026-06-12.
+> **Fast-boot brief** — generated at Session 77 closeout · 2026-06-13.
 > Valid for next session if started within 24h. For sessions >24h later, load context files fresh (start.md §3).
 
 ---
@@ -14,54 +14,56 @@
 ╔════════════════════════════════════════════════════════════════╗
 ║  🚀 SOLARA                                                       ║
 ║  project · building/internal · FORGE                             ║
-║  Session 75 · 2026-06-12 · FOUNDER MODE                          ║
+║  Session 78 · 2026-06-13 · FOUNDER MODE                          ║
 ║  Owner: VaultSpark Studios                                       ║
 ╚════════════════════════════════════════════════════════════════╝
 
 
 
-
+╔══ PROJECT PROFILE ═════════════════════════════════════════════╗
+║  Profile · game · full-stack-dev · arch=— · top-axis=—           ║
+╚════════════════════════════════════════════════════════════════╝
 
 ╔══ SCORE ═══════════════════════════════════════════════════════╗
 ║                                                                  ║
-║    989/1000   ███████████████████████░   99%                     ║
+║    992/1000   ███████████████████████░   99%                     ║
 ║    SIL v3.0  ·  Avg3: ?  ·  Velocity 0→                          ║
 ║    Last active: 0d  ·  Last closeout: ?d  ·  (active = newest o  ║
 ║    Trend    →  (last 5 sessions)                                 ║
 ║                                                                  ║
 ║    Category         Score  Bar        Spark   Δ                  ║
 ║    ─────────────── ────── ────────── ──────── ─                  ║
-║    Dev Health        99    ██████████  ▅▆▇██    →                ║
-║    Alignment        100    ██████████  ▆▇▇██    →                ║
-║    Momentum         100    ██████████  ▅▇███    →                ║
-║    Engagement       100    ██████████  █████    →                ║
-║    Process Qual     100    ██████████  ▅▅▆▇█    →                ║
-║    Coherence         95    ██████████  ········ →                ║
+║    Dev Health       100    ██████████  ▆▆▆▆█    →                ║
+║    Alignment        100    ██████████  █████    →                ║
+║    Momentum         100    ██████████  █████    →                ║
+║    Engagement       100    ██████████  ▁▁▁▁▁    →                ║
+║    Process Qual     100    ██████████  ▆████    →                ║
+║    Coherence         96    ██████████  ········ →                ║
 ║    Security         100    ██████████  ········ →                ║
 ║    Ecosystem        100    ██████████  ········ →                ║
-║    Capital           95    ██████████  ········ →                ║
+║    Capital           96    ██████████  ········ →                ║
 ║    Automation       100    ██████████  ········ →                ║
 ║                                                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 
-╔══ WHERE WE LEFT OFF  ·  Session 74 ════════════════════════════╗
-║  Shipped:  Daily Rite shrine-bargain receipts now own the Sunst  ║
-║  Tests:    64 passing  ·  Deploy: N/A                            ║
+╔══ WHERE WE LEFT OFF  ·  Session 77 ════════════════════════════╗
+║  Shipped:  `followCamera` now centers on the player with smooth  ║
+║  Tests:    67 passing  ·  Deploy: N/A                            ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ╔══ CONTEXT METER ═══════════════════════════════════════════════╗
-║  ✓  ████████████████████████  100% used                          ║
-║     9,661 / 1,000,000 tok  ·  codex/codex-1m  ·  heuristic       ║
-║     ~4,831 tok/turn  ·  cache 50%  ·  188 turns to compact       ║
+║  ✓  █████░░░░░░░░░░░░░░░░░░░   20% used                          ║
+║     2,253 / 1,000,000 tok  ·  codex/codex-1m  ·  heuristic       ║
+║     ~1,127 tok/turn  ·  cache 50%  ·  814 turns to compact       ║
 ║     Verdict: CONTINUE                                            ║
 ╚════════════════════════════════════════════════════════════════╝
 
 ╔══ SIGNALS ═════════════════════════════════════════════════════╗
-║  ✓  Tests         64/64 passing                                  ║
+║  ✓  Tests         67/67 passing                                  ║
 ║  ⛔  Velocity      0   ·  Debt: →                                 ║
 ║  ✓  Runway        unknown                                        ║
 ║  ⛔  Context age   ?d                                             ║
-║  ⚠  IGNIS         47156 FORGE  ·  7d old                         ║
+║  ⚠  IGNIS         47156 FORGE  ·  8d old                         ║
 ║  ✓  Truth         green  ·  Genome: ?                            ║
 ║  ⚠  Compliance   not tracked — run: node scripts/ops.mjs compli  ║
 ║  ✓  Genome dims   all stable  (0/25)                             ║
@@ -105,5 +107,5 @@
 
 ---
 
-*Generated by `scripts/render-startup-brief.mjs v3.1` · Session 74 closeout · 2026-06-12*
+*Generated by `scripts/render-startup-brief.mjs v3.1` · Session 77 closeout · 2026-06-13*
 *Run `node scripts/ops.mjs doctor` for live health check · `node scripts/ops.mjs genius-list` to refresh hit list*

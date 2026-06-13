@@ -1,0 +1,57 @@
+{
+  "schemaVersion": "1.3",
+  "generatedBy": "/audit skill v1.0",
+  "generatedAt": "2026-06-13",
+  "project": "Solara",
+  "type": "game",
+  "session": "S78",
+  "items": [
+    {
+      "id": "S78-001",
+      "slug": "touch-movement-contract",
+      "tier": "high",
+      "axis": "UI / UX / user-experience",
+      "effort": "1h",
+      "impact": 8,
+      "innovation": 6,
+      "priority": 30.29,
+      "title": "Make touch movement a first-class input contract",
+      "why": "The latest visual pass made the canvas clearer, but touch devices were still gated by a narrow mobile user-agent check. Solara needs the same immediate movement affordance on phones, tablets, and touch laptops without adding browser token cost or a dependency.",
+      "recipe": "Persist a touch-controls preference, auto-surface controls on coarse-pointer devices, drive movement through the runtime walkability/path logic directly, and add preference regression coverage.",
+      "ladder": {
+        "L1": {
+          "effortHours": 0.5,
+          "recipe": "Replace the mobile user-agent check with coarse-pointer detection and a settings toggle."
+        },
+        "L2": {
+          "effortHours": 1,
+          "recipe": "Add persisted touch-controls preference, direct runtime movement ref, visible D-pad overlay, and unit coverage for preference loading."
+        },
+        "L3": {
+          "effortHours": 4,
+          "recipe": "Add continuous press-repeat movement, touch action buttons, and browser-level mobile viewport smoke coverage."
+        }
+      },
+      "status": "shipped",
+      "verification": "npm test, npm run smoke, npm run build"
+    }
+  ],
+  "skipped": [
+    {
+      "slug": "full-mobile-browser-smoke",
+      "reason": "Deferred because the repo currently has no browser runner dependency and adding one would trigger package-trust/install scope beyond this bounded pass."
+    },
+    {
+      "slug": "continuous-press-movement",
+      "reason": "Deferred to keep input semantics conservative; one tap equals one path nudge, matching keyboard single-key movement."
+    }
+  ],
+  "executionLog": [
+    {
+      "slug": "touch-movement-contract",
+      "status": "shipped",
+      "rung": "L2",
+      "evidence": "Added persisted showTouchControls preference, direct touchMoveR movement bridge, coarse-pointer/opt-in D-pad overlay, and preference tests."
+    }
+  ]
+}

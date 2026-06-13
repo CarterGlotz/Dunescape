@@ -1,59 +1,59 @@
-<!-- generated-by: scripts/render-closeout-board.mjs v1.0 -->
-<!-- generated-at: 2026-06-13 (Session 77 closeout) -->
+<!-- generated-by: /closeout skill v1.3 -->
+<!-- generated-at: 2026-06-13 (Session 78 closeout) -->
 
 # Closeout Status Board — Solara
 
 ```
-╔══ SESSION CLOSEOUT · Solara · S77 ═════════════════════════════╗
-║  Date: 2026-06-13  ·  SIL: 991/1000  ·  Velocity: 3 ->           ║
-║  Mode: FOUNDER  ·  Agent: claude                                 ║
+╔══ SESSION CLOSEOUT · Solara · S78 ═════════════════════════════╗
+║  Date: 2026-06-13  ·  SIL: 994/1000  ·  Velocity: 1 ->           ║
+║  Mode: FOUNDER  ·  Agent: codex                                  ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WHAT SHIPPED ════════════════════════════════════════════════╗
-║  ✓ Context: founder-directed pass on concrete in-game complaint  ║
-║  ✓ Shipped: `followCamera` now centers on the player with smoot  ║
-║  ✓ Shipped: Set/Move Camp creates a real persistent camp (`camp  ║
-║  ✓ Shipped: HiDPI crispness — canvas backing store scales by `d  ║
-║  ✓ Shipped: off-screen panels root-caused to CSS `zoom:uiScale`  ║
+║  ✓ Touch movement controls are now first-class browser UI         ║
+║  ✓ Coarse-pointer devices auto-surface the D-pad                  ║
+║  ✓ Front-door + in-world settings persist the preference          ║
+║  ✓ Movement uses existing walkability/path rules                  ║
+║  ✓ Preference regression coverage added                           ║
 ╚════════════════════════════════════════════════════════════════╝
-╔══ SCORES · SIL 991/1000 ═══════════════════════════════════════╗
-║    Dev Health         99   ██████████                            ║
+╔══ SCORES · SIL 994/1000 ═══════════════════════════════════════╗
+║    Dev Health         100  ██████████                            ║
 ║    Alignment          100  ██████████                            ║
 ║    Momentum           100  ██████████                            ║
 ║    Engagement         100  ██████████                            ║
 ║    Process Qual       100  ██████████                            ║
-║    Coherence          96   ██████████                            ║
+║    Coherence          97   ██████████                            ║
 ║    Security           100  ██████████                            ║
 ║    Ecosystem          100  ██████████                            ║
-║    Capital            96   ██████████                            ║
+║    Capital            97   ██████████                            ║
 ║    Automation         100  ██████████                            ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ WRITE-BACK STATUS ═══════════════════════════════════════════╗
-║  · context/CURRENT_STATE.md                                      ║
-║  · context/TASK_BOARD.md                                         ║
+║  ✓ context/CURRENT_STATE.md                                      ║
+║  ✓ context/TASK_BOARD.md                                         ║
 ║  ✓ context/LATEST_HANDOFF.md                                     ║
 ║  ✓ logs/WORK_LOG.md                                              ║
 ║  · context/DECISIONS.md                                          ║
 ║  ✓ context/SELF_IMPROVEMENT_LOOP.md                              ║
-║  · docs/CREATIVE_DIRECTION_RECORD.md                             ║
-║  · context/TRUTH_AUDIT.md                                        ║
-║  ✓ context/PROJECT_STATUS.json                                   ║
+║  ✓ docs/CREATIVE_DIRECTION_RECORD.md                             ║
+║  ✓ context/TRUTH_AUDIT.md                                        ║
+║  · context/PROJECT_STATUS.json                                   ║
 ║  · agent memory (~/.claude/projects/<slug>/memory/)              ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ GIT STATUS ══════════════════════════════════════════════════╗
-║  Changes: 7 files  ·  M:7 A:0 D:0 ?:0                            ║
+║  Changes: pending closeout commit                                 ║
 ║  Ahead: 0  ·  Behind: 0                                          ║
 ║  Branch: main                                                    ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ POST-SESSION SIGNALS ════════════════════════════════════════╗
 ║  Doctor:        —                                                ║
 ║  Compliance:    —                                                ║
-║  Tests:         67/67                                            ║
+║  Tests:         69/69                                            ║
 ║  IGNIS:         9d ago                                           ║
 ║  Truth:         green                                            ║
 ║  Sanitization:  —                                                ║
 ╚════════════════════════════════════════════════════════════════╝
 ╔══ NEXT SESSION ════════════════════════════════════════════════╗
-║  (no genius cache — run `node scripts/cache-genius-list.mjs`)    ║
+║  Add browser-level mobile viewport validation for touch input     ║
 ╚════════════════════════════════════════════════════════════════╝
 ```
 

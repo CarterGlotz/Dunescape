@@ -2,6 +2,14 @@
 
 This public repo no longer carries the detailed internal work log. Internal session-by-session execution detail is maintained privately.
 
+## 2026-06-13
+
+- ran Studio `/start`, regenerated the startup brief, and wrote `docs/AUDIT_2026-06-13-S78.md` / `.json`
+- implemented the audit's touch movement contract: persisted touch-control preference, coarse-pointer/opt-in D-pad visibility, direct runtime movement bridge, and settings toggles
+- added `tests/preferences.test.mjs` coverage for touch-control preference loading
+- regenerated public chronicle/status JSON during production build
+- verified 69 unit tests, smoke runtime, and production build locally
+
 ## 2026-04-07
 
 - implemented the shared-world innovation pass in repo-safe code

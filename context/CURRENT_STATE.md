@@ -134,3 +134,6 @@ Public-safe summary:
 - Session 77 follow-up shipped the recommended-next items: a terrain tile atlas asset layer (`src/game/sprites.js`, pre-rendered textured tiles blitted via `drawImage` with procedural fallback, covered by `tests/sprites.test.mjs`), DPR-scaled full-screen world map canvas, and a responsive grave popup that no longer overflows narrow screens
 - Session 77 also untracked the unassigned `obelisk-passport/` surface (gitignored, preserved on disk) and added a public-safe `scripts/gmail-closeout-digest.mjs` no-op shim so the closeout autopilot's optional digest step no longer errors
 - latest local validation: 67 unit tests passing, production build passing, smoke flow passing
+- 2026-06-13 Session 78 audit/implement pass shipped first-class touch movement controls for Solara's browser runtime
+- touch movement controls now auto-surface on coarse-pointer devices, can be enabled from front-door and in-world settings, persist through `solara_preferences`, and move through the same walkability/path logic as keyboard input instead of a mobile user-agent-only synthetic key path
+- latest local validation: 69 unit tests passing, production build passing, smoke flow passing

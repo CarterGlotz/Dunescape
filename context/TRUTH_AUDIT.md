@@ -2,8 +2,15 @@
 # Truth Audit
 
 Overall status: green
-Last reviewed: 2026-06-10
+Last reviewed: 2026-06-13
 Public-safe summary only. Sensitive verification notes are maintained privately.
+
+## 2026-06-13 Session 78 Public-Safe Check
+
+- touch movement controls are local browser UI only; they do not touch credentials, backend writes, private Studio context, or paid generation
+- coarse-pointer auto-surfacing and the explicit `showTouchControls` preference preserve accessibility while keeping the browser runtime token cost at zero
+- movement still flows through existing walkability/path rules, so the new input surface does not bypass map collision or action routing
+- local validation passed: 69 unit tests, production build, and smoke runtime
 
 ## 2026-04-14 Public-Safe Check
 

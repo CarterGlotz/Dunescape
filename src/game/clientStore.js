@@ -33,6 +33,7 @@ export function loadPreferences(defaultPanelOpen) {
     compactHud: false,
     showMenuReference: true,
     ambientMotion: true,
+    showTouchControls: false,
   };
   const raw = readJson("solara_preferences", {});
   return {
@@ -48,6 +49,7 @@ export function loadPreferences(defaultPanelOpen) {
       raw.objectivePosition && Number.isFinite(raw.objectivePosition.x) && Number.isFinite(raw.objectivePosition.y)
         ? { x: raw.objectivePosition.x, y: raw.objectivePosition.y }
         : fallback.objectivePosition,
+    showTouchControls: typeof raw.showTouchControls === "boolean" ? raw.showTouchControls : fallback.showTouchControls,
   };
 }
 

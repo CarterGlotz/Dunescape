@@ -686,25 +686,25 @@ const LAYOUT_PRESETS=[
     id:"guided",
     label:"Guided",
     desc:"Keeps coaching surfaces visible for onboarding and active questing.",
-    config:{showGuide:true,showObjectiveTracker:true,showGhostHud:true,tooltipsOn:true,compactHud:false,panelOpen:true,showMenuReference:true,resetObjective:true,resetGhost:true},
+    config:{showGuide:true,showObjectiveTracker:true,showGhostHud:true,tooltipsOn:true,compactHud:false,panelOpen:true,showMenuReference:true,showTouchControls:false,resetObjective:true,resetGhost:true},
   },
   {
     id:"minimal",
     label:"Minimal",
     desc:"Clears most helper chrome so the map and combat dominate the screen.",
-    config:{showGuide:false,showObjectiveTracker:false,showGhostHud:false,tooltipsOn:false,compactHud:true,panelOpen:false,showMenuReference:false,resetObjective:true,resetGhost:true},
+    config:{showGuide:false,showObjectiveTracker:false,showGhostHud:false,tooltipsOn:false,compactHud:true,panelOpen:false,showMenuReference:false,showTouchControls:false,resetObjective:true,resetGhost:true},
   },
   {
     id:"explorer",
     label:"Explorer",
     desc:"Keeps references and map context while reducing heavier helper cards.",
-    config:{showGuide:false,showObjectiveTracker:true,showGhostHud:false,tooltipsOn:true,compactHud:false,panelOpen:true,showMenuReference:true,resetObjective:false,resetGhost:true},
+    config:{showGuide:false,showObjectiveTracker:true,showGhostHud:false,tooltipsOn:true,compactHud:false,panelOpen:true,showMenuReference:true,showTouchControls:false,resetObjective:false,resetGhost:true},
   },
 ];
 const CUSTOM_LAYOUT_SLOTS=["slot1","slot2","slot3"];
 const loadCustomLayouts=()=>loadStoredCustomLayouts(CUSTOM_LAYOUT_SLOTS);
 const getDefaultCustomLayoutLabel=slot=>`Custom ${slot.replace("slot","")}`;
-const LAYOUT_BASE_KEYS=["showGuide","showObjectiveTracker","showGhostHud","tooltipsOn","compactHud","panelOpen","showMenuReference"];
+const LAYOUT_BASE_KEYS=["showGuide","showObjectiveTracker","showGhostHud","tooltipsOn","compactHud","panelOpen","showMenuReference","showTouchControls"];
 const layoutBaseMatch=(cfg,state)=>LAYOUT_BASE_KEYS.every(k=>cfg[k]===state[k]);
 const layoutFullMatch=(cfg,state)=>layoutBaseMatch(cfg,state)&&JSON.stringify(cfg.objectivePosition||null)===JSON.stringify(state.objectivePosition||null)&&JSON.stringify(cfg.ghostPosition||null)===JSON.stringify(state.ghostPosition||null);
 
@@ -911,7 +911,7 @@ function WorldMapCanvas({gR,mapCvR,graves,gravesTick,onGraveClick}){
 
 export default function DS(){
   const initialPrefs=loadPreferences();
-  const cvR=useRef(null),gR=useRef(null),fR=useRef(null),smithQueueR=useRef(null);
+  const cvR=useRef(null),gR=useRef(null),fR=useRef(null),smithQueueR=useRef(null),touchMoveR=useRef(null);
   const viewportHostR=useRef(null);
   const mapCvR=useRef(null),walkR=useRef(null),xpTrackR=useRef({});
   const dirtyR=useRef(false);
@@ -969,6 +969,7 @@ export default function DS(){
   const [compactHud,setCompactHud]=useState(initialPrefs.compactHud);
   const [showMenuReference,setShowMenuReference]=useState(initialPrefs.showMenuReference);
   const [ambientMotion,setAmbientMotion]=useState(initialPrefs.ambientMotion);
+  const [showTouchControls,setShowTouchControls]=useState(initialPrefs.showTouchControls);
   const [offlineTaskSel,setOfflineTaskSel]=useState(0);
   const [tooltip,setTooltip]=useState(null);// {text, x, y}
   const chatR=useRef([]);chatR.current=chat;
@@ -1706,11 +1707,15 @@ export default function DS(){
     function walkable(x,y){if(x<0||x>=MW||y<0||y>=MH)return false;const t=map[y][x];return t!==T.W&&t!==T.WA&&t!==T.LAVA;}
     walkR.current=walkable;
     // WASD/arrow movement
+    const movePlayerBy=(dx,dy)=>{
+      const p2=g.p,nx=p2.x+dx,ny=p2.y+dy;
+      if(walkable(nx,ny)){p2.path=[{x:nx,y:ny}];dirtyR.current=true;}
+    };
+    touchMoveR.current=movePlayerBy;
     const onKeyMove=e=>{
       const dirs={w:[0,-1],a:[-1,0],s:[0,1],d:[1,0],ArrowUp:[0,-1],ArrowLeft:[-1,0],ArrowDown:[0,1],ArrowRight:[1,0]};
       const dv=dirs[e.key];if(!dv)return;
-      const p2=g.p,nx=p2.x+dv[0],ny=p2.y+dv[1];
-      if(walkable(nx,ny)){p2.path=[{x:nx,y:ny}];}
+      movePlayerBy(dv[0],dv[1]);
     };
     window.addEventListener("keydown",onKeyMove);
     function findPath(sx,sy,tx,ty){
@@ -2840,7 +2845,7 @@ export default function DS(){
     cv.addEventListener("touchstart",onTouchStart,{passive:false});
     cv.addEventListener("touchend",onTouchEnd,{passive:false});
     fR.current=requestAnimationFrame(loop);
-    return()=>{cancelAnimationFrame(fR.current);cv.removeEventListener("click",handleClick);cv.removeEventListener("contextmenu",handleRClick);cv.removeEventListener("touchstart",onTouchStart);cv.removeEventListener("touchend",onTouchEnd);window.removeEventListener("keydown",onKeyMove);if(resizeObs)resizeObs.disconnect();};
+    return()=>{cancelAnimationFrame(fR.current);touchMoveR.current=null;cv.removeEventListener("click",handleClick);cv.removeEventListener("contextmenu",handleRClick);cv.removeEventListener("touchstart",onTouchStart);cv.removeEventListener("touchend",onTouchEnd);window.removeEventListener("keydown",onKeyMove);if(resizeObs)resizeObs.disconnect();};
   },[addC,menuOpen,submitEcho,travelerNameDraft,travelerSigilDraft]);
 
   const g=gR.current,p=g?.player||g?.p;
@@ -2975,12 +2980,12 @@ export default function DS(){
   },[hudHeight,recentEchoGhosts.length,uiScale]);
 
   useEffect(()=>{
-    const state={showGuide,showObjectiveTracker,showGhostHud,tooltipsOn,compactHud,panelOpen,showMenuReference,objectivePosition,ghostPosition};
+    const state={showGuide,showObjectiveTracker,showGhostHud,tooltipsOn,compactHud,panelOpen,showMenuReference,showTouchControls,objectivePosition,ghostPosition};
     const match=LAYOUT_PRESETS.find(preset=>layoutBaseMatch(preset.config,state));
     if(match){setLayoutPreset(match.id);return;}
     const customMatch=Object.entries(customLayouts).find(([,entry])=>entry?.config&&layoutFullMatch(entry.config,state));
     setLayoutPreset(customMatch?customMatch[0]:"custom");
-  },[compactHud,customLayouts,ghostPosition,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,tooltipsOn]);
+  },[compactHud,customLayouts,ghostPosition,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,showTouchControls,tooltipsOn]);
 
   useEffect(()=>{
     audioOnR.current=audioEnabled;
@@ -3000,9 +3005,10 @@ export default function DS(){
         compactHud,
         showMenuReference,
         ambientMotion,
+        showTouchControls,
       }));
     }catch(e){}
-  },[ambientMotion,audioEnabled,compactHud,ghostPosition,musicOn,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,tooltipsOn,uiScale]);
+  },[ambientMotion,audioEnabled,compactHud,ghostPosition,musicOn,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,showTouchControls,tooltipsOn,uiScale]);
 
   function initAudio(){
     if(audioR.current)return;
@@ -3213,9 +3219,10 @@ export default function DS(){
     compactHud,
     panelOpen,
     showMenuReference,
+    showTouchControls,
     objectivePosition,
     ghostPosition,
-  }),[compactHud,ghostPosition,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,tooltipsOn]);
+  }),[compactHud,ghostPosition,objectivePosition,panelOpen,showGhostHud,showGuide,showMenuReference,showObjectiveTracker,showTouchControls,tooltipsOn]);
   const applyLayoutConfig=useCallback((config,label="custom")=>{
     if(!config)return;
     setLayoutPreset(label);
@@ -3226,6 +3233,7 @@ export default function DS(){
     setCompactHud(!!config.compactHud);
     setPanelOpen(!!config.panelOpen);
     setShowMenuReference(!!config.showMenuReference);
+    setShowTouchControls(!!config.showTouchControls);
     setObjectivePosition(config.objectivePosition&&Number.isFinite(config.objectivePosition.x)&&Number.isFinite(config.objectivePosition.y)?config.objectivePosition:null);
     setGhostPosition(config.ghostPosition&&Number.isFinite(config.ghostPosition.x)&&Number.isFinite(config.ghostPosition.y)?config.ghostPosition:null);
   },[]);
@@ -3320,6 +3328,11 @@ export default function DS(){
     {id:1,label:"Agg",desc:"Aggressive style. Pushes harder for damage momentum."},
     {id:2,label:"Def",desc:"Defensive style. Trade some pace for sturdier progression."},
   ];
+  const coarsePointer=typeof window!=="undefined"&&typeof window.matchMedia==="function"&&window.matchMedia("(pointer: coarse)").matches;
+  const touchControlsVisible=!!p&&(showTouchControls||coarsePointer);
+  const nudgePlayer=(dx,dy)=>{
+    if(touchMoveR.current)touchMoveR.current(dx,dy);
+  };
 
   return (
     <div style={{width:"100vw",height:"100vh",background:"#120604",display:"flex",flexDirection:"column",overflow:"hidden",fontFamily:"'Segoe UI',sans-serif",userSelect:"none",zoom:uiScale}}>
@@ -3427,10 +3440,10 @@ export default function DS(){
             </div>
             <div style={{fontSize:7,color:"#7d6b8d",textAlign:"right"}}>Drag this stack anywhere.</div>
           </div>}
-          {/* Mobile D-pad (Task 13) */}
-          {typeof window!=="undefined"&&/Mobi|Android/i.test(navigator.userAgent)&&p&&<div style={{position:"absolute",bottom:10,left:10,display:"grid",gridTemplateColumns:"repeat(3,40px)",gridTemplateRows:"repeat(3,40px)",gap:2,userSelect:"none"}}>
-            {[["",null],["▲","n","ArrowUp"],["",null],["◄","w","ArrowLeft"],["·",null,null],["►","e","ArrowRight"],["",null],["▼","s","ArrowDown"],["",null]].map(([lbl,dir,key],i)=>dir?<button key={i} onTouchStart={e=>{e.preventDefault();if(key){const synth=new KeyboardEvent("keydown",{key,bubbles:true});window.dispatchEvent(synth);}}} onTouchEnd={e=>{e.preventDefault();if(key){const synth=new KeyboardEvent("keyup",{key,bubbles:true});window.dispatchEvent(synth);}}}
-              style={{background:"rgba(30,10,5,0.85)",border:"1px solid #5a1808",color:"#c8a84e",fontSize:14,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",borderRadius:4,touchAction:"none"}}>{lbl}</button>:<div key={i}/>)}
+          {/* Touch movement controls */}
+          {touchControlsVisible&&<div aria-label="Touch movement controls" style={{position:"absolute",bottom:14,left:14,display:"grid",gridTemplateColumns:"repeat(3,44px)",gridTemplateRows:"repeat(3,44px)",gap:3,userSelect:"none",zIndex:18}}>
+            {[["",0,0],["▲",0,-1],["",0,0],["◄",-1,0],["·",0,0],["►",1,0],["",0,0],["▼",0,1],["",0,0]].map(([lbl,dx,dy],i)=>lbl?<button key={i} aria-label={`Move ${lbl}`} onPointerDown={e=>{e.preventDefault();nudgePlayer(dx,dy);}} onClick={e=>e.preventDefault()}
+              style={{background:"rgba(18,8,5,0.9)",border:"1px solid rgba(200,168,78,0.42)",color:"#f0c060",fontSize:18,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",borderRadius:8,touchAction:"none",boxShadow:"0 4px 18px rgba(0,0,0,0.45)",minWidth:44,minHeight:44}}>{lbl}</button>:<div key={i}/>)}
           </div>}
           {ctx_menu&&(()=>{
             // Convert from screen px to zoom-units and clamp inside the viewport so the menu never opens off-screen.
@@ -3871,6 +3884,10 @@ export default function DS(){
                 <input type="checkbox" checked={showMenuReference} onChange={e=>setShowMenuReference(e.target.checked)}/>
                 Menu Reference Shortcuts
               </label>
+              <label style={{fontSize:9,color:"#ddd",display:"flex",alignItems:"center",gap:4}}>
+                <input type="checkbox" checked={showTouchControls} onChange={e=>setShowTouchControls(e.target.checked)}/>
+                Touch Movement Controls
+              </label>
               <div style={{fontSize:9,color:"#ddd"}}>UI Scale:
                 {["S","M","L","XL"].map((sz,i)=><button key={sz} onClick={()=>{setUiScale([0.85,1,1.15,1.3][i]);}} style={{marginLeft:4,background:uiScale===[0.85,1,1.15,1.3][i]?"#5a1808":"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:8,padding:"1px 4px",cursor:"pointer",borderRadius:2}}>{sz}</button>)}
               </div>
@@ -4300,6 +4317,10 @@ export default function DS(){
               <label style={{fontSize:12,color:"#ddd",display:"flex",alignItems:"center",gap:8}}>
                 <input type="checkbox" checked={panelOpen} onChange={e=>setPanelOpen(e.target.checked)}/>
                 Open utility panel by default
+              </label>
+              <label style={{fontSize:12,color:"#ddd",display:"flex",alignItems:"center",gap:8}}>
+                <input type="checkbox" checked={showTouchControls} onChange={e=>setShowTouchControls(e.target.checked)}/>
+                Show touch movement controls
               </label>
               <div style={{fontSize:12,color:"#ddd"}}>UI Scale:
                 {["S","M","L","XL"].map((sz,i)=><button key={sz} onClick={()=>{setUiScale([0.85,1,1.15,1.3][i]);}} style={{marginLeft:6,background:uiScale===[0.85,1,1.15,1.3][i]?"#5a1808":"transparent",border:"1px solid #5a2010",color:"#da0",fontSize:10,padding:"2px 6px",cursor:"pointer",borderRadius:6}}>{sz}</button>)}

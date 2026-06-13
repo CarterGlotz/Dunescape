@@ -2,6 +2,16 @@
 
 This repo now keeps only a public-safe handoff summary. Detailed handoff history is maintained privately.
 
+## Where We Left Off (2026-06-13 · Session 78)
+- Completed: ran `/start -> /audit -> /implement -> /closeout` for the next bounded Solara playability tranche
+- Shipped: touch movement controls are now a first-class UI/input contract instead of a hidden mobile user-agent-only D-pad
+- Shipped: front-door and in-world settings can enable touch controls; the preference persists through `solara_preferences`
+- Shipped: touch controls auto-surface on coarse-pointer devices and call the runtime movement bridge directly, preserving the same walkability/path rules as keyboard movement
+- Verified: `npm test` 69/69, `npm run smoke`, and `npm run build` all pass; build regenerated public chronicle/status JSON
+- Audit: `docs/AUDIT_2026-06-13-S78.md` / `.json` records the shipped item and honest deferrals
+- Next best work: add browser-level mobile viewport validation once a trusted runner is in scope, then consider continuous press-repeat movement and touch action buttons
+- Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
+
 ## Where We Left Off (2026-06-12 · Session 77)
 - Context: founder-directed pass on concrete in-game complaints (off-screen text, camera not following, broken Set Camp, small/low-contrast UI, blurry render)
 - Shipped: `followCamera` now centers on the player with smooth lerp and centers the map when the viewport exceeds map bounds — replaces the wide dead-zone that felt anchored near spawn

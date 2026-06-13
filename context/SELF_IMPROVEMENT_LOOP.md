@@ -4,6 +4,7 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 
 ## Public-Safe Closeout Note
 
+- 2026-06-13: Session 78 achieved. Ran /start, wrote a fresh bounded audit, and implemented first-class touch movement controls with persisted preference state, coarse-pointer auto-surfacing, direct runtime movement bridging, and regression coverage. Local validation passed: 69 unit tests, production build, and smoke runtime.
 - 2026-06-10: SIL v3.0 closeout recorded publicly at 868/1000 for Session 63; detailed scoring rationale remains private.
 - 2026-04-07: Intent achieved. Shipped the shared-world innovation pass, added CI test execution, and kept the repo deployable with passing local validation.
 - 2026-04-14: Intent achieved. Shipped identity-safe canon cleanup, shared-world trust helpers, first-session route guidance, and Sun Director 2.0 foundation. Local validation passed: 13 unit tests, production build, and smoke runtime.
@@ -249,3 +250,18 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 | 8 | Ecosystem Integration | 100 | 0 | Closeout autopilot path preserved and de-noised via the digest no-op shim. |
 | 9 | Capital Efficiency | 96 | 0 | Terrain atlas blits per tile (draw-call win) with zero added browser token cost; all work local and deterministic. |
 | 10 | Automation Coverage | 100 | 0 | New sprite module is unit-tested; build + smoke continue to gate the runtime. |
+
+## 2026-06-13 — Session 78 — Total: 994/1000
+
+| # | Category | Score | Delta | Public-safe notes |
+|---|---|---:|---:|---|
+| 1 | Dev Health | 100 | 0 | 69 unit tests, production build, and smoke runtime pass after the touch-control input contract. |
+| 2 | Creative Alignment | 100 | 0 | The change serves browser playability without changing Solara naming, mythology, or public story promises. |
+| 3 | Momentum | 100 | 0 | The requested start/audit/implement/closeout loop shipped a bounded next-playability tranche rather than duplicating finished Daily Rite work. |
+| 4 | Engagement | 100 | 0 | Touch and tablet players now get immediate movement affordances instead of relying on hidden UA-sniffed controls. |
+| 5 | Process Quality | 100 | 0 | Audit, implementation plan, execution evidence, context write-back, and validation are aligned. |
+| 6 | Cross-Repo Coherence | 97 | +1 | Public repo boundaries were preserved; no private Studio process data moved into deployable code. |
+| 7 | Security Posture | 100 | 0 | No secrets, backend writes, dependencies, or new external attack surface were added. |
+| 8 | Ecosystem Integration | 100 | 0 | Generated public status/chronicle remains deterministic and deployable. |
+| 9 | Capital Efficiency | 97 | +1 | Touch affordances are local deterministic UI and keep browser runtime token cost at zero. |
+| 10 | Automation Coverage | 100 | 0 | Preference regression coverage was added, keeping the suite at the automation cap. |

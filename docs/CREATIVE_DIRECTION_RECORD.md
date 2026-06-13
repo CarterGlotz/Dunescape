@@ -17,3 +17,8 @@ Boundary:
 - Operational direction: choose the best long-term backend path without disturbing other projects.
 - Solara should keep its own cloud Supabase project identity for now; any later migration to Hetzner/Vorn must be deliberate, tested, and treated as a project migration rather than a credential shortcut.
 - The remaining public-write hardening work should be framed as a precise Solara credential gap, not a general Studio Supabase blocker.
+
+## 2026-06-13
+
+- Session direction: use sophisticated, creative implementation judgment while staying bounded to deployable public-safe game improvements.
+- For Solara, that means prioritizing browser playability, deterministic shared-world systems, and zero browser token cost over novelty that would add fragile dependencies or private operational coupling.

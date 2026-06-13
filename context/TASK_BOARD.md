@@ -29,6 +29,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - keep the new Daily Rite shrine economy contract, active status summary, public digest shape, and bank/spend/oath item-delta assertions aligned with future offering UI
 - preserve the Session 75 verification baseline: latest audit sidecar is fully executed, validation is green, and unrelated untracked `obelisk-passport/` remains intentionally untouched until separately assigned
 - keep the new Daily Rite offering-intent contract, active status copy, public shrine bargain preview, and zero-token assertions aligned with future grave-shrine offering UI
+- keep the new touch movement controls, persisted preference, and coarse-pointer behavior aligned with future mobile/touch playability passes
 
 ## Next
 
@@ -70,6 +71,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - add browser-level validation for the extracted Daily Rite status component and full mechanical modifier effects once a browser runner exists
 - extract Daily Rite dungeon room entry/auto-advance spawning into a pure room-runtime contract now that spawn, policy, and outcome receipts are modular
 - deepen shrine bargains from receipt rewards into actual route choice prompts once the next Daily Rite presentation extraction starts
+- add browser-level mobile viewport validation for touch movement once a trusted browser runner is in scope
 
 ## Combined Top Recommendations
 
@@ -175,6 +177,7 @@ Public-safe roadmap only. Detailed backlog sequencing is maintained privately.
 - 2026-06-12 Session 75 verification pass completed the requested start/audit/implement/closeout loop against current evidence, reran tests/smoke/build, and preserved unrelated untracked `obelisk-passport/` work
 - 2026-06-12 Session 76 pass shipped deterministic Daily Rite offering intents for banked shrine bargains, active/completed status rendering, public shrine bargain preview exports, and validation for zero-token bank/spend/oath behavior
 - 2026-06-12 Session 77 founder-directed playability/visual pass fixed camera follow, made Set Camp create a real persistent camp (chest + fire, recreated on load), added DPR-aware crisp canvas rendering, root-caused and fixed off-screen panels/menus under CSS `zoom` UI scale, and raised HUD/menu/log/context-menu size + contrast; recommended next lever is a sprite-sheet asset layer (`docs/AUDIT_2026-06-12-visual-playability.md`)
+- 2026-06-13 Session 78 audit/implement pass shipped persisted touch movement controls, coarse-pointer auto-surfacing, direct runtime movement bridging, and preference regression coverage
 
 ## Deferred to Project Agents
 
