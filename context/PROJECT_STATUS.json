@@ -9,12 +9,12 @@
   "blockers": [
     "Supabase production policies must enforce the same trust rules before public traffic scales; project-scoped PG_CONNECTION_SOLARA is still missing."
   ],
-  "lastUpdated": "2026-06-12",
+  "lastUpdated": "2026-06-13",
   "currentSession": 77,
   "lastSession": 77,
   "lastAgent": "claude",
-  "testsPassing": 64,
-  "testsTotal": 64,
+  "testsPassing": 67,
+  "testsTotal": 67,
   "lifecycle": "building",
   "audience": "internal",
   "truthAuditStatus": "green",
@@ -53,5 +53,17 @@
   "entropyLastComputed": "2026-06-05",
   "planModeLastActivatedAt": "2026-06-11T03:43:25.095Z",
   "sessionMode": "founder",
-  "sessionModeAutoShiftedAt": "2026-06-10T14:07:08.965Z"
+  "sessionModeAutoShiftedAt": "2026-06-10T14:07:08.965Z",
+  "bootAmortization": {
+    "ratio": 0,
+    "verdict": "wasted",
+    "ranAt": "2026-06-13T20:23:01.014Z"
+  },
+  "bootAmortizationHistory": [
+    {
+      "ratio": 0,
+      "verdict": "wasted",
+      "ranAt": "2026-06-13T20:23:01.014Z"
+    }
+  ]
 }

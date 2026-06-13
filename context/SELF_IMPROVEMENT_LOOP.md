@@ -234,3 +234,18 @@ Detailed internal scoring, audit trends, and brainstorming are maintained privat
 | 8 | Ecosystem Integration | 100 | 0 | Public shrine bargain digests now include offering-intent previews for Studio surfaces. |
 | 9 | Capital Efficiency | 96 | +1 | Offering guidance remains deterministic and browser runtime token cost stays zero. |
 | 10 | Automation Coverage | 100 | 0 | Tests prove bank/spend/oath offering-intent behavior, public export shape, build, and smoke. |
+
+## 2026-06-13 — Session 77 — Total: 992/1000
+
+| # | Category | Score | Delta | Public-safe notes |
+|---|---|---:|---:|---|
+| 1 | Dev Health | 100 | +1 | 67 unit tests (added `tests/sprites.test.mjs`), production build, and smoke runtime all pass after the playability/visual + asset-layer pass. |
+| 2 | Creative Alignment | 100 | 0 | Fixes serve the Solara fantasy directly: a real campsite, a readable HUD, and richer terrain texture without borrowed naming. |
+| 3 | Momentum | 100 | 0 | Founder-requested complaints and the recommended-next items were all shipped and evidenced in one session. |
+| 4 | Engagement | 100 | 0 | Camera now tracks the player, Set Camp produces a usable persistent camp, and text/menus no longer fall off-screen — direct legibility/feel wins. |
+| 5 | Process Quality | 100 | 0 | Audit doc, context write-back, decision record, and green tests/build/smoke are aligned; flags surfaced honestly and fixed. |
+| 6 | Cross-Repo Coherence | 96 | 0 | Untracked + gitignored the unassigned `obelisk-passport/` surface so closeout no longer sweeps it; added a public-safe digest shim. |
+| 7 | Security Posture | 100 | 0 | No secrets touched; obelisk surface kept local-only; sprite atlas is deterministic and DOM-guarded with fallback. |
+| 8 | Ecosystem Integration | 100 | 0 | Closeout autopilot path preserved and de-noised via the digest no-op shim. |
+| 9 | Capital Efficiency | 96 | 0 | Terrain atlas blits per tile (draw-call win) with zero added browser token cost; all work local and deterministic. |
+| 10 | Automation Coverage | 100 | 0 | New sprite module is unit-tested; build + smoke continue to gate the runtime. |

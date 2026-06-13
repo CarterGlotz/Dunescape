@@ -9,9 +9,11 @@ This repo now keeps only a public-safe handoff summary. Detailed handoff history
 - Shipped: HiDPI crispness — canvas backing store scales by `devicePixelRatio` (cap 3x) with a DPR-aware draw transform + click math
 - Shipped: off-screen panels root-caused to CSS `zoom:uiScale`; objective/ghost defaults, drag clamps, and the right-click context menu now divide by `uiScale` and clamp inside the viewport
 - Shipped: larger/higher-contrast dialogue (centered + word-wrapped), location label (auto-size), nameplate/health bars, NPC chatter, combat log (white->cream), inventory names, and bestiary/prayer/settings text; default UI scale 1.0 -> 1.15
-- Verified: `npm test` 64/64, `npm run smoke`, and `npm run build` all pass
+- Follow-up shipped (recommended-next): `src/game/sprites.js` terrain tile atlas (pre-rendered textured tiles blitted via `drawImage`, procedural fallback, `tests/sprites.test.mjs`), DPR-scaled full-screen world map canvas, and a responsive grave popup (`width:min(280px,86vw)`, scrollable) so it no longer overflows narrow screens
+- Repo hygiene: untracked + gitignored the unassigned `obelisk-passport/` surface (preserved on disk; the prior closeout autopilot had swept it in) and added a public-safe `scripts/gmail-closeout-digest.mjs` no-op shim so the autopilot's optional digest step no longer errors
+- Verified: `npm test` 67/67, `npm run smoke`, and `npm run build` all pass
 - Audit: `docs/AUDIT_2026-06-12-visual-playability.md` records changes + remaining items; integration check found no TODO/placeholder markers and all components/content wired
-- Preserved: untracked `obelisk-passport/` left untouched
+- Next visual lever: extend the atlas pipeline to entity sprites (player/monsters/objects), then pinch-zoom / on-screen joystick for touch
 - Next best work: add a sprite-sheet asset layer (player/monsters/tiles via `drawImage`) over the procedural fallback — biggest visual-quality lever — then mobile/touch controls and DPR-scaling the minimap
 - Remaining gate: Supabase production hardening still needs project-specific `PG_CONNECTION_SOLARA` for cloud project `fjnpzjjyhnpmunfoycrp`, or owner SQL-editor action before scaled public traffic
 

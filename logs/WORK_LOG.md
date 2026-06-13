@@ -179,3 +179,15 @@ This public repo no longer carries the detailed internal work log. Internal sess
 - wired banked shrine bargains, Daily Rite status contracts/UI, and public shrine bargain digests to expose offering guidance while keeping spend/oath postures non-offering
 - extended unit coverage for bank/spend/oath offering intent behavior, status-contract normalization, and public export shape
 - verified 64 unit tests, production build, and smoke runtime
+
+## 2026-06-12 — Session 77
+
+- founder-directed playability/visual pass on direct in-game complaints (off-screen text, camera not following, broken Set Camp, small/low-contrast UI, blurry render)
+- fixed `followCamera` to center on the player with smooth lerp and center the map when the viewport exceeds map bounds
+- made Set/Move Camp create a real persistent camp (`camp_chest` + non-expiring campfire), validate the tile, render a tent+chest sprite, and recreate from save on load
+- added DPR-aware crisp canvas rendering (backing store ×devicePixelRatio, capped 3x, DPR-aware draw transform + click math)
+- root-caused off-screen panels to CSS `zoom:uiScale`; made objective/ghost defaults, drag clamps, and the right-click context menu zoom-aware and viewport-clamped
+- raised legibility: centered+word-wrapped dialogue, auto-size location label, larger nameplate/health bars/NPC chatter, brighter+taller combat log, larger inventory/bestiary/settings text; default UI scale 1.0 -> 1.15
+- follow-up: added `src/game/sprites.js` terrain tile atlas (pre-rendered textured tiles blitted via drawImage with procedural fallback) + `tests/sprites.test.mjs`, DPR-scaled the full-screen world map canvas, and made the grave popup responsive (`width:min(280px,86vw)`, scrollable)
+- repo hygiene: untracked + gitignored the unassigned `obelisk-passport/` surface (preserved on disk) and added a public-safe `scripts/gmail-closeout-digest.mjs` no-op shim
+- documented in `docs/AUDIT_2026-06-12-visual-playability.md`; verified 67 unit tests, production build, and smoke runtime
